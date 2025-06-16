@@ -1,0 +1,65 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# MCP Environment Files - Contains sensitive API keys
+.env.mcp
+.env.mcp.*
+
+# Android Studio
+*.iws
+/.idea/workspace.xml
+/.idea/tasks.xml
+/.idea/gradle.xml
+/.idea/assetWizardSettings.xml
+/.idea/dictionaries
+/.idea/libraries
+/.idea/jarRepositories.xml
+/.idea/compiler.xml
+/.idea/misc.xml
+/.idea/runConfigurations.xml
+
+# Gradle
+.gradle/
+/build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+
+# APK files
+*.apk
+*.aab
+apk_contents/
+
+# Test results
+/test-results/
+/test-output/
+
+# Node modules (for MCP servers)
+node_modules/
+npm-debug.log*
+
+# Sensitive files
+google-services.json
+firebase-rules.json
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# OS Files
+Thumbs.db
+.DS_Store

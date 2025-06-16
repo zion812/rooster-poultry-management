@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ಕೋಳಿ</string>
+    <string name="login">ಲಾಗಿನ್</string>
+    <string name="register">ನೋಂದಣಿ</string>
+    <string name="share_post">ಪೋಸ್ಟ್ ಹಂಚಿಕೊಳ್ಳಿ</string>
+    <string name="add_fowl">ಕೋಳಿಯನ್ನು ಸೇರಿಸಿ</string>
+    <string name="create_listing">ಪಟ್ಟಿಯನ್ನು ರಚಿಸಿ</string>
+    <string name="community_tab">ಸಮುದಾಯ</string>
+    <string name="fowl_tab">ಕೋಳಿ</string>
+    <string name="marketplace_tab">ಮಾರುಕಟ್ಟೆ</string>
+    <!-- FCM Notifications -->
+    <string name="default_notification_channel_id" translatable="false">rooster_messages</string>
+
+    <!-- Navigation & UI -->
+    <string name="home">ಹೋಮ್</string>
+    <string name="profile">ಪ್ರೊಫೈಲ್</string>
+    <string name="notifications">ಸುದ್ದಿಪತ್ರಿಕೆಗಳು</string>
+    <string name="settings">ಸೆಟ್ಟಿಂಗ್ಸ್</string>
+    <string name="search">ಹುಡುಕಾಟ</string>
+    <string name="back">ಹಿಂದಿರುಗಿ</string>
+    <string name="next">ಮುಂದೆ</string>
+    <string name="done">ಕೊನೆಗೊಳಿಸಿ</string>
+    <string name="cancel">ರದ್ದುಮಾಡಿ</string>
+    <string name="save">ಸಂಗ್ರಹಿಸಿ</string>
+    <string name="edit">ಸರಿಪಡಿಸಿ</string>
+    <string name="delete">ಅಳಿಸಿ</string>
+
+    <!-- Fowl Management -->
+    <string name="fowl_management">ಕೋಳಿ ಪರಿಚಲನೆ</string>
+    <string name="add_new_fowl">ಹೊಸ ಕೋಳಿಯನ್ನು ಸೇರಿಸಿ</string>
+    <string name="fowl_details">ಕೋಳಿಯ ವಿವರಗಳು</string>
+    <string name="breed">ಬ್ರೀಡ್</string>
+    <string name="age">ಯಾವ ವಯಸ್ಸು</string>
+    <string name="color">ರಂಗ</string>
+    <string name="health_status">ಆರೋಗ್ಯದ ಸ್ಥಿತಿ</string>
+    <string name="vaccination_record">ವ್ಯಾಕ್ಸಿನೇಷನ್ ದಾಖಲೆ</string>
+    <string name="feeding_schedule">ಆಹಾರ ವೇಳಾಪಟ್ಟಿ</string>
+
+    <!-- Marketplace -->
+    <string name="marketplace">ಮಾರುಕಟ್ಟೆ</string>
+    <string name="buy_now">ಈಗ ಖರೀದಿಸಿ</string>
+    <string name="add_to_cart">ಕಾರ್ಟ್ಗೆ ಸೇರಿಸಿ</string>
+    <string name="price">ಬೆಲೆ</string>
+    <string name="seller">ವಿಕ್ರೇತ</string>
+    <string name="location">ಸ್ಥಳ</string>
+    <string name="contact_seller">ವಿಕ್ರೇತನೊಂದಿಗೆ ಸಂಪರ್ಕ</string>
+
+    <!-- Community -->
+    <string name="community">ಸಮುದಾಯ</string>
+    <string name="posts">ಪೋಸ್ಟ್ಗಳು</string>
+    <string name="messages">ಸಂದೇಶಗಳು</string>
+    <string name="groups">ಗುಂಪುಗಳು</string>
+    <string name="like">ಇಷ್ಟ</string>
+    <string name="comment">ಕಾಮೆಂಟ್</string>
+    <string name="share">ಹಂಚಿಕೊಳ್ಳಿ</string>
+
+    <!-- Health Management -->
+    <string name="health_management">ಆರೋಗ್ಯ ಪರಿಚಲನೆ</string>
+    <string name="vaccination">ವ್ಯಾಕ್ಸಿನೇಷನ್</string>
+    <string name="medication">ಮಾದಕ</string>
+    <string name="treatment">ಚಿಕಿತ್ಸೆ</string>
+    <string name="vet_consultation">ಪಶುವೈದ್ಯರ ಸಲಹೆ</string>
+
+    <!-- Cultural Events -->
+    <string name="cultural_events">ಸಾಂಸ್ಕೃತಿಕ ಕಾರ್ಯಕ್ರಮಗಳು</string>
+    <string name="festivals">ಆಚರಣೆಗಳು</string>
+    <string name="competitions">ಪೈಪೋಟಿಗಳು</string>
+    <string name="traditional_markets">ಪರಂಪರಾಗತ ಮಾರುಕಟ್ಟೆಗಳು</string>
+
+    <!-- Error Messages -->
+    <string name="error_network">ನೆಟ್ವರ್ಕ್ ದೋಷ</string>
+    <string name="error_loading">ಲೋಡ್ ದೋಷ</string>
+    <string name="error_saving">ಸಂಗ್ರಹಿಸುವ ದೋಷ</string>
+    <string name="try_again">ಪುನಃ ಪ್ರಯತ್ನಿಸಿ</string>
+
+    <!-- Success Messages -->
+    <string name="success_saved">ಯಶಸ್ವಿಯಾಗಿ ಸಂಗ್ರಹಿಸಲಾಯಿತು</string>
+    <string name="success_uploaded">ಯಶಸ್ವಿಯಾಗಿ ಅಪ್ಲೋಡ್ ಮಾಡಲಾಯಿತು</string>
+    <string name="success_created">ಯಶಸ್ವಿಯಾಗಿ ರಚಿಸಲಾಯಿತು</string>
+
+    <!-- Network Status -->
+    <string name="network_excellent">ಅತ್ಯುತ್ತಮ ನೆಟ್ವರ್ಕ್</string>
+    <string name="network_good">ತೃಪ್ತಿಕರ ನೆಟ್ವರ್ಕ್</string>
+    <string name="network_fair">ಸರಾಸರಿ ನೆಟ್ವರ್ಕ್</string>
+    <string name="network_poor">ಕೆಟ್ಟ ನೆಟ್ವರ್ಕ್</string>
+    <string name="network_offline">ಆಫ್ಲೈನ್</string>
+
+    <!-- Data Usage -->
+    <string name="data_usage">ಡೇಟಾ ಬಳಕೆ</string>
+    <string name="data_warning">ಡೇಟಾ ಎಚ್ಚರಿಕೆ</string>
+    <string name="low_data_mode">ಕಡಿಮೆ ಡೇಟಾ ಮೋಡ್</string>
+
+    <!-- Marketplace Strings -->
+    <string name="digital_market">ಡಿಜಿಟಲ್ ಮಾರುಕಟ್ಟೆ</string>
+    <string name="pre_orders">ಮುಂಗಡ ಆದೇಶಗಳು</string>
+    <string name="group_buying">ಗುಂಪು ಖರೀದಿ</string>
+    <string name="market_trends">ಮಾರುಕಟ್ಟೆ ಪ್ರವಣತೆಗಳು</string>
+    <string name="title">ಶೀರ್ಷಿಕೆ</string>
+    <string name="pick_image">ಚಿತ್ರವನ್ನು ಆಯ್ಕೆ ಮಾಡಿ</string>
+    <string name="add_listing">ಪಟ್ಟಿಯನ್ನು ಸೇರಿಸಿ</string>
+    <string name="loading_listings">ಲೋಡಿಂಗ್ ಪಟ್ಟಿಗಳು...</string>
+    <string name="no_listings_available">ಲಭ್ಯವಿಲ್ಲದ ಪಟ್ಟಿಗಳು</string>
+    <string name="first_listing_message">ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ ಪಟ್ಟಿಯನ್ನು ರಚಿಸಲು ಮೊದಲನೇ ಪ್ರಯತ್ನಿಸಿ!</string>
+    <string name="price_label">₹%s</string>
+    <string name="age_label">ಯಾವ ವಯಸ್ಸು: %s ತಿಂಗಳು</string>
+    <string name="seller_label">ವಿಕ್ರೇತ: %s</string>
+    <string name="message_seller">ಸಂದೇಶ</string>
+    <string name="processing">ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿ...</string>
+    <string name="no_image">ಚಿತ್ರವಿಲ್ಲ</string>
+
+    <!-- Traditional Markets -->
+    <string name="traditional_markets_description">ಪರಂಪರಾಗತ ಮಾರುಕಟ್ಟೆಗಳನ್ನು ಮತ್ತು ಅವುಗಳ ನಿತ್ಯಕ್ಕೆ ಕಂಡುಕೊಳ್ಳಿ</string>
+    <string name="no_traditional_markets">ಲಭ್ಯವಿಲ್ಲದ ಪರಂಪರಾಗತ ಮಾರುಕಟ್ಟೆಗಳು</string>
+    <string name="market_type_label">ಪ್ರಕಾರ: %s</string>
+    <string name="market_time_label">ಸಮಯ: %1$s - %2$s</string>
+    <string name="specialties_label">ವಿಶೇಷತೆಗಳು: %s</string>
+
+    <!-- Pre-Orders -->
+    <string name="pre_orders_description">ಮಾರುಕಟ್ಟೆಯ ದಿನದ ಮುಂಚೆ ಕೋಳಿಯನ್ನು ಬುಕ್ ಮಾಡಿ</string>
+    <string name="no_pre_orders">ಲಭ್ಯವಿಲ್ಲದ ಮುಂಗಡ ಆದೇಶಗಳು</string>
+    <string name="quantity_label">ಪ್ರಮಾಣ: %d</string>
+    <string name="price_per_bird">₹%s ಪ್ರತಿ ಪಕ್ಷಿ</string>
+    <string name="total_price">₹%s</string>
+    <string name="cultural_context_label">ಸಾಂಸ್ಕೃತಿಕ ಸಂದರ್ಭ: %s</string>
+
+    <!-- Group Buying -->
+    <string name="group_buying_description">ಉತ್ತಮ ಬೆಲೆಗೆ ಗುಂಪು ಖರೀದಿಗಳಲ್ಲಿ ಭಾಗವಹಿಸಿ</string>
+    <string name="no_group_buying">ಲಭ್ಯವಿಲ್ಲದ ಗುಂಪು ಖರೀದಿಯ ಅಭ್ಯರ್ಥನೆಗಳು</string>
+    <string name="target_label">ಲಕ್ಷ್ಯ: %d ಪಕ್ಷಿಗಳು</string>
+    <string name="max_price_label">ಗರಿಷ್ಠ ಬೆಲೆ: ₹%s ಪ್ರತಿ ಪಕ್ಷಿ</string>
+    <string name="participants_label">ಸಭ್ಯರು: %1$d/%2$d</string>
+    <string name="min_participants_label">ಕನಿಷ್ಠ: %d</string>
+    <string name="purpose_label">ಉದ್ದೇಶ: %s</string>
+    <string name="target_reached">%d%% ಲಕ್ಷ್ಯ ಸಾಧಿಸಲಾಯಿತು</string>
+
+    <!-- Market Trends -->
+    <string name="market_trends_description">ಬೆಲೆ ವಿಶ್ಲೇಷಣೆ ಮತ್ತು ಮಾರುಕಟ್ಟೆ ಅಭಿಪ್ರಾಯಗಳು</string>
+    <string name="no_market_trends">ಲಭ್ಯವಿಲ್ಲದ ಮಾರುಕಟ್ಟೆ ಪ್ರವಣತೆಗಳು</string>
+    <string name="avg_price">ಸರಾಸರಿ</string>
+    <string name="high_price">ಹೆಚ್ಚಿನ</string>
+    <string name="low_price">ಕಡಿಮೆ</string>
+    <string name="sold_label">ಮಾರಾಗಿ: %d ಪಕ್ಷಿಗಳು</string>
+    <string name="suppliers_label">ವಿತರಕರು: %d</string>
+    <string name="buyers_label">�ರೀದಿದಾರರು: %d</string>
+    <string name="festival_impact_label">ಆಚರಣೆಯ ಪರಿಣಾಮ: %s</string>
+    <string name="market_efficiency">ಮಾರುಕಟ್ಟೆ ಪರಿಣಾಮಕಾರಿತ್ವ: %d%%</string>
+    <string name="marketplace_title">ಮಾರುಕಟ್ಟೆ</string>
+
+    <!-- Language Toggle -->
+    <string name="switch_to_english">ಇಂಗ್ಲಿಷ್ಗೆ ಬದಲಾಯಿಸಿ</string>
+    <string name="switch_to_telugu">తెలుగుకు మారండి</string>
+
+    <!-- Cultural Events Screen -->
+    <string name="cultural_events_header_title">ಸಾಂಸ್ಕೃತಿಕ ಆಚರಣೆಗಳು</string>
+    <string name="our_traditions_subtitle">ನಮ್ಮ ಪರಂಪರೆಗಳು</string>
+    <string name="festival_stories_title">ಆಚರಣೆಯ ಕಥೆಗಳು</string>
+    <string name="view_all_action">ಎಲ್ಲವನ್ನು ನೋಡಿ</string>
+    <string name="cultural_posts_title">ಸಾಂಸ್ಕೃತಿಕ ಪೋಸ್ಟ್ಗಳು</string>
+    <string name="group_orders_title">ಗುಂಪು ಆದೇಶಗಳು</string>
+    <string name="sankranti_offer_dynamic">ಸಂಕ್ರಾಂತಿ ಆಫರ್: %d%% ರಿಯಾಯಿತಿ</string>
+    <string name="close_button_desc">ಮುಚ್ಚುವುದು</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">ಸೆಟ್ಟಿಂಗ್ಸ್</string>
+    <string name="language_preference">ಭಾಷೆಯ ಆಯ್ಕೆ</string>
+    <string name="notification_settings">ಸುದ್ದಿಪತ್ರಿಕೆಗಳ ಸೆಟ್ಟಿಂಗ್ಸ್</string>
+    <string name="data_sync_settings">ಡೇಟಾ ಸಿಂಕ್ ಸೆಟ್ಟಿಂಗ್ಸ್</string>
+    <string name="privacy_policy">ಗೌಪ್ಯತಾ ನೀತಿ</string>
+    <string name="terms_of_service">ಸೇವಾ ನಿಯಮಗಳು</string>
+    <string name="app_version">ಆಪ್ ಆವೃತ್ತಿ</string>
+
+    <!-- Help & Support Screen -->
+    <string name="help_support_title">ಸಹಾಯ &amp; ಬೆಂಬಲ</string>
+    <string name="faq_section">ಆಗಾಗ್ಗೆ ಕೇಳಲಾಗುವ ಪ್ರಶ್ನೆಗಳು (FAQ)</string>
+    <string name="contact_support_section">ಬೆಂಬಲ ಸಂಪರ್ಕ</string>
+    <string name="submit_feedback_section">ಪ್ರತಿಕ್ರಿಯೆಯನ್ನು ಸಲ್ಲಿಸಿ</string>
+    <string name="email_support">ಇಮೇಲ್ ಬೆಂಬಲ</string>
+    <string name="call_support">ಟೋಲ್-ಫ್ರೀ ಮೇಲೆ ಕರೆ</string>
+    <string name="troubleshooting_guides">ಸಮಸ್ಯೆಗಳನ್ನು ಪರಿಹರಿಸುವ ಮಾರ್ಗದರ್ಶಿಗಳು</string>
+
+    <!-- Payment Integration -->
+    <string name="confirm_payment">ಪಾವತಿಯನ್ನು ದೃಢೀಕರಿಸಿ</string>
+    <string name="payment_dialog_title">ನಿಮ್ಮ ಖರೀದಿಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ</string>
+    <string name="select_payment_method">ಪಾವತಿ ಪದ್ಧತಿಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ</string>
+    <string name="cod_instructions">ಕ್ಯಾಶ್ ಆನ್ ಡೆಲಿವರಿಗೆ ಡೆಲಿವರಿ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ</string>
+    <string name="delivery_address">ಡೆಲಿವರಿ ವಿಳಾಸ</string>
+    <string name="special_instructions">ವಿಶೇಷ ನಿರ್ದೇಶನಗಳು (ಆಯ್ಕೆಯಾಗಬಹುದು)</string>
+    <string name="place_cod_order">ಕ್ಯಾಶ್ ಆನ್ ಡೆಲಿವರಿ ಆದೇಶವನ್ನು ಇಡಿ</string>
+
+    <!-- General UI -->
+    <string name="consult_vet">ಪಶುವೈದ್ಯರನ್ನು ಸಂಪರ್ಕಿಸಿ</string>
+    <string name="iot_dashboard">ಐಒಟಿ ಡಾಶ್ಬೋರ್ಡ್</string>
+
+    <!-- Profile Screen strings -->
+    <string name="listings">ಪಟ್ಟಿಗಳು</string>
+    <string name="followers">ಅನುಯಾಯಿಗಳು</string>
+    <string name="following">ಅನುಸರಿಸುತ್ತಿರುವ</string>
+    <string name="edit_profile">ಪ್ರೊಫೈಲ್ ಸರಿಪಡಿಸಿ</string>
+    <string name="bio">ಬಯೋ</string>
+    <string name="logout">ಲಾಗೌಟ್</string>
+    <string name="help">ಸಹಾಯ</string>
+
+    <!-- Educational Resources & Downloads (English fallbacks) -->
+    <string name="download">ಡೌನ್ಲೋಡ್</string>
+    <string name="downloaded">ಡೌನ್ಲೋಡ್ ಮಾಡಲಾಗಿದೆ</string>
+    <string name="downloading">ಡೌನ್ಲೋಡ್ ಮಾಡುತ್ತಿದೆ</string>
+    <string name="download_error">ಡೌನ್ಲೋಡ್ ದೋಷ</string>
+    <string name="pause">ವಿರಾಮ</string>
+    <string name="resume">ಪುನಃ ಪ್ರಾರಂಭಿಸಿ</string>
+    <string name="cancel_download">ಡೌನ್ಲೋಡ್ ರದ್ದುಮಾಡಿ</string>
+    <string name="check_status">ಸ್ಥಿತಿಯನ್ನು ಪರಿಶೀಲಿಸಿ</string>
+    <string name="educational_resources">ಶೈಕ್ಷಣಿಕ ಸಂಪನ್ಮೂಲಗಳು</string>
+    <string name="view_content">ಸಾಮಗ್ರಿಯನ್ನು ನೋಡಿ</string>
+    <string name="data_usage_warning">ಡೇಟಾ ಬಳಕೆಯ ಎಚ್ಚರಿಕೆ</string>
+    <string name="proceed">ಮುಂದುವರಿಸಿ</string>
+    <string name="category">ವರ್ಗ</string>
+    <string name="size">ಅಳತೆ</string>
+    <string name="author">ಕರ್ತೃ</string>
+    <string name="all_categories">ಎಲ್ಲವು</string>
+    <string name="health_category">ಆರೋಗ್ಯ</string>
+    <string name="breeding_category">ಪ್ರಜನನ</string>
+    <string name="nutrition_category">ಪೋಷಕಾಹಾರ</string>
+    <string name="market_category">ಮಾರುಕಟ್ಟೆ</string>
+    <string name="no_resources_found">ಲಭ್ಯವಿಲ್ಲದ ಸಂಪನ್ಮೂಲಗಳು</string>
+    <string name="error_occurred">ದೋಷವಾಗಿದೆ</string>
+    <string name="retry">ಪುನಃ ಪ್ರಯತ್ನಿಸಿ</string>
+    <string name="download_complete_toast">ಡೌನ್ಲೋಡ್ ಪೂರ್ಣಗೊಂಡಿತು!</string>
+    <string name="download_error_toast">ಡೌನ್ಲೋಡ್ ದೋಷ!</string>
+    <string name="already_downloaded_toast">�ಜರಿಂದ ಡೌನ್ಲೋಡ್ ಮಾಡಲಾಗಿದೆ!</string>
+
+    <!-- Settings Screen strings -->
+    <string name="telugu">తెలుగు</string>
+    <string name="english">ಇಂಗ್ಲಿಷ್</string>
+
+    <!-- Cultural Event Specific Strings -->
+    <string name="sankranti_special_order">ಸಂಕ್ರಾಂತಿ ವಿಶೇಷ ಆದೇಶ</string>
+    <string name="festival_group_buy">ಆಚರಣೆ ಗುಂಪು ಖರೀದಿ</string>
+
+    <!-- Profile Screen Specific -->
+    <string name="awards">ಪ್ರಶಸ್ತಿಗಳು</string>
+    <string name="share_profile">ಪ್ರೊಫೈಲ್ ಹಂಚಿಕೊಳ್ಳಿ</string>
+    <string name="posts_tab">ಪೋಸ್ಟ್ಗಳು</string>
+
+    <!-- New vision keys -->
+    <string name="welcome">Welcome</string>
+    <string name="iot_integration">IoT Integration</string>
+    <string name="messages_tab">Messages</string>
+    <string name="live_tab">Live</string>
+    <string name="read">Read</string>
+    <string name="start_broadcast">Start Broadcast</string>
+    <string name="end_broadcast">End Broadcast</string>
+    <string name="broadcasting_live">Broadcasting Live...</string>
+
+    <!-- Traceability -->
+    <string name="lineage_title">Lineage</string>
+    <string name="father_id">Father ID</string>
+    <string name="mother_id">Mother ID</string>
+    <string name="vaccination_history">Vaccination History</string>
+    <string name="growth_updates">Growth Updates</string>
+    <string name="breeder_status">Breeder Status</string>
+    <string name="verified_bloodline">Verified Bloodline</string>
+    <string name="no_vaccination_info">No vaccination information</string>
+    <string name="no_growth_info">No growth information</string>
+    <string name="week_label">Week</string>
+    <string name="kg_label">kg</string>
+    <string name="yes_label">Yes</string>
+    <string name="no_label">No</string>
+
+    <!-- Vet consultation actions -->
+    <string name="start_call">Start Call</string>
+    <string name="end_call">End Call</string>
+    <string name="chat_with_ai">Chat with AI</string>
+    <string name="start_call_te">కాల్ ప్రారంభించండి</string>
+    <string name="end_call_te">కాల్ ముగించండి</string>
+    <string name="chat_with_ai_te">AIతో చాట్ చేయండి</string>
+    <string name="leaderboard_title">Leaderboard</string>
+
+    <!-- Dispute Module -->
+    <string name="submit_dispute">Submit a Dispute</string>
+    <string name="dispute_issue_type">Issue Type</string>
+    <string name="dispute_details">Details</string>
+    <string name="attach_photo">Attach Photo</string>
+    <string name="dispute_success">Your dispute has been submitted.</string>
+    <string name="dispute_status">Dispute Status</string>
+    <string name="no_disputes">No disputes found</string>
+    <string name="media_preview">Attached Media Preview</string>
+
+    <!-- Payment Gateway Keys -->
+    <string name="razorpay_key_live">YOUR_LIVE_KEY</string>
+    <string name="razorpay_key_test">rzp_test_1234567890ABCD</string>
+
+    <!-- Community List Screen -->
+    <string name="community_title">Community</string>
+    <string name="community_members">%d members</string>
+    <string name="language_label_en">EN</string>
+    <string name="language_label_te">తె</string>
+    <string name="error_unknown">Unknown error</string>
+</resources>

@@ -1,0 +1,63 @@
+name: Android Release CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build_release:
+    name: Build & Deploy Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x ./gradlew
+
+      - name: Decode Play Store service account
+        env:
+          PLAY_PUBLISHER_JSON: ${{ secrets.PLAY_PUBLISHER_JSON }}
+        run: |
+          echo "$PLAY_PUBLISHER_JSON" | base64 -d > ${{ github.workspace }}/service_account.json
+
+      - name: Build, test & bundle
+        run: ./gradlew clean testAll lintAll :app:bundleRelease :app:assembleRelease --stacktrace
+
+      - name: Upload Crashlytics mapping file
+        run: ./gradlew :app:uploadCrashlyticsMappingFileRelease --stacktrace
+
+      - name: Upload AAB to Play Store (Internal)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: ${{ github.workspace }}/service_account.json
+          packageName: com.example.rooster
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
+          track: internal
+          whatsNewDirectory: app/release-notes
+
+      - name: Archive Release APK/AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: Rooster-App-Release
+          path: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/bundle/release/app-release.aab

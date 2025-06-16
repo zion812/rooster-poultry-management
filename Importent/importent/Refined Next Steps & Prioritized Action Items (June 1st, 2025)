@@ -1,0 +1,38 @@
+# Refined Next Steps & Prioritized Action Items (June 1st, 2025)
+
+Based on the latest project status update, here are the refined next steps and prioritized action items to guide development efforts:
+
+**Priority 1: Complete Core Phase 4 Functionality**
+
+*   **Action 1.1 (High - Target ~1 week):** Finalize implementation and internal QA for **Live Broadcast** (streaming toggle, FCM notifications) and **Vet Consultation** (photo upload, date request logic).
+*   **Action 1.2 (Medium - Target ~2 weeks):** Complete the business logic and backend integration for **Events & Polls**. Ensure basic functionality is ready for QA.
+*   **Dependency:** Requires frontend development effort and potentially some backend support for validation/data storage, though major backend blockers seem related to other features.
+
+**Priority 2: Prepare for Beta/UAT (Scheduled June 6-8)**
+
+*   **Action 2.1 (High - ASAP):** Verify **2G performance** thoroughly on representative low-end devices (beyond initial simulations). Run the prepared performance test scripts.
+*   **Action 2.2 (High - ASAP):** Address the **translation backlog** (52 strings). Determine if this can be completed before June 6th or if a fallback strategy (e.g., testing primarily in English/Telugu) is needed for the initial UAT.
+*   **Action 2.3 (Medium - Before UAT Build):** Ensure **Firebase Crashlytics** event tracking is correctly implemented for key user flows to gather valuable feedback during testing.
+*   **Action 2.4 (Medium - Before UAT Build):** Create a stable build specifically for the Beta/UAT, incorporating the latest functional Phase 4 features (as available) and performance/translation fixes.
+
+**Priority 3: Resolve Critical Build Blocker (`DataSyncWorker`)**
+
+*   **Action 3.1 (Medium - Ongoing/After Phase 4 Screens Compile):** Dedicate focused time to investigate and resolve the **Hilt/KSP conflict** with WorkManager 2.9 affecting `DataSyncWorker`. This might involve:
+    *   Experimenting with different dependency versions.
+    *   Seeking solutions from community forums (Stack Overflow, GitHub issues).
+    *   Potentially refactoring the worker implementation if necessary.
+*   **Goal:** Achieve a clean, stable build with `DataSyncWorker` re-integrated *before* scaling up testing or adding more complex features dependent on background sync.
+
+**Addressing Blockers & Dependencies:**
+
+*   **Backend Bandwidth:** Acknowledge that features heavily reliant on new backend endpoints (Family Tree real data, full Auction logic) will progress slower. Focus frontend efforts on features where backend dependencies are met or simpler.
+*   **Translations:** Consider parallelizing the translation effort if possible, or clearly communicate the scope of testing based on available languages for the UAT.
+
+**Deferred Items (Lower Priority):**
+
+*   Addressing non-critical lint issues (deprecated APIs, code style).
+*   Implementing frontend for Public Bird Preview.
+*   Implementing Dashboard charts.
+*   Full Auction logic implementation.
+
+Following these prioritized steps should help focus development efforts on unblocking testing and delivering core functionality.

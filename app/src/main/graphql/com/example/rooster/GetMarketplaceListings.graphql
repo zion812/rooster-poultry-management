@@ -1,0 +1,12 @@
+query GetMarketplaceListings($limit: Int!, $networkQuality: String!) {
+  getMarketplaceListings(limit: $limit, networkQuality: $networkQuality) {
+    id
+    imageUrl
+    breed
+    age
+    price
+    owner
+    createdAt
+    isActive
+  }
+}

