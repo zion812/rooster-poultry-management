@@ -284,6 +284,7 @@
     <string name="start_call_te">కాల్ ప్రారంభించండి</string>
     <string name="end_call_te">కాల్ ముగించండి</string>
     <string name="chat_with_ai_te">AIతో చాట్ చేయండి</string>
+    <string name="verified">ధృవీకరించబడింది</string>
 
     <!-- Dispute Module -->
     <string name="submit_dispute">Submit a Dispute</string>

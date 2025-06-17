@@ -50,6 +50,7 @@
     <string name="seller">Seller</string>
     <string name="location">Location</string>
     <string name="contact_seller">Contact Seller</string>
+    <string name="verified">Verified</string>
 
     <!-- Community -->
     <string name="community">Community</string>

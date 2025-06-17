@@ -63,10 +63,10 @@ com.example.rooster.feature.farm.test.feature-farm-navigation-compose-2.7.7-61 /
 com.example.rooster.feature.farm.test.feature-farm-material-ripple-release-62 /home/user/.gradle/caches/8.11.1/transforms/f69757e25679532ecb8e90b44b8704f4/transformed/material-ripple-release/res
 com.example.rooster.feature.farm.test.feature-farm-graphics-path-1.0.1-63 /home/user/.gradle/caches/8.11.1/transforms/f9d094da716948ccf58a216a569852f2/transformed/graphics-path-1.0.1/res
 com.example.rooster.feature.farm.test.feature-farm-credentials-1.2.0-rc01-64 /home/user/.gradle/caches/8.11.1/transforms/ffad78c8cc808bfc940a60ce5c60f7ad/transformed/credentials-1.2.0-rc01/res
-com.example.rooster.feature.farm.test.feature-farm-debug-65 /home/user/Downloads/V0 .113/V0 .15/V1/core/core-common/build/intermediates/packaged_res/debug/packageDebugResources
-com.example.rooster.feature.farm.test.feature-farm-debug-66 /home/user/Downloads/V0 .113/V0 .15/V1/core/core-network/build/intermediates/packaged_res/debug/packageDebugResources
-com.example.rooster.feature.farm.test.feature-farm-test-67 /home/user/Downloads/V0 .113/V0 .15/V1/feature/feature-farm/build/generated/res/resValues/test/debug
-com.example.rooster.feature.farm.test.feature-farm-mergeDebugUnitTestResources-68 /home/user/Downloads/V0 .113/V0 .15/V1/feature/feature-farm/build/intermediates/incremental/debugUnitTest/mergeDebugUnitTestResources/merged.dir
-com.example.rooster.feature.farm.test.feature-farm-mergeDebugUnitTestResources-69 /home/user/Downloads/V0 .113/V0 .15/V1/feature/feature-farm/build/intermediates/incremental/debugUnitTest/mergeDebugUnitTestResources/stripped.dir
-com.example.rooster.feature.farm.test.feature-farm-debugUnitTest-70 /home/user/Downloads/V0 .113/V0 .15/V1/feature/feature-farm/build/intermediates/merged_res/debugUnitTest/mergeDebugUnitTestResources
-com.example.rooster.feature.farm.test.feature-farm-debug-71 /home/user/Downloads/V0 .113/V0 .15/V1/feature/feature-farm/build/intermediates/packaged_res/debug/packageDebugResources
+com.example.rooster.feature.farm.test.feature-farm-debug-65 /home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/packaged_res/debug/packageDebugResources
+com.example.rooster.feature.farm.test.feature-farm-debug-66 /home/user/StudioProjects/rooster-poultry-management/core/core-network/build/intermediates/packaged_res/debug/packageDebugResources
+com.example.rooster.feature.farm.test.feature-farm-test-67 /home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/generated/res/resValues/test/debug
+com.example.rooster.feature.farm.test.feature-farm-mergeDebugUnitTestResources-68 /home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/incremental/debugUnitTest/mergeDebugUnitTestResources/merged.dir
+com.example.rooster.feature.farm.test.feature-farm-mergeDebugUnitTestResources-69 /home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/incremental/debugUnitTest/mergeDebugUnitTestResources/stripped.dir
+com.example.rooster.feature.farm.test.feature-farm-debugUnitTest-70 /home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/merged_res/debugUnitTest/mergeDebugUnitTestResources
+com.example.rooster.feature.farm.test.feature-farm-debug-71 /home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/packaged_res/debug/packageDebugResources

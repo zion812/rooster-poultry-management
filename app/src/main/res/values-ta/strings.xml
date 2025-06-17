@@ -297,4 +297,6 @@
     <string name="language_label_en">EN</string>
     <string name="language_label_te">తె</string>
     <string name="error_unknown">Unknown error</string>
+
+    <string name="verified">சரிபார்க்கப்பட்டது</string>
 </resources>

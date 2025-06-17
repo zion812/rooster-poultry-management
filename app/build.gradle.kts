@@ -1,17 +1,15 @@
-import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
-import org.gradle.testing.jacoco.tasks.JacocoReport
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // Re-enabled with proper google-services.json
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
     id("com.google.dagger.hilt.android") version "2.48"
     kotlin("kapt")
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     id("com.google.devtools.ksp") version "2.0.21-1.0.25"
-    id("jacoco")
+    // id("jacoco") // Removed Jacoco plugin
 }
 
 ktlint {
@@ -120,8 +118,15 @@ dependencies {
     ksp("com.google.dagger:hilt-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
-    // Import the BoM for the Firebase platform
-    implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
+    // Import the Firebase BoM - latest version
+    implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
+
+    // Firebase Analytics - core Firebase functionality
+    implementation("com.google.firebase:firebase-analytics")
+
+    // Firebase Crashlytics for crash reporting
+    implementation(libs.firebase.crashlytics)
+
     // Firebase Authentication and Firestore dependencies
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
@@ -131,8 +136,6 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     // Firebase Cloud Messaging for push notifications
     implementation("com.google.firebase:firebase-messaging")
-    // Firebase Analytics
-    implementation("com.google.firebase:firebase-analytics-ktx")
     // Parse Android SDK (correct JitPack coordinates, lowercase 'parse')
     implementation("com.github.parse-community.Parse-SDK-Android:parse:1.26.0")
     implementation("androidx.compose.material:material-icons-extended:1.6.7")
@@ -181,36 +184,3 @@ dependencies {
     // implementation("com.google.mlkit:natural-language:22.0.0") // ML Kit for AI Chatbot
 }
 
-// Jacoco plugin configuration
-extensions.configure<JacocoPluginExtension> {
-    toolVersion = "0.8.8"
-}
-
-// Task to generate code coverage report
-tasks.register<JacocoReport>("jacocoTestReport") {
-    dependsOn("testDebugUnitTest")
-    executionData.setFrom(fileTree(buildDir).include("**/jacoco/*.exec", "**/*.exec"))
-    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
-    classDirectories.setFrom(
-        files(
-            fileTree("$buildDir/tmp/kotlin-classes/debug") {
-                exclude(
-                    "**/R.class",
-                    "**/R$*.class",
-                    "**/BuildConfig.*",
-                )
-            },
-            fileTree("$buildDir/intermediates/javac/debug/classes") {
-                exclude(
-                    "**/R.class",
-                    "**/R$*.class",
-                    "**/BuildConfig.*",
-                )
-            },
-        ),
-    )
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-}

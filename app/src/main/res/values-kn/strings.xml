@@ -44,7 +44,7 @@
     <string name="price">ಬೆಲೆ</string>
     <string name="seller">ವಿಕ್ರೇತ</string>
     <string name="location">ಸ್ಥಳ</string>
-    <string name="contact_seller">ವಿಕ್ರೇತನೊಂದಿಗೆ ಸಂಪರ್ಕ</string>
+    <string name="verified">ಪರಿಶೀಲಿಸಲಾಗಿದೆ</string>
 
     <!-- Community -->
     <string name="community">ಸಮುದಾಯ</string>

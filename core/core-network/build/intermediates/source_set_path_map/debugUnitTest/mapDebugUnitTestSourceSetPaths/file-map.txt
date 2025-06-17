@@ -40,9 +40,9 @@ com.example.rooster.core.network.test.core-network-savedstate-1.2.1-38 /home/use
 com.example.rooster.core.network.test.core-network-runtime-release-39 /home/user/.gradle/caches/8.11.1/transforms/e3b08e4ef102313b2ab095bd22e7b17d/transformed/runtime-release/res
 com.example.rooster.core.network.test.core-network-material-ripple-release-40 /home/user/.gradle/caches/8.11.1/transforms/f69757e25679532ecb8e90b44b8704f4/transformed/material-ripple-release/res
 com.example.rooster.core.network.test.core-network-graphics-path-1.0.1-41 /home/user/.gradle/caches/8.11.1/transforms/f9d094da716948ccf58a216a569852f2/transformed/graphics-path-1.0.1/res
-com.example.rooster.core.network.test.core-network-debug-42 /home/user/Downloads/V0 .113/V0 .15/V1/core/core-common/build/intermediates/packaged_res/debug/packageDebugResources
-com.example.rooster.core.network.test.core-network-test-43 /home/user/Downloads/V0 .113/V0 .15/V1/core/core-network/build/generated/res/resValues/test/debug
-com.example.rooster.core.network.test.core-network-mergeDebugUnitTestResources-44 /home/user/Downloads/V0 .113/V0 .15/V1/core/core-network/build/intermediates/incremental/debugUnitTest/mergeDebugUnitTestResources/merged.dir
-com.example.rooster.core.network.test.core-network-mergeDebugUnitTestResources-45 /home/user/Downloads/V0 .113/V0 .15/V1/core/core-network/build/intermediates/incremental/debugUnitTest/mergeDebugUnitTestResources/stripped.dir
-com.example.rooster.core.network.test.core-network-debugUnitTest-46 /home/user/Downloads/V0 .113/V0 .15/V1/core/core-network/build/intermediates/merged_res/debugUnitTest/mergeDebugUnitTestResources
-com.example.rooster.core.network.test.core-network-debug-47 /home/user/Downloads/V0 .113/V0 .15/V1/core/core-network/build/intermediates/packaged_res/debug/packageDebugResources
+com.example.rooster.core.network.test.core-network-debug-42 /home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/packaged_res/debug/packageDebugResources
+com.example.rooster.core.network.test.core-network-test-43 /home/user/StudioProjects/rooster-poultry-management/core/core-network/build/generated/res/resValues/test/debug
+com.example.rooster.core.network.test.core-network-mergeDebugUnitTestResources-44 /home/user/StudioProjects/rooster-poultry-management/core/core-network/build/intermediates/incremental/debugUnitTest/mergeDebugUnitTestResources/merged.dir
+com.example.rooster.core.network.test.core-network-mergeDebugUnitTestResources-45 /home/user/StudioProjects/rooster-poultry-management/core/core-network/build/intermediates/incremental/debugUnitTest/mergeDebugUnitTestResources/stripped.dir
+com.example.rooster.core.network.test.core-network-debugUnitTest-46 /home/user/StudioProjects/rooster-poultry-management/core/core-network/build/intermediates/merged_res/debugUnitTest/mergeDebugUnitTestResources
+com.example.rooster.core.network.test.core-network-debug-47 /home/user/StudioProjects/rooster-poultry-management/core/core-network/build/intermediates/packaged_res/debug/packageDebugResources
