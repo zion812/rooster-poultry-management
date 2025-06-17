@@ -51,26 +51,28 @@ fun RuralOptimizedImage(
     shape: RoundedCornerShape = RoundedCornerShape(8.dp),
     showProgressIndicator: Boolean = true,
     connectivityViewModel: ConnectivityViewModel = hiltViewModel(),
-    imageViewModel: RuralImageViewModel = hiltViewModel()
+    imageViewModel: RuralImageViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val connectionType by connectivityViewModel.connectionType.collectAsStateWithLifecycle()
     val optimizedImageUrl by imageViewModel.getOptimizedImageUrl(imageUrl, connectionType, imageType).collectAsState(initial = null)
-    
+
     var isLoading by remember { mutableStateOf(true) }
     var hasError by remember { mutableStateOf(false) }
 
     Box(modifier = modifier) {
         optimizedImageUrl?.let { url ->
             AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(url)
-                    .crossfade(true)
-                    .build(),
+                model =
+                    ImageRequest.Builder(context)
+                        .data(url)
+                        .crossfade(true)
+                        .build(),
                 contentDescription = contentDescription,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(shape),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .clip(shape),
                 contentScale = contentScale,
                 onState = { state ->
                     when (state) {
@@ -88,38 +90,40 @@ fun RuralOptimizedImage(
                         }
                         else -> {}
                     }
-                }
+                },
             )
         }
 
         // Loading indicator
         if (isLoading && showProgressIndicator) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = shape
-                    ),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = shape,
+                        ),
+                contentAlignment = Alignment.Center,
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                    
+
                     // Connection-aware loading message
                     Text(
-                        text = when (connectionType) {
-                            ConnectionType.WIFI -> "లోడ్ అవుతోంది..."
-                            ConnectionType.CELLULAR_4G -> "4G లో లోడ్ అవుతోంది..."
-                            ConnectionType.CELLULAR_3G -> "3G లో లోడ్ అవుతోంది..."
-                            ConnectionType.CELLULAR_2G -> "2G లో నెమ్మదిగా లోడ్ అవుతోంది..."
-                            ConnectionType.UNKNOWN -> "లోడ్ అవుతోంది..."
-                        },
+                        text =
+                            when (connectionType) {
+                                ConnectionType.WIFI -> "లోడ్ అవుతోంది..."
+                                ConnectionType.CELLULAR_4G -> "4G లో లోడ్ అవుతోంది..."
+                                ConnectionType.CELLULAR_3G -> "3G లో లోడ్ అవుతోంది..."
+                                ConnectionType.CELLULAR_2G -> "2G లో నెమ్మదిగా లోడ్ అవుతోంది..."
+                                ConnectionType.UNKNOWN -> "లోడ్ అవుతోంది..."
+                            },
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -128,29 +132,30 @@ fun RuralOptimizedImage(
         // Error state
         if (hasError) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        color = MaterialTheme.colorScheme.errorContainer,
-                        shape = shape
-                    ),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            shape = shape,
+                        ),
+                contentAlignment = Alignment.Center,
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Icon(
                         Icons.Default.Image,
                         contentDescription = null,
                         modifier = Modifier.size(32.dp),
-                        tint = MaterialTheme.colorScheme.onErrorContainer
+                        tint = MaterialTheme.colorScheme.onErrorContainer,
                     )
                     Text(
                         text = "చిత్రం లోడ్ కాలేదు",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onErrorContainer,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
                     )
                 }
             }
@@ -159,30 +164,33 @@ fun RuralOptimizedImage(
         // Connection quality indicator
         if (connectionType != ConnectionType.WIFI && !isLoading && !hasError) {
             Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(4.dp)
-                    .background(
-                        color = when (connectionType) {
-                            ConnectionType.CELLULAR_4G -> Color(0xFF4CAF50)
-                            ConnectionType.CELLULAR_3G -> Color(0xFFFFC107)
-                            ConnectionType.CELLULAR_2G -> Color(0xFFFF9800)
-                            else -> Color.Gray
-                        }.copy(alpha = 0.8f),
-                        shape = RoundedCornerShape(4.dp)
-                    )
-                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .background(
+                            color =
+                                when (connectionType) {
+                                    ConnectionType.CELLULAR_4G -> Color(0xFF4CAF50)
+                                    ConnectionType.CELLULAR_3G -> Color(0xFFFFC107)
+                                    ConnectionType.CELLULAR_2G -> Color(0xFFFF9800)
+                                    else -> Color.Gray
+                                }.copy(alpha = 0.8f),
+                            shape = RoundedCornerShape(4.dp),
+                        )
+                        .padding(horizontal = 4.dp, vertical = 2.dp),
             ) {
                 Text(
-                    text = when (connectionType) {
-                        ConnectionType.CELLULAR_4G -> "4G"
-                        ConnectionType.CELLULAR_3G -> "3G"
-                        ConnectionType.CELLULAR_2G -> "2G"
-                        else -> "?"
-                    },
+                    text =
+                        when (connectionType) {
+                            ConnectionType.CELLULAR_4G -> "4G"
+                            ConnectionType.CELLULAR_3G -> "3G"
+                            ConnectionType.CELLULAR_2G -> "2G"
+                            else -> "?"
+                        },
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             }
         }

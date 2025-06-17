@@ -355,6 +355,10 @@
     <string name="razorpay_key_live">YOUR_LIVE_KEY</string>
     <string name="razorpay_key_test">rzp_test_1234567890ABCD</string>
 
+    <!-- Market Screen Strings -->
+    <string name="market_title">Market</string>
+    <string name="market_description">Local poultry marketplace for rural farmers</string>
+
     <!-- Payment Service Strings -->
     <string name="payment_timeout">Payment Timeout</string>
     <string name="payment_failed">Payment Failed</string>

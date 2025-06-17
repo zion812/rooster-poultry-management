@@ -28,12 +28,9 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object Phase4BackendModule {
-
     @Provides
     @Singleton
-    fun provideBack4AppMCPService(
-        cacheManager: SmartCacheManager
-    ): Back4AppMCPService {
+    fun provideBack4AppMCPService(cacheManager: SmartCacheManager): Back4AppMCPService {
         return Back4AppMCPService(cacheManager)
     }
 
@@ -41,7 +38,7 @@ object Phase4BackendModule {
     @Singleton
     fun provideMemoryBankMCPService(
         @ApplicationContext context: Context,
-        cacheManager: SmartCacheManager
+        cacheManager: SmartCacheManager,
     ): MemoryBankMCPService {
         return MemoryBankMCPService(context, cacheManager)
     }

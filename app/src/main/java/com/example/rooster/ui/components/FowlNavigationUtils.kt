@@ -56,94 +56,93 @@ enum class FowlStatus(
     val displayNameTelugu: String,
     val color: Color,
     val icon: ImageVector,
-    val priority: Int // Higher priority = more urgent
+    val priority: Int, // Higher priority = more urgent
 ) {
     QUARANTINE(
         "Quarantine",
         "దిగుమతి నిర్బంధం",
         Color(0xFFE53E3E),
         Icons.Default.HealthAndSafety,
-        10
+        10,
     ),
     MORTALITY(
         "Mortality",
         "మరణించిన",
         Color(0xFF2D3748),
         Icons.Default.Emergency,
-        9
+        9,
     ),
     SICK(
         "Sick",
         "అనారోగ్యం",
         Color(0xFFFF8C00),
         Icons.Default.LocalHospital,
-        8
+        8,
     ),
     BREEDING(
         "Breeding",
         "సంతానోత్పత్తి",
         Color(0xFF8B5CF6),
         Icons.Default.FamilyRestroom,
-        5
+        5,
     ),
     LAYING(
         "Laying",
         "గుడ్లు పెట్టుట",
         Color(0xFF10B981),
         Icons.Default.Egg,
-        4
+        4,
     ),
     GROWING(
         "Growing",
         "పెరుగుట",
         Color(0xFF3B82F6),
         Icons.Default.TrendingUp,
-        3
+        3,
     ),
     HEALTHY(
         "Healthy",
         "ఆరోగ్యకరమైన",
         Color(0xFF059669),
         Icons.Default.Check,
-        1
+        1,
     ),
     SOLD(
         "Sold",
         "అమ్మబడిన",
         Color(0xFF6B7280),
         Icons.Default.ShoppingCart,
-        0
-    )
+        0,
+    ),
 }
 
 // Health Status for quick indicators
 enum class HealthStatus(
     val color: Color,
-    val icon: ImageVector
+    val icon: ImageVector,
 ) {
     EXCELLENT(Color(0xFF22C55E), Icons.Default.Favorite),
     GOOD(Color(0xFF84CC16), Icons.Default.ThumbUp),
     FAIR(Color(0xFFEAB308), Icons.Default.Warning),
     POOR(Color(0xFFEF4444), Icons.Default.Error),
-    CRITICAL(Color(0xFF991B1B), Icons.Default.LocalHospital)
+    CRITICAL(Color(0xFF991B1B), Icons.Default.LocalHospital),
 }
 
 // Multi-step form navigation for fowl data entry
 object FowlFormNavigation {
-
     sealed class FormStep(
         val stepNumber: Int,
         val title: String,
         val titleTelugu: String,
         val route: String,
-        val isRequired: Boolean = true
+        val isRequired: Boolean = true,
     ) {
         object BasicInfo : FormStep(
             1,
             "Basic Information",
             "ప్రాథమిక సమాచారం",
             "fowl_form_basic",
-            true
+            true,
         )
 
         object PhysicalDetails : FormStep(
@@ -151,7 +150,7 @@ object FowlFormNavigation {
             "Physical Details",
             "శారీరిక వివరాలు",
             "fowl_form_physical",
-            true
+            true,
         )
 
         object HealthInfo : FormStep(
@@ -159,7 +158,7 @@ object FowlFormNavigation {
             "Health Information",
             "ఆరోగ్య సమాచారం",
             "fowl_form_health",
-            true
+            true,
         )
 
         object VaccinationRecords : FormStep(
@@ -167,7 +166,7 @@ object FowlFormNavigation {
             "Vaccination Records",
             "టీకా రికార్డులు",
             "fowl_form_vaccination",
-            false
+            false,
         )
 
         object LineageInfo : FormStep(
@@ -175,7 +174,7 @@ object FowlFormNavigation {
             "Lineage Information",
             "వంశావళి సమాచారం",
             "fowl_form_lineage",
-            false
+            false,
         )
 
         object MediaUpload : FormStep(
@@ -183,7 +182,7 @@ object FowlFormNavigation {
             "Photos & Videos",
             "ఫోటోలు & వీడియోలు",
             "fowl_form_media",
-            false
+            false,
         )
 
         object Review : FormStep(
@@ -191,19 +190,20 @@ object FowlFormNavigation {
             "Review & Submit",
             "సమీక్ష & సమర్పణ",
             "fowl_form_review",
-            true
+            true,
         )
     }
 
-    fun getAllSteps(): List<FormStep> = listOf(
-        FormStep.BasicInfo,
-        FormStep.PhysicalDetails,
-        FormStep.HealthInfo,
-        FormStep.VaccinationRecords,
-        FormStep.LineageInfo,
-        FormStep.MediaUpload,
-        FormStep.Review
-    )
+    fun getAllSteps(): List<FormStep> =
+        listOf(
+            FormStep.BasicInfo,
+            FormStep.PhysicalDetails,
+            FormStep.HealthInfo,
+            FormStep.VaccinationRecords,
+            FormStep.LineageInfo,
+            FormStep.MediaUpload,
+            FormStep.Review,
+        )
 
     fun getRequiredSteps(): List<FormStep> = getAllSteps().filter { it.isRequired }
 
@@ -228,14 +228,13 @@ object FowlFormNavigation {
 
 // Quick action navigation for fowl profiles
 object FowlQuickActions {
-
     sealed class QuickAction(
         val route: String,
         val label: String,
         val labelTelugu: String,
         val icon: ImageVector,
         val color: Color,
-        val requiresOwnership: Boolean = true
+        val requiresOwnership: Boolean = true,
     ) {
         object ViewDetails : QuickAction(
             "fowl_detail/{fowlId}",
@@ -243,7 +242,7 @@ object FowlQuickActions {
             "వివరాలు చూడండి",
             Icons.Default.Visibility,
             Color(0xFF3B82F6),
-            false
+            false,
         )
 
         object EditInfo : QuickAction(
@@ -252,7 +251,7 @@ object FowlQuickActions {
             "సమాచారం మార్చు",
             Icons.Default.Edit,
             Color(0xFF059669),
-            true
+            true,
         )
 
         object HealthRecord : QuickAction(
@@ -261,7 +260,7 @@ object FowlQuickActions {
             "ఆరోగ్య రికార్డు",
             Icons.Default.LocalHospital,
             Color(0xFFDC2626),
-            true
+            true,
         )
 
         object VaccinationLog : QuickAction(
@@ -270,7 +269,7 @@ object FowlQuickActions {
             "టీకాలు",
             Icons.Default.MedicalServices,
             Color(0xFF7C3AED),
-            true
+            true,
         )
 
         object GrowthTracking : QuickAction(
@@ -279,7 +278,7 @@ object FowlQuickActions {
             "వృద్ధి ట్రాకింగ్",
             Icons.Default.TrendingUp,
             Color(0xFF059669),
-            true
+            true,
         )
 
         object BreedingHistory : QuickAction(
@@ -288,7 +287,7 @@ object FowlQuickActions {
             "సంతానోత్పత్తి",
             Icons.Default.FamilyRestroom,
             Color(0xFFEC4899),
-            true
+            true,
         )
 
         object CreateListing : QuickAction(
@@ -297,7 +296,7 @@ object FowlQuickActions {
             "లిస్టింగ్ సృష్టించు",
             Icons.Default.Store,
             Color(0xFFF59E0B),
-            true
+            true,
         )
 
         object TransferOwnership : QuickAction(
@@ -306,7 +305,7 @@ object FowlQuickActions {
             "బదిలీ",
             Icons.Default.SwapHoriz,
             Color(0xFF6366F1),
-            true
+            true,
         )
 
         object ViewLineage : QuickAction(
@@ -315,36 +314,39 @@ object FowlQuickActions {
             "వంశావళి చూడు",
             Icons.Default.AccountTree,
             Color(0xFF8B5CF6),
-            false
+            false,
         )
     }
 
     fun getAvailableActions(
         isOwner: Boolean,
-        fowlStatus: FowlStatus
+        fowlStatus: FowlStatus,
     ): List<QuickAction> {
-        val baseActions = listOf(
-            QuickAction.ViewDetails,
-            QuickAction.ViewLineage
-        )
+        val baseActions =
+            listOf(
+                QuickAction.ViewDetails,
+                QuickAction.ViewLineage,
+            )
 
-        val ownerActions = if (isOwner) {
-            when (fowlStatus) {
-                FowlStatus.SOLD -> listOf(QuickAction.EditInfo) // Limited actions for sold fowl
-                FowlStatus.MORTALITY -> listOf(QuickAction.EditInfo, QuickAction.HealthRecord)
-                else -> listOf(
-                    QuickAction.EditInfo,
-                    QuickAction.HealthRecord,
-                    QuickAction.VaccinationLog,
-                    QuickAction.GrowthTracking,
-                    QuickAction.BreedingHistory,
-                    QuickAction.CreateListing,
-                    QuickAction.TransferOwnership
-                )
+        val ownerActions =
+            if (isOwner) {
+                when (fowlStatus) {
+                    FowlStatus.SOLD -> listOf(QuickAction.EditInfo) // Limited actions for sold fowl
+                    FowlStatus.MORTALITY -> listOf(QuickAction.EditInfo, QuickAction.HealthRecord)
+                    else ->
+                        listOf(
+                            QuickAction.EditInfo,
+                            QuickAction.HealthRecord,
+                            QuickAction.VaccinationLog,
+                            QuickAction.GrowthTracking,
+                            QuickAction.BreedingHistory,
+                            QuickAction.CreateListing,
+                            QuickAction.TransferOwnership,
+                        )
+                }
+            } else {
+                emptyList()
             }
-        } else {
-            emptyList()
-        }
 
         return baseActions + ownerActions
     }
@@ -356,18 +358,19 @@ fun FowlStatusIndicator(
     status: FowlStatus,
     size: Float = 12f,
     showText: Boolean = true,
-    isTeluguMode: Boolean = false
+    isTeluguMode: Boolean = false,
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         // Status dot
         Box(
-            modifier = Modifier
-                .size(size.dp)
-                .clip(CircleShape)
-                .background(status.color)
+            modifier =
+                Modifier
+                    .size(size.dp)
+                    .clip(CircleShape)
+                    .background(status.color),
         )
 
         // Status icon
@@ -375,7 +378,7 @@ fun FowlStatusIndicator(
             imageVector = status.icon,
             contentDescription = null,
             tint = status.color,
-            modifier = Modifier.size((size * 1.2f).dp)
+            modifier = Modifier.size((size * 1.2f).dp),
         )
 
         // Status text
@@ -384,7 +387,7 @@ fun FowlStatusIndicator(
                 text = if (isTeluguMode) status.displayNameTelugu else status.displayName,
                 color = status.color,
                 fontSize = (size * 0.8f).sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
         }
     }
@@ -394,7 +397,7 @@ fun FowlStatusIndicator(
 @Composable
 fun FowlFormProgressIndicator(
     currentStep: FowlFormNavigation.FormStep,
-    isTeluguMode: Boolean = false
+    isTeluguMode: Boolean = false,
 ) {
     val allSteps = FowlFormNavigation.getAllSteps()
     val currentIndex = allSteps.indexOf(currentStep)
@@ -404,12 +407,13 @@ fun FowlFormProgressIndicator(
         // Progress bar
         LinearProgressIndicator(
             progress = progress,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(6.dp)
-                .clip(RoundedCornerShape(3.dp)),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(3.dp)),
             color = Color(0xFF059669),
-            trackColor = Color(0xFFE5E7EB)
+            trackColor = Color(0xFFE5E7EB),
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -418,20 +422,20 @@ fun FowlFormProgressIndicator(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = "${currentStep.stepNumber}/${allSteps.size}",
                 fontSize = 12.sp,
                 color = Color(0xFF6B7280),
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
 
             Text(
                 text = if (isTeluguMode) currentStep.titleTelugu else currentStep.title,
                 fontSize = 14.sp,
                 color = Color(0xFF111827),
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
         }
     }
@@ -451,36 +455,37 @@ fun FowlSummaryCard(
     isOwner: Boolean = false,
     isTeluguMode: Boolean = false,
     navController: NavController,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        onClick = onClick
+        onClick = onClick,
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         ) {
             // Header with status indicators
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.Top,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = fowlName,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF111827)
+                        color = Color(0xFF111827),
                     )
                     Text(
                         text = fowlBreed,
                         fontSize = 14.sp,
-                        color = Color(0xFF6B7280)
+                        color = Color(0xFF6B7280),
                     )
                 }
 
@@ -489,7 +494,7 @@ fun FowlSummaryCard(
                         status = status,
                         size = 10f,
                         showText = false,
-                        isTeluguMode = isTeluguMode
+                        isTeluguMode = isTeluguMode,
                     )
 
                     // Health indicator
@@ -497,7 +502,7 @@ fun FowlSummaryCard(
                         imageVector = healthStatus.icon,
                         contentDescription = null,
                         tint = healthStatus.color,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(16.dp),
                     )
                 }
             }
@@ -507,18 +512,18 @@ fun FowlSummaryCard(
             // Quick info
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     text = "${if (isTeluguMode) "వయస్సు" else "Age"}: $age",
                     fontSize = 12.sp,
-                    color = Color(0xFF6B7280)
+                    color = Color(0xFF6B7280),
                 )
 
                 Text(
                     text = "${if (isTeluguMode) "చివరిసారి అప్డేట్" else "Updated"}: $lastUpdated",
                     fontSize = 12.sp,
-                    color = Color(0xFF6B7280)
+                    color = Color(0xFF6B7280),
                 )
             }
 
@@ -530,21 +535,22 @@ fun FowlSummaryCard(
                     onClick = {
                         navController.navigate("fowl_health/$fowlId")
                     },
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = status.color
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+                            contentColor = status.color,
+                        ),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Icon(
                         imageVector = status.icon,
                         contentDescription = null,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(16.dp),
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = if (isTeluguMode) "తక్షణ చర్య అవసరం" else "Immediate Action Required",
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
                     )
                 }
             }

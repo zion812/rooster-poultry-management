@@ -37,22 +37,19 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object Phase2BModule {
-
     @Provides
     @Singleton
     fun provideSmartCacheManager(
         @ApplicationContext context: Context,
         diskCacheManager: DiskCacheManager,
-        predictiveEngine: PredictiveCacheEngine
+        predictiveEngine: PredictiveCacheEngine,
     ): SmartCacheManager {
         return SmartCacheManager(context, diskCacheManager, predictiveEngine)
     }
 
     @Provides
     @Singleton
-    fun provideReactiveDataFetcher(
-        smartCacheManager: SmartCacheManager
-    ): ReactiveDataFetcher {
+    fun provideReactiveDataFetcher(smartCacheManager: SmartCacheManager): ReactiveDataFetcher {
         return ReactiveDataFetcher(smartCacheManager)
     }
 
@@ -60,7 +57,7 @@ object Phase2BModule {
     @Singleton
     fun providePredictiveDataFetcher(
         cacheManager: SmartCacheManager,
-        reactiveDataFetcher: ReactiveDataFetcher
+        reactiveDataFetcher: ReactiveDataFetcher,
     ): PredictiveDataFetcher {
         return PredictiveDataFetcher(cacheManager, reactiveDataFetcher)
     }
@@ -68,7 +65,7 @@ object Phase2BModule {
     @Provides
     @Singleton
     fun provideIntelligentLocalizationEngine(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ): IntelligentLocalizationEngine {
         return IntelligentLocalizationEngine(context)
     }
@@ -77,16 +74,14 @@ object Phase2BModule {
     @Singleton
     fun provideRuralConnectivityOptimizer(
         @ApplicationContext context: Context,
-        cacheManager: SmartCacheManager
+        cacheManager: SmartCacheManager,
     ): RuralConnectivityOptimizer {
         return RuralConnectivityOptimizer(context, cacheManager)
     }
 
     @Provides
     @Singleton
-    fun provideRealTimeCollaborationFetcher(
-        reactiveDataFetcher: ReactiveDataFetcher
-    ): RealTimeCollaborationFetcher {
+    fun provideRealTimeCollaborationFetcher(reactiveDataFetcher: ReactiveDataFetcher): RealTimeCollaborationFetcher {
         return RealTimeCollaborationFetcher(reactiveDataFetcher)
     }
 
@@ -94,16 +89,14 @@ object Phase2BModule {
     @Singleton
     fun provideIntelligentSearchFetcher(
         localizationEngine: IntelligentLocalizationEngine,
-        cacheManager: SmartCacheManager
+        cacheManager: SmartCacheManager,
     ): IntelligentSearchFetcher {
         return IntelligentSearchFetcher(localizationEngine, cacheManager)
     }
 
     @Provides
     @Singleton
-    fun provideGeospatialDataFetcher(
-        cacheManager: SmartCacheManager
-    ): GeospatialDataFetcher {
+    fun provideGeospatialDataFetcher(cacheManager: SmartCacheManager): GeospatialDataFetcher {
         return GeospatialDataFetcher(cacheManager)
     }
 
@@ -111,7 +104,7 @@ object Phase2BModule {
     @Singleton
     fun provideComplianceDataFetcher(
         cacheManager: SmartCacheManager,
-        localizationEngine: IntelligentLocalizationEngine
+        localizationEngine: IntelligentLocalizationEngine,
     ): ComplianceDataFetcher {
         return ComplianceDataFetcher(cacheManager, localizationEngine)
     }

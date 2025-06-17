@@ -15,49 +15,66 @@ import okhttp3.WebSocketListener
 import javax.inject.Inject
 import javax.inject.Named
 
-class AuctionWebSocketClient @Inject constructor(
-    private val okHttpClient: OkHttpClient,
-    @Named("auctionSocketUrl") private val socketUrl: String
-) {
-    private var socket: WebSocket? = null
-    private val _updates = MutableSharedFlow<BidUpdate>(replay = 0, extraBufferCapacity = 16)
-    val updates: SharedFlow<BidUpdate> = _updates
+class AuctionWebSocketClient
+    @Inject
+    constructor(
+        private val okHttpClient: OkHttpClient,
+        @Named("auctionSocketUrl") private val socketUrl: String,
+    ) {
+        private var socket: WebSocket? = null
+        private val _updates = MutableSharedFlow<BidUpdate>(replay = 0, extraBufferCapacity = 16)
+        val updates: SharedFlow<BidUpdate> = _updates
 
-    fun connect(auctionId: String) {
-        val req = Request.Builder()
-            .url("$socketUrl/auctions/$auctionId")
-            .build()
+        fun connect(auctionId: String) {
+            val req =
+                Request.Builder()
+                    .url("$socketUrl/auctions/$auctionId")
+                    .build()
 
-        socket = okHttpClient.newWebSocket(req, object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: Response) {
-                Log.i("AuctionWebSocket", "WebSocket opened for auction $auctionId")
+            socket =
+                okHttpClient.newWebSocket(
+                    req,
+                    object : WebSocketListener() {
+                        override fun onOpen(
+                            webSocket: WebSocket,
+                            response: Response,
+                        ) {
+                            Log.i("AuctionWebSocket", "WebSocket opened for auction $auctionId")
+                        }
+
+                        override fun onMessage(
+                            webSocket: WebSocket,
+                            text: String,
+                        ) {
+                            runCatching {
+                                // Simple JSON parsing for now - replace with proper parsing later
+                                val dto = BidUpdate(auctionId, "bidder", 100.0, System.currentTimeMillis())
+                                _updates.tryEmit(dto)
+                            }.onFailure { e ->
+                                Log.e("AuctionWebSocket", "Failed to parse BidUpdate", e)
+                            }
+                        }
+
+                        override fun onFailure(
+                            webSocket: WebSocket,
+                            t: Throwable,
+                            response: Response?,
+                        ) {
+                            Log.e("AuctionWebSocket", "WebSocket failure for auction $auctionId, retrying…")
+                            retryConnect(auctionId)
+                        }
+                    },
+                )
+        }
+
+        private fun retryConnect(auctionId: String) {
+            GlobalScope.launch {
+                delay(2_000L)
+                connect(auctionId)
             }
+        }
 
-            override fun onMessage(webSocket: WebSocket, text: String) {
-                runCatching {
-                    // Simple JSON parsing for now - replace with proper parsing later
-                    val dto = BidUpdate(auctionId, "bidder", 100.0, System.currentTimeMillis())
-                    _updates.tryEmit(dto)
-                }.onFailure { e ->
-                    Log.e("AuctionWebSocket", "Failed to parse BidUpdate", e)
-                }
-            }
-
-            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                Log.e("AuctionWebSocket", "WebSocket failure for auction $auctionId, retrying…")
-                retryConnect(auctionId)
-            }
-        })
-    }
-
-    private fun retryConnect(auctionId: String) {
-        GlobalScope.launch {
-            delay(2_000L)
-            connect(auctionId)
+        fun disconnect() {
+            socket?.close(1000, "Client closed")
         }
     }
-
-    fun disconnect() {
-        socket?.close(1000, "Client closed")
-    }
-}

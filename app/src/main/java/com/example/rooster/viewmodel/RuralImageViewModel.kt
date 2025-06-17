@@ -10,49 +10,54 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 @HiltViewModel
-class RuralImageViewModel @Inject constructor(
-    private val ruralConnectivityOptimizer: RuralConnectivityOptimizer
-) : ViewModel() {
+class RuralImageViewModel
+    @Inject
+    constructor(
+        private val ruralConnectivityOptimizer: RuralConnectivityOptimizer,
+    ) : ViewModel() {
+        /**
+         * Get optimized image URL based on connection type
+         */
+        fun getOptimizedImageUrl(
+            originalUrl: String,
+            connectionType: ConnectionType,
+            imageType: ImageType,
+        ): Flow<String> =
+            flow {
+                try {
+                    val optimizedUrl =
+                        ruralConnectivityOptimizer.getOptimizedImageUrl(
+                            originalUrl = originalUrl,
+                            connectionType = connectionType,
+                            imageType = imageType,
+                        )
+                    emit(optimizedUrl)
+                } catch (e: Exception) {
+                    // Fallback to original URL on error
+                    emit(originalUrl)
+                }
+            }
 
-    /**
-     * Get optimized image URL based on connection type
-     */
-    fun getOptimizedImageUrl(
-        originalUrl: String,
-        connectionType: ConnectionType,
-        imageType: ImageType
-    ): Flow<String> = flow {
-        try {
-            val optimizedUrl = ruralConnectivityOptimizer.getOptimizedImageUrl(
-                originalUrl = originalUrl,
-                connectionType = connectionType,
-                imageType = imageType
-            )
-            emit(optimizedUrl)
-        } catch (e: Exception) {
-            // Fallback to original URL on error
-            emit(originalUrl)
-        }
+        /**
+         * Get batch optimized URLs
+         */
+        fun getBatchOptimizedUrls(
+            imageUrls: List<String>,
+            connectionType: ConnectionType,
+            imageType: ImageType,
+        ): Flow<List<String>> =
+            flow {
+                try {
+                    val optimizedUrls =
+                        ruralConnectivityOptimizer.batchLoadImages(
+                            imageUrls = imageUrls,
+                            connectionType = connectionType,
+                            imageType = imageType,
+                        )
+                    emit(optimizedUrls)
+                } catch (e: Exception) {
+                    // Fallback to original URLs on error
+                    emit(imageUrls)
+                }
+            }
     }
-
-    /**
-     * Get batch optimized URLs
-     */
-    fun getBatchOptimizedUrls(
-        imageUrls: List<String>,
-        connectionType: ConnectionType,
-        imageType: ImageType
-    ): Flow<List<String>> = flow {
-        try {
-            val optimizedUrls = ruralConnectivityOptimizer.batchLoadImages(
-                imageUrls = imageUrls,
-                connectionType = connectionType,
-                imageType = imageType
-            )
-            emit(optimizedUrls)
-        } catch (e: Exception) {
-            // Fallback to original URLs on error
-            emit(imageUrls)
-        }
-    }
-}

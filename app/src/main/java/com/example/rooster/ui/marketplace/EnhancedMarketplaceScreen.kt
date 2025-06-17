@@ -99,148 +99,153 @@ data class MarketplaceCategory(
 
 // MarketplaceViewModel with advanced services integration
 @HiltViewModel
-class EnhancedMarketplaceViewModel @Inject constructor(
-    private val intelligentSearchFetcher: IntelligentSearchFetcher,
-    private val ruralConnectivityOptimizer: RuralConnectivityOptimizer
-) : ViewModel() {
+class EnhancedMarketplaceViewModel
+    @Inject
+    constructor(
+        private val intelligentSearchFetcher: IntelligentSearchFetcher,
+        private val ruralConnectivityOptimizer: RuralConnectivityOptimizer,
+    ) : ViewModel() {
+        private val _searchResults = MutableStateFlow<List<MarketplaceListing>>(emptyList())
+        val searchResults: StateFlow<List<MarketplaceListing>> = _searchResults.asStateFlow()
 
-    private val _searchResults = MutableStateFlow<List<MarketplaceListing>>(emptyList())
-    val searchResults: StateFlow<List<MarketplaceListing>> = _searchResults.asStateFlow()
+        private val _isLoading = MutableStateFlow(false)
+        val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+        private val _isSearching = MutableStateFlow(false)
+        val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
 
-    private val _isSearching = MutableStateFlow(false)
-    val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
+        private val _searchSuggestions = MutableStateFlow<List<String>>(emptyList())
+        val searchSuggestions: StateFlow<List<String>> = _searchSuggestions.asStateFlow()
 
-    private val _searchSuggestions = MutableStateFlow<List<String>>(emptyList())
-    val searchSuggestions: StateFlow<List<String>> = _searchSuggestions.asStateFlow()
-
-    init {
-        loadInitialData()
-    }
-
-    fun performIntelligentSearch(query: String, category: String = "All") {
-        if (query.isBlank()) {
+        init {
             loadInitialData()
-            return
         }
 
-        viewModelScope.launch {
-            _isSearching.value = true
-            try {
-                intelligentSearchFetcher.semanticSearch(
-                    query = query,
-                    searchType = SearchType.MARKETPLACE
-                ).collect { searchResults ->
-                    // Convert search results to marketplace listings
-                    val listings = searchResults.map { result ->
-                        MarketplaceListing(
-                            id = result.id,
-                            title = result.title,
-                            description = result.description,
-                            price = Random.nextInt(500, 2001).toDouble(),
-                            sellerName = "Smart Seller",
-                            sellerRating = Random.nextDouble(4.0, 5.0),
-                            location = "Smart Location",
-                            imageUrl = null,
-                            category = category,
-                            isVerified = true,
-                            availability = "${Random.nextInt(5, 51)} Available",
-                            datePosted = "1 day ago",
-                            viewCount = Random.nextInt(10, 101)
-                        )
+        fun performIntelligentSearch(
+            query: String,
+            category: String = "All",
+        ) {
+            if (query.isBlank()) {
+                loadInitialData()
+                return
+            }
+
+            viewModelScope.launch {
+                _isSearching.value = true
+                try {
+                    intelligentSearchFetcher.semanticSearch(
+                        query = query,
+                        searchType = SearchType.MARKETPLACE,
+                    ).collect { searchResults ->
+                        // Convert search results to marketplace listings
+                        val listings =
+                            searchResults.map { result ->
+                                MarketplaceListing(
+                                    id = result.id,
+                                    title = result.title,
+                                    description = result.description,
+                                    price = Random.nextInt(500, 2001).toDouble(),
+                                    sellerName = "Smart Seller",
+                                    sellerRating = Random.nextDouble(4.0, 5.0),
+                                    location = "Smart Location",
+                                    imageUrl = null,
+                                    category = category,
+                                    isVerified = true,
+                                    availability = "${Random.nextInt(5, 51)} Available",
+                                    datePosted = "1 day ago",
+                                    viewCount = Random.nextInt(10, 101),
+                                )
+                            }
+                        _searchResults.value = listings
                     }
+                } catch (e: Exception) {
+                    // Handle error
+                    _searchResults.value = getSampleListings()
+                } finally {
+                    _isSearching.value = false
+                }
+            }
+        }
+
+        fun getSearchSuggestions(partialQuery: String) {
+            if (partialQuery.length < 2) {
+                _searchSuggestions.value = emptyList()
+                return
+            }
+
+            viewModelScope.launch {
+                intelligentSearchFetcher.getPredictiveSuggestions(partialQuery)
+                    .collect { suggestions ->
+                        _searchSuggestions.value = suggestions
+                    }
+            }
+        }
+
+        fun loadInitialData() {
+            viewModelScope.launch {
+                _isLoading.value = true
+                try {
+                    // Use rural connectivity optimizer to load data efficiently
+                    val listings = getSampleListings()
                     _searchResults.value = listings
+                } catch (e: Exception) {
+                    // Handle error
+                } finally {
+                    _isLoading.value = false
                 }
-            } catch (e: Exception) {
-                // Handle error
-                _searchResults.value = getSampleListings()
-            } finally {
-                _isSearching.value = false
             }
         }
-    }
 
-    fun getSearchSuggestions(partialQuery: String) {
-        if (partialQuery.length < 2) {
-            _searchSuggestions.value = emptyList()
-            return
+        private fun getSampleListings(): List<MarketplaceListing> {
+            return listOf(
+                MarketplaceListing(
+                    id = "1",
+                    title = "Premium Rhode Island Red Hens",
+                    description = "Healthy, vaccinated hens ready for laying. Excellent egg production record.",
+                    price = 1200.0,
+                    sellerName = "Ravi Kumar",
+                    sellerRating = 4.8,
+                    location = "Hyderabad, Telangana",
+                    imageUrl = null,
+                    category = "Laying Hens",
+                    isVerified = true,
+                    availability = "15 Available",
+                    datePosted = "2 days ago",
+                    viewCount = 45,
+                ),
+                MarketplaceListing(
+                    id = "2",
+                    title = "Broiler Chickens - 6 weeks old",
+                    description = "Well-fed broiler chickens, perfect weight for processing. Health certified.",
+                    price = 800.0,
+                    sellerName = "Manjula Farms",
+                    sellerRating = 4.6,
+                    location = "Warangal, Telangana",
+                    imageUrl = null,
+                    category = "Broilers",
+                    isVerified = true,
+                    availability = "50 Available",
+                    datePosted = "1 day ago",
+                    viewCount = 28,
+                ),
+                MarketplaceListing(
+                    id = "3",
+                    title = "Desi Country Chickens",
+                    description = "Free-range country chickens, naturally raised without chemicals.",
+                    price = 1500.0,
+                    sellerName = "Srinivas Poultry",
+                    sellerRating = 4.9,
+                    location = "Nizamabad, Telangana",
+                    imageUrl = null,
+                    category = "Country Chickens",
+                    isVerified = false,
+                    availability = "8 Available",
+                    datePosted = "3 days ago",
+                    viewCount = 67,
+                ),
+            )
         }
-
-        viewModelScope.launch {
-            intelligentSearchFetcher.getPredictiveSuggestions(partialQuery)
-                .collect { suggestions ->
-                    _searchSuggestions.value = suggestions
-                }
-        }
     }
-
-    fun loadInitialData() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                // Use rural connectivity optimizer to load data efficiently
-                val listings = getSampleListings()
-                _searchResults.value = listings
-            } catch (e: Exception) {
-                // Handle error
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    private fun getSampleListings(): List<MarketplaceListing> {
-        return listOf(
-            MarketplaceListing(
-                id = "1",
-                title = "Premium Rhode Island Red Hens",
-                description = "Healthy, vaccinated hens ready for laying. Excellent egg production record.",
-                price = 1200.0,
-                sellerName = "Ravi Kumar",
-                sellerRating = 4.8,
-                location = "Hyderabad, Telangana",
-                imageUrl = null,
-                category = "Laying Hens",
-                isVerified = true,
-                availability = "15 Available",
-                datePosted = "2 days ago",
-                viewCount = 45,
-            ),
-            MarketplaceListing(
-                id = "2",
-                title = "Broiler Chickens - 6 weeks old",
-                description = "Well-fed broiler chickens, perfect weight for processing. Health certified.",
-                price = 800.0,
-                sellerName = "Manjula Farms",
-                sellerRating = 4.6,
-                location = "Warangal, Telangana",
-                imageUrl = null,
-                category = "Broilers",
-                isVerified = true,
-                availability = "50 Available",
-                datePosted = "1 day ago",
-                viewCount = 28,
-            ),
-            MarketplaceListing(
-                id = "3",
-                title = "Desi Country Chickens",
-                description = "Free-range country chickens, naturally raised without chemicals.",
-                price = 1500.0,
-                sellerName = "Srinivas Poultry",
-                sellerRating = 4.9,
-                location = "Nizamabad, Telangana",
-                imageUrl = null,
-                category = "Country Chickens",
-                isVerified = false,
-                availability = "8 Available",
-                datePosted = "3 days ago",
-                viewCount = 67,
-            ),
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -272,7 +277,7 @@ fun EnhancedMarketplaceScreen(
     if (isLoading) {
         Box(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             CircularProgressIndicator()
         }
@@ -434,18 +439,18 @@ private fun MarketplaceHeader(
                 LazyColumn(
                     modifier = Modifier.height(100.dp),
                     contentPadding = PaddingValues(vertical = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     items(searchSuggestions) { suggestion ->
                         TextButton(
                             onClick = { onSuggestionSelected(suggestion) },
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                         ) {
                             Text(
                                 text = suggestion,
                                 style = MaterialTheme.typography.bodySmall,
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
                             )
                         }
                     }

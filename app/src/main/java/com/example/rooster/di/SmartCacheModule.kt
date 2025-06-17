@@ -17,11 +17,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object SmartCacheModule {
-
     @Provides
     @Singleton
     fun provideDiskCacheManager(
-        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
     ): DiskCacheManager {
         return DiskCacheManager(context)
     }
@@ -29,7 +28,7 @@ object SmartCacheModule {
     @Provides
     @Singleton
     fun providePredictiveCacheEngine(
-        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
     ): PredictiveCacheEngine {
         return PredictiveCacheEngine(context)
     }
@@ -39,16 +38,14 @@ object SmartCacheModule {
     fun provideSmartCacheManager(
         @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
         diskCacheManager: DiskCacheManager,
-        predictiveEngine: PredictiveCacheEngine
+        predictiveEngine: PredictiveCacheEngine,
     ): SmartCacheManager {
         return SmartCacheManager(context, diskCacheManager, predictiveEngine)
     }
 
     @Provides
     @Singleton
-    fun provideReactiveDataFetcher(
-        smartCacheManager: SmartCacheManager
-    ): ReactiveDataFetcher {
+    fun provideReactiveDataFetcher(smartCacheManager: SmartCacheManager): ReactiveDataFetcher {
         return ReactiveDataFetcher(smartCacheManager)
     }
 }

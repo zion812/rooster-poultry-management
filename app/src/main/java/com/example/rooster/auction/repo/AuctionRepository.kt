@@ -5,5 +5,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface AuctionRepository {
     fun observeBids(auctionId: String): Flow<BidUpdate>
-    suspend fun placeBid(auctionId: String, amount: Double): Result<Unit>
+
+    suspend fun placeBid(
+        auctionId: String,
+        amount: Double,
+    ): Result<Unit>
 }

@@ -23,7 +23,6 @@ import org.junit.Test
  * This allows the test suite to compile while the referenced classes are being developed.
  */
 class Phase1ImplementationTest {
-
     // Commented out until actual services are implemented
     // private lateinit var realTimeAuctionService: RealTimeAuctionService
     // private lateinit var realTimeMessagingService: RealTimeMessagingService
@@ -36,9 +35,10 @@ class Phase1ImplementationTest {
 
     // Placeholder test to ensure compilation works
     @Test
-    fun `test compilation works`() = runTest {
-        assertTrue("Compilation test passed", true)
-    }
+    fun `test compilation works`() =
+        runTest {
+            assertTrue("Compilation test passed", true)
+        }
 
     /*
     // 1.1 User Management & Profiles - Navigation Tests
@@ -47,16 +47,16 @@ class Phase1ImplementationTest {
         // Given
         val userRole = "farmer"
         val isVerified = true
-        
+
         // When
         val actions = ProfileNavigationHelper.getContextualActions(userRole, isVerified)
-        
+
         // Then
-        assertTrue("Should include farmer dashboard", 
+        assertTrue("Should include farmer dashboard",
             actions.any { it is ProfileNavigationHelper.ProfileAction.FarmerDashboard })
-        assertTrue("Should include settings", 
+        assertTrue("Should include settings",
             actions.any { it is ProfileNavigationHelper.ProfileAction.Settings })
-        assertTrue("Should include edit profile", 
+        assertTrue("Should include edit profile",
             actions.any { it is ProfileNavigationHelper.ProfileAction.EditProfile })
     }
 
@@ -65,14 +65,14 @@ class Phase1ImplementationTest {
         // Given
         val userRole = "farmer"
         val isVerified = false
-        
+
         // When
         val actions = ProfileNavigationHelper.getContextualActions(userRole, isVerified)
-        
+
         // Then
-        assertTrue("Should include verification status", 
+        assertTrue("Should include verification status",
             actions.any { it is ProfileNavigationHelper.ProfileAction.VerificationStatus })
-        assertFalse("Should not include dashboard for unverified", 
+        assertFalse("Should not include dashboard for unverified",
             actions.any { it is ProfileNavigationHelper.ProfileAction.FarmerDashboard })
     }
 
@@ -81,7 +81,7 @@ class Phase1ImplementationTest {
         // Given
         val farmerDashboard = ProfileNavigationHelper.ProfileAction.FarmerDashboard
         val settings = ProfileNavigationHelper.ProfileAction.Settings
-        
+
         // When & Then
         assertTrue("Verified farmer should access dashboard",
             ProfileNavigationHelper.isActionAvailable(farmerDashboard, true, "farmer"))
@@ -98,7 +98,7 @@ class Phase1ImplementationTest {
         val quarantineStatus = FowlNavigationUtils.FowlStatus.QUARANTINE
         val healthyStatus = FowlNavigationUtils.FowlStatus.HEALTHY
         val mortalityStatus = FowlNavigationUtils.FowlStatus.MORTALITY
-        
+
         // Then
         assertTrue("Quarantine should have higher priority than healthy",
             quarantineStatus.priority > healthyStatus.priority)
@@ -112,12 +112,12 @@ class Phase1ImplementationTest {
         val basicInfo = FowlNavigationUtils.FowlFormNavigation.FormStep.BasicInfo
         val physicalDetails = FowlNavigationUtils.FowlFormNavigation.FormStep.PhysicalDetails
         val review = FowlNavigationUtils.FowlFormNavigation.FormStep.Review
-        
+
         // When
         val nextStep = FowlNavigationUtils.FowlFormNavigation.getNextStep(basicInfo)
         val previousStep = FowlNavigationUtils.FowlFormNavigation.getPreviousStep(physicalDetails)
         val progress = FowlNavigationUtils.FowlFormNavigation.getProgressPercentage(review)
-        
+
         // Then
         assertEquals("Next step should be physical details", physicalDetails, nextStep)
         assertEquals("Previous step should be basic info", basicInfo, previousStep)
@@ -130,12 +130,12 @@ class Phase1ImplementationTest {
         val isOwner = true
         val healthyStatus = FowlNavigationUtils.FowlStatus.HEALTHY
         val soldStatus = FowlNavigationUtils.FowlStatus.SOLD
-        
+
         // When
         val healthyActions = FowlNavigationUtils.FowlQuickActions.getAvailableActions(isOwner, healthyStatus)
         val soldActions = FowlNavigationUtils.FowlQuickActions.getAvailableActions(isOwner, soldStatus)
         val nonOwnerActions = FowlNavigationUtils.FowlQuickActions.getAvailableActions(false, healthyStatus)
-        
+
         // Then
         assertTrue("Owner should have full actions for healthy fowl",
             healthyActions.size > soldActions.size)
@@ -160,10 +160,10 @@ class Phase1ImplementationTest {
         val fowlId = "FOWL123"
         val senderId = "SENDER456"
         val receiverId = "RECEIVER789"
-        
+
         // When
         val result = transferWorkflowService.initializeTransfer(fowlId, senderId, receiverId)
-        
+
         // Then
         assertTrue("Transfer initialization should succeed", result.isSuccess)
         assertNotNull("Should return transfer ID", result.getOrNull())
@@ -210,13 +210,13 @@ class Phase1ImplementationTest {
         // Given
         // val quarantineStatus = FowlNavigationUtils.FowlStatus.QUARANTINE
         // val farmerRole = ProfileNavigationHelper.UserRole.FARMER
-        
+
         // Then
         // assertEquals("దిగుమతి నిర్బంధం", quarantineStatus.displayNameTelugu)
         // assertEquals("రైతు", farmerRole.displayNameTelugu)
-        // assertNotEquals("Quarantine should have Telugu translation", 
+        // assertNotEquals("Quarantine should have Telugu translation",
         //     quarantineStatus.displayName, quarantineStatus.displayNameTelugu)
-        
+
         // Placeholder until classes are implemented
         assertTrue("Telugu localization test placeholder", true)
     }
@@ -248,7 +248,7 @@ class Phase1ImplementationTest {
         assertTrue("Placeholder for data consistency tests", true)
     }
 
-    */
+     */
 }
 
 /*
@@ -260,15 +260,15 @@ class MockRealTimeAuctionService : RealTimeAuctionService() {
     override fun connectToAuctionUpdates(serverUrl: String) {
         // Mock implementation
     }
-    
+
     override fun isConnected(): Boolean = true
 }
 
 class MockTransferWorkflowService : TransferWorkflowService() {
     override suspend fun initializeTransfer(
-        fowlId: String, 
-        senderId: String, 
-        receiverId: String, 
+        fowlId: String,
+        senderId: String,
+        receiverId: String,
         transferType: String
     ): Result<String> {
         return Result.success("MOCK_TRANSFER_ID")
@@ -280,13 +280,15 @@ class MockTransferWorkflowService : TransferWorkflowService() {
  * Test utilities for common test scenarios
  */
 object TestUtils {
-    
-    fun createMockUser(role: String = "farmer", isVerified: Boolean = true) = mapOf(
+    fun createMockUser(
+        role: String = "farmer",
+        isVerified: Boolean = true,
+    ) = mapOf(
         "id" to "TEST_USER_${System.currentTimeMillis()}",
         "role" to role,
         "isVerified" to isVerified,
         "username" to "TestUser",
-        "usernameTelugu" to "పరీక్ష వినియోగదారు"
+        "usernameTelugu" to "పరీక్ష వినియోగదారు",
     )
 
     /*
@@ -297,7 +299,7 @@ object TestUtils {
         "breed" to "Test Breed",
         "age" to "6 months"
     )
-    
+
     fun createMockTransfer(status: TransferWorkflowService.TransferStatus = TransferWorkflowService.TransferStatus.DRAFT) = mapOf(
         "id" to "TXN_${System.currentTimeMillis()}",
         "status" to status,
@@ -305,5 +307,5 @@ object TestUtils {
         "senderId" to "SENDER_456",
         "receiverId" to "RECEIVER_789"
     )
-    */
+     */
 }

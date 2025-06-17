@@ -22,56 +22,56 @@ enum class MarketCategory(
     val displayName: String,
     val displayNameTelugu: String,
     val icon: ImageVector,
-    val color: Color
+    val color: Color,
 ) {
     LIVE_BIRDS(
         "Live Birds",
         "సజీవ పక్షులు",
         Icons.Default.Pets,
-        Color(0xFF059669)
+        Color(0xFF059669),
     ),
     EGGS(
         "Eggs",
         "గుడ్లు",
         Icons.Default.EggAlt,
-        Color(0xFFF59E0B)
+        Color(0xFFF59E0B),
     ),
     FEED_SUPPLEMENTS(
         "Feed & Supplements",
         "దాణా & పోషకాలు",
         Icons.Default.Grass,
-        Color(0xFF8B5CF6)
+        Color(0xFF8B5CF6),
     ),
     EQUIPMENT(
         "Equipment",
         "పరికరాలు",
         Icons.Default.Build,
-        Color(0xFF3B82F6)
+        Color(0xFF3B82F6),
     ),
     MEDICINES(
         "Medicines",
         "మందులు",
         Icons.Default.MedicalServices,
-        Color(0xFFDC2626)
+        Color(0xFFDC2626),
     ),
     SERVICES(
         "Services",
         "సేవలు",
         Icons.Default.Handshake,
-        Color(0xFF6366F1)
+        Color(0xFF6366F1),
     ),
     BREEDING_STOCK(
         "Breeding Stock",
         "సంతానోత్పత్తి స్టాక్",
         Icons.Default.FamilyRestroom,
-        Color(0xFFEC4899)
+        Color(0xFFEC4899),
     ),
     ORGANIC(
         "Organic Products",
         "సేంద్రీయ ఉత్పత్తులు",
         Icons.Default.Eco,
-        Color(0xFF10B981)
-    )
+        Color(0xFF10B981),
+    ),
 }
 
 // Listing status with visual indicators
@@ -80,43 +80,43 @@ enum class ListingStatus(
     val displayNameTelugu: String,
     val color: Color,
     val icon: ImageVector,
-    val isActive: Boolean = true
+    val isActive: Boolean = true,
 ) {
     ACTIVE(
         "Active",
         "క్రియాశీలకం",
         Color(0xFF059669),
         Icons.Default.CheckCircle,
-        true
+        true,
     ),
     PENDING(
         "Pending Approval",
         "ఆమోదం పెండింగ్",
         Color(0xFFF59E0B),
         Icons.Default.Pending,
-        false
+        false,
     ),
     SOLD(
         "Sold",
         "అమ్మబడిన",
         Color(0xFF6B7280),
         Icons.Default.ShoppingCart,
-        false
+        false,
     ),
     EXPIRED(
         "Expired",
         "గడువు ముగిసిన",
         Color(0xFFEF4444),
         Icons.Default.AccessTime,
-        false
+        false,
     ),
     SUSPENDED(
         "Suspended",
         "నిలిపివేయబడిన",
         Color(0xFFDC2626),
         Icons.Default.Block,
-        false
-    )
+        false,
+    ),
 }
 
 // Price range filters
@@ -124,17 +124,18 @@ data class PriceRange(
     val min: Double,
     val max: Double,
     val displayName: String,
-    val displayNameTelugu: String
+    val displayNameTelugu: String,
 ) {
     companion object {
-        fun getCommonRanges(): List<PriceRange> = listOf(
-            PriceRange(0.0, 500.0, "Under ₹500", "₹500 కింద"),
-            PriceRange(500.0, 1000.0, "₹500 - ₹1,000", "₹500 - ₹1,000"),
-            PriceRange(1000.0, 2500.0, "₹1,000 - ₹2,500", "₹1,000 - ₹2,500"),
-            PriceRange(2500.0, 5000.0, "₹2,500 - ₹5,000", "₹2,500 - ₹5,000"),
-            PriceRange(5000.0, 10000.0, "₹5,000 - ₹10,000", "₹5,000 - ₹10,000"),
-            PriceRange(10000.0, Double.MAX_VALUE, "Above ₹10,000", "₹10,000 మించిన")
-        )
+        fun getCommonRanges(): List<PriceRange> =
+            listOf(
+                PriceRange(0.0, 500.0, "Under ₹500", "₹500 కింద"),
+                PriceRange(500.0, 1000.0, "₹500 - ₹1,000", "₹500 - ₹1,000"),
+                PriceRange(1000.0, 2500.0, "₹1,000 - ₹2,500", "₹1,000 - ₹2,500"),
+                PriceRange(2500.0, 5000.0, "₹2,500 - ₹5,000", "₹2,500 - ₹5,000"),
+                PriceRange(5000.0, 10000.0, "₹5,000 - ₹10,000", "₹5,000 - ₹10,000"),
+                PriceRange(10000.0, Double.MAX_VALUE, "Above ₹10,000", "₹10,000 మించిన"),
+            )
     }
 }
 
@@ -143,50 +144,50 @@ enum class SortOption(
     val displayName: String,
     val displayNameTelugu: String,
     val field: String,
-    val isDescending: Boolean = false
+    val isDescending: Boolean = false,
 ) {
     NEWEST_FIRST(
         "Newest First",
         "కొత్తవి మొదట",
         "createdAt",
-        true
+        true,
     ),
     OLDEST_FIRST(
         "Oldest First",
         "పాతవి మొదట",
         "createdAt",
-        false
+        false,
     ),
     PRICE_LOW_HIGH(
         "Price: Low to High",
         "ధర: తక్కువ నుండి ఎక్కువ",
         "price",
-        false
+        false,
     ),
     PRICE_HIGH_LOW(
         "Price: High to Low",
         "ధర: ఎక్కువ నుండి తక్కువ",
         "price",
-        true
+        true,
     ),
     DISTANCE_NEAR(
         "Distance: Near to Far",
         "దూరం: దగ్గర నుండి దూరం",
         "distance",
-        false
+        false,
     ),
     POPULARITY(
         "Most Popular",
         "అత్యధిక జనాదరణ",
         "views",
-        true
+        true,
     ),
     RATING_HIGH(
         "Highest Rated",
         "అత్యధిక రేటింగ్",
         "rating",
-        true
-    )
+        true,
+    ),
 }
 
 // Advanced filters
@@ -205,20 +206,23 @@ data class MarketplaceFilters(
     val vaccinationStatus: Boolean = false,
     val organicCertified: Boolean = false,
     val sortBy: SortOption = SortOption.NEWEST_FIRST,
-    val searchQuery: String? = null
+    val searchQuery: String? = null,
 )
 
 // Navigation helper for marketplace
 object MarketplaceNavigationHelper {
-
     // Get filter display text
-    fun getFilterSummary(filters: MarketplaceFilters, isTeluguMode: Boolean): String {
+    fun getFilterSummary(
+        filters: MarketplaceFilters,
+        isTeluguMode: Boolean,
+    ): String {
         val parts = mutableListOf<String>()
 
         if (filters.categories.isNotEmpty()) {
-            val categoryNames = filters.categories.map {
-                if (isTeluguMode) it.displayNameTelugu else it.displayName
-            }
+            val categoryNames =
+                filters.categories.map {
+                    if (isTeluguMode) it.displayNameTelugu else it.displayName
+                }
             parts.add(categoryNames.joinToString(", "))
         }
 
@@ -329,26 +333,32 @@ object MarketplaceNavigationHelper {
     // Quick filter presets
     fun getQuickFilters(isTeluguMode: Boolean): List<Pair<String, MarketplaceFilters>> {
         return listOf(
-            (if (isTeluguMode) "సజీవ పక్షులు" else "Live Birds") to MarketplaceFilters(
-                categories = setOf(MarketCategory.LIVE_BIRDS)
-            ),
-            (if (isTeluguMode) "గుడ్లు" else "Eggs") to MarketplaceFilters(
-                categories = setOf(MarketCategory.EGGS)
-            ),
-            (if (isTeluguMode) "ధృవీకరించబడిన విక్రేతలు" else "Verified Sellers") to MarketplaceFilters(
-                isVerifiedSeller = true
-            ),
-            (if (isTeluguMode) "సేంద్రీయ" else "Organic") to MarketplaceFilters(
-                organicCertified = true
-            ),
-            (if (isTeluguMode) "దగ్గరలో" else "Nearby") to MarketplaceFilters(
-                maxDistance = 10,
-                sortBy = SortOption.DISTANCE_NEAR
-            ),
-            (if (isTeluguMode) "చౌకైన ధర" else "Budget Friendly") to MarketplaceFilters(
-                priceRange = PriceRange.getCommonRanges()[0],
-                sortBy = SortOption.PRICE_LOW_HIGH
-            )
+            (if (isTeluguMode) "సజీవ పక్షులు" else "Live Birds") to
+                MarketplaceFilters(
+                    categories = setOf(MarketCategory.LIVE_BIRDS),
+                ),
+            (if (isTeluguMode) "గుడ్లు" else "Eggs") to
+                MarketplaceFilters(
+                    categories = setOf(MarketCategory.EGGS),
+                ),
+            (if (isTeluguMode) "ధృవీకరించబడిన విక్రేతలు" else "Verified Sellers") to
+                MarketplaceFilters(
+                    isVerifiedSeller = true,
+                ),
+            (if (isTeluguMode) "సేంద్రీయ" else "Organic") to
+                MarketplaceFilters(
+                    organicCertified = true,
+                ),
+            (if (isTeluguMode) "దగ్గరలో" else "Nearby") to
+                MarketplaceFilters(
+                    maxDistance = 10,
+                    sortBy = SortOption.DISTANCE_NEAR,
+                ),
+            (if (isTeluguMode) "చౌకైన ధర" else "Budget Friendly") to
+                MarketplaceFilters(
+                    priceRange = PriceRange.getCommonRanges()[0],
+                    sortBy = SortOption.PRICE_LOW_HIGH,
+                ),
         )
     }
 }
@@ -359,5 +369,5 @@ data class ContactInfo(
     val whatsappNumber: String? = null,
     val allowDirectCall: Boolean = true,
     val allowWhatsApp: Boolean = true,
-    val preferredContactTime: String? = null
+    val preferredContactTime: String? = null,
 )

@@ -65,14 +65,14 @@ data class MarketInsights(
     val averagePrice: Double,
     val priceDirection: String,
     val demandLevel: String,
-    val seasonalFactor: Double
+    val seasonalFactor: Double,
 )
 
 data class PriceInsights(
     val marketAverage: Double,
     val priceComparison: Double,
     val isGoodDeal: Boolean,
-    val priceRecommendation: String
+    val priceRecommendation: String,
 )
 
 /**
@@ -82,34 +82,35 @@ data class PriceInsights(
 fun MarketInsightsCard(
     insights: MarketInsights,
     isTeluguMode: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f)
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+            ),
     ) {
         Column(
-            modifier = Modifier.padding(12.dp)
+            modifier = Modifier.padding(12.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = if (isTeluguMode) "మార్కెట్ సమాచారం" else "Market Insights",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
 
                 Icon(
                     imageVector = Icons.Default.TrendingUp,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
 
@@ -117,27 +118,29 @@ fun MarketInsightsCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    text = if (isTeluguMode) {
-                        "సగటు: ₹${insights.averagePrice.toInt()}"
-                    } else {
-                        "Avg: ₹${insights.averagePrice.toInt()}"
-                    },
+                    text =
+                        if (isTeluguMode) {
+                            "సగటు: ₹${insights.averagePrice.toInt()}"
+                        } else {
+                            "Avg: ₹${insights.averagePrice.toInt()}"
+                        },
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
 
                 Text(
                     text = insights.demandLevel,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
-                    color = when (insights.demandLevel) {
-                        "High" -> MaterialTheme.colorScheme.primary
-                        "Medium" -> MaterialTheme.colorScheme.secondary
-                        else -> MaterialTheme.colorScheme.onSecondaryContainer
-                    }
+                    color =
+                        when (insights.demandLevel) {
+                            "High" -> MaterialTheme.colorScheme.primary
+                            "Medium" -> MaterialTheme.colorScheme.secondary
+                            else -> MaterialTheme.colorScheme.onSecondaryContainer
+                        },
                 )
             }
         }
@@ -151,47 +154,49 @@ fun MarketInsightsCard(
 fun NearbyListingsSection(
     nearbyListings: List<SafeListing>,
     isTeluguMode: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f),
+            ),
     ) {
         Column(
-            modifier = Modifier.padding(12.dp)
+            modifier = Modifier.padding(12.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = if (isTeluguMode) "సమీప జాబితాలు" else "Similar Nearby",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
                 )
 
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.onTertiaryContainer
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
                 )
             }
 
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = if (isTeluguMode) {
-                    "${nearbyListings.size} సమానమైన జాబితాలు"
-                } else {
-                    "${nearbyListings.size} similar listings"
-                },
+                text =
+                    if (isTeluguMode) {
+                        "${nearbyListings.size} సమానమైన జాబితాలు"
+                    } else {
+                        "${nearbyListings.size} similar listings"
+                    },
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onTertiaryContainer
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
             )
 
             // Price range of nearby listings
@@ -199,13 +204,14 @@ fun NearbyListingsSection(
                 val minPrice = nearbyListings.minOf { it.price }
                 val maxPrice = nearbyListings.maxOf { it.price }
                 Text(
-                    text = if (isTeluguMode) {
-                        "ధర వ్యాప్తి: ₹${minPrice.toInt()} - ₹${maxPrice.toInt()}"
-                    } else {
-                        "Price range: ₹${minPrice.toInt()} - ₹${maxPrice.toInt()}"
-                    },
+                    text =
+                        if (isTeluguMode) {
+                            "ధర వ్యాప్తి: ₹${minPrice.toInt()} - ₹${maxPrice.toInt()}"
+                        } else {
+                            "Price range: ₹${minPrice.toInt()} - ₹${maxPrice.toInt()}"
+                        },
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f),
                 )
             }
         }
@@ -232,7 +238,7 @@ fun ProductListItem(
     isTeluguMode: Boolean = false,
     isFavorited: Boolean = false,
     showFullDetails: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val networkQuality = remember { assessNetworkQualitySafely(context) }
@@ -245,22 +251,26 @@ fun ProductListItem(
 
     AnimatedVisibility(
         visible = isVisible,
-        enter = fadeIn(animationSpec = tween(300)) +
+        enter =
+            fadeIn(animationSpec = tween(300)) +
                 slideInVertically(animationSpec = tween(300)) { it / 2 },
         modifier = modifier,
     ) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onClick() }
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 2.dp,
-                pressedElevation = 8.dp,
-            ),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { onClick() }
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+            elevation =
+                CardDefaults.cardElevation(
+                    defaultElevation = 2.dp,
+                    pressedElevation = 8.dp,
+                ),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
             shape = MaterialTheme.shapes.medium,
         ) {
             Column(
@@ -280,10 +290,11 @@ fun ProductListItem(
                             VerificationBadge(
                                 text = if (isTeluguMode) "వంశావళి" else "Verified",
                                 icon = Icons.Default.Verified,
-                                colors = AssistChipDefaults.assistChipColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    labelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                ),
+                                colors =
+                                    AssistChipDefaults.assistChipColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        labelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    ),
                             )
                         }
 
@@ -291,10 +302,11 @@ fun ProductListItem(
                             VerificationBadge(
                                 text = if (isTeluguMode) "పెంపకందారు" else "Breeder",
                                 icon = Icons.Default.Star,
-                                colors = AssistChipDefaults.assistChipColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    labelColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                ),
+                                colors =
+                                    AssistChipDefaults.assistChipColors(
+                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                        labelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    ),
                             )
                         }
                     }
@@ -355,23 +367,26 @@ fun ProductListItem(
                         imageUrl = listing.imageUrl,
                         networkQuality = networkQuality,
                         contentDescription = "${listing.breed} image",
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(MaterialTheme.shapes.medium),
+                        modifier =
+                            Modifier
+                                .size(100.dp)
+                                .clip(MaterialTheme.shapes.medium),
                     )
 
                     // Enhanced product details
                     Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         // Breed name with intelligent translation
                         Text(
-                            text = listing.breed.ifEmpty {
-                                if (isTeluguMode) "జాతి తెలియదు" else "Breed Unknown"
-                            },
+                            text =
+                                listing.breed.ifEmpty {
+                                    if (isTeluguMode) "జాతి తెలియదు" else "Breed Unknown"
+                                },
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -381,11 +396,12 @@ fun ProductListItem(
 
                         // Age and gender info with localization
                         Text(
-                            text = if (isTeluguMode) {
-                                "వయస్సు: ${listing.age} వారాలు"
-                            } else {
-                                "Age: ${listing.age} weeks"
-                            },
+                            text =
+                                if (isTeluguMode) {
+                                    "వయస్సు: ${listing.age} వారాలు"
+                                } else {
+                                    "Age: ${listing.age} weeks"
+                                },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -393,7 +409,7 @@ fun ProductListItem(
                         // Enhanced price with market insights
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Text(
                                 text = "₹${formatPrice(listing.price)}",
@@ -405,11 +421,12 @@ fun ProductListItem(
 
                         // Seller info with geospatial distance
                         Text(
-                            text = if (isTeluguMode) {
-                                "విక్రేత: ${listing.owner}"
-                            } else {
-                                "Seller: ${listing.owner}"
-                            },
+                            text =
+                                if (isTeluguMode) {
+                                    "విక్రేత: ${listing.owner}"
+                                } else {
+                                    "Seller: ${listing.owner}"
+                                },
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
@@ -429,11 +446,12 @@ fun ProductListItem(
                                     tint = MaterialTheme.colorScheme.secondary,
                                 )
                                 Text(
-                                    text = if (isTeluguMode) {
-                                        "${listing.vaccinations.size} టీకాలు"
-                                    } else {
-                                        "${listing.vaccinations.size} vaccines"
-                                    },
+                                    text =
+                                        if (isTeluguMode) {
+                                            "${listing.vaccinations.size} టీకాలు"
+                                        } else {
+                                            "${listing.vaccinations.size} vaccines"
+                                        },
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.secondary,
                                 )

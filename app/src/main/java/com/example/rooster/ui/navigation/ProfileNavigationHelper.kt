@@ -18,20 +18,19 @@ import com.example.rooster.NavigationRoute
 
 // Profile Navigation Helper
 object ProfileNavigationHelper {
-
     sealed class ProfileAction(
         val route: String,
         val icon: ImageVector,
         val label: String,
         val labelTelugu: String,
-        val requiresVerification: Boolean = false
+        val requiresVerification: Boolean = false,
     ) {
         object EditProfile : ProfileAction(
             "profile_edit",
             Icons.Default.Edit,
             "Edit Profile",
             "ప్రొఫైల్ సవరించు",
-            false
+            false,
         )
 
         object VerificationStatus : ProfileAction(
@@ -39,7 +38,7 @@ object ProfileNavigationHelper {
             Icons.Default.Verified,
             "Verification Status",
             "ధృవీకరణ స్థితి",
-            false
+            false,
         )
 
         object FarmerDashboard : ProfileAction(
@@ -47,7 +46,7 @@ object ProfileNavigationHelper {
             Icons.Default.Dashboard,
             "Farmer Dashboard",
             "రైతు డాష్‌బోర్డ్",
-            true
+            true,
         )
 
         object VetDashboard : ProfileAction(
@@ -55,7 +54,7 @@ object ProfileNavigationHelper {
             Icons.Default.MedicalServices,
             "Veterinary Dashboard",
             "పశువైద్య డాష్‌బోర్డ్",
-            true
+            true,
         )
 
         object Settings : ProfileAction(
@@ -63,7 +62,7 @@ object ProfileNavigationHelper {
             Icons.Default.Settings,
             "Settings",
             "సెట్టింగులు",
-            false
+            false,
         )
 
         object MyListings : ProfileAction(
@@ -71,7 +70,7 @@ object ProfileNavigationHelper {
             Icons.Default.Store,
             "My Listings",
             "నా జాబితాలు",
-            false
+            false,
         )
 
         object TransferHistory : ProfileAction(
@@ -79,7 +78,7 @@ object ProfileNavigationHelper {
             Icons.Default.SwapHoriz,
             "Transfer History",
             "బదిలీ చరితం",
-            false
+            false,
         )
 
         object FeedbackReports : ProfileAction(
@@ -87,41 +86,46 @@ object ProfileNavigationHelper {
             Icons.Default.Assessment,
             "Feedback & Reports",
             "అభిప్రాయం & నివేదికలు",
-            false
+            false,
         )
     }
 
     // Get contextual actions based on user role and verification status
     fun getContextualActions(
         userRole: String,
-        isVerified: Boolean
+        isVerified: Boolean,
     ): List<ProfileAction> {
-        val baseActions = listOf(
-            ProfileAction.EditProfile,
-            ProfileAction.Settings,
-            ProfileAction.MyListings,
-            ProfileAction.TransferHistory
-        )
-
-        val roleSpecificActions = when (userRole.lowercase()) {
-            "farmer" -> listOf(
-                ProfileAction.FarmerDashboard,
-                ProfileAction.VerificationStatus
+        val baseActions =
+            listOf(
+                ProfileAction.EditProfile,
+                ProfileAction.Settings,
+                ProfileAction.MyListings,
+                ProfileAction.TransferHistory,
             )
 
-            "vet", "veterinarian" -> listOf(
-                ProfileAction.VetDashboard,
-                ProfileAction.VerificationStatus
-            )
+        val roleSpecificActions =
+            when (userRole.lowercase()) {
+                "farmer" ->
+                    listOf(
+                        ProfileAction.FarmerDashboard,
+                        ProfileAction.VerificationStatus,
+                    )
 
-            else -> listOf(ProfileAction.VerificationStatus)
-        }
+                "vet", "veterinarian" ->
+                    listOf(
+                        ProfileAction.VetDashboard,
+                        ProfileAction.VerificationStatus,
+                    )
 
-        val verificationActions = if (!isVerified) {
-            listOf(ProfileAction.VerificationStatus)
-        } else {
-            emptyList()
-        }
+                else -> listOf(ProfileAction.VerificationStatus)
+            }
+
+        val verificationActions =
+            if (!isVerified) {
+                listOf(ProfileAction.VerificationStatus)
+            } else {
+                emptyList()
+            }
 
         return (baseActions + roleSpecificActions + verificationActions).distinct()
     }
@@ -130,13 +134,14 @@ object ProfileNavigationHelper {
     fun navigateToAction(
         navController: NavController,
         action: ProfileAction,
-        userId: String? = null
+        userId: String? = null,
     ) {
-        val route = if (userId != null && action.route.contains("{userId}")) {
-            action.route.replace("{userId}", userId)
-        } else {
-            action.route
-        }
+        val route =
+            if (userId != null && action.route.contains("{userId}")) {
+                action.route.replace("{userId}", userId)
+            } else {
+                action.route
+            }
 
         navController.navigate(route) {
             // Clear backstack for dashboard navigation
@@ -154,7 +159,7 @@ object ProfileNavigationHelper {
     fun isActionAvailable(
         action: ProfileAction,
         isVerified: Boolean,
-        userRole: String
+        userRole: String,
     ): Boolean {
         return when {
             action.requiresVerification && !isVerified -> false
@@ -170,7 +175,7 @@ enum class ProfileStatus(val color: androidx.compose.ui.graphics.Color, val icon
     VERIFIED(androidx.compose.ui.graphics.Color(0xFF4CAF50), Icons.Default.Verified),
     PENDING_VERIFICATION(androidx.compose.ui.graphics.Color(0xFFFF9800), Icons.Default.Pending),
     UNVERIFIED(androidx.compose.ui.graphics.Color(0xFF9E9E9E), Icons.Default.Person),
-    SUSPENDED(androidx.compose.ui.graphics.Color(0xFFF44336), Icons.Default.Block)
+    SUSPENDED(androidx.compose.ui.graphics.Color(0xFFF44336), Icons.Default.Block),
 }
 
 // User Role Types
@@ -178,5 +183,5 @@ enum class UserRole(val displayName: String, val displayNameTelugu: String) {
     FARMER("Farmer", "రైతు"),
     VET("Veterinarian", "పశువైద్యుడు"),
     BUYER("Buyer", "కొనుగోలుదారు"),
-    ADMIN("Administrator", "నిర్వాహకుడు")
+    ADMIN("Administrator", "నిర్వాహకుడు"),
 }

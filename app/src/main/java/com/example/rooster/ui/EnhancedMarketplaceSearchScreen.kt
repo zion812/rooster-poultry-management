@@ -58,84 +58,87 @@ import com.example.rooster.viewmodel.VoiceSearchViewModel
 @Composable
 fun EnhancedMarketplaceSearchScreen(
     modifier: Modifier = Modifier,
-    viewModel: VoiceSearchViewModel = hiltViewModel()
+    viewModel: VoiceSearchViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val searchState by viewModel.searchState.collectAsStateWithLifecycle()
     val voiceSearchState by viewModel.voiceSearchState.collectAsStateWithLifecycle()
     val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
     val selectedContext by viewModel.selectedContext.collectAsState()
-    
+
     var searchQuery by remember { mutableStateOf("") }
     var isVoiceSearchActive by remember { mutableStateOf(false) }
     var selectedLanguage by remember { mutableStateOf("te") }
-    
+
     // Voice recording permission
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            viewModel.startVoiceSearch(selectedLanguage)
-            isVoiceSearchActive = true
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { isGranted ->
+            if (isGranted) {
+                viewModel.startVoiceSearch(selectedLanguage)
+                isVoiceSearchActive = true
+            }
         }
-    }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         // Header
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = if (selectedLanguage == "te") "మార్కెట్‌ప్లేస్ వెతుకులు" else "Marketplace Search",
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     text = if (selectedLanguage == "te") "వాయిస్ మరియు టెక్స్ట్ సెర్చ్" else "Voice & Text Search",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
                 )
             }
         }
 
         // Language Toggle
         Card(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = if (selectedLanguage == "te") "భాష:" else "Language:",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
                 )
-                
+
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     FilterChip(
                         onClick = { selectedLanguage = "te" },
                         label = { Text("తెలుగు") },
-                        selected = selectedLanguage == "te"
+                        selected = selectedLanguage == "te",
                     )
                     FilterChip(
                         onClick = { selectedLanguage = "en" },
                         label = { Text("English") },
-                        selected = selectedLanguage == "en"
+                        selected = selectedLanguage == "en",
                     )
                 }
             }
@@ -143,20 +146,20 @@ fun EnhancedMarketplaceSearchScreen(
 
         // Search Input with Voice
         Card(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 // Search TextField
                 OutlinedTextField(
                     value = searchQuery,
-                    onValueChange = { 
+                    onValueChange = {
                         searchQuery = it
                         viewModel.updateSearchQuery(it, selectedLanguage)
                     },
-                    label = { 
+                    label = {
                         Text(if (selectedLanguage == "te") "కోడిలు, మేత, వ్యాధులు వెతకండి..." else "Search chickens, feed, diseases...")
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -165,8 +168,8 @@ fun EnhancedMarketplaceSearchScreen(
                         IconButton(
                             onClick = {
                                 if (ContextCompat.checkSelfPermission(
-                                        context, 
-                                        Manifest.permission.RECORD_AUDIO
+                                        context,
+                                        Manifest.permission.RECORD_AUDIO,
                                     ) == PackageManager.PERMISSION_GRANTED
                                 ) {
                                     viewModel.startVoiceSearch(selectedLanguage)
@@ -174,37 +177,37 @@ fun EnhancedMarketplaceSearchScreen(
                                 } else {
                                     permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                                 }
-                            }
+                            },
                         ) {
                             Icon(
                                 Icons.Default.Mic,
                                 contentDescription = "Voice Search",
-                                tint = if (isVoiceSearchActive) Color.Red else MaterialTheme.colorScheme.primary
+                                tint = if (isVoiceSearchActive) Color.Red else MaterialTheme.colorScheme.primary,
                             )
                         }
-                    }
+                    },
                 )
 
                 // Voice Search Status
                 if (voiceSearchState is VoiceSearchState.Recording) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color.Red.copy(alpha = 0.1f))
+                        colors = CardDefaults.cardColors(containerColor = Color.Red.copy(alpha = 0.1f)),
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Icon(
                                 Icons.Default.Mic,
                                 contentDescription = null,
-                                tint = Color.Red
+                                tint = Color.Red,
                             )
                             Text(
                                 text = if (selectedLanguage == "te") "వింటోంది... మాట్లాడండి" else "Listening... Speak now",
                                 color = Color.Red,
-                                fontWeight = FontWeight.Medium
+                                fontWeight = FontWeight.Medium,
                             )
                         }
                     }
@@ -214,16 +217,16 @@ fun EnhancedMarketplaceSearchScreen(
                 if (suggestions.isNotEmpty()) {
                     LazyColumn(
                         modifier = Modifier.heightIn(max = 200.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         items(suggestions) { suggestion ->
                             SuggestionChip(
-                                onClick = { 
+                                onClick = {
                                     searchQuery = suggestion
                                     viewModel.executeSemanticSearch(suggestion, selectedLanguage)
                                 },
                                 label = { Text(suggestion) },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
                             )
                         }
                     }
@@ -233,35 +236,36 @@ fun EnhancedMarketplaceSearchScreen(
 
         // Search Context Options
         Card(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
                     text = if (selectedLanguage == "te") "వెతుకులు రకం:" else "Search Context:",
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
                 )
 
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     items(AgriculturalContext.values()) { context ->
-                        val contextName = when (context) {
-                            AgriculturalContext.GENERAL -> if (selectedLanguage == "te") "సాధారణ" else "General"
-                            AgriculturalContext.AUCTION -> if (selectedLanguage == "te") "వేలం" else "Auction"
-                            AgriculturalContext.HEALTH -> if (selectedLanguage == "te") "ఆరోగ్యం" else "Health"
-                            AgriculturalContext.FEED -> if (selectedLanguage == "te") "మేత" else "Feed"
-                            AgriculturalContext.BREEDING -> if (selectedLanguage == "te") "సంతానోత్పత్తి" else "Breeding"
-                        }
-                        
+                        val contextName =
+                            when (context) {
+                                AgriculturalContext.GENERAL -> if (selectedLanguage == "te") "సాధారణ" else "General"
+                                AgriculturalContext.AUCTION -> if (selectedLanguage == "te") "వేలం" else "Auction"
+                                AgriculturalContext.HEALTH -> if (selectedLanguage == "te") "ఆరోగ్యం" else "Health"
+                                AgriculturalContext.FEED -> if (selectedLanguage == "te") "మేత" else "Feed"
+                                AgriculturalContext.BREEDING -> if (selectedLanguage == "te") "సంతానోత్పత్తి" else "Breeding"
+                            }
+
                         FilterChip(
                             onClick = { viewModel.setSearchContext(context) },
                             label = { Text(contextName) },
-                            selected = selectedContext == context
+                            selected = selectedContext == context,
                         )
                     }
                 }
@@ -272,71 +276,72 @@ fun EnhancedMarketplaceSearchScreen(
         when (val state = searchState) {
             is SearchState.Loading -> {
                 Card(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
-                        contentAlignment = Alignment.Center
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                        contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator()
                     }
                 }
             }
-            
+
             is SearchState.Success -> {
                 LazyColumn(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(state.results) { result ->
                         SearchResultCard(
                             result = result,
                             language = selectedLanguage,
-                            onItemClick = { viewModel.onSearchResultClick(result) }
+                            onItemClick = { viewModel.onSearchResultClick(result) },
                         )
                     }
                 }
             }
-            
+
             is SearchState.Error -> {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
                 ) {
                     Text(
                         text = if (selectedLanguage == "te") "వెతుకులు లో లోపం: ${state.message}" else "Search Error: ${state.message}",
                         modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.onErrorContainer
+                        color = MaterialTheme.colorScheme.onErrorContainer,
                     )
                 }
             }
-            
+
             SearchState.Idle -> {
                 Card(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Column(
                         modifier = Modifier.padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Icon(
                             Icons.Default.Search,
                             contentDescription = null,
                             modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                         Text(
                             text = if (selectedLanguage == "te") "కోడిలు, మేత, వ్యాధుల గురించి వెతకండి" else "Search for chickens, feed, diseases",
                             style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
                         )
                         Text(
                             text = if (selectedLanguage == "te") "వాయిస్ లేదా టెక్స్ట్ ఉపయోగించండి" else "Use voice or text search",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         )
                     }
                 }
@@ -365,62 +370,63 @@ private fun SearchResultCard(
     result: SearchResult,
     language: String,
     onItemClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth(),
-        onClick = onItemClick
+        modifier =
+            modifier
+                .fillMaxWidth(),
+        onClick = onItemClick,
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.Top,
             ) {
                 Text(
                     text = result.title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
-                
+
                 Text(
                     text = "${(result.relevanceScore * 100).toInt()}%",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
                 )
             }
-            
+
             Text(
                 text = result.description,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
             )
-            
+
             // Tags
             if (result.tags.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     items(result.tags.chunked(3)) { tagGroup ->
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             tagGroup.forEach { tag ->
                                 AssistChip(
                                     onClick = { },
-                                    label = { 
+                                    label = {
                                         Text(
                                             text = tag,
-                                            style = MaterialTheme.typography.labelSmall
+                                            style = MaterialTheme.typography.labelSmall,
                                         )
-                                    }
+                                    },
                                 )
                             }
                         }

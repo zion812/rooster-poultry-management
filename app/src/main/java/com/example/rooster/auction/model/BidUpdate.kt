@@ -10,5 +10,5 @@ data class BidUpdate(
     val auctionId: String,
     val bidderId: String,
     val amount: Double,
-    val timestamp: Long
+    val timestamp: Long,
 )

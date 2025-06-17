@@ -15,12 +15,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AuctionModule {
-
     @Provides
     @Singleton
-    fun provideOkHttp(): OkHttpClient = OkHttpClient.Builder()
-        .pingInterval(30, TimeUnit.SECONDS)
-        .build()
+    fun provideOkHttp(): OkHttpClient =
+        OkHttpClient.Builder()
+            .pingInterval(30, TimeUnit.SECONDS)
+            .build()
 
     @Provides
     @Named("auctionSocketUrl")
@@ -30,12 +30,10 @@ object AuctionModule {
     @Singleton
     fun provideWebSocketClient(
         client: OkHttpClient,
-        @Named("auctionSocketUrl") url: String
+        @Named("auctionSocketUrl") url: String,
     ) = AuctionWebSocketClient(client, url)
 
     @Provides
     @Singleton
-    fun provideRepo(
-        ws: AuctionWebSocketClient
-    ): AuctionRepository = AuctionRepositoryImpl(ws)
+    fun provideRepo(ws: AuctionWebSocketClient): AuctionRepository = AuctionRepositoryImpl(ws)
 }

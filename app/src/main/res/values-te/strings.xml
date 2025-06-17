@@ -210,6 +210,10 @@
     <string name="connecting">కనెక్ట్ అవుతోంది...</string>
     <string name="disconnected">కనెక్షన్ తెగిపోయింది</string>
 
+    <!-- Market Screen Strings -->
+    <string name="market_title">మార్కెట్</string>
+    <string name="market_description">గ్రామీణ రైతుల కోసం స్థానిక కోడి మార్కెట్‌ప్లేస్</string>
+
     <!-- ... existing Telugu strings ... -->
     <string name="welcome">Welcome</string>
     <string name="iot_integration">IoT Integration</string>

@@ -57,7 +57,7 @@ import java.util.Locale
 fun AuctionScreen(
     auctionId: String,
     modifier: Modifier = Modifier,
-    viewModel: AuctionViewModel = hiltViewModel()
+    viewModel: AuctionViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val biddingState by viewModel.state.collectAsStateWithLifecycle()
@@ -68,47 +68,48 @@ fun AuctionScreen(
     var showChat by remember { mutableStateOf(false) }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         // Header with participant count
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = stringResource(R.string.auction_title),
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     text = "ID: $auctionId",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
                 )
 
                 // Participant count and chat toggle
                 Row(
                     modifier = Modifier.padding(top = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     AssistChip(
                         onClick = { },
                         label = { Text("${collaborationState.participantCount} లైవ్") },
-                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) }
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                     )
 
                     AssistChip(
                         onClick = { showChat = !showChat },
                         label = { Text(if (showChat) "చాట్ దాచు" else "చాట్ చూపు") },
-                        leadingIcon = { Icon(Icons.Default.Chat, contentDescription = null) }
+                        leadingIcon = { Icon(Icons.Default.Chat, contentDescription = null) },
                     )
                 }
             }
@@ -119,26 +120,26 @@ fun AuctionScreen(
             is BiddingState.Active -> {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
                             text = stringResource(R.string.current_bid, state.update.amount),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
                         )
                         Text(
                             text = "Bidder: ${state.update.bidderId}",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                         Text(
                             text = "${state.participants} మంది పాల్గొంటున్నారు",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
                         )
                     }
                 }
@@ -147,16 +148,17 @@ fun AuctionScreen(
             is BiddingState.Error -> {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
                 ) {
                     Text(
-                        text = stringResource(
-                            R.string.bidding_error,
-                            state.throwable.message ?: "Unknown error"
-                        ),
+                        text =
+                            stringResource(
+                                R.string.bidding_error,
+                                state.throwable.message ?: "Unknown error",
+                            ),
                         modifier = Modifier.padding(16.dp),
                         color = MaterialTheme.colorScheme.onErrorContainer,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
@@ -164,13 +166,13 @@ fun AuctionScreen(
             BiddingState.Idle -> {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 ) {
                     Text(
                         text = stringResource(R.string.connecting),
                         modifier = Modifier.padding(16.dp),
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
                     )
                 }
             }
@@ -178,14 +180,14 @@ fun AuctionScreen(
             BiddingState.BidPlaced -> {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50))
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50)),
                 ) {
                     Text(
                         text = stringResource(R.string.bid_success),
                         modifier = Modifier.padding(16.dp),
                         color = Color.White,
                         textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                 }
             }
@@ -193,24 +195,24 @@ fun AuctionScreen(
             is BiddingState.OfflineMode -> {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFF9800).copy(alpha = 0.1f))
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFF9800).copy(alpha = 0.1f)),
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
                             text = "ఆఫ్‌లైన్ మోడ్ - కనెక్షన్ లేదు",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFF9800)
+                            color = Color(0xFFFF9800),
                         )
 
                         state.lastKnownBid?.let { lastBid ->
                             Text(
                                 text = "చివరిగా తెలిసిన బిడ్: ₹${lastBid.amount.toInt()}",
                                 style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(top = 8.dp)
+                                modifier = Modifier.padding(top = 8.dp),
                             )
                         }
                     }
@@ -221,17 +223,18 @@ fun AuctionScreen(
         // Chat Section (expandable)
         if (showChat) {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(300.dp),
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
                 ) {
                     Text(
                         text = "లైవ్ చాట్",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
 
                     Divider(modifier = Modifier.padding(vertical = 8.dp))
@@ -240,7 +243,7 @@ fun AuctionScreen(
                     LazyColumn(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
-                        state = rememberLazyListState()
+                        state = rememberLazyListState(),
                     ) {
                         items(chatMessages) { message ->
                             ChatMessageItem(message = message)
@@ -251,14 +254,14 @@ fun AuctionScreen(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         OutlinedTextField(
                             value = chatMessage,
                             onValueChange = { chatMessage = it },
                             placeholder = { Text("సందేశం రాయండి...") },
                             modifier = Modifier.weight(1f),
-                            singleLine = true
+                            singleLine = true,
                         )
 
                         IconButton(
@@ -267,7 +270,7 @@ fun AuctionScreen(
                                     viewModel.sendChatMessage(chatMessage)
                                     chatMessage = ""
                                 }
-                            }
+                            },
                         ) {
                             Icon(Icons.Default.Send, contentDescription = "Send")
                         }
@@ -279,24 +282,24 @@ fun AuctionScreen(
         // Quick Chat Actions
         if (!showChat && collaborationState.isConnected) {
             Card(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
                         text = "త్వరిత సందేశాలు",
                         style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
                     )
 
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         AssistChip(
                             onClick = { viewModel.sendInterestMessage() },
-                            label = { Text("ఆసక్తి ఉంది") }
+                            label = { Text("ఆసక్తి ఉంది") },
                         )
 
                         AssistChip(
@@ -306,7 +309,7 @@ fun AuctionScreen(
                                 }
                             },
                             label = { Text("బిడ్ వేస్తున్నాను") },
-                            enabled = bidAmount.isNotBlank()
+                            enabled = bidAmount.isNotBlank(),
                         )
                     }
                 }
@@ -315,16 +318,16 @@ fun AuctionScreen(
 
         // Bid Input Section
         Card(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
                     text = stringResource(R.string.place_bid),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
                 )
 
                 OutlinedTextField(
@@ -332,7 +335,7 @@ fun AuctionScreen(
                     onValueChange = { bidAmount = it },
                     label = { Text("Amount (₹)") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
                 )
 
                 Button(
@@ -344,12 +347,12 @@ fun AuctionScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = bidAmount.isNotBlank() && biddingState != BiddingState.BidPlaced,
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
                         text = stringResource(R.string.bid_button),
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
                     )
                 }
             }
@@ -358,70 +361,82 @@ fun AuctionScreen(
         // Connection Status with rural optimization indicators
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = when {
-                    collaborationState.isConnected && collaborationState.networkQuality == NetworkQuality.GOOD -> Color(
-                        0xFF4CAF50
-                    ).copy(alpha = 0.1f)
+            colors =
+                CardDefaults.cardColors(
+                    containerColor =
+                        when {
+                            collaborationState.isConnected && collaborationState.networkQuality == NetworkQuality.GOOD ->
+                                Color(
+                                    0xFF4CAF50,
+                                ).copy(alpha = 0.1f)
 
-                    collaborationState.isConnected && collaborationState.networkQuality == NetworkQuality.FAIR -> Color(
-                        0xFFFFC107
-                    ).copy(alpha = 0.1f)
+                            collaborationState.isConnected && collaborationState.networkQuality == NetworkQuality.FAIR ->
+                                Color(
+                                    0xFFFFC107,
+                                ).copy(alpha = 0.1f)
 
-                    collaborationState.networkQuality == NetworkQuality.POOR -> Color(0xFFFF9800).copy(
-                        alpha = 0.1f
-                    )
+                            collaborationState.networkQuality == NetworkQuality.POOR ->
+                                Color(0xFFFF9800).copy(
+                                    alpha = 0.1f,
+                                )
 
-                    biddingState is BiddingState.Error -> MaterialTheme.colorScheme.errorContainer.copy(
-                        alpha = 0.3f
-                    )
-                    else -> MaterialTheme.colorScheme.surfaceVariant
-                }
-            )
+                            biddingState is BiddingState.Error ->
+                                MaterialTheme.colorScheme.errorContainer.copy(
+                                    alpha = 0.3f,
+                                )
+                            else -> MaterialTheme.colorScheme.surfaceVariant
+                        },
+                ),
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 // Main connection status
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     // Status indicator
                     Box(
-                        modifier = Modifier
-                            .size(12.dp)
-                            .background(
-                                color = when {
-                                    collaborationState.isConnected && collaborationState.networkQuality == NetworkQuality.GOOD -> Color(
-                                        0xFF4CAF50
-                                    )
+                        modifier =
+                            Modifier
+                                .size(12.dp)
+                                .background(
+                                    color =
+                                        when {
+                                            collaborationState.isConnected && collaborationState.networkQuality == NetworkQuality.GOOD ->
+                                                Color(
+                                                    0xFF4CAF50,
+                                                )
 
-                                    collaborationState.isConnected && collaborationState.networkQuality == NetworkQuality.FAIR -> Color(
-                                        0xFFFFC107
-                                    )
+                                            collaborationState.isConnected && collaborationState.networkQuality == NetworkQuality.FAIR ->
+                                                Color(
+                                                    0xFFFFC107,
+                                                )
 
-                                    collaborationState.networkQuality == NetworkQuality.POOR -> Color(
-                                        0xFFFF9800
-                                    )
+                                            collaborationState.networkQuality == NetworkQuality.POOR ->
+                                                Color(
+                                                    0xFFFF9800,
+                                                )
 
-                                    biddingState is BiddingState.Error -> MaterialTheme.colorScheme.error
-                                    else -> Color.Gray
-                                },
-                                shape = RoundedCornerShape(50)
-                            )
+                                            biddingState is BiddingState.Error -> MaterialTheme.colorScheme.error
+                                            else -> Color.Gray
+                                        },
+                                    shape = RoundedCornerShape(50),
+                                ),
                     )
 
                     Text(
-                        text = when {
-                            collaborationState.isConnected && collaborationState.networkQuality == NetworkQuality.GOOD -> "అద్భుతమైన కనెక్షన్ - పూర్తి సేవలు"
-                            collaborationState.isConnected && collaborationState.networkQuality == NetworkQuality.FAIR -> "సాధారణ కనెక్షన్ - ఆప్టిమైజ్డ్ మోడ్"
-                            collaborationState.networkQuality == NetworkQuality.POOR -> "నెమ్మది కనెక్షన్ - ఆఫ్‌లైన్ మోడ్"
-                            biddingState is BiddingState.Error -> stringResource(R.string.disconnected)
-                            else -> stringResource(R.string.connecting)
-                        },
-                        style = MaterialTheme.typography.bodySmall
+                        text =
+                            when {
+                                collaborationState.isConnected && collaborationState.networkQuality == NetworkQuality.GOOD -> "అద్భుతమైన కనెక్షన్ - పూర్తి సేవలు"
+                                collaborationState.isConnected && collaborationState.networkQuality == NetworkQuality.FAIR -> "సాధారణ కనెక్షన్ - ఆప్టిమైజ్డ్ మోడ్"
+                                collaborationState.networkQuality == NetworkQuality.POOR -> "నెమ్మది కనెక్షన్ - ఆఫ్‌లైన్ మోడ్"
+                                biddingState is BiddingState.Error -> stringResource(R.string.disconnected)
+                                else -> stringResource(R.string.connecting)
+                            },
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
 
@@ -429,19 +444,20 @@ fun AuctionScreen(
                 if (collaborationState.isRuralOptimized) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
                             Icons.Default.Person,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
-                            tint = Color(0xFFFF9800)
+                            tint = Color(0xFFFF9800),
                         )
                         Text(
-                            text = "గ్రామీణ మోడ్ ఆన్ - డేటా సేవింగ్" +
+                            text =
+                                "గ్రామీణ మోడ్ ఆన్ - డేటా సేవింగ్" +
                                     if (collaborationState.connectionLatency > 0) " (${collaborationState.connectionLatency}ms)" else "",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFFFF9800)
+                            color = Color(0xFFFF9800),
                         )
                     }
                 }
@@ -452,7 +468,7 @@ fun AuctionScreen(
                         Text(
                             text = "🔄 బిడ్లు ఆఫ్‌లైన్‌లో నిల్వ చేయబడుతున్నాయి",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFFFF9800)
+                            color = Color(0xFFFF9800),
                         )
                     }
 
@@ -460,7 +476,7 @@ fun AuctionScreen(
                         Text(
                             text = "⚡ డేటా కంప్రెషన్ ఆన్ - వేగవంతమైన లోడింగ్",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFFFFC107)
+                            color = Color(0xFFFFC107),
                         )
                     }
                     else -> { /* Normal quality - no additional message */ }
@@ -474,26 +490,26 @@ fun AuctionScreen(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFFF9800).copy(alpha = 0.1f))
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFF9800).copy(alpha = 0.1f)),
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Icon(
                             Icons.Default.Person,
                             contentDescription = null,
-                            tint = Color(0xFFFF9800)
+                            tint = Color(0xFFFF9800),
                         )
                         Text(
                             text = "ఆఫ్‌లైన్ బిడ్ క్యూ",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFF9800)
+                            color = Color(0xFFFF9800),
                         )
                     }
 
@@ -501,12 +517,12 @@ fun AuctionScreen(
                         Text(
                             text = "${offlineState.queuedBids.size} బిడ్లు క్యూలో వేచి ఉన్నాయి",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         )
 
                         Button(
                             onClick = { viewModel.retryOfflineBids() },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text("ఆఫ్‌లైన్ బిడ్లను మళ్లీ ప్రయత్నించండి")
                         }
@@ -514,7 +530,7 @@ fun AuctionScreen(
                         Text(
                             text = "కనెక్షన్ మెరుగుపడినప్పుడు బిడ్లు ఆటోమేటిక్‌గా పంపబడతాయి",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         )
                     }
                 }
@@ -526,40 +542,40 @@ fun AuctionScreen(
 @Composable
 private fun ChatMessageItem(
     message: ChatMessage,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Column(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.Top,
             ) {
                 Text(
                     text = message.senderName,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
 
                 Text(
                     text = timeFormat.format(Date(message.timestamp)),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
             }
 
             Text(
                 text = message.content,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 4.dp),
             )
         }
     }
