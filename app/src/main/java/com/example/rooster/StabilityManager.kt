@@ -254,9 +254,9 @@ object StabilityManager {
                 applicationContext?.get()?.let { context ->
                     Parse.initialize(
                         Parse.Configuration.Builder(context)
-                            .applicationId(context.getString(R.string.back4app_app_id))
-                            .clientKey(context.getString(R.string.back4app_client_key))
-                            .server(context.getString(R.string.back4app_server_url))
+                            .applicationId(com.example.rooster.config.Constants.BACK4APP_APP_ID)
+                            .clientKey(com.example.rooster.config.Constants.BACK4APP_CLIENT_KEY)
+                            .server(com.example.rooster.config.Constants.BACK4APP_SERVER_URL)
                             .build(),
                     )
                 }

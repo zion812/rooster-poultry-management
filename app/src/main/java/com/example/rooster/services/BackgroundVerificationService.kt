@@ -1,5 +1,11 @@
 package com.example.rooster.services
 
+/*
+ * BackgroundVerificationService - Temporarily disabled for MVP
+ * TODO: Re-enable when WorkManager integration is complete
+ */
+
+/*
 import android.content.Context
 import android.util.Log
 import androidx.work.Constraints
@@ -295,3 +301,4 @@ class VerificationCheckWorker(
         }
     }
 }
+*/

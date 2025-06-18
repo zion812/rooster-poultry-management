@@ -1,387 +1,233 @@
 <resources>
     <string name="app_name">Rooster</string>
-    <!-- Parse/Back4App credentials -->
-    <string name="back4app_server_url" translatable="false">https://parseapi.back4app.com/</string>
-    <string name="back4app_app_id" translatable="false">QvZCAlxmMvHYLsJskXreUhOS72OqalGh91mF0W1w</string>
-    <string name="back4app_client_key" translatable="false">oagUkmeNPCTQZUUD8ENBuM6T2DYPAVyQi2T3LFol</string>
-    <string name="parse_app_id" translatable="false">QvZCAlxmMvHYLsJskXreUhOS72OqalGh91mF0W1w</string>
-    <string name="parse_rest_api_key" translatable="false">6ipx7hEmYA6RJ06YqJexKdBGSeYJJqpIxKP5aUQ1</string>
+
+    <!-- Authentication -->
     <string name="login">Login</string>
     <string name="register">Register</string>
-    <string name="share_post">Share a post</string>
-    <string name="add_fowl">Add Fowl</string>
-    <string name="create_listing">Create Listing</string>
-    <string name="community_tab">Community</string>
-    <string name="fowl_tab">Fowl</string>
-    <string name="marketplace_tab">Marketplace</string>
-    <!-- FCM Notifications -->
-    <string name="default_notification_channel_id" translatable="false">rooster_messages</string>
+    <string name="logout">Logout</string>
 
-    <!-- Navigation & UI -->
+    <!-- Navigation -->
     <string name="home">Home</string>
+    <string name="marketplace">Marketplace</string>
+    <string name="marketplace_title">Marketplace</string>
+    <string name="community">Community</string>
     <string name="profile">Profile</string>
-    <string name="notifications">Notifications</string>
     <string name="settings">Settings</string>
-    <string name="search">Search</string>
-    <string name="back">Back</string>
-    <string name="next">Next</string>
-    <string name="done">Done</string>
-    <string name="cancel">Cancel</string>
-    <string name="save">Save</string>
-    <string name="edit">Edit</string>
-    <string name="delete">Delete</string>
+    <string name="settings_title">Settings</string>
 
-    <!-- Fowl Management -->
-    <string name="fowl_management">Fowl Management</string>
-    <string name="add_new_fowl">Add New Fowl</string>
-    <string name="fowl_details">Fowl Details</string>
-    <string name="breed">Breed</string>
-    <string name="age">Age</string>
-    <string name="color">Color</string>
-    <string name="health_status">Health Status</string>
-    <string name="vaccination_record">Vaccination Record</string>
-    <string name="feeding_schedule">Feeding Schedule</string>
+    <!-- Core Actions -->
+    <string name="search">Search</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
+    <string name="ok">OK</string>
+    <string name="retry">Retry</string>
+    <string name="loading">Loading...</string>
 
     <!-- Marketplace -->
-    <string name="marketplace">Marketplace</string>
     <string name="buy_now">Buy Now</string>
-    <string name="add_to_cart">Add to Cart</string>
     <string name="price">Price</string>
+    <string name="price_label">Price: ₹%1$.2f</string>
     <string name="seller">Seller</string>
-    <string name="location">Location</string>
-    <string name="contact_seller">Contact Seller</string>
-    <string name="verified">Verified</string>
+    <string name="create_listing">Create Listing</string>
+    <string name="listing_title">Title</string>
+    <string name="listing_description">Description</string>
+    <string name="listing_price">Price (₹)</string>
+    <string name="verified_seller">Verified Seller</string>
+    <string name="verified_bloodline">Verified Bloodline</string>
 
-    <!-- Community -->
-    <string name="community">Community</string>
-    <string name="posts">Posts</string>
-    <string name="messages">Messages</string>
-    <string name="groups">Groups</string>
-    <string name="like">Like</string>
-    <string name="comment">Comment</string>
-    <string name="share">Share</string>
+    <!-- Auctions -->
+    <string name="auction_title">Auction</string>
+    <string name="auction_status">Status</string>
+    <string name="auction_time">Time Left</string>
+    <string name="current_bid">Current Bid</string>
+    <string name="place_bid">Place Bid</string>
+    <string name="bid_button">Place Bid</string>
+    <string name="action_bid_now">Bid Now</string>
+    <string name="bidding_history">Bidding History</string>
 
-    <!-- Health Management -->
-    <string name="health_management">Health Management</string>
-    <string name="vaccination">Vaccination</string>
-    <string name="medication">Medication</string>
-    <string name="treatment">Treatment</string>
-    <string name="vet_consultation">Vet Consultation</string>
+    <!-- Payment -->
+    <string name="payment">Payment</string>
+    <string name="pay_now">Pay Now</string>
+    <string name="payment_successful">Payment Successful!</string>
+    <string name="payment_failed">Payment Failed</string>
+    <string name="payment_processing">Processing Payment...</string>
 
-    <!-- Cultural Events -->
-    <string name="cultural_events">Cultural Events</string>
-    <string name="festivals">Festivals</string>
-    <string name="competitions">Competitions</string>
-    <string name="traditional_markets">Traditional Markets</string>
+    <!-- Categories -->
+    <string name="category">Category</string>
+    <string name="category_poultry">Poultry</string>
+    <string name="category_eggs">Eggs</string>
 
     <!-- Error Messages -->
     <string name="error_network">Network Error</string>
     <string name="error_loading">Loading Error</string>
-    <string name="error_saving">Saving Error</string>
+    <string name="error_unknown">Unknown error occurred</string>
     <string name="try_again">Try Again</string>
 
     <!-- Success Messages -->
+    <string name="success">Success!</string>
     <string name="success_saved">Successfully Saved</string>
-    <string name="success_uploaded">Successfully Uploaded</string>
-    <string name="success_created">Successfully Created</string>
+    <string name="submit_success">Submission Successful</string>
 
     <!-- Network Status -->
-    <string name="network_excellent">Excellent Network</string>
-    <string name="network_good">Good Network</string>
-    <string name="network_fair">Fair Network</string>
-    <string name="network_poor">Poor Network</string>
     <string name="network_offline">Offline</string>
+    <string name="offline_mode">You are offline. Showing cached listings.</string>
+    <string name="connecting">Connecting...</string>
 
-    <!-- Data Usage -->
-    <string name="data_usage">Data Usage</string>
-    <string name="data_warning">Data Warning</string>
-    <string name="low_data_mode">Low Data Mode</string>
-
-    <!-- Marketplace Strings -->
-    <string name="digital_market">Digital Market</string>
-    <string name="pre_orders">Pre-Orders</string>
-    <string name="group_buying">Group Buying</string>
-    <string name="market_trends">Market Trends</string>
-    <string name="title">Title</string>
-    <string name="pick_image">Pick Image</string>
-    <string name="add_listing">Add Listing</string>
-    <string name="loading_listings">Loading listings...</string>
-    <string name="no_listings_available">No listings available</string>
-    <string name="first_listing_message">Be the first to create a listing in the marketplace!</string>
-    <string name="price_label">₹%s</string>
-    <string name="age_label">Age: %s months</string>
-    <string name="seller_label">Seller: %s</string>
-    <string name="message_seller">Message</string>
-    <string name="processing">Processing...</string>
-    <string name="no_image">No Image</string>
-
-    <!-- Traditional Markets -->
-    <string name="traditional_markets_description">Find local traditional markets and their schedules</string>
-    <string name="no_traditional_markets">No traditional markets available</string>
-    <string name="market_type_label">Type: %s</string>
-    <string name="market_time_label">Time: %1$s - %2$s</string>
-    <string name="specialties_label">Specialties: %s</string>
-
-    <!-- Pre-Orders -->
-    <string name="pre_orders_description">Reserve fowl before market day</string>
-    <string name="no_pre_orders">No pre-orders available</string>
-    <string name="quantity_label">Quantity: %d</string>
-    <string name="price_per_bird">₹%s per bird</string>
-    <string name="total_price">₹%s</string>
-    <string name="cultural_context_label">Cultural context: %s</string>
-
-    <!-- Group Buying -->
-    <string name="group_buying_description">Join group purchases for better prices</string>
-    <string name="no_group_buying">No group buying requests available</string>
-    <string name="target_label">Target: %d birds</string>
-    <string name="max_price_label">Max price: ₹%s per bird</string>
-    <string name="participants_label">Participants: %1$d/%2$d</string>
-    <string name="min_participants_label">Min: %d</string>
-    <string name="purpose_label">Purpose: %s</string>
-    <string name="target_reached">%d%% of target reached</string>
-
-    <!-- Market Trends -->
-    <string name="market_trends_description">Price analysis and market insights</string>
-    <string name="no_market_trends">No market trends available</string>
-    <string name="avg_price">Avg</string>
-    <string name="high_price">High</string>
-    <string name="low_price">Low</string>
-    <string name="sold_label">Sold: %d birds</string>
-    <string name="suppliers_label">Suppliers: %d</string>
-    <string name="buyers_label">Buyers: %d</string>
-    <string name="festival_impact_label">Festival impact: %s</string>
-    <string name="market_efficiency">Market efficiency: %d%%</string>
-    <string name="marketplace_title">Marketplace</string>
-
-    <!-- Language Toggle -->
-    <string name="switch_to_english">Switch to English</string>
+    <!-- Language -->
     <string name="switch_to_telugu">తెలుగుకు మారండి</string>
+    <string name="switch_to_english">Switch to English</string>
+    <string name="language_preferences">Language Preferences</string>
 
-    <!-- Cultural Events Screen -->
-    <string name="cultural_events_header_title">Cultural Celebrations</string> <!-- More specific than general cultural_events -->
-    <string name="our_traditions_subtitle">Our Traditions</string>
-    <string name="festival_stories_title">Festival Stories</string>
-    <string name="view_all_action">View All</string>
-    <string name="cultural_posts_title">Cultural Posts</string>
-    <string name="group_orders_title">Group Orders</string>
-    <string name="sankranti_offer_dynamic">Sankranti Offer: %d%% Discount</string>
-    <string name="close_button_desc">Close</string>
+    <!-- AI Assistant -->
+    <string name="ai_assistant">AI Assistant</string>
+    <string name="speak_now">Speak Now</string>
+    <string name="price_prediction">Price Prediction</string>
 
-    <!-- Settings Screen -->
-    <string name="settings_title">Settings</string>
-    <string name="language_preference">Language Preference</string>
+    <!-- Farm Management -->
+    <string name="farmer_welcome_title">Welcome Farmer</string>
+    <string name="total_birds">Total Birds</string>
+    <string name="healthy_birds">Healthy</string>
+    <string name="analytics">Analytics</string>
+
+    <!-- Offline Mode -->
+    <string name="network_not_available">Network Not Available</string>
+
+    <!-- Notifications -->
+    <string name="notifications">Notifications</string>
     <string name="notification_settings">Notification Settings</string>
-    <string name="data_sync_settings">Data Sync Settings</string>
-    <string name="privacy_policy">Privacy Policy</string>
-    <string name="terms_of_service">Terms of Service</string>
-    <string name="app_version">App Version</string>
 
-    <!-- Help & Support Screen -->
-    <string name="help_support_title">Help &amp; Support</string>
-    <string name="faq_section">Frequently Asked Questions (FAQ)</string>
-    <string name="contact_support_section">Contact Support</string>
-    <string name="submit_feedback_section">Submit Feedback</string>
-    <string name="email_support">Email Support</string>
-    <string name="call_support">Call Support (Toll-Free)</string>
-    <string name="troubleshooting_guides">Troubleshooting Guides</string>
-
-    <!-- Payment Integration -->
-    <string name="confirm_payment">Confirm Payment</string>
-    <string name="payment_dialog_title">Complete Your Purchase</string>
-    <string name="select_payment_method">Select Payment Method</string>
-    <string name="cod_instructions">Enter delivery details for Cash on Delivery</string>
-    <string name="delivery_address">Delivery Address</string>
-    <string name="special_instructions">Special Instructions (Optional)</string>
-    <string name="place_cod_order">Place COD Order</string>
-
-    <!-- General UI -->
-    <string name="consult_vet">Consult a Vet</string>
-    <string name="iot_dashboard">IoT Dashboard</string>
-    <string name="start_call">Start Call</string>
-    <string name="end_call">End Call</string>
-    <string name="chat_with_ai">Chat with AI</string>
-
-    <!-- Profile Screen strings -->
+    <!-- Profile -->
+    <string name="edit_profile">Edit Profile</string>
+    <string name="share_profile">Share Profile</string>
+    <string name="fowl_sales">Fowl Sales</string>
     <string name="listings">Listings</string>
     <string name="followers">Followers</string>
-    <string name="following">Following</string>
-    <string name="edit_profile">Edit Profile</string>
-    <string name="bio">Bio</string>
-    <string name="logout">Logout</string>
-    <string name="help">Help</string>
-
-    <!-- Educational Resources & Downloads (English fallbacks) -->
-    <string name="download">Download</string>
-    <string name="downloaded">Downloaded</string>
-    <string name="downloading">Downloading</string>
-    <string name="download_error">Download Error</string>
-    <string name="pause">Pause</string>
-    <string name="resume">Resume</string>
-    <string name="cancel_download">Cancel Download</string>
-    <string name="check_status">Check Status</string>
-    <string name="educational_resources">Educational Resources</string>
-    <string name="view_content">View Content</string>
-    <string name="data_usage_warning">Data Usage Warning</string>
-    <string name="proceed">Proceed</string>
-    <string name="category">Category</string>
-    <string name="size">Size</string>
-    <string name="author">Author</string>
-    <string name="all_categories">All</string>
-    <string name="health_category">Health</string>
-    <string name="breeding_category">Breeding</string>
-    <string name="nutrition_category">Nutrition</string>
-    <string name="market_category">Market</string>
-    <string name="no_resources_found">No resources found</string>
-    <string name="error_occurred">Error Occurred</string>
-    <string name="retry">Retry</string>
-    <string name="download_complete_toast">Download Complete!</string>
-    <string name="download_error_toast">Download Error!</string>
-    <string name="already_downloaded_toast">Already Downloaded!</string>
-
-    <!-- Settings Screen strings -->
-    <string name="telugu">తెలుగు</string>
-    <string name="english">English</string>
-
-    <!-- Cultural Event Specific Strings -->
-    <string name="sankranti_special_order">Sankranti Special Order</string>
-    <string name="festival_group_buy">Festival Group Buy</string>
-
-    <!-- Profile Screen Specific -->
     <string name="awards">Awards</string>
-    <string name="share_profile">Share Profile</string>
-    <string name="welcome">Welcome</string>
-    <string name="iot_integration">IoT Integration</string>
+    <string name="posts">Posts</string>
 
-    <!-- Traceability -->
-    <string name="lineage_title">Lineage</string>
-    <string name="father_id">Father ID</string>
-    <string name="mother_id">Mother ID</string>
-    <string name="vaccination_history">Vaccination History</string>
-    <string name="growth_updates">Growth Updates</string>
-    <string name="breeder_status">Breeder Status</string>
-    <string name="verified_bloodline">Verified Bloodline</string>
-    <string name="no_vaccination_info">No vaccination information</string>
-    <string name="no_growth_info">No growth information</string>
-    <string name="week_label">Week</string>
-    <string name="kg_label">kg</string>
-    <string name="yes_label">Yes</string>
-    <string name="no_label">No</string>
+    <!-- Help & Support -->
+    <string name="help_support">Help &amp; Support</string>
+    <string name="help">Help</string>
+    <string name="contact_support">Contact Support</string>
+    <string name="faq">FAQ</string>
 
-    <!-- Community screen tabs and live broadcast actions -->
-    <string name="posts_tab">Posts</string> <!-- Re-adding this key -->
-    <string name="messages_tab">Messages</string>
-    <string name="live_tab">Live</string>
-    <string name="read">Read</string>
-    <string name="start_broadcast">Start Broadcast</string>
-    <string name="end_broadcast">End Broadcast</string>
-    <string name="broadcasting_live">Broadcasting Live...</string>
+    <!-- Vet Consultation -->
+    <string name="consult_vet">Consult Vet</string>
+    <string name="emergency_contact">Emergency Contact</string>
+    <string name="book_consultation">Book Consultation</string>
 
-    <!-- Telugu Vet Consultation Strings -->
-    <string name="start_call_te">కాల్ ప్రారంభించండి</string>
-    <string name="end_call_te">కాల్ ముగించండి</string>
-    <string name="chat_with_ai_te">AIతో చాట్ చేయండి</string>
+    <!-- IoT Integration -->
+    <string name="iot_dashboard">IoT Dashboard</string>
+    <string name="device_status">Device Status</string>
+    <string name="sensor_data">Sensor Data</string>
 
-    <!-- Leaderboard -->
-    <string name="leaderboard_title">Leaderboard</string>
+    <!-- Cultural Events -->
+    <string name="festival_stories_title">Festival Stories</string>
+    <string name="cultural_events">Cultural Events</string>
+    <string name="traditional_recipes">Traditional Recipes</string>
 
-    <!-- Dispute Module -->
-    <string name="submit_dispute">Submit a Dispute</string>
-    <string name="dispute_issue_type">Issue Type</string>
-    <string name="dispute_details">Details</string>
-    <string name="attach_photo">Attach Photo</string>
-    <string name="dispute_success">Your dispute has been submitted.</string>
-    <string name="dispute_status">Dispute Status</string>
-    <string name="no_disputes">No disputes found</string>
-    <string name="media_preview">Attached Media Preview</string>
-
-    <!-- Feedback Screen Specific -->
-    <string name="uat_feedback_header">UAT Feedback</string>
-    <string name="select_feedback_category">Select Feedback Category</string>
-    <string name="select_priority">Select Priority</string>
-    <string name="feedback_message_title">Your Feedback</string>
-    <string name="feedback_message_label">Message</string>
-    <string name="feedback_message_placeholder">Please describe your experience in detail, including steps to reproduce any issues...</string>
-    <string name="rate_your_experience">Rate Your Overall Experience</string>
-    <string name="rating_very_poor">Very Poor</string>
-    <string name="rating_poor">Poor</string>
-    <string name="rating_average">Average</string>
-    <string name="rating_good">Good</string>
-    <string name="rating_excellent">Excellent</string>
-    <string name="attach_screenshots_optional">Attach Screenshots (Optional)</string>
-    <string name="pick_from_gallery">Pick from Gallery</string>
-    <string name="gallery">Gallery</string>
-    <string name="take_photo">Take Photo</string>
-    <string name="camera">Camera</string>
-    <string name="remove_image">Remove Image</string>
-    <string name="system_information">System Information (Auto-collected)</string>
-    <string name="device_model">Device Model</string>
-    <string name="android_version">Android Version</string>
-    <string name="network_quality">Network Quality</string>
-    <string name="network_quality_unknown">Unknown</string>
-    <string name="network_quality_fair">Fair</string> <!-- Example, should be dynamic -->
+    <!-- Feedback -->
+    <string name="feedback">Feedback</string>
+    <string name="feedback_title">Your Feedback</string>
+    <string name="feedback_hint">Share your thoughts...</string>
     <string name="submit_feedback">Submit Feedback</string>
-    <string name="submitting">Submitting...</string>
-    <string name="feedback_queued_success">✅ Feedback queued successfully! Will submit when online.</string>
-    <string name="feedback_submission_failed">❌ Failed to submit feedback. Please try again.</string>
-    <string name="feedback_fill_required_fields">⚠️ Please select a category and provide a message.</string>
 
-    <!-- Feedback Categories -->
-    <string name="category_ui_ux">User Interface &amp; Experience</string>
-    <string name="category_ui_ux_desc">App design, navigation, ease of use.</string>
-    <string name="category_fowl_management">Fowl Management</string>
-    <string name="category_fowl_management_desc">Fowl tracking, health records, milestones.</string>
-    <string name="category_marketplace">Marketplace</string>
-    <string name="category_marketplace_desc">Buying, selling, transfers, payments.</string>
-    <string name="category_social_features">Social Features</string>
-    <string name="category_social_features_desc">Community, chats, groups, forums.</string>
-    <string name="category_cultural_events">Cultural Events</string>
-    <string name="category_cultural_events_desc">Festivals, competitions, traditions.</string>
-    <string name="category_performance">Performance</string>
-    <string name="category_performance_desc">App speed, loading times, crashes.</string>
-    <string name="category_network_issues">Network Issues</string>
-    <string name="category_network_issues_desc">2G/3G performance, offline mode.</string>
-    <string name="category_translation">Language &amp; Translation</string>
-    <string name="category_translation_desc">Translation accuracy, missing text.</string>
-    <string name="category_general">General Feedback</string>
-    <string name="category_general_desc">Overall experience and suggestions.</string>
+    <!-- Community -->
+    <string name="join_community">Join Community</string>
+    <string name="community_guidelines">Community Guidelines</string>
+    <string name="community_posts">Community Posts</string>
 
     <!-- Feedback Priorities -->
-    <string name="priority_essential">🔴 Essential (Blocker)</string>
-    <string name="priority_important">🟠 Important (Issue)</string>
-    <string name="priority_optional">🟡 Optional (Suggestion)</string>
-    <string name="priority_luxury">🟢 Nice to Have (Idea)</string>
+    <string name="priority_low">Low</string>
+    <string name="priority_medium">Medium</string>
+    <string name="priority_high">High</string>
+    <string name="priority_urgent">Urgent</string>
+    <string name="priority_essential">Essential</string>
+    <string name="priority_important">Important</string>
+    <string name="priority_optional">Optional</string>
+    <string name="priority_luxury">Luxury</string>
 
-    <!-- Payment Gateway Keys -->
-    <string name="razorpay_key_live">YOUR_LIVE_KEY</string>
-    <string name="razorpay_key_test">rzp_test_1234567890ABCD</string>
+    <!-- Feedback Categories -->
+    <string name="category_ui">User Interface</string>
+    <string name="category_ui_ux">UI/UX</string>
+    <string name="category_ui_ux_desc">User Interface and Experience</string>
+    <string name="category_performance">Performance</string>
+    <string name="category_bug">Bug Report</string>
+    <string name="category_feature">Feature Request</string>
+    <string name="category_general">General</string>
+    <string name="category_marketplace">Marketplace</string>
+    <string name="category_payment">Payment</string>
+    <string name="category_auction">Auctions</string>
+    <string name="category_fowl_management">Fowl Management</string>
 
-    <!-- Market Screen Strings -->
-    <string name="market_title">Market</string>
-    <string name="market_description">Local poultry marketplace for rural farmers</string>
+    <!-- Network Quality -->
+    <string name="network_excellent">Excellent</string>
+    <string name="network_good">Good</string>
+    <string name="network_fair">Fair</string>
+    <string name="network_poor">Poor</string>
 
-    <!-- Payment Service Strings -->
-    <string name="payment_timeout">Payment Timeout</string>
-    <string name="payment_failed">Payment Failed</string>
-    <string name="payment_success">Payment Successful</string>
-    <string name="payment_cancelled">Payment Cancelled</string>
-    <string name="deposit_forfeited">Deposit Forfeited</string>
-    <string name="backup_bidder_selected">Backup Bidder Selected</string>
-    <string name="auction_failed">Auction Failed</string>
+    <!-- UAT Feedback -->
+    <string name="uat_feedback">UAT Feedback</string>
+    <string name="select_category">Select Category</string>
+    <string name="select_priority">Select Priority</string>
+    <string name="feedback_message">Feedback Message</string>
+    <string name="rating_1">1 Star</string>
+    <string name="rating_2">2 Stars</string>
+    <string name="rating_3">3 Stars</string>
+    <string name="rating_4">4 Stars</string>
+    <string name="rating_5">5 Stars</string>
 
-    <!-- Auction Feature Strings -->
-    <string name="bid_button">Place Bid</string>
-    <string name="current_bid">Current Bid: ₹%1$.2f</string>
-    <string name="bidding_error">Bidding Error: %1$s</string>
-    <string name="bid_success">Your bid was successful</string>
-    <string name="auction_title">Auction</string>
-    <string name="place_bid">Place Bid</string>
-    <string name="connecting">Connecting...</string>
-    <string name="disconnected">Disconnected</string>
+    <!-- System Info -->
+    <string name="system_info">System Information</string>
+    <string name="device_info">Device Information</string>
+    <string name="android_version">Android Version</string>
+    <string name="app_version">App Version</string>
+    <string name="network_status">Network Status</string>
 
-    <!-- Community List Screen -->
-    <string name="community_title">Community</string>
-    <string name="community_members">%d members</string>
-    <string name="language_label_en">EN</string>
-    <string name="language_label_te">తె</string>
-    <string name="error_unknown">Unknown error</string>
+    <!-- Photos and Media -->
+    <string name="attach_photos">Attach Photos</string>
+    <string name="pick_image">Pick Image</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="gallery">Gallery</string>
+    <string name="camera">Camera</string>
+
+    <!-- Report Issues -->
+    <string name="report_issue">Report Issue</string>
+    <string name="describe_issue">Describe the issue</string>
+    <string name="steps_to_reproduce">Steps to reproduce</string>
+
+    <!-- Work Management -->
+    <string name="feedback_upload_work">Feedback Upload</string>
+    <string name="retry_upload">Retry Upload</string>
+
+    <!-- Cultural Events Specific -->
+    <string name="sankranti_celebration">Sankranti Celebration</string>
+    <string name="sankranti_offer_dynamic">Sankranti Offer: %d%% Discount</string>
+    <string name="traditional_markets">Traditional Markets</string>
+    <string name="cultural_posts_title">Cultural Posts</string>
+    <string name="group_orders_title">Group Orders</string>
+    <string name="close_button_desc">Close</string>
+    <string name="view_all_action">View All</string>
+
+    <!-- Vet Consultation Specific -->
+    <string name="schedule_consultation">Schedule Consultation</string>
+    <string name="consultation_fee">Consultation Fee</string>
+    <string name="vet_availability">Vet Availability</string>
+    <string name="consultation_notes">Consultation Notes</string>
+    <string name="prescription">Prescription</string>
+    <string name="follow_up">Follow Up</string>
+
+    <!-- Miscellaneous -->
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="skip">Skip</string>
+    <string name="continue_text">Continue</string>
+    <string name="close">Close</string>
+    <string name="share">Share</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="view_all">View All</string>
+    <string name="show_more">Show More</string>
+    <string name="show_less">Show Less</string>
 </resources>

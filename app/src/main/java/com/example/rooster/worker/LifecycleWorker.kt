@@ -1,5 +1,11 @@
 package com.example.rooster.worker
 
+/*
+ * LifecycleWorker - Temporarily disabled for MVP
+ * TODO: Re-enable when WorkManager integration is complete
+ */
+
+/*
 import android.content.Context
 import androidx.work.*
 import com.example.rooster.data.model.*
@@ -40,17 +46,19 @@ class LifecycleWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(
     }
 
     companion object {
-        fun getInstance(context: Context) {
-            val req =
-                PeriodicWorkRequestBuilder<LifecycleWorker>(1, TimeUnit.DAYS)
-                    .setConstraints(
-                        Constraints.Builder()
-                            .setRequiredNetworkType(NetworkType.CONNECTED)
-                            .build(),
-                    )
+        fun scheduleWork(context: Context) {
+            val workRequest = PeriodicWorkRequestBuilder<LifecycleWorker>(
+                15, TimeUnit.MINUTES
+            ).setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
-            WorkManager.getInstance(context)
-                .enqueueUniquePeriodicWork("lifecycle", ExistingPeriodicWorkPolicy.KEEP, req)
+            ).build()
+
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                "lifecycleWorker", ExistingPeriodicWorkPolicy.KEEP, workRequest
+            )
         }
     }
 }
+*/

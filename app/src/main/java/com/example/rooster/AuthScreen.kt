@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -116,7 +115,6 @@ fun AuthScreen(
             label = { Text("Username") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.loading && !uiState.resetLoading,
         )
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -135,7 +133,6 @@ fun AuthScreen(
                     autoCorrectEnabled = false,
                 ),
             modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.loading && !uiState.resetLoading,
         )
 
         if (!isLogin) {
@@ -150,7 +147,6 @@ fun AuthScreen(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.loading && !uiState.resetLoading,
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text("Select Your Role:", style = MaterialTheme.typography.bodyLarge)
@@ -161,7 +157,6 @@ fun AuthScreen(
                     RadioButton(
                         selected = role == "farmer",
                         onClick = { role = "farmer" },
-                        enabled = !uiState.loading && !uiState.resetLoading,
                     )
                     Text("🌾 Farmer - Manage fowl and participate in markets")
                 }
@@ -169,7 +164,6 @@ fun AuthScreen(
                     RadioButton(
                         selected = role == "general",
                         onClick = { role = "general" },
-                        enabled = !uiState.loading && !uiState.resetLoading,
                     )
                     Text("🛒 Consumer - Buy fowl and explore markets")
                 }
@@ -177,7 +171,6 @@ fun AuthScreen(
                     RadioButton(
                         selected = role == "highLevel",
                         onClick = { role = "highLevel" },
-                        enabled = !uiState.loading && !uiState.resetLoading,
                     )
                     Text("📊 Manager - Oversee operations and analytics")
                 }
@@ -228,187 +221,25 @@ fun AuthScreen(
                     authViewModel.register(username, email, password, role)
                 }
             },
-            enabled = !uiState.loading && !uiState.resetLoading && username.isNotBlank() && password.isNotBlank(),
+            enabled = username.isNotBlank() && password.isNotBlank(),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            if (uiState.loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.padding(end = 8.dp),
-                    strokeWidth = 2.dp,
-                )
-            }
             Text(if (isLogin) "Sign In" else "Create Account")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Test Parse connection button
-        if (!isLogin && !uiState.showPasswordReset) {
-            Button(
-                onClick = {
-                    authViewModel.testParseConnection()
-                },
-                enabled = !uiState.loading && !uiState.resetLoading,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                if (uiState.loading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.padding(end = 8.dp),
-                        strokeWidth = 2.dp,
-                    )
-                }
-                Text("Test Parse & User Creation")
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-
-        // Diagnostic information
-        if (!isLogin && !uiState.showPasswordReset) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Text(
-                    text = "Diagnostic Information:",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-
-                Text(
-                    text = "Parse App ID: ${BuildConfig.PARSE_APP_ID.take(8)}...${
-                        BuildConfig.PARSE_APP_ID.takeLast(
-                            8,
-                        )
-                    }",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-
-                Text(
-                    text = "Parse Server URL: ${BuildConfig.PARSE_SERVER_URL}",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-
-                Text(
-                    text = "Parse SDK Version: 1.26.0",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // Forgot Password Dialog
-        if (uiState.showPasswordReset) {
-            Column {
-                Text(
-                    text = "Reset Password",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = resetEmail,
-                    onValueChange = {
-                        resetEmail = it.trim()
-                        authViewModel.clearMessages()
-                    },
-                    label = { Text("Email Address") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !uiState.resetLoading,
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Button(
-                        onClick = {
-                            if (resetEmail.isBlank()) {
-                                Log.e("AuthScreen", "Please enter your email address")
-                                return@Button
-                            }
-                            authViewModel.resetPassword(resetEmail)
-                        },
-                        enabled = !uiState.resetLoading && resetEmail.isNotBlank(),
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        if (uiState.resetLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.padding(end = 8.dp),
-                                strokeWidth = 2.dp,
-                            )
-                        }
-                        Text("Send Reset Email")
-                    }
-
-                    TextButton(
-                        onClick = {
-                            authViewModel.togglePasswordReset(false)
-                            resetEmail = ""
-                        },
-                        enabled = !uiState.resetLoading,
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text("Cancel")
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-        }
-
-        TextButton(
-            onClick = {
-                if (!uiState.loading && !uiState.resetLoading) {
-                    if (uiState.showPasswordReset) {
-                        authViewModel.togglePasswordReset(false)
-                        resetEmail = ""
-                    } else {
-                        isLogin = !isLogin
-                        authViewModel.clearMessages()
-                    }
-                }
-            },
-            enabled = !uiState.loading && !uiState.resetLoading,
-        ) {
-            Text(
-                if (uiState.showPasswordReset) {
-                    "Back to Login"
-                } else if (isLogin) {
-                    "Don't have an account? Sign Up"
-                } else {
-                    "Already have an account? Sign In"
-                },
-            )
-        }
-
         // Forgot Password Button (only show during login)
-        if (isLogin && !uiState.showPasswordReset) {
+        if (isLogin) {
             TextButton(
                 onClick = {
                     if (!uiState.loading && !uiState.resetLoading) {
                         authViewModel.togglePasswordReset(true)
                     }
                 },
-                enabled = !uiState.loading && !uiState.resetLoading,
             ) {
                 Text("Forgot Password?")
             }
-        }
-
-        if (uiState.loading || uiState.resetLoading) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "⏳ ${if (isLogin) "Signing you in" else "Creating your account"}... This may take up to 60 seconds on slow connections.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline,
-            )
         }
     }
 }

@@ -18,12 +18,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -32,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -65,10 +70,12 @@ fun EnhancedMarketplaceSearchScreen(
     val voiceSearchState by viewModel.voiceSearchState.collectAsStateWithLifecycle()
     val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
     val selectedContext by viewModel.selectedContext.collectAsState()
+    val selectedDistrict by viewModel.selectedDistrict.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
     var isVoiceSearchActive by remember { mutableStateOf(false) }
     var selectedLanguage by remember { mutableStateOf("te") }
+    var showDistrictDropdown by remember { mutableStateOf(false) }
 
     // Voice recording permission
     val permissionLauncher =
@@ -103,42 +110,107 @@ fun EnhancedMarketplaceSearchScreen(
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    text = if (selectedLanguage == "te") "వాయిస్ మరియు టెక్స్ట్ సెర్చ్" else "Voice & Text Search",
+                    text = if (selectedLanguage == "te") "వాయిస్ మరియు టెక్స్ట్ సెర్చ్ - స్థానీయ రైతుల కోసం" else "Voice & Text Search - For Local Farmers",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
                 )
             }
         }
 
-        // Language Toggle
+        // Language Toggle and District Filter
         Card(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = if (selectedLanguage == "te") "భాష:" else "Language:",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-
+                // Language Selection
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    FilterChip(
-                        onClick = { selectedLanguage = "te" },
-                        label = { Text("తెలుగు") },
-                        selected = selectedLanguage == "te",
+                    Text(
+                        text = if (selectedLanguage == "te") "భాష:" else "Language:",
+                        style = MaterialTheme.typography.titleMedium,
                     )
-                    FilterChip(
-                        onClick = { selectedLanguage = "en" },
-                        label = { Text("English") },
-                        selected = selectedLanguage == "en",
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        FilterChip(
+                            onClick = { selectedLanguage = "te" },
+                            label = { Text("తెలుగు") },
+                            selected = selectedLanguage == "te",
+                        )
+                        FilterChip(
+                            onClick = { selectedLanguage = "en" },
+                            label = { Text("English") },
+                            selected = selectedLanguage == "en",
+                        )
+                    }
+                }
+
+                // District Filter
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = if (selectedLanguage == "te") "జిల్లా:" else "District:",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+
+                    Box {
+                        TextButton(
+                            onClick = { showDistrictDropdown = true }
+                        ) {
+                            Icon(Icons.Default.LocationOn, contentDescription = null)
+                            Text(
+                                text = selectedDistrict
+                                    ?: if (selectedLanguage == "te") "జిల్లా ఎంచుకోండి" else "Select District",
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = showDistrictDropdown,
+                            onDismissRequest = { showDistrictDropdown = false }
+                        ) {
+                            // All districts option
+                            DropdownMenuItem(
+                                text = {
+                                    Text(if (selectedLanguage == "te") "అన్ని జిల్లాలు" else "All Districts")
+                                },
+                                onClick = {
+                                    viewModel.setSelectedDistrict(null)
+                                    showDistrictDropdown = false
+                                }
+                            )
+
+                            // Telugu districts
+                            viewModel.getTeluguDistricts().forEach { district ->
+                                DropdownMenuItem(
+                                    text = { Text(district) },
+                                    onClick = {
+                                        viewModel.setSelectedDistrict(district)
+                                        showDistrictDropdown = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Show selected district
+                if (selectedDistrict != null) {
+                    AssistChip(
+                        onClick = { viewModel.setSelectedDistrict(null) },
+                        label = {
+                            Text("${selectedDistrict} ✕")
+                        }
                     )
                 }
             }
@@ -160,27 +232,37 @@ fun EnhancedMarketplaceSearchScreen(
                         viewModel.updateSearchQuery(it, selectedLanguage)
                     },
                     label = {
-                        Text(if (selectedLanguage == "te") "కోడిలు, మేత, వ్యాధులు వెతకండి..." else "Search chickens, feed, diseases...")
+                        Text(
+                            if (selectedLanguage == "te")
+                                "కోడిలు, మేత, వ్యాధులు వెతకండి..."
+                            else
+                                "Search chickens, feed, diseases..."
+                        )
                     },
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     trailingIcon = {
                         IconButton(
                             onClick = {
-                                if (ContextCompat.checkSelfPermission(
-                                        context,
-                                        Manifest.permission.RECORD_AUDIO,
-                                    ) == PackageManager.PERMISSION_GRANTED
-                                ) {
-                                    viewModel.startVoiceSearch(selectedLanguage)
-                                    isVoiceSearchActive = true
+                                if (isVoiceSearchActive) {
+                                    viewModel.stopVoiceSearch()
+                                    isVoiceSearchActive = false
                                 } else {
-                                    permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                    if (ContextCompat.checkSelfPermission(
+                                            context,
+                                            Manifest.permission.RECORD_AUDIO,
+                                        ) == PackageManager.PERMISSION_GRANTED
+                                    ) {
+                                        viewModel.startVoiceSearch(selectedLanguage)
+                                        isVoiceSearchActive = true
+                                    } else {
+                                        permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                    }
                                 }
                             },
                         ) {
                             Icon(
-                                Icons.Default.Mic,
+                                if (isVoiceSearchActive) Icons.Default.Stop else Icons.Default.Mic,
                                 contentDescription = "Voice Search",
                                 tint = if (isVoiceSearchActive) Color.Red else MaterialTheme.colorScheme.primary,
                             )
@@ -189,28 +271,44 @@ fun EnhancedMarketplaceSearchScreen(
                 )
 
                 // Voice Search Status
-                if (voiceSearchState is VoiceSearchState.Recording) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color.Red.copy(alpha = 0.1f)),
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                when (voiceSearchState) {
+                    is VoiceSearchState.Recording -> {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = Color.Red.copy(alpha = 0.1f)),
                         ) {
-                            Icon(
-                                Icons.Default.Mic,
-                                contentDescription = null,
-                                tint = Color.Red,
-                            )
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Icon(
+                                    Icons.Default.Mic,
+                                    contentDescription = null,
+                                    tint = Color.Red,
+                                )
+                                Text(
+                                    text = if (selectedLanguage == "te") "వింటోంది... మాట్లాడండి" else "Listening... Speak now",
+                                    color = Color.Red,
+                                    fontWeight = FontWeight.Medium,
+                                )
+                            }
+                        }
+                    }
+
+                    is VoiceSearchState.Error -> {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                        ) {
                             Text(
-                                text = if (selectedLanguage == "te") "వింటోంది... మాట్లాడండి" else "Listening... Speak now",
-                                color = Color.Red,
-                                fontWeight = FontWeight.Medium,
+                                text = (voiceSearchState as VoiceSearchState.Error).message,
+                                modifier = Modifier.padding(12.dp),
+                                color = MaterialTheme.colorScheme.onErrorContainer,
                             )
                         }
                     }
+                    else -> {}
                 }
 
                 // Predictive Suggestions
@@ -259,7 +357,7 @@ fun EnhancedMarketplaceSearchScreen(
                                 AgriculturalContext.AUCTION -> if (selectedLanguage == "te") "వేలం" else "Auction"
                                 AgriculturalContext.HEALTH -> if (selectedLanguage == "te") "ఆరోగ్యం" else "Health"
                                 AgriculturalContext.FEED -> if (selectedLanguage == "te") "మేత" else "Feed"
-                                AgriculturalContext.BREEDING -> if (selectedLanguage == "te") "సంతానోత్పత్తి" else "Breeding"
+                                AgriculturalContext.BREEDING -> if (selectedLanguage == "te") "సంతానోత్పత్సి" else "Breeding"
                             }
 
                         FilterChip(
@@ -272,7 +370,7 @@ fun EnhancedMarketplaceSearchScreen(
             }
         }
 
-        // Search Results
+        // Search Results and Recommendations
         when (val state = searchState) {
             is SearchState.Loading -> {
                 Card(
@@ -285,7 +383,16 @@ fun EnhancedMarketplaceSearchScreen(
                                 .padding(32.dp),
                         contentAlignment = Alignment.Center,
                     ) {
-                        CircularProgressIndicator()
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            CircularProgressIndicator()
+                            Text(
+                                text = if (selectedLanguage == "te") "వెతుకుతోంది..." else "Searching...",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                     }
                 }
             }
@@ -295,12 +402,37 @@ fun EnhancedMarketplaceSearchScreen(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    // Search Results
                     items(state.results) { result ->
                         SearchResultCard(
                             result = result,
                             language = selectedLanguage,
                             onItemClick = { viewModel.onSearchResultClick(result) },
                         )
+                    }
+
+                    // AI Recommendations based on district and context
+                    if (state.results.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = if (selectedLanguage == "te")
+                                    "మీ కోసం సిఫారసు చేసిన జాబితాలు"
+                                else
+                                    "Recommended for You",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                        }
+
+                        items(viewModel.getRecommendations()) { recommendation ->
+                            SearchResultCard(
+                                result = recommendation,
+                                language = selectedLanguage,
+                                onItemClick = { viewModel.onSearchResultClick(recommendation) },
+                                isRecommendation = true
+                            )
+                        }
                     }
                 }
             }
@@ -311,7 +443,7 @@ fun EnhancedMarketplaceSearchScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
                 ) {
                     Text(
-                        text = if (selectedLanguage == "te") "వెతుకులు లో లోపం: ${state.message}" else "Search Error: ${state.message}",
+                        text = state.message,
                         modifier = Modifier.padding(16.dp),
                         color = MaterialTheme.colorScheme.onErrorContainer,
                     )
@@ -334,15 +466,63 @@ fun EnhancedMarketplaceSearchScreen(
                             tint = MaterialTheme.colorScheme.primary,
                         )
                         Text(
-                            text = if (selectedLanguage == "te") "కోడిలు, మేత, వ్యాధుల గురించి వెతకండి" else "Search for chickens, feed, diseases",
+                            text = if (selectedLanguage == "te")
+                                "కోడిలు, మేత, వ్యాధుల గురించి వెతకండి"
+                            else
+                                "Search for chickens, feed, diseases",
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Medium,
                         )
                         Text(
-                            text = if (selectedLanguage == "te") "వాయిస్ లేదా టెక్స్ట్ ఉపయోగించండి" else "Use voice or text search",
+                            text = if (selectedLanguage == "te")
+                                "వాయిస్ లేదా టెక్స్ట్ ఉపయోగించండి • జిల్లా ఎంచుకోండి"
+                            else
+                                "Use voice or text search • Select your district",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         )
+
+                        // Show popular searches for the selected district
+                        if (selectedDistrict != null) {
+                            Text(
+                                text = if (selectedLanguage == "te")
+                                    "$selectedDistrict లో ప్రసిద్ధ వెతుకులు:"
+                                else
+                                    "Popular searches in $selectedDistrict:",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier.padding(top = 4.dp)
+                            ) {
+                                val popularSearches = if (selectedLanguage == "te") {
+                                    listOf("నాట్టు కోడి", "మేత ధరలు", "వ్యాధుల చికిత్స")
+                                } else {
+                                    listOf("Desi Chicken", "Feed Prices", "Disease Treatment")
+                                }
+
+                                popularSearches.forEach { search ->
+                                    AssistChip(
+                                        onClick = {
+                                            searchQuery = search
+                                            viewModel.executeSemanticSearch(
+                                                search,
+                                                selectedLanguage
+                                            )
+                                        },
+                                        label = {
+                                            Text(
+                                                search,
+                                                style = MaterialTheme.typography.labelSmall
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -371,12 +551,18 @@ private fun SearchResultCard(
     language: String,
     onItemClick: () -> Unit,
     modifier: Modifier = Modifier,
+    isRecommendation: Boolean = false,
 ) {
     Card(
         modifier =
             modifier
                 .fillMaxWidth(),
         onClick = onItemClick,
+        colors = if (isRecommendation) {
+            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+        } else {
+            CardDefaults.cardColors()
+        }
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -394,12 +580,25 @@ private fun SearchResultCard(
                     modifier = Modifier.weight(1f),
                 )
 
-                Text(
-                    text = "${(result.relevanceScore * 100).toInt()}%",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Medium,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    if (isRecommendation) {
+                        Text(
+                            text = if (language == "te") "సిఫారసు" else "Rec",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                    Text(
+                        text = "${(result.relevanceScore * 100).toInt()}%",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
             }
 
             Text(
