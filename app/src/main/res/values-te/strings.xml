@@ -154,6 +154,7 @@
     <string name="category_ui_ux">UI/UX</string>
     <string name="category_ui_ux_desc">వినియోగదారు ఇంటర్‌ఫేస్ మరియు అనుభవం</string>
     <string name="category_performance">పనితీరు</string>
+    <string name="category_performance_desc">యాప్ పనితీరు సమస్యలు</string>
     <string name="category_bug">బగ్ రిపోర్ట్</string>
     <string name="category_feature">ఫీచర్ అభ్యర్థన</string>
     <string name="category_general">సాధారణ</string>
@@ -161,6 +162,10 @@
     <string name="category_payment">చెల్లింపు</string>
     <string name="category_auction">వేలాలు</string>
     <string name="category_fowl_management">కోడి నిర్వహణ</string>
+    <string name="category_cultural_events">సాంస్కృతిక కార్యక్రమాలు</string>
+    <string name="category_cultural_events_desc">సాంస్కృతిక కార్యక్రమాలు మరియు పండుగలు</string>
+    <string name="category_network_issues">నెట్‌వర్క్ సమస్యలు</string>
+    <string name="category_network_issues_desc">కనెక్టివిటీ మరియు నెట్‌వర్క్ సమస్యలు</string>
 
     <!-- Network Quality -->
     <string name="network_excellent">అద్భుతమైన</string>

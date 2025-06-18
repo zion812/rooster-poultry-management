@@ -153,6 +153,7 @@
     <string name="category_ui_ux">UI/UX</string>
     <string name="category_ui_ux_desc">User Interface and Experience</string>
     <string name="category_performance">Performance</string>
+    <string name="category_performance_desc">App Performance Issues</string>
     <string name="category_bug">Bug Report</string>
     <string name="category_feature">Feature Request</string>
     <string name="category_general">General</string>
@@ -160,6 +161,12 @@
     <string name="category_payment">Payment</string>
     <string name="category_auction">Auctions</string>
     <string name="category_fowl_management">Fowl Management</string>
+    <string name="category_cultural_events">Cultural Events</string>
+    <string name="category_cultural_events_desc">Cultural Events and Festivals</string>
+    <string name="category_network_issues">Network Issues</string>
+    <string name="category_network_issues_desc">Connectivity and Network Problems</string>
+    <string name="category_translation">Translation</string>
+    <string name="category_translation_desc">Language and Translation Issues</string>
 
     <!-- Network Quality -->
     <string name="network_excellent">Excellent</string>
