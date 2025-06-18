@@ -39,7 +39,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
 
-        val channelId = getString(R.string.default_notification_channel_id)
+        val channelId = "rooster_channel_id"
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder =
             NotificationCompat.Builder(this, channelId)

@@ -3,8 +3,6 @@
 package com.example.rooster.di
 
 import android.content.Context
-import com.example.rooster.services.DiskCacheManager
-import com.example.rooster.services.PredictiveCacheEngine
 import com.example.rooster.services.ReactiveDataFetcher
 import com.example.rooster.services.SmartCacheManager
 import com.example.rooster.services.localization.IntelligentLocalizationEngine
@@ -37,21 +35,9 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object Phase2BModule {
-    @Provides
-    @Singleton
-    fun provideSmartCacheManager(
-        @ApplicationContext context: Context,
-        diskCacheManager: DiskCacheManager,
-        predictiveEngine: PredictiveCacheEngine,
-    ): SmartCacheManager {
-        return SmartCacheManager(context, diskCacheManager, predictiveEngine)
-    }
+    // Removed duplicate SmartCacheManager provider - already in SmartCacheModule
 
-    @Provides
-    @Singleton
-    fun provideReactiveDataFetcher(smartCacheManager: SmartCacheManager): ReactiveDataFetcher {
-        return ReactiveDataFetcher(smartCacheManager)
-    }
+    // Removed duplicate ReactiveDataFetcher provider - already in SmartCacheModule
 
     @Provides
     @Singleton
