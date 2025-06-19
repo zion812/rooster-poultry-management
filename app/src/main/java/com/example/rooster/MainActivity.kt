@@ -18,7 +18,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.rooster.auction.ui.AuctionScreen
+import androidx.navigation.navDeepLink
+// Import existing screens
 import com.example.rooster.payment.DummyPaymentScreen
 import com.example.rooster.ui.theme.RoosterTheme
 import com.example.rooster.viewmodel.AuthViewModel
@@ -87,24 +88,6 @@ fun RoosterApp() {
             )
         }
 
-        // Auction Screen
-        composable("auctions") {
-            AuctionScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
-        }
-
-        // Flock Monitoring Screen
-        composable("flock_monitoring") {
-            FlockMonitoringScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
-        }
-
         // Farmer Home Screen
         composable("farmer_home") {
             FarmerHomeScreen(
@@ -123,6 +106,34 @@ fun RoosterApp() {
             )
         }
 
+        // Simple View Birds Screen - Fix navigation crash
+        composable(
+            "simple_view_birds",
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "android-app://androidx.navigation/simple_view_birds" }
+            )
+        ) {
+            SimpleViewBirdsScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
+            )
+        }
+
+        // Simple Sell Birds Screen - Fix navigation crash
+        composable(
+            "simple_sell_birds",
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "android-app://androidx.navigation/simple_sell_birds" }
+            )
+        ) {
+            SimpleSellBirdsScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
+            )
+        }
+
         // Payment Screen with parameters
         composable("payment/{listingId}/{amount}") { backStackEntry ->
             val listingId = backStackEntry.arguments?.getString("listingId") ?: ""
@@ -131,6 +142,16 @@ fun RoosterApp() {
                 navController = navController,
                 listingId = listingId,
                 amount = amount,
+                isTeluguMode = isTeluguMode
+            )
+        }
+
+        // Direct payment screen
+        composable("payment") {
+            DummyPaymentScreen(
+                navController = navController,
+                listingId = "",
+                amount = "0",
                 isTeluguMode = isTeluguMode
             )
         }

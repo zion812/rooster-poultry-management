@@ -34,15 +34,33 @@ android {
     buildTypes {
         getByName("debug") {
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_test_dummy\"")
+            // applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            isDebuggable = true
+            isMinifyEnabled = false
         }
         getByName("release") {
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_live_dummy\"")
             isMinifyEnabled = true
             isShrinkResources = true
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            // Firebase Crashlytics configuration
+            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+                mappingFileUploadEnabled = true
+            }
+        }
+        create("staging") {
+            initWith(getByName("release"))
+            buildConfigField("String", "RAZORPAY_KEY", "\"rzp_test_dummy\"")
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            isDebuggable = true
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -80,9 +98,14 @@ android {
 }
 
 dependencies {
-    // Core modules - only including working ones
+    // Core modules - all working modules
     implementation(project(":core:core-common"))
     implementation(project(":core:core-network"))
+
+    // Feature modules - temporarily disabled to get working build
+    // implementation(project(":feature:feature-marketplace"))
+    // implementation(project(":feature:feature-auctions"))
+    // implementation(project(":feature:feature-farm"))
 
     // Android Core
     implementation(libs.androidx.core.ktx)

@@ -6,6 +6,18 @@
     <string name="login">లాగిన్</string>
     <string name="register">నమోదు</string>
     <string name="logout">లాగౌట్</string>
+    <string name="phone_number">ఫోన్ నంబర్</string>
+    <string name="enter_phone_number">ఫోన్ నంబర్ నమోదు చేయండి</string>
+    <string name="login_button">లాగిన్</string>
+    <string name="phone_auth_title">ఫోన్ ధృవీకరణ</string>
+    <string name="enter_otp">OTP నమోదు చేయండి</string>
+    <string name="verify_otp">OTP ధృవీకరించండి</string>
+    <string name="resend_otp">OTP మళ్లీ పంపండి</string>
+    <string name="invalid_phone">చెల్లని ఫోన్ నంబర్</string>
+    <string name="invalid_otp">చెల్లని OTP</string>
+    <string name="auth_failed">ధృవీకరణ విఫలమైంది</string>
+    <string name="auth_success">ధృవీకరణ విజయవంతమైంది</string>
+    <string name="processing_auth">ధృవీకరణ ప్రాసెస్ అవుతోంది...</string>
 
     <!-- Navigation -->
     <string name="home">హోమ్</string>
@@ -24,6 +36,15 @@
     <string name="ok">సరే</string>
     <string name="retry">మళ్లీ ప్రయత్నించండి</string>
     <string name="loading">లోడ్ అవుతోంది...</string>
+    <string name="refresh">రిఫ్రెష్</string>
+    <string name="back">వెనుకకు</string>
+    <string name="next">తదుపరి</string>
+    <string name="edit">సవరించండి</string>
+    <string name="delete">తొలగించండి</string>
+    <string name="add_button">జోడించండి</string>
+    <string name="save_button">సేవ్ చేయండి</string>
+    <string name="update_button">అప్డేట్ చేయండి</string>
+    <string name="confirm_button">ధృవీకరించండి</string>
 
     <!-- Marketplace -->
     <string name="buy_now">ఇప్పుడే కొనండి</string>
@@ -42,10 +63,64 @@
     <string name="auction_status">స్థితి</string>
     <string name="auction_time">మిగిలిన సమయం</string>
     <string name="current_bid">ప్రస్తుత బిడ్</string>
+    <string name="minimum_bid">కనీస బిడ్</string>
+    <string name="highest_bidder">అత్యధిక బిడ్దారు</string>
+    <string name="time_remaining">మిగిలిన సమయం</string>
     <string name="place_bid">బిడ్ చేయండి</string>
     <string name="bid_button">బిడ్ చేయండి</string>
     <string name="action_bid_now">ఇప్పుడు బిడ్ చేయండి</string>
     <string name="bidding_history">బిడ్డింగ్ చరిత్ర</string>
+    <string name="auction_ended">వేలం ముగిసింది</string>
+    <string name="auction_ending_soon">వేలం ముగుస్తోంది</string>
+    <string name="no_active_auctions">ప్రస్తుతం చురుకుగా ఉన్న వేలాలు లేవు</string>
+    <string name="new_auctions_coming">త్వరలో కొత్త వేలాలు వస్తాయి</string>
+    <string name="loading_auctions">వేలాలు లోడ్ అవుతున్నాయి...</string>
+    <string name="bid_placed_success">బిడ్ విజయవంతంగా చేయబడింది!</string>
+    <string name="error_loading_auctions">వేలాలు లోడ్ చేయడంలో లోపం</string>
+    <string name="error_placing_bid">బిడ్ చేయడంలో లోపం</string>
+    <string name="your_bid_amount">మీ బిడ్ మొత్తం (₹)</string>
+    <string name="bid_minimum_amount">బిడ్ కనీసం ₹%1$s ఉండాలి</string>
+    <string name="verified_auction">ధృవీకరించబడిన వేలం</string>
+    <string name="seller_name">విక్రేత పేరు</string>
+    <string name="breed_label">జాతి</string>
+    <string name="age_label">వయస్సు</string>
+    <string name="weeks_label">వారాలు</string>
+    <string name="days_label">రోజులు</string>
+    <string name="hours_label">గంటలు</string>
+    <string name="minutes_label">నిమిషాలు</string>
+
+    <!-- Flock Management -->
+    <string name="flock_monitoring">కోళ్ల పర్యవేక్షణ</string>
+    <string name="flock_management">కోళ్ల నిర్వహణ</string>
+    <string name="add_flock">కోళ్లను జోడించండి</string>
+    <string name="flock_summary">కోళ్ల సమ్మరీ</string>
+    <string name="total_birds">మొత్తం కోళ్లు</string>
+    <string name="healthy_birds">ఆరోగ్యకరమైన కోళ్లు</string>
+    <string name="sick_birds">అనారోగ్య కోళ్లు</string>
+    <string name="mortality_count">మరణాల సంఖ్య</string>
+    <string name="health_percentage">ఆరోగ్య శాతం</string>
+    <string name="no_flock_data">ఇంకా కోళ్ల వివరాలు జోడించలేదు</string>
+    <string name="add_first_flock">మీ మొదటి కోళ్ల బ్యాచ్ వివరాలను జోడించండి</string>
+    <string name="loading_flock_data">కోళ్ల డేటా లోడ్ అవుతోంది...</string>
+    <string name="flock_added_success">కోళ్ల వివరాలు విజయవంతంగా జోడించబడ్డాయి</string>
+    <string name="flock_updated_success">కోళ్ల వివరాలు విజయవంతంగా అప్డేట్ చేయబడ్డాయి</string>
+    <string name="flock_deleted_success">కోళ్ల వివరాలు విజయవంతంగా తొలగించబడ్డాయి</string>
+    <string name="error_loading_flock">కోళ్ల డేటా లోడ్ చేయడంలో లోపం</string>
+    <string name="error_adding_flock">కోళ్ల వివరాలు జోడించడంలో లోపం</string>
+    <string name="error_updating_flock">కోళ్ల వివరాలు అప్డేట్ చేయడంలో లోపం</string>
+    <string name="error_deleting_flock">కోళ్ల వివరాలు తొలగించడంలో లోపం</string>
+    <string name="add_new_flock_batch">కొత్త కోళ్ల బ్యాచ్ జోడించండి</string>
+    <string name="edit_flock_details">కోళ్ల వివరాలు సవరించండి</string>
+    <string name="breed_name">కోళ్ల జాతి</string>
+    <string name="total_count">మొత్తం సంఖ్య</string>
+    <string name="healthy_count">ఆరోగ్యకరమైన సంఖ్య</string>
+    <string name="sick_count">అనారోగ్య సంఖ్య</string>
+    <string name="age_in_weeks">వయస్సు (వారాలలో)</string>
+    <string name="average_weight_kg">సగటు బరువు (కి.గ్రా.)</string>
+    <string name="notes_label">గమనికలు</string>
+    <string name="last_updated">చివరిగా అప్డేట్ చేయబడింది</string>
+    <string name="confirm_delete_flock">ఖచ్చితంగా తొలగించాలా?</string>
+    <string name="delete_flock_warning">ఈ కోళ్ల వివరాలను తొలగించాలనుకుంటున్నారా? ఈ చర్య రద్దు చేయలేరు.</string>
 
     <!-- Payment -->
     <string name="payment">చెల్లింపు</string>
@@ -53,6 +128,18 @@
     <string name="payment_successful">చెల్లింపు విజయవంతంగా పూర్తయింది!</string>
     <string name="payment_failed">చెల్లింపు విఫలమైంది</string>
     <string name="payment_processing">చెల్లింపు ప్రాసెస్ అవుతోంది...</string>
+    <string name="payment_method">చెల్లింపు పద్ధతి</string>
+    <string name="select_payment_method">చెల్లింపు పద్ధతిని ఎంచుకోండి</string>
+    <string name="cash_on_delivery">డెలివరీ వేళ చెల్లింపు</string>
+    <string name="upi_payment">UPI చెల్లింపు</string>
+    <string name="card_payment">కార్డ్ చెల్లింపు</string>
+    <string name="bank_transfer">బ్యాంక్ బదిలీ</string>
+    <string name="payment_amount">చెల్లింపు మొత్తం</string>
+    <string name="processing_payment">చెల్లింపు ప్రాసెస్ అవుతోంది...</string>
+    <string name="payment_failed_error">చెల్లింపు విఫలమైంది: %1$s</string>
+    <string name="payment_cancelled">చెల్లింపు రద్దు చేయబడింది</string>
+    <string name="confirm_payment">చెల్లింపును ధృవీకరించండి</string>
+    <string name="payment_details">చెల్లింపు వివరాలు</string>
 
     <!-- Categories -->
     <string name="category">వర్గం</string>
@@ -64,176 +151,50 @@
     <string name="error_loading">లోడింగ్ లోపం</string>
     <string name="error_unknown">తెలియని లోపం సంభవించింది</string>
     <string name="try_again">మళ్లీ ప్రయత్నించండి</string>
+    <string name="network_error_message">నెట్‌వర్క్ లోపం దయచేసి మళ్లీ ప్రయత్నించండి</string>
+    <string name="generic_error_message">కొంత లోపం జరిగింది దయచేసి మళ్లీ ప్రయత్నించండి</string>
+    <string name="data_load_error">డేటా లోడ్ చేయడంలో అనుకోని లోపం</string>
+    <string name="connection_timeout">కనెక్షన్ టైమౌట్</string>
+    <string name="server_error">సర్వర్ లోపం</string>
 
     <!-- Success Messages -->
     <string name="success">విజయం!</string>
     <string name="success_saved">విజయవంతంగా సేవ్ చేయబడింది</string>
     <string name="submit_success">సమర్పణ విజయవంతం</string>
+    <string name="operation_successful">ఆపరేషన్ విజయవంతమైంది</string>
+    <string name="data_saved_successfully">డేటా విజయవంతంగా సేవ్ చేయబడింది</string>
+    <string name="update_successful">అప్డేట్ విజయవంతమైంది</string>
 
     <!-- Network Status -->
     <string name="network_offline">ఆఫ్‌లైన్</string>
     <string name="offline_mode">మీరు ఆఫ్‌లైన్‌లో ఉన్నారు. కాష్ జాబితాలు చూపబడుతున్నాయి.</string>
     <string name="connecting">కనెక్ట్ అవుతోంది...</string>
+    <string name="network_not_available">నెట్‌వర్క్ అందుబాటులో లేదు</string>
 
     <!-- Language -->
     <string name="switch_to_telugu">తెలుగుకు మారండి</string>
     <string name="switch_to_english">ఆంగ్లానికి మారండి</string>
     <string name="language_preferences">భాష ప్రాధాన్యతలు</string>
-
-    <!-- AI Assistant -->
-    <string name="ai_assistant">AI సహాయకుడు</string>
-    <string name="speak_now">ఇప్పుడు మాట్లాడండి</string>
-    <string name="price_prediction">ధర అంచనా</string>
+    <string name="toggle_language">భాష మార్చండి</string>
 
     <!-- Farm Management -->
     <string name="farmer_welcome_title">రైతు గారికి స్వాగతం</string>
-    <string name="total_birds">మొత్తం పక్షులు</string>
-    <string name="healthy_birds">ఆరోగ్యకరమైన</string>
     <string name="analytics">విశ్లేషణలు</string>
 
-    <!-- Offline Mode -->
-    <string name="network_not_available">నెట్‌వర్క్ అందుబాటులో లేదు</string>
-
-    <!-- Notifications -->
-    <string name="notifications">నోటిఫికేషన్‌లు</string>
-    <string name="notification_settings">నోటిఫికేషన్ సెట్టింగ్స్</string>
-
-    <!-- Profile -->
-    <string name="edit_profile">ప్రొఫైల్ సవరించండి</string>
-    <string name="share_profile">ప్రొఫైల్ షేర్ చేయండి</string>
-    <string name="fowl_sales">కోడి అమ్మకాలు</string>
-    <string name="listings">జాబితాలు</string>
-    <string name="followers">అనుచరులు</string>
-    <string name="awards">అవార్డులు</string>
-    <string name="posts">పోస్ట్‌లు</string>
-
-    <!-- Help & Support -->
-    <string name="help_support">సహాయం &amp; మద్దతు</string>
-    <string name="help">సహాయం</string>
-    <string name="contact_support">మద్దతును సంప్రదించండి</string>
-    <string name="faq">తరచుగా అడిగే ప్రశ్నలు</string>
-
-    <!-- Vet Consultation -->
-    <string name="consult_vet">వెట్ను సంప్రదించండి</string>
-    <string name="emergency_contact">అత్యవసర సంప్రదింపు</string>
-    <string name="book_consultation">సంప్రదింపు బుక్ చేయండి</string>
-
-    <!-- IoT Integration -->
-    <string name="iot_dashboard">IoT డాష్‌బోర్డ్</string>
-    <string name="device_status">పరికర స్థితి</string>
-    <string name="sensor_data">సెన్సార్ డేటా</string>
-
-    <!-- Cultural Events -->
-    <string name="festival_stories_title">పండుగ కథలు</string>
-    <string name="cultural_events">సాంస్కృతిక కార్యక్రమాలు</string>
-    <string name="traditional_recipes">సాంప్రదాయిక వంటకాలు</string>
-
-    <!-- Feedback -->
-    <string name="feedback">అభిప్రాయం</string>
-    <string name="feedback_title">మీ అభిప్రాయం</string>
-    <string name="feedback_hint">మీ ఆలోచనలను పంచుకోండి...</string>
-    <string name="submit_feedback">అభిప్రాయం సమర్పించండి</string>
-
-    <!-- Community -->
-    <string name="join_community">సంఘంలో చేరండి</string>
-    <string name="community_guidelines">సంఘ మార్గదర్శకాలు</string>
-    <string name="community_posts">సంఘ పోస్ట్‌లు</string>
-
-    <!-- Feedback Priorities -->
-    <string name="priority_low">తక్కువ</string>
-    <string name="priority_medium">మధ్యమ</string>
-    <string name="priority_high">ఎక్కువ</string>
-    <string name="priority_urgent">అత్యవసరం</string>
-    <string name="priority_essential">అవసరమైన</string>
-    <string name="priority_important">ముఖ్యమైన</string>
-    <string name="priority_optional">ఐచ్ఛిక</string>
-    <string name="priority_luxury">లగ్జరీ</string>
-
-    <!-- Feedback Categories -->
-    <string name="category_ui">వినియోగదారు ఇంటర్‌ఫేస్</string>
-    <string name="category_ui_ux">UI/UX</string>
-    <string name="category_ui_ux_desc">వినియోగదారు ఇంటర్‌ఫేస్ మరియు అనుభవం</string>
-    <string name="category_performance">పనితీరు</string>
-    <string name="category_performance_desc">యాప్ పనితీరు సమస్యలు</string>
-    <string name="category_bug">బగ్ రిపోర్ట్</string>
-    <string name="category_feature">ఫీచర్ అభ్యర్థన</string>
-    <string name="category_general">సాధారణ</string>
-    <string name="category_marketplace">మార్కెట్‌ప్లేస్</string>
-    <string name="category_payment">చెల్లింపు</string>
-    <string name="category_auction">వేలాలు</string>
-    <string name="category_fowl_management">కోడి నిర్వహణ</string>
-    <string name="category_cultural_events">సాంస్కృతిక కార్యక్రమాలు</string>
-    <string name="category_cultural_events_desc">సాంస్కృతిక కార్యక్రమాలు మరియు పండుగలు</string>
-    <string name="category_network_issues">నెట్‌వర్క్ సమస్యలు</string>
-    <string name="category_network_issues_desc">కనెక్టివిటీ మరియు నెట్‌వర్క్ సమస్యలు</string>
-
-    <!-- Network Quality -->
-    <string name="network_excellent">అద్భుతమైన</string>
-    <string name="network_good">మంచిది</string>
-    <string name="network_fair">సరైనది</string>
-    <string name="network_poor">దయనీయం</string>
-
-    <!-- UAT Feedback -->
-    <string name="uat_feedback">UAT అభిప్రాయం</string>
-    <string name="select_category">వర్గం ఎంచుకోండి</string>
-    <string name="select_priority">ప్రాధాన్యత ఎంచుకోండి</string>
-    <string name="feedback_message">అభిప్రాయ సందేశం</string>
-    <string name="rating_1">1 నక్షత్రం</string>
-    <string name="rating_2">2 నక్షత్రాలు</string>
-    <string name="rating_3">3 నక్షత్రాలు</string>
-    <string name="rating_4">4 నక్షత్రాలు</string>
-    <string name="rating_5">5 నక్షత్రాలు</string>
-
-    <!-- System Info -->
-    <string name="system_info">సిస్టమ్ సమాచారం</string>
-    <string name="device_info">పరికర సమాచారం</string>
-    <string name="android_version">ఆండ్రాయిడ్ వెర్షన్</string>
-    <string name="app_version">యాప్ వెర్షన్</string>
-    <string name="network_status">నెట్‌వర్క్ స్థితి</string>
-
-    <!-- Photos and Media -->
-    <string name="attach_photos">ఫోటోలను జత చేయండి</string>
-    <string name="pick_image">చిత్రం ఎంచుకోండి</string>
-    <string name="take_photo">ఫోటో తీయండి</string>
-    <string name="gallery">గ్యాలరీ</string>
-    <string name="camera">కెమెరా</string>
-
-    <!-- Report Issues -->
-    <string name="report_issue">సమస్య నివేదించండి</string>
-    <string name="describe_issue">సమస్యను వివరించండి</string>
-    <string name="steps_to_reproduce">పునరుత్పత్తి దశలు</string>
-
-    <!-- Work Management -->
-    <string name="feedback_upload_work">అభిప్రాయ అప్‌లోడ్</string>
-    <string name="retry_upload">మళ్లీ అప్‌లోడ్ చేయండి</string>
-
-    <!-- Cultural Events Specific -->
-    <string name="sankranti_celebration">సంక్రాంతి వేడుక</string>
-    <string name="sankranti_offer_dynamic">సంక్రాంతి ఆఫర్: %d%% తగ్గింపు</string>
-    <string name="traditional_markets">సాంప్రదాయిక మార్కెట్లు</string>
-    <string name="cultural_posts_title">సాంస్కృతిక పోస్ట్‌లు</string>
-    <string name="group_orders_title">సమూహ ఆర్డర్లు</string>
-    <string name="close_button_desc">మూసివేయండి</string>
-    <string name="view_all_action">అన్నీ చూడండి</string>
-
-    <!-- Vet Consultation Specific -->
-    <string name="schedule_consultation">సంప్రదింపు షెడ్యూల్ చేయండి</string>
-    <string name="consultation_fee">సంప్రదింపు రుసుము</string>
-    <string name="vet_availability">వెట్ అందుబాటు</string>
-    <string name="consultation_notes">సంప్రదింపు గమనికలు</string>
-    <string name="prescription">ప్రిస్క్రిప్షన్</string>
-    <string name="follow_up">అనుసరణ</string>
-
-    <!-- Miscellaneous -->
-    <string name="back">వెనుకకు</string>
-    <string name="next">తదుపరి</string>
+    <!-- UI Elements -->
+    <string name="details_button">వివరాలు</string>
+    <string name="view_details">వివరాలు చూడండి</string>
+    <string name="view_all">అన్నీ చూడండి</string>
+    <string name="show_more">మరిన్ని చూపించండి</string>
+    <string name="show_less">తక్కువ చూపించండి</string>
     <string name="skip">దాటవేయండి</string>
     <string name="continue_text">కొనసాగించండి</string>
     <string name="close">మూసివేయండి</string>
     <string name="share">షేర్ చేయండి</string>
-    <string name="delete">తొలగించండి</string>
-    <string name="edit">సవరించండి</string>
-    <string name="view_all">అన్నీ చూడండి</string>
-    <string name="show_more">మరిన్ని చూపించండి</string>
-    <string name="show_less">తక్కువ చూపించండి</string>
+
+    <!-- Validation Messages -->
+    <string name="field_required">ఈ ఫీల్డ్ తప్పనిసరి</string>
+    <string name="invalid_input">చెల్లని ఇన్‌పుట్</string>
+    <string name="minimum_value_required">కనీస విలువ అవసరం</string>
+    <string name="maximum_value_exceeded">గరిష్ట విలువ మించిపోయింది</string>
 </resources>

@@ -30,10 +30,12 @@ include(":app")
 include(":core:core-common")
 include(":core:core-network")
 
-// Temporarily disable modules with dependency issues
+// Enable navigation and search modules for production (temporarily disabled)
 // include(":core:navigation")
 // include(":core:search")
+// include(":core:analytics")
 
-// Feature modules - temporarily disabled until core is stable
-// include(":feature:feature-marketplace")
+// Feature modules - temporarily disable to get working build
+// include(":feature:feature-marketplace")  
 // include(":feature:feature-auctions")
+// include(":feature:feature-farm")
