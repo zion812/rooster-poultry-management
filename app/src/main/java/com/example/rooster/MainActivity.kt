@@ -1,5 +1,6 @@
 package com.example.rooster
 
+// Import existing screens
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,7 +20,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
-// Import existing screens
 import com.example.rooster.payment.DummyPaymentScreen
 import com.example.rooster.ui.theme.RoosterTheme
 import com.example.rooster.viewmodel.AuthViewModel
@@ -153,6 +153,29 @@ fun RoosterApp() {
                 listingId = "",
                 amount = "0",
                 isTeluguMode = isTeluguMode
+            )
+        }
+
+        // Auctions Screen - Fix navigation crash
+        composable(
+            "auctions",
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "android-app://androidx.navigation/auctions" }
+            )
+        ) {
+            AuctionsScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
+            )
+        }
+
+        // Flock Monitoring Screen - Fix navigation crash
+        composable("flock_monitoring") {
+            FlockMonitoringScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
             )
         }
     }
