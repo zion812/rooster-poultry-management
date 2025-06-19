@@ -1,10 +1,11 @@
 package com.example.rooster.core.network
 
+import android.content.Context
 import com.example.rooster.core.common.Constants
-import com.example.rooster.core.network.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Cache
 import okhttp3.Interceptor
@@ -35,6 +36,14 @@ annotation class ParseRetrofit
 @Retention(AnnotationRetention.BINARY)
 annotation class GeneralRetrofit
 
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class AuthInterceptor
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class NetworkInterceptor
+
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -53,6 +62,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @AuthInterceptor
     fun provideAuthInterceptor(): Interceptor {
         return Interceptor { chain ->
             val originalRequest = chain.request()
@@ -66,6 +76,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @NetworkInterceptor
     fun provideNetworkInterceptor(): Interceptor {
         return Interceptor { chain ->
             val request = chain.request()
@@ -80,7 +91,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideCache(context: android.content.Context): Cache {
+    fun provideCache(@ApplicationContext context: Context): Cache {
         val cacheDir = File(context.cacheDir, "http_cache")
         return Cache(cacheDir, Constants.CACHE_SIZE)
     }
@@ -89,8 +100,8 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(
         loggingInterceptor: HttpLoggingInterceptor,
-        authInterceptor: Interceptor,
-        networkInterceptor: Interceptor,
+        @AuthInterceptor authInterceptor: Interceptor,
+        @NetworkInterceptor networkInterceptor: Interceptor,
         cache: Cache
     ): OkHttpClient {
         return OkHttpClient.Builder()

@@ -9,7 +9,7 @@ import javax.annotation.processing.Generated;
 import okhttp3.Interceptor;
 
 @ScopeMetadata("javax.inject.Singleton")
-@QualifierMetadata
+@QualifierMetadata("com.example.rooster.core.network.NetworkInterceptor")
 @DaggerGenerated
 @Generated(
     value = "dagger.internal.codegen.ComponentProcessor",

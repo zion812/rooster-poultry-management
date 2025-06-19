@@ -22,12 +22,49 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import android.content.Context
 import java.text.NumberFormat
 import java.util.*
+import kotlinx.coroutines.delay
+import com.example.rooster.data.models.NetworkQualityLevel
+import com.example.rooster.data.models.assessNetworkQualitySafely
+import com.example.rooster.data.models.*
+
+suspend fun fetchHighLevelDashboardData(
+    onResult: (HighLevelDashboardData) -> Unit,
+    onError: (String) -> Unit,
+    setLoading: (Boolean) -> Unit
+) {
+    try {
+        delay(1000) // Simulate network delay
+        val mockData = HighLevelDashboardData(
+            overviewStats = OverviewStats(1250, 850, 15200, 450),
+            performanceMetrics = DashboardMetrics(420, 15, 45, 8, 125000.0, 12),
+            traceabilityMetrics = TraceabilityMetrics(25, 180, 12, 3, 94.5, 6),
+            analyticsMetrics = AnalyticsMetrics(18, 2500.0, 12.5, 2, "Healthy", 97.8),
+            fraudAlerts = emptyList(),
+            farmVerifications = emptyList(),
+            userVerifications = emptyList(),
+            topFarmers = generateTopFarmers(),
+            recentActivities = generateRecentActivities(),
+            systemHealth = SystemHealth("Healthy", "Healthy")
+        )
+        onResult(mockData)
+        setLoading(false)
+    } catch (e: Exception) {
+        onError(e.message ?: "Unknown error occurred")
+        setLoading(false)
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HighLevelHomeScreen() {
+fun HighLevelHomeScreen(
+    navController: NavController,
+    isTeluguMode: Boolean,
+    onLanguageToggle: () -> Unit
+) {
     var dashboardData by remember { mutableStateOf<HighLevelDashboardData?>(null) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -1072,17 +1109,41 @@ private fun QuickActionsSection() {
                 items(
                     listOf(
                         QuickAction(
-                            "Send Notification",
-                            Icons.Default.Notifications,
-                            Color(0xFF2196F3),
+                            title = "Send Notification",
+                            titleTe = "నోటిఫికేషన్ పంపండి",
+                            icon = Icons.Default.Notifications,
+                            route = "notifications",
+                            description = "Send alerts to farmers",
+                            descriptionTe = "రైతులకు హెచ్చరికలు పంపండి",
+                            color = Color(0xFF2196F3),
                         ),
                         QuickAction(
-                            "User Management",
-                            Icons.Default.ManageAccounts,
-                            Color(0xFF4CAF50),
+                            title = "User Management",
+                            titleTe = "వినియోగదారు నిర్వహణ",
+                            icon = Icons.Default.ManageAccounts,
+                            route = "user_management",
+                            description = "Manage user accounts",
+                            descriptionTe = "వినియోగదారు ఖాతాలను నిర్వహించండి",
+                            color = Color(0xFF4CAF50),
                         ),
-                        QuickAction("Reports", Icons.Default.Assessment, Color(0xFFFF9800)),
-                        QuickAction("Settings", Icons.Default.Settings, Color(0xFF9C27B0)),
+                        QuickAction(
+                            title = "Reports",
+                            titleTe = "నివేదికలు",
+                            icon = Icons.Default.Assessment,
+                            route = "reports",
+                            description = "Generate reports",
+                            descriptionTe = "నివేదికలను రూపొందించండి",
+                            color = Color(0xFFFF9800)
+                        ),
+                        QuickAction(
+                            title = "Settings",
+                            titleTe = "సెట్టింగులు",
+                            icon = Icons.Default.Settings,
+                            route = "settings",
+                            description = "System settings",
+                            descriptionTe = "సిస్టమ్ సెట్టింగులు",
+                            color = Color(0xFF9C27B0)
+                        ),
                     ),
                 ) { action ->
                     QuickActionCard(action)
@@ -1126,128 +1187,6 @@ private fun QuickActionCard(action: QuickAction) {
         }
     }
 }
-
-// Data Models
-data class HighLevelDashboardData(
-    val overviewStats: OverviewStats,
-    val performanceMetrics: DashboardMetrics,
-    val traceabilityMetrics: TraceabilityMetrics,
-    val analyticsMetrics: AnalyticsMetrics,
-    val fraudAlerts: List<FraudAlert>,
-    val farmVerifications: List<FarmVerification>,
-    val userVerifications: List<UserVerification>,
-    val topFarmers: List<TopFarmer>,
-    val recentActivities: List<RecentActivity>,
-    val systemHealth: SystemHealth,
-)
-
-data class FraudAlert(
-    val alertId: String,
-    val alertType: String,
-    val severity: String,
-    val description: String,
-    val relatedEntity: String,
-    val timestamp: String,
-    val status: String,
-)
-
-data class AnalyticsMetrics(
-    val transferVelocity: Int, // transfers per hour
-    val averagePrice: Double,
-    val priceVariance: Double,
-    val suspiciousPatterns: Int,
-    val networkHealth: String,
-    val dataIntegrity: Double,
-)
-
-data class FarmVerification(
-    val farmId: String,
-    val farmName: String,
-    val ownerName: String,
-    val location: String,
-    val verificationStatus: String,
-    val submittedDate: String,
-    val documentsCount: Int,
-    val verificationScore: Int,
-    val riskLevel: String,
-)
-
-data class UserVerification(
-    val userId: String,
-    val userName: String,
-    val userType: String,
-    val verificationLevel: String,
-    val documentsSubmitted: List<String>,
-    val verificationProgress: Int,
-    val lastActivity: String,
-)
-
-data class TraceabilityMetrics(
-    val activeTransfers: Int,
-    val completedTransfers: Int,
-    val pendingVerifications: Int,
-    val fraudAlertsCount: Int,
-    val verificationSuccessRate: Double,
-    val avgTransferTime: Int, // hours
-)
-
-data class VerificationStatus(
-    val transferId: String,
-    val fowlId: String,
-    val status: String,
-    val riskLevel: String,
-    val timeRemaining: String,
-)
-
-data class OverviewStats(
-    val totalUsers: Int,
-    val activeFarmers: Int,
-    val totalFowl: Int,
-    val marketplaceItems: Int,
-)
-
-data class DashboardMetrics(
-    val dailyActiveUsers: Int,
-    val dauTrend: Int, // positive for up, negative for down
-    val avgSessionMinutes: Int,
-    val sessionTrend: Int,
-    val marketplaceSales: Double,
-    val salesTrend: Int,
-)
-
-data class TopFarmer(
-    val rank: Int,
-    val name: String,
-    val location: String,
-    val fowlCount: Int,
-    val score: Int,
-)
-
-data class RecentActivity(
-    val type: String,
-    val description: String,
-    val timeAgo: String,
-)
-
-data class SystemHealth(
-    val serverStatus: String,
-    val databaseStatus: String,
-)
-
-data class StatItem(
-    val label: String,
-    val value: String,
-    val icon: ImageVector,
-    val color: Color,
-)
-
-data class QuickAction(
-    val title: String,
-    val icon: ImageVector,
-    val color: Color,
-)
-
-// Data fetching is now handled by ExtendedFetchers
 
 fun generateTopFarmers(): List<TopFarmer> {
     return listOf(

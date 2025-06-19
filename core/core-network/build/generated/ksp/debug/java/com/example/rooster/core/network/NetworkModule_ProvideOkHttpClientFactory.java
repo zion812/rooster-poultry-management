@@ -13,7 +13,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 @ScopeMetadata("javax.inject.Singleton")
-@QualifierMetadata
+@QualifierMetadata({
+    "com.example.rooster.core.network.AuthInterceptor",
+    "com.example.rooster.core.network.NetworkInterceptor"
+})
 @DaggerGenerated
 @Generated(
     value = "dagger.internal.codegen.ComponentProcessor",

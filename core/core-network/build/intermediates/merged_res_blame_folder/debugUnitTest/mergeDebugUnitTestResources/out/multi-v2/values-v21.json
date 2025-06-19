@@ -4,7 +4,7 @@
             "outputFile": "com.example.rooster.core.network.test.core-network-mergeDebugUnitTestResources-44:/values-v21/values-v21.xml",
             "map": [
                 {
-                    "source": "/home/user/.gradle/caches/8.11.1/transforms/4e437e04503eb1652dcb59dc655e3671/transformed/core-1.16.0/res/values-v21/values-v21.xml",
+                    "source": "/home/user/.gradle/caches/8.11.1/transforms/a2e8db24caa7155178eed5370dbba65b/transformed/core-1.16.0/res/values-v21/values-v21.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,13",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4",

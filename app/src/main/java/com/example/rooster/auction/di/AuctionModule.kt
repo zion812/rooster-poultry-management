@@ -8,19 +8,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AuctionModule {
-    @Provides
-    @Singleton
-    fun provideOkHttp(): OkHttpClient =
-        OkHttpClient.Builder()
-            .pingInterval(30, TimeUnit.SECONDS)
-            .build()
 
     @Provides
     @Named("auctionSocketUrl")
@@ -29,7 +22,7 @@ object AuctionModule {
     @Provides
     @Singleton
     fun provideWebSocketClient(
-        client: OkHttpClient,
+        client: OkHttpClient, // Use the existing OkHttpClient from NetworkModule
         @Named("auctionSocketUrl") url: String,
     ) = AuctionWebSocketClient(client, url)
 

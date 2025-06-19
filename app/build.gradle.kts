@@ -80,6 +80,10 @@ android {
 }
 
 dependencies {
+    // Core modules - only including working ones
+    implementation(project(":core:core-common"))
+    implementation(project(":core:core-network"))
+
     // Android Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -115,7 +119,7 @@ dependencies {
     implementation("com.github.parse-community.Parse-SDK-Android:parse:4.3.0")
     implementation("com.github.parse-community.Parse-SDK-Android:fcm:4.3.0")
 
-    // Room
+    // Room Database
     implementation("androidx.room:room-runtime:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
@@ -137,6 +141,11 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.20")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation("io.mockk:mockk:1.13.8")
+
+    // Android Testing
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.7")
 
     // Debug
     debugImplementation(libs.androidx.ui.tooling)

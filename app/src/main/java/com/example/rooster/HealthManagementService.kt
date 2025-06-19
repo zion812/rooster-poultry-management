@@ -1,11 +1,16 @@
 package com.example.rooster
 
 import android.content.Context
+import com.example.rooster.data.models.NetworkQualityLevel
+import com.example.rooster.data.models.assessNetworkQualitySafely
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.parse.*
+import com.parse.ParseObject
+import com.parse.ParseQuery
+import com.parse.ParseUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 /**
  * Health Management Service for Vaccination and Medication Tracking

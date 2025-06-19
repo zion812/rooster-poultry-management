@@ -3,28 +3,28 @@ package com.example.rooster
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.rooster.auction.ui.AuctionScreen
+import com.example.rooster.payment.DummyPaymentScreen
 import com.example.rooster.ui.theme.RoosterTheme
+import com.example.rooster.viewmodel.AuthViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,94 +36,103 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    RoosterApp()
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "🐓 Rooster",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                }
+fun RoosterApp() {
+    val navController = rememberNavController()
+    val authViewModel: AuthViewModel = hiltViewModel()
+    val authState by authViewModel.uiState.collectAsState()
+    var isTeluguMode by remember { mutableStateOf(true) }
+
+    // Check authentication state on app start
+    LaunchedEffect(Unit) {
+        authViewModel.checkAuthState()
+    }
+
+    val startDestination = if (authState.isAuthenticated) {
+        when (authState.userRole.lowercase()) {
+            "farmer" -> "farmer_home"
+            "highlevel", "high_level" -> "high_level_home"
+            else -> "marketplace"
+        }
+    } else {
+        "auth"
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = startDestination
+    ) {
+        // Authentication Screen
+        composable("auth") {
+            AuthScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
             )
         }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "రూస్టర్ పోల్ట్రీ మేనేజ్‌మెంట్",
-                style = MaterialTheme.typography.headlineLarge,
-                textAlign = TextAlign.Center
+
+        // Marketplace Screen
+        composable("marketplace") {
+            MarketplaceScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
             )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = "Rooster Poultry Management",
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center
+        }
+
+        // Auction Screen
+        composable("auctions") {
+            AuctionScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
             )
+        }
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Text(
-                text = "తెలుగు రైతుల కోసం రూరల్ ఆప్టిమైజ్డ్ యాప్",
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center
+        // Flock Monitoring Screen
+        composable("flock_monitoring") {
+            FlockMonitoringScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
             )
+        }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Rural Optimized App for Telugu Farmers",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
+        // Farmer Home Screen
+        composable("farmer_home") {
+            FarmerHomeScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
             )
+        }
 
-            Spacer(modifier = Modifier.height(48.dp))
+        // High Level Home Screen
+        composable("high_level_home") {
+            HighLevelHomeScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
+            )
+        }
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Phase 8: Production Ready",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "✅ Clean Architecture\n✅ Firebase Integration\n✅ Telugu Localization\n✅ 2G Optimization",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
+        // Payment Screen with parameters
+        composable("payment/{listingId}/{amount}") { backStackEntry ->
+            val listingId = backStackEntry.arguments?.getString("listingId") ?: ""
+            val amount = backStackEntry.arguments?.getString("amount") ?: "0"
+            DummyPaymentScreen(
+                navController = navController,
+                listingId = listingId,
+                amount = amount,
+                isTeluguMode = isTeluguMode
+            )
         }
     }
 }

@@ -26,13 +26,14 @@ dependencyResolutionManagement {
 rootProject.name = "rooster-poultry-management"
 include(":app")
 
-// Temporarily disable modules causing build issues
-// include(":core:core-common")
-// include(":core:core-network")
-// include(":core:analytics")
-// include(":core:ai")
-// include(":core:search")
-// include(":feature:feature-farm")
-// include(":feature:feature-analytics")
-// include(":feature:ai")
+// Core modules - stable
+include(":core:core-common")
+include(":core:core-network")
 
+// Temporarily disable modules with dependency issues
+// include(":core:navigation")
+// include(":core:search")
+
+// Feature modules - temporarily disabled until core is stable
+// include(":feature:feature-marketplace")
+// include(":feature:feature-auctions")
