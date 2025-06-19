@@ -300,7 +300,7 @@ private fun PaymentStatusCard(
                 )
 
                 LinearProgressIndicator(
-                    progress = (timeRemaining.toFloat() / (10 * 60 * 1000f)).coerceIn(0f, 1f),
+                    progress = { (timeRemaining.toFloat() / (10 * 60 * 1000f)).coerceIn(0f, 1f) },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

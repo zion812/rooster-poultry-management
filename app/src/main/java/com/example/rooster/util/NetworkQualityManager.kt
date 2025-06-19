@@ -78,16 +78,18 @@ class NetworkQualityManager(private val context: Context) {
     }
 
     private fun getCurrentNetworkQualityLegacy(): NetworkQualityLevel {
-        val activeNetwork = connectivityManager.activeNetworkInfo
+        val activeNetwork = connectivityManager.activeNetwork
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(activeNetwork)
+                ?: return NetworkQualityLevel.OFFLINE
 
         return when {
-            activeNetwork == null || !activeNetwork.isConnected -> NetworkQualityLevel.OFFLINE
-            activeNetwork.type == ConnectivityManager.TYPE_WIFI -> {
-                if (activeNetwork.isRoaming) NetworkQualityLevel.FAIR else NetworkQualityLevel.GOOD
+            !capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) -> NetworkQualityLevel.OFFLINE
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
+                NetworkQualityLevel.GOOD
             }
 
-            activeNetwork.type == ConnectivityManager.TYPE_MOBILE -> {
-                // Removed network type analysis that requires telephony permissions
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
                 NetworkQualityLevel.FAIR
             }
 

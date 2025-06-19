@@ -6,10 +6,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.ref.WeakReference
@@ -100,9 +103,6 @@ class MemoryOptimizer
                     inJustDecodeBounds = false
                     inSampleSize = sampleSize
                     inPreferredConfig = Bitmap.Config.RGB_565 // Use less memory
-                    inDither = false
-                    inPurgeable = true
-                    inInputShareable = true
                 }
 
                 val bitmap = BitmapFactory.decodeFile(imagePath, options)
@@ -279,7 +279,7 @@ class MemoryOptimizer
 
             when {
                 isLowMemoryDevice(context) -> enableUltraLowMemoryMode()
-                memoryInfo.availMem < memoryInfo.totalMem * 0.3 -> enableLowMemoryMode()
+                memoryInfo.availMem < memoryInfo.threshold -> enableLowMemoryMode()
                 else -> enableNormalMode()
             }
         }
@@ -329,7 +329,7 @@ class MemoryOptimizer
         fun onMemoryWarning() {
             // Clear non-essential caches
             MemoryCache.clear()
-            ImageCache.trimToSize(ImageCache.size() / 2)
+            ImageCache.clear() // Use clear instead of trimToSize
 
             // Force garbage collection
             System.gc()
@@ -364,7 +364,7 @@ object MemoryCache {
             field = value
             // Trim cache if needed
             if (cache.size() > value) {
-                cache.trimToSize(value)
+                cache.evictAll()
             }
         }
 
@@ -397,9 +397,9 @@ object ImageCache {
 
     fun size(): Int = currentSize
 
-    fun trimToSize(targetSize: Int) {
-        // Implementation would trim image cache
-        currentSize = targetSize
+    fun clear() {
+        // Implementation would clear image cache
+        currentSize = 0
     }
 }
 
@@ -425,23 +425,6 @@ object ConcurrentOperationManager {
     fun finishTask() {
         if (currentTasks > 0) {
             currentTasks--
-        }
-    }
-}
-
-// Composable for memory-aware UI
-@Composable
-fun rememberMemoryOptimizedState(
-    key: String,
-    computation: () -> Any,
-): Any? {
-    val context = LocalContext.current
-
-    return remember(key) {
-        if (MemoryOptimizer().isLowMemoryDevice(context)) {
-            null // Skip expensive computations on low-memory devices
-        } else {
-            computation()
         }
     }
 }

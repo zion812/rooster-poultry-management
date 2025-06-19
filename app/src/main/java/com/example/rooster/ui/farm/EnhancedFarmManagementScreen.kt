@@ -608,7 +608,10 @@ fun EnhancedFarmHeader(
 
             if (isLoading) {
                 Spacer(modifier = Modifier.height(8.dp))
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                LinearProgressIndicator(
+    progress = { 0.5f },
+    modifier = Modifier.fillMaxWidth()
+)
             }
         }
     }

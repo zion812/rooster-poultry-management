@@ -406,7 +406,7 @@ fun FowlFormProgressIndicator(
     Column {
         // Progress bar
         LinearProgressIndicator(
-            progress = progress,
+            progress = { progress },
             modifier =
                 Modifier
                     .fillMaxWidth()

@@ -1,6 +1,7 @@
 package com.example.rooster
 
 import android.app.Application
+import android.content.ComponentCallbacks2
 import android.util.Log
 import androidx.room.Room
 import com.example.rooster.config.Constants
@@ -153,16 +154,16 @@ class App : Application() {
         super.onTrimMemory(level)
         CrashPrevention.safeExecute("Memory trim handling") {
             when (level) {
-                TRIM_MEMORY_RUNNING_CRITICAL,
-                TRIM_MEMORY_COMPLETE,
+                ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL,
+                ComponentCallbacks2.TRIM_MEMORY_COMPLETE,
                 -> {
                     MemoryOptimizerStatic.emergencyCleanup()
                     // Clear cache if memory is critical (rural device optimization)
                     Log.w("App", "Critical memory trim, emergency cleanup executed")
                 }
 
-                TRIM_MEMORY_RUNNING_LOW,
-                TRIM_MEMORY_BACKGROUND,
+                ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW,
+                ComponentCallbacks2.TRIM_MEMORY_BACKGROUND,
                 -> {
                     MemoryOptimizerStatic.clearImageCache()
                     Log.i("App", "Memory trim, image cache cleared")

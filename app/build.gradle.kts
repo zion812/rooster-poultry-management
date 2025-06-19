@@ -37,7 +37,12 @@ android {
             // applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
             isDebuggable = true
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
         getByName("release") {
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_live_dummy\"")
@@ -59,7 +64,9 @@ android {
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_test_dummy\"")
             applicationIdSuffix = ".staging"
             versionNameSuffix = "-staging"
-            isDebuggable = true
+            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             signingConfig = signingConfigs.getByName("debug")
         }
     }

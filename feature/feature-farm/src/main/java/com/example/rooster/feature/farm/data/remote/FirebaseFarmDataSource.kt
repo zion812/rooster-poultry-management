@@ -42,10 +42,8 @@ class FirebaseFarmDataSource @Inject constructor(
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val flocks = mutableListOf<Map<String, Any>>()
                     for (child in snapshot.children) {
-                        @Suppress("UNCHECKED_CAST")
-                        child.getValue()?.let { value ->
-                            flocks.add(value as Map<String, Any>)
-                        }
+                        val value = child.getValue() as? Map<String, Any> ?: continue
+                        flocks.add(value)
                     }
                     trySend(Result.success(flocks))
                 }
@@ -71,10 +69,8 @@ class FirebaseFarmDataSource @Inject constructor(
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val records = mutableListOf<Map<String, Any>>()
                     for (child in snapshot.children) {
-                        @Suppress("UNCHECKED_CAST")
-                        child.getValue()?.let { value ->
-                            records.add(value as Map<String, Any>)
-                        }
+                        val value = child.getValue() as? Map<String, Any> ?: continue
+                        records.add(value)
                     }
                     trySend(Result.success(records))
                 }
@@ -100,10 +96,8 @@ class FirebaseFarmDataSource @Inject constructor(
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val readings = mutableListOf<Map<String, Any>>()
                     for (child in snapshot.children) {
-                        @Suppress("UNCHECKED_CAST")
-                        child.getValue()?.let { value ->
-                            readings.add(value as Map<String, Any>)
-                        }
+                        val value = child.getValue() as? Map<String, Any> ?: continue
+                        readings.add(value)
                     }
                     trySend(Result.success(readings))
                 }
