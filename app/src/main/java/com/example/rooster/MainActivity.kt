@@ -2,6 +2,7 @@ package com.example.rooster
 
 // Import existing screens
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,11 +24,37 @@ import androidx.navigation.navDeepLink
 import com.example.rooster.payment.DummyPaymentScreen
 import com.example.rooster.ui.theme.RoosterTheme
 import com.example.rooster.viewmodel.AuthViewModel
+import com.razorpay.PaymentResultListener
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
-    
+class MainActivity : ComponentActivity(), PaymentResultListener {
+
+    // Payment result handling for Razorpay
+    private var onPaymentResult: ((Boolean, String?, String?) -> Unit)? = null
+
+    fun setPaymentResultCallback(callback: (Boolean, String?, String?) -> Unit) {
+        onPaymentResult = callback
+    }
+
+    override fun onPaymentSuccess(paymentId: String?) {
+        Log.d("MainActivity", "Payment successful: $paymentId")
+        onPaymentResult?.invoke(true, paymentId, null)
+    }
+
+    override fun onPaymentError(code: Int, response: String?) {
+        Log.e("MainActivity", "Payment failed: Code $code, Response $response")
+
+        val errorMessage = when (code) {
+            1 -> "Network error - Please check your connection"
+            2 -> "Invalid payment credentials"
+            0 -> "Payment cancelled by user"
+            else -> "Payment failed: $response"
+        }
+
+        onPaymentResult?.invoke(false, null, errorMessage)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

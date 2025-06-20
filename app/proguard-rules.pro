@@ -80,6 +80,31 @@
 # Telugu localization strings
 -keep class com.example.rooster.R$string { *; }
 
-# 2G optimization - remove unused resources
--dontwarn okio.**
+# Razorpay specific rules
+# Keep Razorpay SDK classes
+-keep class com.razorpay.** { *; }
+-keepattributes *Annotation*
+-dontwarn com.razorpay.**
+
+# Keep ProGuard annotations used by Razorpay
+-keep class proguard.annotation.Keep
+-keep class proguard.annotation.KeepClassMembers
+
+# Keep all classes with @Keep annotation
+-keep @proguard.annotation.Keep class * { *; }
+
+# Keep all class members with @Keep annotation
+-keepclassmembers class * {
+    @proguard.annotation.Keep *;
+}
+
+# Gson specific classes (used by Razorpay)
+-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.stream.** { *; }
+
+# OkHttp and Retrofit (used by Razorpay)
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class okhttp3.** { *; }
+-keep interface okhttp3.** { *; }
 -dontwarn okhttp3.**

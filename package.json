@@ -24,14 +24,13 @@
     "install-app": "./gradlew installDebug"
   },
   "devDependencies": {
-    "@playwright/test": "^1.52.0",
+    "@back4app/mcp-server-back4app": "^0.1.6",
+    "@modelcontextprotocol/sdk": "^1.13.0",
     "@modelcontextprotocol/server-filesystem": "^2025.3.28",
-    "@modelcontextprotocol/server-memory": "^2025.4.25",
     "@modelcontextprotocol/server-github": "^2025.4.8",
-    "@modelcontextprotocol/server-sequential-thinking": "^0.6.2"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^0.1.0"
+    "@modelcontextprotocol/server-memory": "^2025.4.25",
+    "@modelcontextprotocol/server-sequential-thinking": "^0.6.2",
+    "@playwright/test": "^1.52.0"
   },
   "keywords": [
     "poultry",

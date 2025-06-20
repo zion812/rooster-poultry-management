@@ -62,7 +62,8 @@ android {
         create("staging") {
             initWith(getByName("release"))
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_test_dummy\"")
-            applicationIdSuffix = ".staging"
+            // Remove staging suffix to prevent Google Services mismatch
+            // applicationIdSuffix = ".staging"
             versionNameSuffix = "-staging"
             isDebuggable = false
             isMinifyEnabled = true
@@ -163,8 +164,14 @@ dependencies {
     // Image loading
     implementation("io.coil-kt:coil-compose:2.5.0")
 
+    // Charts for analytics dashboard
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
     // JSON
     implementation("com.google.code.gson:gson:2.10.1")
+
+    // Razorpay Payment Gateway
+    implementation("com.razorpay:checkout:1.6.38")
 
     // Testing
     testImplementation(libs.junit)

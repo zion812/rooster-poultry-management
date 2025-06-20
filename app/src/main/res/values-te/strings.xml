@@ -89,18 +89,36 @@
     <string name="hours_label">గంటలు</string>
     <string name="minutes_label">నిమిషాలు</string>
 
-    <!-- Flock Management -->
+    <!-- Auction Screen Telugu Strings -->
+    <string name="auctions_title">వేలాలు</string>
+    <string name="auctions_coming_soon">వేలాలు త్వరలో అందుబాటులోకి వస్తాయి</string>
+    <string name="auctions_description">మీ కోడుల కోసం మంచి ధర పొందడానికి వేలాలలో పాల్గొనండి</string>
+    <string name="live_auctions">ప్రత్యక్ష వేలాలు</string>
+    <string name="upcoming_auctions">రాబోయే వేలాలు</string>
+    <string name="my_bids">నా బిడ్లు</string>
+    <string name="auction_ends_in">వేలం ముగియు సమయం</string>
+
+    <!-- Bird Management Telugu Strings -->
+    <string name="flock_summary">మీ కోళ్ల సమాచారం</string>
+    <string name="total_birds">మొత్తం కోళ్లు</string>
+    <string name="healthy_birds">ఆరోగ్యకరమైన కోళ్లు</string>
+    <string name="egg_laying_birds">గుడ్లు పెట్టే కోళ్లు</string>
+    <string name="broiler_birds">బ్రాయిలర్ కోళ్లు</string>
+    <string name="manage_flock_btn">కోళ్ల నిర్వహణ</string>
+
+    <!-- Farm Management -->
     <string name="flock_monitoring">కోళ్ల పర్యవేక్షణ</string>
     <string name="flock_management">కోళ్ల నిర్వహణ</string>
     <string name="add_flock">కోళ్లను జోడించండి</string>
-    <string name="flock_summary">కోళ్ల సమ్మరీ</string>
-    <string name="total_birds">మొత్తం కోళ్లు</string>
-    <string name="healthy_birds">ఆరోగ్యకరమైన కోళ్లు</string>
-    <string name="sick_birds">అనారోగ్య కోళ్లు</string>
-    <string name="mortality_count">మరణాల సంఖ్య</string>
-    <string name="health_percentage">ఆరోగ్య శాతం</string>
-    <string name="no_flock_data">ఇంకా కోళ్ల వివరాలు జోడించలేదు</string>
-    <string name="add_first_flock">మీ మొదటి కోళ్ల బ్యాచ్ వివరాలను జోడించండి</string>
+    <string name="total_count">మొత్తం సంఖ్య</string>
+    <string name="healthy_count">ఆరోగ్యకరమైన సంఖ్య</string>
+    <string name="sick_count">అనారోగ్య సంఖ్య</string>
+    <string name="age_in_weeks">వయస్సు (వారాలలో)</string>
+    <string name="average_weight_kg">సగటు బరువు (కి.గ్రా.)</string>
+    <string name="notes_label">గమనికలు</string>
+    <string name="last_updated">చివరిగా అప్డేట్ చేయబడింది</string>
+    <string name="confirm_delete_flock">ఖచ్చితంగా తొలగించాలా?</string>
+    <string name="delete_flock_warning">ఈ కోళ్ల వివరాలను తొలగించాలనుకుంటున్నారా? ఈ చర్య రద్దు చేయలేరు.</string>
     <string name="loading_flock_data">కోళ్ల డేటా లోడ్ అవుతోంది...</string>
     <string name="flock_added_success">కోళ్ల వివరాలు విజయవంతంగా జోడించబడ్డాయి</string>
     <string name="flock_updated_success">కోళ్ల వివరాలు విజయవంతంగా అప్డేట్ చేయబడ్డాయి</string>
@@ -112,15 +130,53 @@
     <string name="add_new_flock_batch">కొత్త కోళ్ల బ్యాచ్ జోడించండి</string>
     <string name="edit_flock_details">కోళ్ల వివరాలు సవరించండి</string>
     <string name="breed_name">కోళ్ల జాతి</string>
-    <string name="total_count">మొత్తం సంఖ్య</string>
-    <string name="healthy_count">ఆరోగ్యకరమైన సంఖ్య</string>
-    <string name="sick_count">అనారోగ్య సంఖ్య</string>
-    <string name="age_in_weeks">వయస్సు (వారాలలో)</string>
-    <string name="average_weight_kg">సగటు బరువు (కి.గ్రా.)</string>
-    <string name="notes_label">గమనికలు</string>
-    <string name="last_updated">చివరిగా అప్డేట్ చేయబడింది</string>
-    <string name="confirm_delete_flock">ఖచ్చితంగా తొలగించాలా?</string>
-    <string name="delete_flock_warning">ఈ కోళ్ల వివరాలను తొలగించాలనుకుంటున్నారా? ఈ చర్య రద్దు చేయలేరు.</string>
+
+    <!-- Market Telugu Strings -->
+    <string name="market_price_today">నేటి మార్కెట్ రేటు</string>
+    <string name="vijayawada_market">విజయవాడ మార్కెట్</string>
+    <string name="machilipatnam_market">మచిలీపట్నం మార్కెట్</string>
+    <string name="gudivada_market">గుడివాడ మార్కెట్</string>
+    <string name="nuziveedu_market">నుజివీడు మార్కెట్</string>
+    <string name="live_weight_price">సజీవ బరువు ధర</string>
+    <string name="dressed_price">డ్రెస్డ్ ధర</string>
+    <string name="per_kg_rate">కిలోకు రేటు</string>
+
+    <!-- Breeds Telugu Strings -->
+    <string name="nattu_kodi">నాట్టు కోడి</string>
+    <string name="giriraj_breed">గిరిరాజ్</string>
+    <string name="kadaknath_breed">కడక్నాథ్</string>
+    <string name="aseel_breed">అసీల్</string>
+    <string name="breed_selection">జాతి ఎంపిక</string>
+    <string name="breed_characteristics">జాతి లక్షణాలు</string>
+    <string name="egg_production_rate">గుడ్డు ఉత్పాదన రేటు</string>
+    <string name="disease_resistance">వ్యాధి నిరోధక శక్తి</string>
+
+    <!-- Seasonal Telugu Strings -->
+    <string name="sankranti_season">సంక్రాంతి సీజన్</string>
+    <string name="summer_care">వేసవి సంరక్షణ</string>
+    <string name="monsoon_precautions">వర్షాకాల జాగ్రత్తలు</string>
+    <string name="winter_management">చలికాల నిర్వహణ</string>
+    <string name="festival_demand">పండుగ డిమాండ్</string>
+    <string name="seasonal_pricing">కాలానుగుణ ధర</string>
+
+    <!-- Actions Telugu Strings -->
+    <string name="add_new_bird">కొత్త కోడి చేర్చండి</string>
+    <string name="update_health">ఆరోగ్య స్థితి నవీకరించండి</string>
+    <string name="record_feeding">ఆహారం రికార్డు చేయండి</string>
+    <string name="schedule_vaccination">టీకా కాలపట్టిక</string>
+    <string name="check_market_price">మార్కెట్ ధర చూడండి</string>
+    <string name="contact_buyer">కొనుగోలుదారుని సంప్రదించండి</string>
+    <string name="contact_seller">అమ్మకందారుని సంప్రదించండి</string>
+
+    <!-- Farmer-specific Terms -->
+    <string name="farming_tips">వ్యవసాయ చిట్కాలు</string>
+    <string name="traditional_methods">సాంప్రదాయ పద్ధతులు</string>
+    <string name="modern_techniques">ఆధునిక పద్ధతులు</string>
+    <string name="cost_calculation">ఖర్చు లెక్కింపు</string>
+    <string name="profit_estimation">లాభం అంచనా</string>
+    <string name="feed_cost">మేత ఖర్చు</string>
+    <string name="medicine_cost">మందుల ఖర్చు</string>
+    <string name="labor_cost">కూలీ ఖర్చు</string>
 
     <!-- Payment -->
     <string name="payment">చెల్లింపు</string>
@@ -160,14 +216,14 @@
     <!-- Success Messages -->
     <string name="success">విజయం!</string>
     <string name="success_saved">విజయవంతంగా సేవ్ చేయబడింది</string>
-    <string name="submit_success">సమర్పణ విజయవంతం</string>
+    <string name="submit_success">సమర్పణ విజయవంతమైంది</string>
     <string name="operation_successful">ఆపరేషన్ విజయవంతమైంది</string>
     <string name="data_saved_successfully">డేటా విజయవంతంగా సేవ్ చేయబడింది</string>
     <string name="update_successful">అప్డేట్ విజయవంతమైంది</string>
 
     <!-- Network Status -->
-    <string name="network_offline">ఆఫ్‌లైన్</string>
-    <string name="offline_mode">మీరు ఆఫ్‌లైన్‌లో ఉన్నారు. కాష్ జాబితాలు చూపబడుతున్నాయి.</string>
+    <string name="network_offline">ఆఫ్లైన్</string>
+    <string name="offline_mode">మీరు ఆఫ్లైన్లో ఉన్నారు. క్యాష్ జాబితాలు చూపబడుతున్నాయి.</string>
     <string name="connecting">కనెక్ట్ అవుతోంది...</string>
     <string name="network_not_available">నెట్‌వర్క్ అందుబాటులో లేదు</string>
 
@@ -177,11 +233,9 @@
     <string name="language_preferences">భాష ప్రాధాన్యతలు</string>
     <string name="toggle_language">భాష మార్చండి</string>
 
-    <!-- Farm Management -->
+    <!-- UI Elements -->
     <string name="farmer_welcome_title">రైతు గారికి స్వాగతం</string>
     <string name="analytics">విశ్లేషణలు</string>
-
-    <!-- UI Elements -->
     <string name="details_button">వివరాలు</string>
     <string name="view_details">వివరాలు చూడండి</string>
     <string name="view_all">అన్నీ చూడండి</string>
@@ -191,10 +245,4 @@
     <string name="continue_text">కొనసాగించండి</string>
     <string name="close">మూసివేయండి</string>
     <string name="share">షేర్ చేయండి</string>
-
-    <!-- Validation Messages -->
-    <string name="field_required">ఈ ఫీల్డ్ తప్పనిసరి</string>
-    <string name="invalid_input">చెల్లని ఇన్‌పుట్</string>
-    <string name="minimum_value_required">కనీస విలువ అవసరం</string>
-    <string name="maximum_value_exceeded">గరిష్ట విలువ మించిపోయింది</string>
 </resources>
