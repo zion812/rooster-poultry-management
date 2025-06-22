@@ -1,3 +1,6 @@
+import org.gradle.api.GradleException
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -9,10 +12,22 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
 
-// ktlint {
-//     android.set(true)
-//     ignoreFailures.set(true)
-// }
+// Load signing config from keystore.properties
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        load(keystorePropertiesFile.inputStream())
+    }
+}
+
+// Flag if release keystore is available
+val hasKeystore = keystorePropertiesFile.exists()
+
+// Ktlint enforcement
+ktlint {
+    android.set(true)
+    ignoreFailures.set(false)
+}
 
 android {
     namespace = "com.example.rooster"
@@ -22,12 +37,27 @@ android {
         applicationId = "com.example.rooster"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            // Only configure release signing if keystore properties exist
+            val storeFilePath = keystoreProperties.getProperty("storeFile")
+            if (!storeFilePath.isNullOrBlank() && keystorePropertiesFile.exists()) {
+                storeFile = file(storeFilePath)
+                storePassword = keystoreProperties.getProperty("storePassword") ?: ""
+                keyAlias = keystoreProperties.getProperty("keyAlias") ?: ""
+                keyPassword = keystoreProperties.getProperty("keyPassword") ?: ""
+            } else {
+                println("INFO: No release keystore configured; release builds will not be signed here.")
+            }
         }
     }
 
@@ -57,6 +87,7 @@ android {
             configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
                 mappingFileUploadEnabled = true
             }
+            if (hasKeystore) signingConfig = signingConfigs.getByName("release")
         }
         create("staging") {
             initWith(getByName("release"))
@@ -110,10 +141,8 @@ dependencies {
     implementation(project(":core:core-common"))
     implementation(project(":core:core-network"))
 
-    // Feature modules - temporarily disabled to get working build
-    // implementation(project(":feature:feature-marketplace"))
-    // implementation(project(":feature:feature-auctions"))
-    // implementation(project(":feature:feature-farm"))
+    // Feature modules (only farm module available)
+    implementation(project(":feature:feature-farm"))
 
     // Android Core
     implementation(libs.androidx.core.ktx)
@@ -127,42 +156,42 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation(libs.androidx.compose.material.icons)
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.8.0")
+    implementation(libs.androidx.navigation.compose)
 
     // Hilt
-    implementation("com.google.dagger:hilt-android:2.50")
-    ksp("com.google.dagger:hilt-compiler:2.50")
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
-    implementation("com.google.firebase:firebase-analytics")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-database")
-    implementation("com.google.firebase:firebase-messaging")
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.messaging)
 
     // Parse SDK
-    implementation("com.github.parse-community.Parse-SDK-Android:parse:4.3.0")
+    implementation(libs.parse)
     implementation("com.github.parse-community.Parse-SDK-Android:fcm:4.3.0")
 
     // Room Database
-    implementation("androidx.room:room-runtime:2.5.2")
-    ksp("androidx.room:room-compiler:2.5.2")
-    implementation("androidx.room:room-ktx:2.5.2")
+    implementation(libs.room.runtime)
+    ksp(libs.room.compiler)
+    implementation(libs.room.ktx)
 
     // WorkManager
-    implementation("androidx.work:work-runtime-ktx:2.9.1")
+    implementation(libs.work.runtime.ktx)
 
     // Permissions
-    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+    implementation(libs.accompanist.permissions)
 
     // Image loading
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation(libs.coil.compose)
 
     // Charts for analytics dashboard
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
@@ -172,6 +201,15 @@ dependencies {
 
     // Razorpay Payment Gateway
     implementation("com.razorpay:checkout:1.6.38")
+
+    // ConstraintLayout
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
+    // Material Components for layout_behavior, cardElevation, etc.
+    implementation("com.google.android.material:material:1.11.0")
+
+    // Skydoves ColorPickerView for advanced color picker widget support
+    implementation("com.github.skydoves:colorpickerview:2.2.4")
 
     // Testing
     testImplementation(libs.junit)

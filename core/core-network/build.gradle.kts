@@ -3,7 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.ksp)
+    // Use built-in kapt plugin for Hilt annotation processing
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -60,7 +61,7 @@ dependencies {
 
     // Dependency Injection
     implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    kapt(libs.hilt.compiler)
 
     // Testing
     testImplementation(libs.bundles.testing)

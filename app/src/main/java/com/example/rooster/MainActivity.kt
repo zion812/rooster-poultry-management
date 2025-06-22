@@ -21,9 +21,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
+import com.example.rooster.auth.AuthViewModel
 import com.example.rooster.payment.DummyPaymentScreen
+import com.example.rooster.screens.AuctionsScreen
+import com.example.rooster.screens.FarmerHomeScreen
+import com.example.rooster.screens.FlockMonitoringScreen
+import com.example.rooster.screens.HighLevelHomeScreen
+import com.example.rooster.screens.MarketplaceScreen
+import com.example.rooster.screens.SimpleSellBirdsScreen
+import com.example.rooster.screens.SimpleViewBirdsScreen
+import com.example.rooster.ui.navigation.AuthNavigation
 import com.example.rooster.ui.theme.RoosterTheme
-import com.example.rooster.viewmodel.AuthViewModel
 import com.razorpay.PaymentResultListener
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -84,7 +92,7 @@ fun RoosterApp() {
     }
 
     val startDestination = if (authState.isAuthenticated) {
-        when (authState.userRole.lowercase()) {
+        when (authViewModel.normalizedUserRole) {
             "farmer" -> "farmer_home"
             "highlevel", "high_level" -> "high_level_home"
             else -> "marketplace"
@@ -99,11 +107,7 @@ fun RoosterApp() {
     ) {
         // Authentication Screen
         composable("auth") {
-            AuthScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
+            AuthNavigation(navController = navController)
         }
 
         // Marketplace Screen

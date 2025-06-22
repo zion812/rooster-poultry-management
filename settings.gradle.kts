@@ -35,7 +35,7 @@ include(":core:core-network")
 // include(":core:search")
 // include(":core:analytics")
 
-// Feature modules - temporarily disable to get working build
-// include(":feature:feature-marketplace")  
+// Feature modules (commented out until implemented)
+// include(":feature:feature-marketplace")
 // include(":feature:feature-auctions")
 include(":feature:feature-farm")

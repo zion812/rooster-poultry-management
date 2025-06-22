@@ -3,10 +3,13 @@
     <string name="app_name">రూస్టర్ పౌల్ట్రీ యాప్</string>
 
     <!-- Authentication -->
+    <string name="login_title">లాగిన్</string>
     <string name="login">లాగిన్</string>
+    <string name="register_title">నమోదు</string>
     <string name="register">నమోదు</string>
     <string name="logout">లాగౌట్</string>
     <string name="phone_number">ఫోన్ నంబర్</string>
+    <string name="enter_phone">ఫోన్ నంబర్ నమోదు చేయండి</string>
     <string name="enter_phone_number">ఫోన్ నంబర్ నమోదు చేయండి</string>
     <string name="login_button">లాగిన్</string>
     <string name="phone_auth_title">ఫోన్ ధృవీకరణ</string>
@@ -18,6 +21,7 @@
     <string name="auth_failed">ధృవీకరణ విఫలమైంది</string>
     <string name="auth_success">ధృవీకరణ విజయవంతమైంది</string>
     <string name="processing_auth">ధృవీకరణ ప్రాసెస్ అవుతోంది...</string>
+    <string name="profile_setup_title">ప్రొఫైల్ సెటప్</string>
 
     <!-- Navigation -->
     <string name="home">హోమ్</string>
@@ -245,4 +249,18 @@
     <string name="continue_text">కొనసాగించండి</string>
     <string name="close">మూసివేయండి</string>
     <string name="share">షేర్ చేయండి</string>
+
+    <!-- Role Management -->
+    <string name="role_management">పాత్ర నిర్వహణ</string>
+    <string name="access_denied">ప్రవేశం నిరోధించబడింది</string>
+    <string name="unauthorized_message">మీకు ఈ స్పష్టం ప్రవేశం లేదు.</string>
+    <string name="back_to_previous">మునుపటికి వెళ్ళండి</string>
+    <string name="role">పాత్ర</string>
+    <string name="permissions">అనుమతులు</string>
+    <string name="view_market">మార్కెట్ చూడండి</string>
+    <string name="create_post">పోస్ట్ సృష్టించండి</string>
+    <string name="manage_users">వాడుకరులను నిర్వహించండి</string>
+    <string name="view_analytics">అనలైటిక్స్ చూడండి</string>
+    <string name="manage_transfers">మార్పులను నిర్వహించండి</string>
+    <string name="change_role">పాత్రాన్ని మార్చండి</string>
 </resources>

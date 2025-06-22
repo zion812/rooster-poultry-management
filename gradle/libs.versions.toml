@@ -3,12 +3,12 @@
 
 [versions]
 # Core Android & Kotlin
-agp = "8.10.1"
+agp = "8.4.1"
 kotlin = "2.0.21"
 compose-bom = "2024.09.00"
 compose-compiler = "1.5.14"
-core-ktx = "1.16.0"
-lifecycle-runtime-ktx = "2.9.0"
+core-ktx = "1.15.0"
+lifecycle-runtime-ktx = "2.8.2"
 activity-compose = "1.10.1"
 activity-ktx = "1.10.1"
 
@@ -25,10 +25,10 @@ hilt-navigation-compose = "1.2.0"
 accompanist = "0.34.0"
 
 # Architecture & DI
-hilt = "2.48"
+hilt = "2.51.1"
 hilt-work = "1.2.0"
-lifecycle-viewmodel = "2.8.4"
-lifecycle-compose = "2.8.4"
+lifecycle-viewmodel = "2.8.2"
+lifecycle-compose = "2.8.2"
 
 # Network & Serialization
 retrofit = "2.11.0"
