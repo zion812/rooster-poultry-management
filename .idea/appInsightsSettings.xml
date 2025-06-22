@@ -10,9 +10,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.example.rooster" />
-                  <option name="mobileSdkAppId" value="1:836501347875:android:df41bf516141cef33fdb96" />
-                  <option name="projectId" value="gallus-9e434" />
-                  <option name="projectNumber" value="836501347875" />
+                  <option name="mobileSdkAppId" value="1:123456789012:android:abcdef1234567890abcdef" />
+                  <option name="projectId" value="rooster-poultry-dummy" />
+                  <option name="projectNumber" value="123456789012" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

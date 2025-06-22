@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 /**
- * Parse Server service for fetching historical price data
+ * Parse Server service for social and e-commerce features
  * Optimized for rural networks with minimal data transfer
  */
 class ParseService {
@@ -27,7 +27,173 @@ class ParseService {
   }
 
   /**
-   * Fetch historical poultry prices from Parse Server
+   * Create or update user profile
+   * @param {Object} userData - User data including profile info
+   * @returns {Promise<Object>} Updated user object
+   */
+  async createUserProfile(userData) {
+    try {
+      const headers = this.getHeaders();
+      const url = `${this.baseURL}/classes/_User/${userData.objectId}`;
+      
+      const response = await axios.put(url, {
+        ...userData,
+        ACL: {
+          '*': {
+            read: true,
+            write: false
+          }
+        }
+      }, { headers });
+      
+      return response.data;
+    } catch (error) {
+      throw new Error(`Failed to update user profile: ${error.message}`);
+    }
+  }
+
+  /**
+   * Create a new product listing
+   * @param {Object} productData - Product details
+   * @returns {Promise<Object>} Created product object
+   */
+  async createProduct(productData) {
+    try {
+      const headers = this.getHeaders();
+      const url = `${this.baseURL}/classes/Product`;
+      
+      const response = await axios.post(url, {
+        ...productData,
+        ACL: {
+          '*': {
+            read: true,
+            write: false
+          }
+        }
+      }, { headers });
+      
+      return response.data;
+    } catch (error) {
+      throw new Error(`Failed to create product: ${error.message}`);
+    }
+  }
+
+  /**
+   * Create a new post
+   * @param {Object} postData - Post details
+   * @returns {Promise<Object>} Created post object
+   */
+  async createPost(postData) {
+    try {
+      const headers = this.getHeaders();
+      const url = `${this.baseURL}/classes/Post`;
+      
+      const response = await axios.post(url, {
+        ...postData,
+        ACL: {
+          '*': {
+            read: true,
+            write: false
+          }
+        }
+      }, { headers });
+      
+      return response.data;
+    } catch (error) {
+      throw new Error(`Failed to create post: ${error.message}`);
+    }
+  }
+
+  /**
+   * Create a new story
+   * @param {Object} storyData - Story details
+   * @returns {Promise<Object>} Created story object
+   */
+  async createStory(storyData) {
+    try {
+      const headers = this.getHeaders();
+      const url = `${this.baseURL}/classes/Story`;
+      
+      const response = await axios.post(url, {
+        ...storyData,
+        ACL: {
+          '*': {
+            read: true,
+            write: false
+          }
+        }
+      }, { headers });
+      
+      return response.data;
+    } catch (error) {
+      throw new Error(`Failed to create story: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get user's feed (posts and stories)
+   * @param {string} userId - User ID to fetch feed for
+   * @returns {Promise<Object>} Feed data
+   */
+  async getUserFeed(userId) {
+    try {
+      const headers = this.getHeaders();
+      const url = `${this.baseURL}/functions/getUserFeed`;
+      
+      const response = await axios.post(url, {
+        userId
+      }, { headers });
+      
+      return response.data.result;
+    } catch (error) {
+      throw new Error(`Failed to fetch user feed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get product recommendations
+   * @param {string} userId - User ID to get recommendations for
+   * @returns {Promise<Array>} Recommended products
+   */
+  async getProductRecommendations(userId) {
+    try {
+      const headers = this.getHeaders();
+      const url = `${this.baseURL}/functions/getProductRecommendations`;
+      
+      const response = await axios.post(url, {
+        userId
+      }, { headers });
+      
+      return response.data.result;
+    } catch (error) {
+      throw new Error(`Failed to fetch product recommendations: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get nearby farmers and products
+   * @param {Object} location - User's location
+   * @param {number} radius - Search radius in kilometers
+   * @returns {Promise<Object>} Nearby data
+   */
+  async getNearbyData(location, radius = 50) {
+    try {
+      const headers = this.getHeaders();
+      const url = `${this.baseURL}/functions/getNearbyData`;
+      
+      const response = await axios.post(url, {
+        location,
+        radius
+      }, { headers });
+      
+      return response.data.result;
+    } catch (error) {
+      throw new Error(`Failed to fetch nearby data: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get historical poultry prices
    * @param {string} region - Region to fetch prices for
    * @param {string} fowlType - Type of fowl (optional)
    * @param {number} days - Number of days to look back (default 30)
@@ -47,6 +213,10 @@ class ParseService {
             iso: cutoffDate.toISOString()
           }
         }
+      };
+      
+      if (fowlType) {
+        whereClause.fowlType = fowlType;
       };
       
       // Add fowl type filter if specified

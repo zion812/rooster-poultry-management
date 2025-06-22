@@ -38,4 +38,4 @@ include(":core:core-network")
 // Feature modules - temporarily disable to get working build
 // include(":feature:feature-marketplace")  
 // include(":feature:feature-auctions")
-// include(":feature:feature-farm")
+include(":feature:feature-farm")

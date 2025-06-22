@@ -13,6 +13,12 @@ import com.parse.Parse
 import com.parse.ParseACL
 import com.parse.ParseInstallation
 import dagger.hilt.android.HiltAndroidApp
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.BackoffPolicy
+import androidx.work.WorkManager
+import java.util.concurrent.TimeUnit
+import com.example.rooster.data.sync.DataSyncWorker
 
 @HiltAndroidApp
 @Suppress("unused")
@@ -132,8 +138,16 @@ class App : Application() {
 
         // Schedule background workers for data sync
         CrashPrevention.safeExecute("Background workers scheduling") {
-            // TODO: Implement background sync workers
-            Log.d("App", "Background workers scheduling completed")
+            val syncRequest = PeriodicWorkRequestBuilder<DataSyncWorker>(15, TimeUnit.MINUTES)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.MINUTES)
+                .build()
+            WorkManager.getInstance(this)
+                .enqueueUniquePeriodicWork(
+                    "data_sync",
+                    ExistingPeriodicWorkPolicy.KEEP,
+                    syncRequest
+                )
+            Log.d("App", "Background data sync worker scheduled")
         }
 
         Log.d("RoosterApp", "=== APP INITIALIZATION COMPLETED SUCCESSFULLY ===")

@@ -49,42 +49,52 @@ working=0
 echo -e "${YELLOW}=== CORE MCP SERVERS ===${NC}"
 
 echo -e "${YELLOW}1. Filesystem MCP${NC}"
-test_mcp_installation "Filesystem Server" "@modelcontextprotocol/server-filesystem" "Secure file system operations"
-((total++)); if [[ $? -eq 0 ]]; then ((working++)); fi
+if test_mcp_installation "Filesystem Server" "@modelcontextprotocol/server-filesystem" "Secure file system operations"; then
+  ((working++))
+fi
+((total++))
 
-echo -e "${YELLOW}2. SQLite MCP${NC}"
-test_mcp_installation "SQLite Server" "@modelcontextprotocol/server-sqlite" "SQLite database operations"
-((total++)); if [[ $? -eq 0 ]]; then ((working++)); fi
+# echo -e "${YELLOW}2. SQLite MCP${NC}"
+# test_mcp_installation "SQLite Server" "@modelcontextprotocol/server-sqlite" "SQLite database operations"
+# ((total++)); if [[ $? -eq 0 ]]; then ((working++)); fi
 
 echo -e "${YELLOW}3. Memory MCP${NC}"
-test_mcp_installation "Memory Server" "@modelcontextprotocol/server-memory" "Enhanced memory management"
-((total++)); if [[ $? -eq 0 ]]; then ((working++)); fi
+if test_mcp_installation "Memory Server" "@modelcontextprotocol/server-memory" "Enhanced memory management"; then
+  ((working++))
+fi
+((total++))
 
-echo -e "${YELLOW}4. Fetch MCP${NC}"
-test_mcp_installation "Fetch Server" "@modelcontextprotocol/server-fetch" "Web content fetching"
-((total++)); if [[ $? -eq 0 ]]; then ((working++)); fi
+# echo -e "${YELLOW}4. Fetch MCP${NC}"
+# test_mcp_installation "Fetch Server" "@modelcontextprotocol/server-fetch" "Web content fetching"
+# ((total++)); if [[ $? -eq 0 ]]; then ((working++)); fi
 
 echo -e "${YELLOW}=== OPTIONAL MCP SERVERS ===${NC}"
 
 echo -e "${YELLOW}5. GitHub MCP${NC}"
-test_mcp_installation "GitHub Server" "@modelcontextprotocol/server-github" "GitHub integration"
-((total++)); if [[ $? -eq 0 ]]; then ((working++)); fi
+if test_mcp_installation "GitHub Server" "@modelcontextprotocol/server-github" "GitHub integration"; then
+  ((working++))
+fi
+((total++))
 
 # Test alternative servers if main ones fail
 echo -e "${YELLOW}=== ALTERNATIVE SERVERS ===${NC}"
 
 echo -e "${YELLOW}6. Sequential Thinking MCP${NC}"
-test_mcp_installation "Sequential Thinking" "@modelcontextprotocol/server-sequential-thinking" "Advanced reasoning"
-((total++)); if [[ $? -eq 0 ]]; then ((working++)); fi
+if test_mcp_installation "Sequential Thinking" "@modelcontextprotocol/server-sequential-thinking" "Advanced reasoning"; then
+  ((working++))
+fi
+((total++))
 
-echo -e "${YELLOW}7. Puppeteer MCP${NC}"
-test_mcp_installation "Puppeteer Server" "@modelcontextprotocol/server-puppeteer" "Web automation"
-((total++)); if [[ $? -eq 0 ]]; then ((working++)); fi
+# echo -e "${YELLOW}7. Puppeteer MCP${NC}"
+# test_mcp_installation "Puppeteer Server" "@modelcontextprotocol/server-puppeteer" "Web automation"
+# ((total++)); if [[ $? -eq 0 ]]; then ((working++)); fi
 
 # Test Back4App server (may not be publicly available)
 echo -e "${YELLOW}8. Back4App MCP${NC}"
-test_mcp_installation "Back4App Server" "@back4app/mcp-server-back4app" "Back4App backend integration"
-((total++)); if [[ $? -eq 0 ]]; then ((working++)); fi
+if test_mcp_installation "Back4App Server" "@back4app/mcp-server-back4app" "Back4App backend integration"; then
+  ((working++))
+fi
+((total++))
 
 echo ""
 echo "🔧 Creating Optimized MCP Configuration..."
@@ -181,11 +191,10 @@ echo ""
 echo -e "${BLUE}🎯 Recommended MCP Setup for Rooster${NC}"
 echo "===================================="
 echo "✅ Filesystem MCP - Project file access (ESSENTIAL)"
-echo "✅ SQLite MCP - Database operations (ESSENTIAL)"  
 echo "✅ Memory MCP - Memory management (RECOMMENDED)"
-echo "✅ Fetch MCP - Web content retrieval (RECOMMENDED)"
-echo "⚠️  GitHub MCP - Version control (needs token)"
-echo "⚠️  Back4App MCP - Backend integration (configured with credentials)"
+echo "✅ GitHub MCP - Version control (ESSENTIAL)"
+echo "✅ Sequential Thinking MCP - Advanced reasoning (RECOMMENDED)"
+echo "✅ Back4App MCP - Backend integration (RECOMMENDED)"
 
 echo ""
 echo -e "${BLUE}🚀 Next Steps${NC}"

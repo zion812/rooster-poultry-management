@@ -24,6 +24,9 @@ android {
                 "proguard-rules.pro"
             )
         }
+        create("staging") {
+            initWith(getByName("release"))
+        }
     }
 
     compileOptions {
@@ -47,7 +50,7 @@ android {
         kotlinCompilerExtensionVersion = "1.5.14"
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += setOf(
                 "META-INF/AL2.0",

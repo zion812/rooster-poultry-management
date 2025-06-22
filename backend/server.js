@@ -11,14 +11,18 @@ const Joi = require('joi');
 const { authenticateToken, optionalAuth } = require('./middleware/auth');
 const { getMessage } = require('./config/translations');
 const ParseService = require('./services/parseService');
-const PricePredictor = require('./services/pricePredictor');
+const { initializeSchemas, initializeCloudFunctions } = require('./server/init');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Initialize services
+// Initialize Parse and schemas
 const parseService = new ParseService();
-const pricePredictor = new PricePredictor(parseService);
+
+// Initialize schemas and cloud functions
+initializeSchemas()
+  .then(() => initializeCloudFunctions())
+  .catch(error => console.error('Error initializing server:', error));
 
 // Security and optimization middleware
 app.use(helmet({

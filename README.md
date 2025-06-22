@@ -1,4 +1,4 @@
-# 🐓 Rooster Poultry Management App
+c# 🐓 Rooster Poultry Management App
 
 **Production Status:** ✅ READY FOR DEPLOYMENT  
 **Build Status:** ✅ SUCCESS (Release: 3.3MB | Debug: 29.7MB)  
@@ -160,28 +160,32 @@ chmod +x test-2g-performance.sh
 
 ## 📊 **Project Structure**
 
-```
 rooster-poultry-management/
-├── app/                           # Main application module
-│   ├── src/main/java/com/example/rooster/
-│   │   ├── MainActivity.kt        # Main entry point
-│   │   ├── ui/                    # UI components
-│   │   ├── viewmodel/             # ViewModels
-│   │   └── navigation/            # App navigation
-│   └── src/main/res/
-│       ├── values/strings.xml     # English strings
-│       └── values-te/strings.xml  # Telugu strings
-├── core/                          # Core modules
-│   ├── core-common/               # Common utilities
-│   └── core-network/              # Network layer
-├── feature/                       # Feature modules (modular)
-│   ├── feature-auctions/          # Auction system
-│   ├── feature-farm/              # Flock management
-│   └── feature-marketplace/       # Marketplace
-├── test-2g-performance.sh         # 2G performance testing
-├── PRODUCTION_DEPLOYMENT_GUIDE.md # Deployment guide
-└── FINAL_PRODUCTION_STATUS_TABLE.md # Status tracking
-```
+├── app/                           # Android application module
+├── backend/                       # Cloud Functions & server APIs
+├── core/                          # Core utilities & network layer
+├── feature/                       # Modular features (auctions, farm, marketplace)
+├── cloud/                         # Deployment scripts & infra configs
+├── docs/                          # Documentation
+├── navigation/                    # Compose navigation graphs
+├── scripts/                       # Automation & fix scripts (fix_*.sh, test-*.sh)
+├── tools/                         # Developer tools & utilities
+├── tests/                         # Unit & integration tests
+├── ui/                            # UI assets & demo screens
+├── apk-analysis/                  # APK size & performance reports
+├── payloads/                      # Test data & mock payloads
+└── build/                         # Build artifacts
+
+## 🛠️ **Script Reference**
+- **fix_*.sh**           : Automated fixes for deprecated APIs, icons, imports, etc.
+- **test-mcp-servers.sh**: Validates MCP server availability & generates optimized config
+- **test-2g-performance.sh**: Runs network simulation tests for rural connectivity
+- **deploy-to-github.sh**  : Automated GitHub release deployment
+
+## 🔧 **MCP & Dev Configurations**
+- **firebender.json**         : Defines MCP server priorities & env settings
+- **mcp-config-working.json** : Auto-generated file with confirmed working MCP servers
+- **.firebender/.env**        : Environment variables for MCP, Back4App, performance tuning
 
 ---
 
