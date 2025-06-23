@@ -189,25 +189,37 @@ fun RoosterApp() {
 
         // Auctions Screen - Fix navigation crash
         composable(
-            "auctions",
-            deepLinks = listOf(
-                navDeepLink { uriPattern = "android-app://androidx.navigation/auctions" }
-            )
+        "auctions",
+        deepLinks = listOf(
+        navDeepLink { uriPattern = "android-app://androidx.navigation/auctions" }
+        )
         ) {
-            AuctionsScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
+        AuctionsScreen(
+        navController = navController,
+        isTeluguMode = isTeluguMode,
+        onLanguageToggle = { isTeluguMode = !isTeluguMode }
+        )
         }
 
-        // Flock Monitoring Screen - Fix navigation crash
-        composable("flock_monitoring") {
-            FlockMonitoringScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
+        composable(NavigationRoute.MarketplaceListingCreate.route) {
+            MarketplaceListingCreateScreen(navController = navController, isTeluguMode = isTeluguMode)
         }
+        composable(NavigationRoute.MarketplaceListingEdit.base) {
+        val listingId = it.arguments?.getString("listingId") ?: ""
+        MarketplaceListingEditScreen(navController = navController, listingId = listingId, isTeluguMode = isTeluguMode)
+        }
+        composable(NavigationRoute.MarketplaceListingDetail.base) {
+                    val listingId = it.arguments?.getString("listingId") ?: ""
+                    MarketplaceListingDetailScreen(navController = navController, listingId = listingId, isTeluguMode = isTeluguMode)
+                }
+
+                // Flock Monitoring Screen - Fix navigation crash
+                composable("flock_monitoring") {
+                    FlockMonitoringScreen(
+                        navController = navController,
+                        isTeluguMode = isTeluguMode,
+                        onLanguageToggle = { isTeluguMode = !isTeluguMode }
+                    )
+                }
     }
 }

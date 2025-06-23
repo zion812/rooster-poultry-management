@@ -14,6 +14,9 @@ plugins {
     id("com.google.gms.google-services") version "4.4.2" apply false
 
     alias(libs.plugins.google.firebase.crashlytics) apply false
+
+    // JaCoCo for code coverage
+    id("jacoco") apply false
 }
 
 subprojects {
@@ -25,6 +28,39 @@ subprojects {
                 "-opt-in=kotlin.RequiresOptIn",
                 "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                 "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
+            )
+        }
+    }
+
+    // JaCoCo configuration for all modules
+    plugins.withId("jacoco") {
+        tasks.withType<Test> {
+            extensions.configure<JacocoTaskExtension> {
+                isIncludeNoLocationClasses = true
+                excludes = listOf("jdk.internal.*")
+            }
+            finalizedBy("jacocoTestReport")
+        }
+        tasks.register<JacocoReport>("jacocoTestReport") {
+            dependsOn(tasks.withType<Test>())
+            reports {
+                xml.required.set(false)
+                csv.required.set(false)
+                html.required.set(true)
+                html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+            }
+            classDirectories.setFrom(
+                files(classDirectories.files.map {
+                    fileTree(it) {
+                        exclude(
+                            "**/R.class",
+                            "**/R$*.class",
+                            "**/BuildConfig.*",
+                            "**/Manifest*.*",
+                            "**/*Test*.*"
+                        )
+                    }
+                })
             )
         }
     }

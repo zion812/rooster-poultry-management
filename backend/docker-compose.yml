@@ -26,7 +26,7 @@ services:
       - PRICE_HISTORY_DAYS=${PRICE_HISTORY_DAYS:-30}
     volumes:
       # Mount Firebase service account key
-      - ${GOOGLE_APPLICATION_CREDENTIALS}:/app/serviceAccountKey.json:ro
+      # - ${GOOGLE_APPLICATION_CREDENTIALS}:/app/serviceAccountKey.json:ro
       # Mount logs directory (optional)
       - ./logs:/app/logs
     restart: unless-stopped

@@ -44,10 +44,7 @@ fun AuthScreen(
     isTeluguMode: Boolean,
     onLanguageToggle: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+    StandardScreenLayout(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -60,7 +57,7 @@ fun AuthScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = { navController.navigate("farmer_home") },
+            onClick = { navController.navigate(NavigationRoute.FarmerHome.route) },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(if (isTeluguMode) "రైతుగా ప్రవేశించండి" else "Login as Farmer")
@@ -69,7 +66,7 @@ fun AuthScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { navController.navigate("high_level_home") },
+            onClick = { navController.navigate(NavigationRoute.HighLevelHome.route) }
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(if (isTeluguMode) "అడ్మిన్‌గా ప్రవేశించండి" else "Login as Admin")

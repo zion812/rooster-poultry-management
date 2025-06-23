@@ -29,12 +29,7 @@ fun CartScreen() {
         )
     }
 
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-    ) {
+    StandardScreenLayout(scrollable = true) {
         Text(text = "Cart", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(8.dp))
         if (isLoading) {

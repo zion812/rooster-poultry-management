@@ -25,12 +25,7 @@ fun ChatScreen(chatId: String) {
         )
     }
 
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-    ) {
+    StandardScreenLayout(scrollable = true) {
         Text("Chat", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(8.dp))
         if (isLoading) {

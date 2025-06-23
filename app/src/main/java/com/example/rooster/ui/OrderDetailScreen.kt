@@ -46,12 +46,7 @@ fun OrderDetailScreen(
             )
         },
     ) { padding ->
-        Column(
-            Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .padding(16.dp),
-        ) {
+        StandardScreenLayout(scrollable = true) {
             Text("Product: ${order!!.productName}", style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(8.dp))
             Text("Status: ${order!!.status.name}")

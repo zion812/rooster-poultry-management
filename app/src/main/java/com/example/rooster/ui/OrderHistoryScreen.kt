@@ -42,7 +42,7 @@ fun OrderHistoryScreen(
     Scaffold(
         topBar = { TopAppBar(title = { Text(text = "My Orders") }) },
     ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
+        StandardScreenLayout(scrollable = true) {
             if (isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()

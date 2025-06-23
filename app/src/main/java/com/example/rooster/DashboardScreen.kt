@@ -327,17 +327,18 @@ fun EggProductionLineChart(summaries: List<EggProductionMonthlySummary>) {
 
 @Composable
 fun LeaderboardItem(entry: EggProductionLeaderboardEntry) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    StandardScreenLayout(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top,
+        scrollable = true
     ) {
-        Text(
-            "${entry.rank}.",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.width(30.dp),
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
         )
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {

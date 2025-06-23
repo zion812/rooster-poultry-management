@@ -43,14 +43,7 @@ fun FarmerHomeScreen(navController: NavHostController) {
             )
         },
     ) { innerPadding ->
-        LazyColumn(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
+        StandardScreenLayout(scrollable = true) {
             // Welcome Section
             item {
                 Card(
@@ -138,7 +131,7 @@ fun FarmerHomeScreen(navController: NavHostController) {
                         title = if (isTeluguMode) "విశ్లేషణలు" else "Analytics",
                         icon = Icons.Default.Analytics,
                         modifier = Modifier.weight(1f),
-                    ) { navController.navigate("farm_analytics") }
+                    ) { navController.navigate(NavigationRoute.FarmAnalytics.route) }
                 }
             }
 
@@ -152,13 +145,13 @@ fun FarmerHomeScreen(navController: NavHostController) {
                         title = "Farm Dashboard",
                         icon = Icons.Default.Dashboard,
                         modifier = Modifier.weight(1f),
-                    ) { navController.navigate("farm_dashboard") }
+                    ) { navController.navigate(NavigationRoute.FarmDashboard.route) }
 
                     ActionCard(
                         title = if (isTeluguMode) "సరళ వ్యవసాయ" else "Simple Farm",
                         icon = Icons.Default.Agriculture,
                         modifier = Modifier.weight(1f),
-                    ) { navController.navigate("simple_farmer") }
+                    ) { navController.navigate(NavigationRoute.SimpleFarmer.route) }
                 }
             }
 

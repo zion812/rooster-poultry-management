@@ -24,13 +24,10 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 fun DiagnosticsScreen() {
     val crashlytics = FirebaseCrashlytics.getInstance()
     var simulate2G by remember { mutableStateOf(false) }
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+    StandardScreenLayout(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.Center,
+        scrollable = true
     ) {
         Text("Diagnostics", style = MaterialTheme.typography.headlineLarge)
         Row(

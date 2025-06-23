@@ -57,17 +57,17 @@ fun ChatListScreen(
             when (selectedTab) {
                 0 ->
                     MessageList(personal, isTeluguMode) { msg ->
-                        navController.navigate("chat/${msg.senderId}")
+                        navController.navigate(NavigationRoute.Chat(msg.senderId).route)
                     }
 
                 1 ->
                     MessageList(group, isTeluguMode) { msg ->
-                        navController.navigate("chat/${msg.groupId}")
+                        navController.navigate(NavigationRoute.Chat(msg.groupId).route)
                     }
 
                 2 ->
                     MessageList(community, isTeluguMode) { msg ->
-                        navController.navigate("chat/${msg.id}")
+                        navController.navigate(NavigationRoute.Chat(msg.id).route)
                     }
             }
         }

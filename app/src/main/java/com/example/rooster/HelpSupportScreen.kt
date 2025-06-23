@@ -55,9 +55,7 @@ fun HelpSupportScreen(
             )
         },
     ) { paddingValues ->
-        LazyColumn(
-            modifier =
-                Modifier
+        StandardScreenLayout(scrollable = true) {
                     .padding(paddingValues)
                     .fillMaxSize()
                     .padding(16.dp),
@@ -103,7 +101,7 @@ fun HelpSupportScreen(
                 SupportItem(
                     title = "Submit Feedback",
                     icon = Icons.Default.Feedback,
-                    onClick = { navController.navigate("feedbackScreen") },
+                    onClick = { navController.navigate(NavigationRoute.Feedback.route) },
                 )
             }
         }

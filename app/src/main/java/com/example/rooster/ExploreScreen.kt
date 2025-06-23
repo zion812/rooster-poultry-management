@@ -40,7 +40,7 @@ fun ExploreScreen() {
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    StandardScreenLayout(scrollable = true) {
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },

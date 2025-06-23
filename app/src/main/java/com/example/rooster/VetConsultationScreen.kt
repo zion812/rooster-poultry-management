@@ -26,16 +26,13 @@ fun VetConsultationScreen(
     isTeluguMode: Boolean,
     onLanguageToggle: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+    StandardScreenLayout(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        scrollable = true
     ) {
         Icon(
             imageVector = Icons.Default.MedicalServices,
-            contentDescription = null,
+            contentDescription = if (isTeluguMode) "వెట్ కన్సల్టేషన్ ఐకాన్" else "Vet Consultation Icon",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )

@@ -66,17 +66,16 @@ fun ProfileEditScreen(
             if (loading) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             } else {
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                StandardScreenLayout(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top,
+                    scrollable = true
                 ) {
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        label = { Text(if (isTeluguMode) "పేరు" else "Name") },
-                        modifier = Modifier.fillMaxWidth(),
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     )
                     OutlinedTextField(
                         value = location,

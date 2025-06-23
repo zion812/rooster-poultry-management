@@ -19,12 +19,9 @@ fun PaymentScreen(
     var paymentMethod by remember { mutableStateOf("COD") }
     val isProcessing by orderViewModel.isProcessing.collectAsState()
 
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+    StandardScreenLayout(
         horizontalAlignment = Alignment.CenterHorizontally,
+        scrollable = true
     ) {
         Text("Choose Payment Method", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(16.dp))

@@ -24,11 +24,9 @@ fun MarketplaceScreen(
     isTeluguMode: Boolean,
     onLanguageToggle: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    StandardScreenLayout(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        scrollable = true
     ) {
         TopAppBar(
             title = {
@@ -49,7 +47,7 @@ fun MarketplaceScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { navController.navigate("auctions") }
+            onClick = { navController.navigate(com.example.rooster.NavigationRoute.Auctions.route) }
         ) {
             Text(if (isTeluguMode) "వేలాలు చూడండి" else "View Auctions")
         }

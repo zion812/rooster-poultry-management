@@ -1,7 +1,6 @@
 package com.example.rooster
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -26,16 +25,16 @@ fun SettingsScreen(
     isTeluguMode: Boolean,
     onLanguageToggle: () -> Unit,
 ) {
-    Column(
+    StandardScreenLayout(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        scrollable = true
     ) {
         Icon(
             imageVector = Icons.Default.Settings,
-            contentDescription = null,
+            contentDescription = if (isTeluguMode) "సెట్టింగ్స్ ఐకాన్" else "Settings Icon",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )

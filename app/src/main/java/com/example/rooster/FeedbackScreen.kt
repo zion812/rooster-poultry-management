@@ -26,12 +26,10 @@ fun FeedbackScreen(
     isTeluguMode: Boolean,
     onLanguageToggle: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+    StandardScreenLayout(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        scrollable = true
     ) {
         Icon(
             imageVector = Icons.Default.Feedback,
