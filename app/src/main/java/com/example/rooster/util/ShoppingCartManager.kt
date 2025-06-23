@@ -12,21 +12,24 @@ import javax.inject.Singleton
 @Singleton
 class ShoppingCartManager @Inject constructor() {
 
-    private val _cart = MutableStateFlow<List<CartItem>>(emptyList())
-    val cart: StateFlow<List<CartItem>> = _cart.asStateFlow()
+    private val _cart = MutableStateFlow<List<com.example.rooster.models.CartItem>>(emptyList()) // Use imported CartItem
+    val cart: StateFlow<List<com.example.rooster.models.CartItem>> = _cart.asStateFlow() // Use imported CartItem
 
     private val _totalPrice = MutableStateFlow(0.0)
     val totalPrice: StateFlow<Double> = _totalPrice.asStateFlow()
 
-    fun addItem(item: CartItem) {
+    fun addItem(item: com.example.rooster.models.CartItem) {
         val currentCart = _cart.value.toMutableList()
-        val exitingItemIndex = currentCart.indexOfFirst { it.productId == item.productId }
+        val exitingItemIndex = currentCart.indexOfFirst { it.listingId == item.listingId } // Use listingId
 
         if (exitingItemIndex >= 0) {
-            currentCart[exitingItemIndex] = currentCart[exitingItemIndex].copy(
-                quantity = currentCart[exitingItemIndex].quantity + item.quantity
+            // Update quantity of existing item
+            val existingItem = currentCart[exitingItemIndex]
+            currentCart[exitingItemIndex] = existingItem.copy(
+                quantity = existingItem.quantity + item.quantity
             )
         } else {
+            // Add new item
             currentCart.add(item)
         }
 
@@ -34,16 +37,16 @@ class ShoppingCartManager @Inject constructor() {
         updateTotalPrice()
     }
 
-    fun removeItem(productId: String) {
+    fun removeItem(listingId: String) { // Changed parameter name from productId to listingId
         val currentCart = _cart.value.toMutableList()
-        currentCart.removeAll { it.productId == productId }
+        currentCart.removeAll { it.listingId == listingId } // Use listingId
         _cart.value = currentCart
         updateTotalPrice()
     }
 
-    fun updateQuantity(productId: String, quantity: Int) {
+    fun updateQuantity(listingId: String, quantity: Int) { // Changed parameter name
         val currentCart = _cart.value.toMutableList()
-        val itemIndex = currentCart.indexOfFirst { it.productId == productId }
+        val itemIndex = currentCart.indexOfFirst { it.listingId == listingId } // Use listingId
 
         if (itemIndex >= 0) {
             if (quantity > 0) {
@@ -68,13 +71,4 @@ class ShoppingCartManager @Inject constructor() {
     }
 }
 
-/**
- * Cart item data class
- */
-data class CartItem(
-    val productId: String,
-    val productName: String,
-    val price: Double,
-    val quantity: Int = 1,
-    val imageUrl: String? = null
-)
+// Local CartItem definition removed, using com.example.rooster.models.CartItem instead
