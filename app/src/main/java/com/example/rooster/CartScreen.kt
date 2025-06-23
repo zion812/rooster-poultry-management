@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.rooster.models.CartItem // Import the consolidated CartItem
 import com.parse.ParseObject
 import com.parse.ParseUser
 import kotlinx.coroutines.launch
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 fun CartScreen() {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var cartItems by remember { mutableStateOf(listOf<com.example.rooster.CartItem>()) }
+    var cartItems by remember { mutableStateOf(listOf<CartItem>()) } // Use imported CartItem
     var isLoading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var orderSuccess by remember { mutableStateOf(false) }

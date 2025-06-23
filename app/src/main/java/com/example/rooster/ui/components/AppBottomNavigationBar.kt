@@ -13,6 +13,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.rooster.models.UserRole
 import com.example.rooster.ui.theme.RoosterCustomShapes
 
 /**
@@ -20,14 +21,6 @@ import com.example.rooster.ui.theme.RoosterCustomShapes
  * Displays different navigation items based on user role
  * Follows the UI Architecture Plan for navigation components
  */
-
-// User role enum
-enum class UserRole {
-    FARMER,
-    GENERAL,
-    HIGH_LEVEL,
-    UNKNOWN,
-}
 
 // Navigation item data class
 data class NavigationItem(

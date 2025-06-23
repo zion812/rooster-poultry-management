@@ -14,7 +14,8 @@ import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
-import com.example.rooster.NavigationRoute
+// NavigationRoute is in the same package, so no import needed.
+import com.example.rooster.models.UserRole // Import the consolidated UserRole
 
 // Profile Navigation Helper
 object ProfileNavigationHelper {
@@ -178,10 +179,5 @@ enum class ProfileStatus(val color: androidx.compose.ui.graphics.Color, val icon
     SUSPENDED(androidx.compose.ui.graphics.Color(0xFFF44336), Icons.Default.Block),
 }
 
-// User Role Types
-enum class UserRole(val displayName: String, val displayNameTelugu: String) {
-    FARMER("Farmer", "రైతు"),
-    VET("Veterinarian", "పశువైద్యుడు"),
-    BUYER("Buyer", "కొనుగోలుదారు"),
-    ADMIN("Administrator", "నిర్వాహకుడు"),
-}
+// UserRole enum is now imported from com.example.rooster.models.UserRole
+// The local definition has been removed.
