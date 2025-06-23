@@ -21,7 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
-import com.example.rooster.auth.AuthViewModel
+import com.example.rooster.viewmodel.AuthViewModel // Corrected import path
 import com.example.rooster.payment.DummyPaymentScreen
 import com.example.rooster.screens.AuctionsScreen
 import com.example.rooster.screens.AuthScreen

@@ -45,7 +45,13 @@ fun FarmerHomeScreen(navController: NavHostController) {
             )
         },
     ) { innerPadding ->
-        StandardScreenLayout(scrollable = true) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding) // Apply innerPadding from Scaffold
+                .padding(16.dp), // Add standard screen padding
+            verticalArrangement = Arrangement.spacedBy(16.dp) // Spacing between items
+        ) {
             // Welcome Section
             item {
                 Card(
