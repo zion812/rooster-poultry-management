@@ -27,7 +27,7 @@ object NotificationPermissionHandler {
     /**
      * Check if notification permission is granted
      */
-    fun hasNotificationPermission(context: Context): Boolean {
+    fun getInstance(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(
                 context,

@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-staging-66:/layout/notification_template_part_time.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-core-1.15.0-21:/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-staging-66:/layout/ime_base_split_test_activity.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-core-1.15.0-21:/layout/ime_base_split_test_activity.xml"
+    },
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-staging-66:/layout/notification_template_part_chronometer.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-core-1.15.0-21:/layout/notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-staging-66:/layout/custom_dialog.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-core-1.15.0-21:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-staging-66:/layout/browser_actions_context_menu_row.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-browser-1.4.0-9:/layout/browser_actions_context_menu_row.xml"
+    },
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-staging-66:/layout/browser_actions_context_menu_page.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-browser-1.4.0-9:/layout/browser_actions_context_menu_page.xml"
+    },
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-staging-66:/layout/ime_secondary_split_test_activity.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-core-1.15.0-21:/layout/ime_secondary_split_test_activity.xml"
+    }
+]

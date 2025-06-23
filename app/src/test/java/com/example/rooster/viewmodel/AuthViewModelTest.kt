@@ -2,7 +2,6 @@ package com.example.rooster.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
-import com.example.rooster.viewmodel.AuthViewModel
 import com.example.rooster.repository.AuthRepository
 import io.mockk.coEvery
 import io.mockk.coVerify

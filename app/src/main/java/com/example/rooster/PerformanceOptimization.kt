@@ -168,7 +168,7 @@ class NetworkQualityManager(private val context: Context) {
         }
     }
 
-    private fun getLegacyNetworkQuality(context: Context): NetworkQualityLevel {
+    private fun getInstance(context: Context): NetworkQualityLevel {
         return try {
             // Wrapped legacy network check with additional safety
             kotlin.runCatching {

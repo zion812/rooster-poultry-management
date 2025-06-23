@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-staging-66:/drawable-v21/notification_action_background.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-core-1.15.0-21:/drawable-v21/notification_action_background.xml"
+    }
+]

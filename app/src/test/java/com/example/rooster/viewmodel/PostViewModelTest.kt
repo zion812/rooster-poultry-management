@@ -1,10 +1,10 @@
 package com.example.rooster.viewmodel
 
 import app.cash.turbine.test
-import com.example.rooster.viewmodel.PostViewModel
+import com.example.rooster.model.Post
 import com.example.rooster.repository.PostRepository
 import com.example.rooster.repository.UserRepository
-import com.example.rooster.model.Post
+import com.example.rooster.viewmodel.PostViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk

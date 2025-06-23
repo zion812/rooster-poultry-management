@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-release-66:/drawable-watch-v20/common_google_signin_btn_text_disabled.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-play-services-auth-20.7.0-39:/drawable-watch-v20/common_google_signin_btn_text_disabled.xml"
+    },
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-release-66:/drawable-watch-v20/common_google_signin_btn_text_dark_normal.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-play-services-auth-20.7.0-39:/drawable-watch-v20/common_google_signin_btn_text_dark_normal.xml"
+    },
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-release-66:/drawable-watch-v20/common_google_signin_btn_text_light_normal.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-play-services-auth-20.7.0-39:/drawable-watch-v20/common_google_signin_btn_text_light_normal.xml"
+    }
+]

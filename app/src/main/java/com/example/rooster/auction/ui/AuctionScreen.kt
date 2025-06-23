@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -25,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.rooster.R
+import com.example.rooster.models.*
+import com.example.rooster.ui.components.StandardScreenLayout
 import com.example.rooster.data.models.Auction
 import com.example.rooster.data.models.Bid
 import com.example.rooster.data.models.AuctionUiState
@@ -61,14 +62,18 @@ fun AuctionScreen(
                     )
                 },
                 actions = {
-                    IconButton(onClick = onLanguageToggle) {
+                    IconButton(
+                        onClick = onLanguageToggle
+                    ) {
                         Icon(
                             Icons.Default.Language,
                             contentDescription = "Toggle Language",
                             tint = Color(0xFFFF5722)
                         )
                     }
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(
+                        onClick = { navController.navigateUp() }
+                    ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
@@ -388,7 +393,7 @@ private fun BidDialog(
         title = {
             Text(
                 text = if (isTeluguMode) "బిడ్ చేయండి" else "Place Bid",
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         },
         text = {
@@ -396,17 +401,17 @@ private fun BidDialog(
                 Text(
                     text = auction.title,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "${if (isTeluguMode) "ప్రస్తుత బిడ్" else "Current Bid"}: ₹${String.format("%.0f", auction.currentBid)}",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
                     text = "${if (isTeluguMode) "కనీస బిడ్" else "Minimum Bid"}: ₹${String.format("%.0f", minBid)}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -414,12 +419,12 @@ private fun BidDialog(
                 OutlinedTextField(
                     value = bidAmountText,
                     onValueChange = { bidAmountText = it },
-                    label = { 
-                        Text(if (isTeluguMode) "మీ బిడ్ మొత్తం (₹)" else "Your Bid Amount (₹)") 
+                    label = {
+                        Text(if (isTeluguMode) "మీ బిడ్ మొత్తం (₹)" else "Your Bid Amount (₹)")
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         },
@@ -431,16 +436,18 @@ private fun BidDialog(
                         onBidPlaced(bidAmount)
                     }
                 },
-                enabled = bidAmountText.toDoubleOrNull()?.let { it >= minBid } == true
+                enabled = bidAmountText.toDoubleOrNull()?.let { it >= minBid } == true,
             ) {
                 Text(if (isTeluguMode) "బిడ్ చేయండి" else "Place Bid")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(
+                onClick = onDismiss
+            ) {
                 Text(if (isTeluguMode) "రద్దు చేయండి" else "Cancel")
             }
-        }
+        },
     )
 }
 

@@ -93,7 +93,7 @@ fun FarmDashboardScreen(
 }
 
 @Composable
-fun FarmDashboardTab(navController: NavController) {
+fun FarmDashboardScreen(navController: NavController) {
     LazyColumn(
         modifier =
             Modifier

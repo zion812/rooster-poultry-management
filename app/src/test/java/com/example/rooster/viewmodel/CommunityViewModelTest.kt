@@ -1,7 +1,6 @@
 package com.example.rooster.viewmodel
 
 import app.cash.turbine.test
-import com.example.rooster.viewmodel.CommunityViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -10,6 +9,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import com.example.rooster.viewmodel.CommunityViewModel
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CommunityViewModelTest {

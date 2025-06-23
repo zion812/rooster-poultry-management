@@ -771,7 +771,7 @@ fun getSessionDataUsage(): Long {
 }
 
 // Get monthly data usage from preferences
-fun getMonthlyDataUsage(context: Context): Long {
+fun getInstance(context: Context): Long {
     return try {
         val prefs = context.getSharedPreferences("data_usage", Context.MODE_PRIVATE)
         prefs.getLong("monthly_usage", 0L)

@@ -641,7 +641,7 @@ fun PhotoGridDisplay(
 }
 
 object PhotoUriHelper {
-    fun newUri(context: Context): Uri {
+    fun getInstance(context: Context): Uri {
         val timeStamp: String =
             SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val imageFileName = "JPEG_${timeStamp}_"

@@ -31,7 +31,10 @@ fun OrderDetailScreen(
     val order by vm.selectedOrder.collectAsState()
 
     if (order == null) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
             CircularProgressIndicator()
         }
         return
@@ -40,10 +43,19 @@ fun OrderDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Order #${order!!.id}") },
+                title = {
+                    Text(
+                        "Order #${order!!.id}",
+                    )
+                },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { 
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back") 
+                    IconButton(
+                        onClick = onBack,
+                    ) {
+                        Icon(
+                            Icons.Filled.ArrowBack,
+                            contentDescription = "Back",
+                        )
                     }
                 },
             )
@@ -54,16 +66,30 @@ fun OrderDetailScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
         ) {
-            Text("Product: ${order!!.productName}", style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(8.dp))
-            Text("Status: ${order!!.status.name}")
-            Spacer(Modifier.height(16.dp))
+            Text(
+                "Product: ${order!!.productName}",
+                style = MaterialTheme.typography.titleLarge,
+            )
+            Spacer(
+                modifier = Modifier.height(8.dp),
+            )
+            Text(
+                "Status: ${order!!.status.name}",
+            )
+            Spacer(
+                modifier = Modifier.height(16.dp),
+            )
 
             when (order!!.status) {
-                UserOrderStatus.PENDING -> Button(onClick = onCODConfirm) { Text("Confirm Cash on Delivery") }
-                UserOrderStatus.DELIVERED -> Button(onClick = onFeedback) { Text("Leave Feedback") }
+                UserOrderStatus.PENDING -> Button(
+                    onClick = onCODConfirm,
+                ) { Text("Confirm Cash on Delivery") }
+
+                UserOrderStatus.DELIVERED -> Button(
+                    onClick = onFeedback,
+                ) { Text("Leave Feedback") }
                 else -> {}
             }
         }

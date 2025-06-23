@@ -46,7 +46,7 @@ class LifecycleWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(
     }
 
     companion object {
-        fun scheduleWork(context: Context) {
+        fun getInstance(context: Context) {
             val workRequest = PeriodicWorkRequestBuilder<LifecycleWorker>(
                 15, TimeUnit.MINUTES
             ).setConstraints(

@@ -1,7 +1,6 @@
 package com.example.rooster.viewmodel
 
 import app.cash.turbine.test
-import com.example.rooster.viewmodel.PollViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler

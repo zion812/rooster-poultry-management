@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-release-66:/layout-v21/notification_template_custom_big.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-core-1.15.0-21:/layout-v21/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-release-66:/layout-v21/notification_action_tombstone.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-core-1.15.0-21:/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-release-66:/layout-v21/notification_template_icon_group.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-core-1.15.0-21:/layout-v21/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "com.example.rooster.feature.farm.feature-farm-release-66:/layout-v21/notification_action.xml",
+        "source": "com.example.rooster.feature.farm.feature-farm-core-1.15.0-21:/layout-v21/notification_action.xml"
+    }
+]
