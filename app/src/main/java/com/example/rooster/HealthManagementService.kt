@@ -1,8 +1,7 @@
 package com.example.rooster
 
 import android.content.Context
-import com.example.rooster.data.models.NetworkQualityLevel
-import com.example.rooster.data.models.assessNetworkQualitySafely
+import com.example.rooster.models.*
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.parse.ParseObject
 import com.parse.ParseQuery

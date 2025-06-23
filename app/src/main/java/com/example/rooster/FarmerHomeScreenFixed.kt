@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.rooster.NavigationRoute
+import com.example.rooster.ui.navigation.NavigationRoute
 import com.example.rooster.ui.components.StandardScreenLayout
 
 /**
@@ -139,7 +139,7 @@ fun FarmerHomeScreen(navController: NavHostController) {
                         title = if (isTeluguMode) "విశ్లేషణలు" else "Analytics",
                         icon = Icons.Default.Analytics,
                         modifier = Modifier.weight(1f),
-                    ) { navController.navigate(NavigationRoute.FarmAnalytics.route) }
+                    ) { navController.navigate(NavigationRoute.FARM_ANALYTICS.route) }
                 }
             }
 
@@ -153,13 +153,13 @@ fun FarmerHomeScreen(navController: NavHostController) {
                         title = "Farm Dashboard",
                         icon = Icons.Default.Dashboard,
                         modifier = Modifier.weight(1f),
-                    ) { navController.navigate(NavigationRoute.FarmDashboard.route) }
+                    ) { navController.navigate(NavigationRoute.FARM_DASHBOARD.route) }
 
                     ActionCard(
                         title = if (isTeluguMode) "సరళ వ్యవసాయ" else "Simple Farm",
                         icon = Icons.Default.Agriculture,
                         modifier = Modifier.weight(1f),
-                    ) { navController.navigate(NavigationRoute.SimpleFarmer.route) }
+                    ) { navController.navigate(NavigationRoute.SIMPLE_FARMER.route) }
                 }
             }
 

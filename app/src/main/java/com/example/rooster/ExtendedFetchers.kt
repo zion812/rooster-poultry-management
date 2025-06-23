@@ -4,7 +4,7 @@ import android.util.Log
 import com.parse.*
 import com.parse.ParseCloud
 import java.util.*
-import com.example.rooster.data.models.*
+import com.example.rooster.models.*
 
 // Add these imports near the top after existing Auction imports:
 
@@ -620,8 +620,8 @@ private fun fetchDashboardTraceabilityMetrics(
 
                         onResult(
                             TraceabilityMetrics(
-                                activeTransfers = activeTransfers,
-                                completedTransfers = completedTransfers,
+                                activeTransfersCount = activeTransfers,
+                                completedTransfersCount = completedTransfers,
                                 pendingVerifications = pendingVerifications,
                                 fraudAlertsCount = fraudCount,
                                 verificationSuccessRate = successRate,

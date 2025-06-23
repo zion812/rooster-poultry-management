@@ -27,9 +27,7 @@ import android.content.Context
 import java.text.NumberFormat
 import java.util.*
 import kotlinx.coroutines.delay
-import com.example.rooster.data.models.NetworkQualityLevel
-import com.example.rooster.data.models.assessNetworkQualitySafely
-import com.example.rooster.data.models.*
+import com.example.rooster.models.*
 
 suspend fun fetchHighLevelDashboardData(
     onResult: (HighLevelDashboardData) -> Unit,

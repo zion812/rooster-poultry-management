@@ -1,19 +1,9 @@
 package com.example.rooster.domain.repository
 
-import com.example.rooster.data.entities.User
+import com.example.rooster.models.UserRole
 
-/**
- * Domain interface for user operations
- */
 interface UserRepository {
-
-    suspend fun getCurrentUser(): User
-
-    suspend fun getUser(userId: String): User?
-
-    suspend fun updateUser(user: User): User
-
-    suspend fun updateUserCoins(userId: String, coins: Int): User
-
-    suspend fun searchUsers(query: String): List<User>
+    suspend fun getUserRole(userId: String): UserRole
+    suspend fun updateUserRole(userId: String, role: UserRole): Boolean
+    suspend fun getCurrentUser(): String?
 }

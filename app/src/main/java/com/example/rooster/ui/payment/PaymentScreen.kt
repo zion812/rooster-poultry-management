@@ -59,7 +59,7 @@ fun PaymentScreen(
 
         Button(
             onClick = {
-                orderViewModel.placeOrder(
+                val result: Boolean = orderViewModel.placeOrder(
                     listingId,
                     paymentMethod,
                     useAdvance,

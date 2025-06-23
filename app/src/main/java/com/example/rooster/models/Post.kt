@@ -18,5 +18,5 @@ data class Post(
 enum class MediaType {
     IMAGE,
     VIDEO,
-    AUDIO,
+    AUDIO
 }

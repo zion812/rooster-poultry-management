@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -21,21 +22,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
-import com.example.rooster.viewmodel.AuthViewModel // Corrected import path
-import com.example.rooster.payment.DummyPaymentScreen
-import com.example.rooster.screens.AuctionsScreen
-import com.example.rooster.screens.AuthScreen
-import com.example.rooster.screens.CommunityScreen
-import com.example.rooster.screens.FarmerHomeScreen
-import com.example.rooster.screens.FlockMonitoringScreen
-import com.example.rooster.screens.HighLevelHomeScreen
-import com.example.rooster.screens.MarketplaceScreen
-import com.example.rooster.screens.MarketplaceListingCreateScreen
-import com.example.rooster.screens.MarketplaceListingDetailScreen
-import com.example.rooster.screens.MarketplaceListingEditScreen
-import com.example.rooster.screens.SimpleSellBirdsScreen
-import com.example.rooster.screens.SimpleViewBirdsScreen
+import com.example.rooster.models.UserRole
 import com.example.rooster.ui.navigation.NavigationRoute
+import com.example.rooster.viewmodel.AuthViewModel
 import com.example.rooster.ui.theme.RoosterTheme
 import com.razorpay.PaymentResultListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -98,12 +87,12 @@ fun RoosterApp() {
 
     val startDestination = if (authState.isAuthenticated) {
         when (authViewModel.normalizedUserRole) {
-            "farmer" -> NavigationRoute.FarmerHome.route
-            "highlevel", "high_level" -> NavigationRoute.HighLevelHome.route
-            else -> NavigationRoute.Marketplace.route
+            UserRole.FARMER -> NavigationRoute.FARMER_HOME.route
+            UserRole.HIGH_LEVEL -> NavigationRoute.HIGH_LEVEL_HOME.route
+            else -> NavigationRoute.MARKETPLACE.route
         }
     } else {
-        NavigationRoute.Auth.route
+        NavigationRoute.AUTH.route
     }
 
     NavHost(
@@ -111,176 +100,129 @@ fun RoosterApp() {
         startDestination = startDestination
     ) {
         // Authentication Screen
-        composable(NavigationRoute.Auth.route) {
-            AuthScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
+        composable(NavigationRoute.AUTH.route) {
+            Text("Auth Screen - Coming Soon")
         }
 
         // Marketplace Screen
-        composable(NavigationRoute.Marketplace.route) {
-            MarketplaceScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
+        composable(NavigationRoute.MARKETPLACE.route) {
+            Text("Marketplace Screen - Coming Soon")
         }
 
         // Farmer Home Screen
-        composable(NavigationRoute.FarmerHome.route) {
-            FarmerHomeScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
+        composable(NavigationRoute.FARMER_HOME.route) {
+            Text("Farmer Home Screen - Coming Soon")
         }
 
         // High Level Home Screen
-        composable(NavigationRoute.HighLevelHome.route) {
-            HighLevelHomeScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
+        composable(NavigationRoute.HIGH_LEVEL_HOME.route) {
+            Text("High Level Home Screen - Coming Soon")
         }
 
         // Simple View Birds Screen - Fix navigation crash
         composable(
-            NavigationRoute.SimpleViewBirds.route,
+            NavigationRoute.SIMPLE_VIEW_BIRDS.route,
             deepLinks = listOf(
                 navDeepLink { uriPattern = "android-app://androidx.navigation/simple_view_birds" }
             )
         ) {
-            SimpleViewBirdsScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
+            Text("Simple View Birds Screen - Coming Soon")
         }
 
         // Simple Sell Birds Screen - Fix navigation crash
         composable(
-            NavigationRoute.SimpleSellBirds.route,
+            NavigationRoute.SIMPLE_SELL_BIRDS.route,
             deepLinks = listOf(
                 navDeepLink { uriPattern = "android-app://androidx.navigation/simple_sell_birds" }
             )
         ) {
-            SimpleSellBirdsScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
+            Text("Simple Sell Birds Screen - Coming Soon")
         }
 
         // Payment Screen with parameters
         composable("payment/{listingId}/{amount}") { backStackEntry ->
             val listingId = backStackEntry.arguments?.getString("listingId") ?: ""
             val amount = backStackEntry.arguments?.getString("amount") ?: "0"
-            DummyPaymentScreen(
-                navController = navController,
-                listingId = listingId,
-                amount = amount,
-                isTeluguMode = isTeluguMode
-            )
+            Text("Dummy Payment Screen - Coming Soon")
         }
 
         // Direct payment screen
         composable("payment") {
-            DummyPaymentScreen(
-                navController = navController,
-                listingId = "",
-                amount = "0",
-                isTeluguMode = isTeluguMode
-            )
+            Text("Dummy Payment Screen - Coming Soon")
         }
 
         // Auctions Screen - Fix navigation crash
         composable(
-            NavigationRoute.Auctions.route,
+            NavigationRoute.AUCTIONS.route,
             deepLinks = listOf(
                 navDeepLink { uriPattern = "android-app://androidx.navigation/auctions" }
             )
         ) {
-            AuctionsScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
+            Text("Auctions Screen - Coming Soon")
         }
 
-        // Add all navigation routes from NavigationRoute class
-        composable(NavigationRoute.Cart.route) {
-            // CartScreen placeholder
+        // Cart Screen
+        composable(NavigationRoute.CART.route) {
             Text("Cart Screen - Coming Soon")
         }
 
-        composable(NavigationRoute.OrderHistory.route) {
-            // OrderHistoryScreen placeholder  
+        // Order History Screen
+        composable(NavigationRoute.ORDER_HISTORY.route) {
             Text("Order History Screen - Coming Soon")
         }
 
-        composable(NavigationRoute.ProfileEdit.route) {
-            // ProfileEditScreen placeholder
-            Text("Profile Edit Screen - Coming Soon")
+        // Profile Screen
+        composable(NavigationRoute.PROFILE.route) {
+            Text("Profile Screen - Coming Soon")
         }
 
-        composable(NavigationRoute.HelpSupport.route) {
-            // HelpSupportScreen placeholder
-            Text("Help & Support Screen - Coming Soon")
+        // Help Screen
+        composable(NavigationRoute.HELP.route) {
+            Text("Help Screen - Coming Soon")
         }
 
-        composable(NavigationRoute.ComprehensiveMessaging.route) {
-            // MessagingScreen placeholder
-            Text("Messaging Screen - Coming Soon")
+        // Compliance Screen
+        composable(NavigationRoute.COMPLIANCE_SCREEN.route) {
+            Text("Compliance Screen - Coming Soon")
         }
 
-        composable(NavigationRoute.Fowl.route) {
-            // FowlScreen placeholder
+        // Fowl Traceability Screen
+        composable(NavigationRoute.FOWL_TRACEABILITY.route) {
             Text("Fowl Management Screen - Coming Soon")
         }
 
-        composable(NavigationRoute.Diagnostics.route) {
-            // DiagnosticsScreen placeholder
+        // Diagnosis Help Screen
+        composable(NavigationRoute.DIAGNOSIS_HELP.route) {
             Text("Diagnostics Screen - Coming Soon")
         }
 
-        composable(NavigationRoute.HealthManagement.route) {
-            // HealthManagementScreen placeholder
+        // Health Records Screen
+        composable(NavigationRoute.HEALTH_RECORDS.route) {
             Text("Health Management Screen - Coming Soon")
         }
 
-        composable(NavigationRoute.MarketplaceListingCreate.route) {
-            MarketplaceListingCreateScreen(navController = navController, isTeluguMode = isTeluguMode)
+        composable(NavigationRoute.MARKETPLACE_LISTING_CREATE.route) {
+            Text("Marketplace Listing Create Screen - Coming Soon")
         }
 
-        composable(NavigationRoute.MarketplaceListingEdit.base) {
-            val listingId = it.arguments?.getString("listingId") ?: ""
-            MarketplaceListingEditScreen(navController = navController, listingId = listingId, isTeluguMode = isTeluguMode)
+        composable("edit_listing/{listingId}") { backStackEntry ->
+            val listingId = backStackEntry.arguments?.getString("listingId") ?: ""
+            Text("Marketplace Listing Edit Screen - Coming Soon")
         }
 
-        composable(NavigationRoute.MarketplaceListingDetail.base) {
-            val listingId = it.arguments?.getString("listingId") ?: ""
-            MarketplaceListingDetailScreen(navController = navController, listingId = listingId, isTeluguMode = isTeluguMode)
+        composable("listing_detail/{listingId}") { backStackEntry ->
+            val listingId = backStackEntry.arguments?.getString("listingId") ?: ""
+            Text("Marketplace Listing Detail Screen - Coming Soon")
         }
 
         // Community Screen
-        composable(NavigationRoute.Community.route) {
-            CommunityScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
+        composable(NavigationRoute.COMMUNITY.route) {
+            Text("Community Screen - Coming Soon")
         }
 
         // Flock Monitoring Screen - Fix navigation crash
-        composable(NavigationRoute.FlockMonitoring.route) {
-            FlockMonitoringScreen(
-                navController = navController,
-                isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
-            )
+        composable(NavigationRoute.FLOCK_MONITORING.route) {
+            Text("Flock Monitoring Screen - Coming Soon")
         }
     }
 }

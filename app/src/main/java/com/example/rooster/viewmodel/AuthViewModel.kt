@@ -4,7 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rooster.domain.repository.AuthRepository
+import com.example.rooster.domain.repository.UserRepository
+import com.example.rooster.models.UserRole
 import com.example.rooster.util.Result
+import com.parse.ParseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +24,8 @@ data class AuthUiState(
     val showOtpDialog: Boolean = false,
     val phoneNumber: String = "",
     val otpSent: Boolean = false,
-    val isVerifyingOtp: Boolean = false
+    val isVerifyingOtp: Boolean = false,
+    val userRole: UserRole = UserRole.UNKNOWN
 )
 
 sealed class AuthState {
@@ -35,17 +39,69 @@ sealed class AuthState {
 // ViewModel
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+
+    val normalizedUserRole: UserRole
+        get() = _uiState.value.userRole
+
+    val isAuthenticated: Boolean
+        get() = _uiState.value.isAuthenticated
 
     init {
         viewModelScope.launch {
             authRepository.currentUser.collect {
                 _uiState.value = _uiState.value.copy(isAuthenticated = (it != null))
             }
+        }
+    }
+
+    fun checkAuthState() {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(loading = true)
+                val user = getCurrentUser()
+                if (user != null) {
+                    val role = getUserRole(user.objectId)
+                    _uiState.value = _uiState.value.copy(
+                        isAuthenticated = true,
+                        userRole = role,
+                        loading = false
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isAuthenticated = false,
+                        userRole = UserRole.UNKNOWN,
+                        loading = false
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    loading = false,
+                    errorMessage = e.message
+                )
+            }
+        }
+    }
+
+    private suspend fun getCurrentUser(): ParseUser? {
+        return try {
+            ParseUser.getCurrentUser()
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private suspend fun getUserRole(userId: String): UserRole {
+        return try {
+            // Placeholder implementation
+            UserRole.FARMER
+        } catch (e: Exception) {
+            UserRole.UNKNOWN
         }
     }
 
