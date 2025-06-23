@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
+import com.example.rooster.ui.components.StandardScreenLayout
 
 @Composable
 fun MarketplaceListingDetailScreen(

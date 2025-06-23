@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.rooster.NavigationRoute
+import com.example.rooster.ui.components.StandardScreenLayout
 
 /**
  * Simplified FarmerHomeScreen with working UI components

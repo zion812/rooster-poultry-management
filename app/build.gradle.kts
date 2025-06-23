@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.google.firebase.crashlytics)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization) // Added Kotlinx Serialization plugin
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
 
@@ -199,6 +200,7 @@ dependencies {
 
     // JSON
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.kotlinx.serialization.json) // Added Kotlinx Serialization JSON dependency
 
     // Razorpay Payment Gateway
     implementation("com.razorpay:checkout:1.6.38")

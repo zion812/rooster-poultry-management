@@ -38,7 +38,7 @@ class MemoryOptimizer
         /**
          * Check if device is running low on memory
          */
-        fun getInstance(context: Context): Boolean {
+        fun isLowMemory(context: Context): Boolean {
             return safeExecute("Memory check", false) {
                 val activityManager =
                     context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
@@ -53,7 +53,7 @@ class MemoryOptimizer
         /**
          * Get memory status for optimization decisions
          */
-        fun getInstance(context: Context): MemoryStatus {
+        fun getMemoryStatus(context: Context): MemoryStatus {
             return safeExecute("Memory status check", MemoryStatus.NORMAL) {
                 val activityManager =
                     context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
@@ -251,7 +251,7 @@ class MemoryOptimizer
         /**
          * Get recommended image quality based on memory status
          */
-        fun getInstance(context: Context): Int {
+        fun getRecommendedImageQuality(context: Context): Int {
             return when (getMemoryStatus(context)) {
                 MemoryStatus.CRITICAL -> 40
                 MemoryStatus.LOW -> 60
@@ -263,7 +263,7 @@ class MemoryOptimizer
         /**
          * Get recommended image dimensions based on memory status
          */
-        fun getInstance(context: Context): Pair<Int, Int> {
+        fun getRecommendedImageDimensions(context: Context): Pair<Int, Int> {
             return when (getMemoryStatus(context)) {
                 MemoryStatus.CRITICAL -> 400 to 300
                 MemoryStatus.LOW -> 600 to 450
@@ -272,19 +272,19 @@ class MemoryOptimizer
             }
         }
 
-        fun getInstance(context: Context) {
+        fun configureMemoryMode(context: Context) {
             val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             val memoryInfo = ActivityManager.MemoryInfo()
             activityManager.getMemoryInfo(memoryInfo)
 
             when {
-                isLowMemoryDevice(context) -> enableUltraLowMemoryMode()
+                isLowRamDevice(context) -> enableUltraLowMemoryMode() // Assuming isLowMemoryDevice was a typo and meant isLowRamDevice
                 memoryInfo.availMem < memoryInfo.threshold -> enableLowMemoryMode()
                 else -> enableNormalMode()
             }
         }
 
-        fun getInstance(context: Context): Boolean {
+        fun isLowRamDevice(context: Context): Boolean {
             val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
 
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
