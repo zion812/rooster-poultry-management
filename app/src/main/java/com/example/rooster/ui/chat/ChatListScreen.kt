@@ -13,6 +13,7 @@ import androidx.navigation.NavController
 import com.example.rooster.MessagingManager.CommunityMessage
 import com.example.rooster.MessagingManager.GroupMessage
 import com.example.rooster.MessagingManager.PersonalMessage
+import com.example.rooster.NavigationRoute
 import com.example.rooster.viewmodel.ChatViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,46 +56,80 @@ fun ChatListScreen(
                 }
             }
             when (selectedTab) {
-                0 ->
-                    MessageList(personal, isTeluguMode) { msg ->
-                        navController.navigate(NavigationRoute.Chat(msg.senderId).route)
-                    }
+                0 -> PersonalMessageList(personal, isTeluguMode) { msg ->
+                    navController.navigate(NavigationRoute.Chat(msg.senderId).route)
+                }
 
-                1 ->
-                    MessageList(group, isTeluguMode) { msg ->
-                        navController.navigate(NavigationRoute.Chat(msg.groupId).route)
-                    }
+                1 -> GroupMessageList(group, isTeluguMode) { msg ->
+                    navController.navigate(NavigationRoute.Chat(msg.groupId).route)
+                }
 
-                2 ->
-                    MessageList(community, isTeluguMode) { msg ->
-                        navController.navigate(NavigationRoute.Chat(msg.id).route)
-                    }
+                2 -> CommunityMessageList(community, isTeluguMode) { msg ->
+                    navController.navigate(NavigationRoute.Chat(msg.id).route)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun <T> MessageList(
-    items: List<T>,
+private fun PersonalMessageList(
+    items: List<PersonalMessage>,
     isTeluguMode: Boolean,
-    onClick: (T) -> Unit,
+    onClick: (PersonalMessage) -> Unit,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(items) { item ->
             Card(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .clickable { onClick(item) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .clickable { onClick(item) },
                 elevation = CardDefaults.cardElevation(2.dp),
             ) {
-                when (item) {
-                    is PersonalMessage -> ChatItemRow(item.senderName, item.content, isTeluguMode)
-                    is GroupMessage -> ChatItemRow(item.groupName, item.content, isTeluguMode)
-                    is CommunityMessage -> ChatItemRow(item.title, item.content, isTeluguMode)
-                }
+                ChatItemRow(item.senderName, item.content, isTeluguMode)
+            }
+        }
+    }
+}
+
+@Composable
+private fun GroupMessageList(
+    items: List<GroupMessage>,
+    isTeluguMode: Boolean,
+    onClick: (GroupMessage) -> Unit,
+) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(items) { item ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .clickable { onClick(item) },
+                elevation = CardDefaults.cardElevation(2.dp),
+            ) {
+                ChatItemRow(item.groupName, item.content, isTeluguMode)
+            }
+        }
+    }
+}
+
+@Composable
+private fun CommunityMessageList(
+    items: List<CommunityMessage>,
+    isTeluguMode: Boolean,
+    onClick: (CommunityMessage) -> Unit,
+) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(items) { item ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .clickable { onClick(item) },
+                elevation = CardDefaults.cardElevation(2.dp),
+            ) {
+                ChatItemRow(item.title, item.content, isTeluguMode)
             }
         }
     }

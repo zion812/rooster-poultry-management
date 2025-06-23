@@ -1,8 +1,9 @@
 package com.example.rooster.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -41,12 +42,20 @@ fun OrderDetailScreen(
             TopAppBar(
                 title = { Text("Order #${order!!.id}") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
+                    IconButton(onClick = onBack) { 
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back") 
+                    }
                 },
             )
         },
     ) { padding ->
-        StandardScreenLayout(scrollable = true) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
             Text("Product: ${order!!.productName}", style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(8.dp))
             Text("Status: ${order!!.status.name}")

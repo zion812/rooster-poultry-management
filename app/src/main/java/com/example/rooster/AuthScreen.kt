@@ -31,7 +31,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.rooster.viewmodel.AuthViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -66,7 +65,7 @@ fun AuthScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { navController.navigate(NavigationRoute.HighLevelHome.route) }
+            onClick = { navController.navigate(NavigationRoute.HighLevelHome.route) },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(if (isTeluguMode) "అడ్మిన్‌గా ప్రవేశించండి" else "Login as Admin")

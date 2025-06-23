@@ -5,9 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rooster.data.entities.Chat
 import com.example.rooster.data.entities.Message
-import com.example.rooster.data.repositories.ChatRepository
-import com.example.rooster.data.repositories.UserRepository
-import com.example.rooster.util.ShoppingCartManager
+import com.example.rooster.MessagingManager
+import com.example.rooster.domain.repository.ChatRepository
+import com.example.rooster.domain.repository.UserRepository
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +34,18 @@ class ChatViewModel @Inject constructor(
 
     private val _chats = MutableStateFlow<List<Chat>>(emptyList())
     val chats: StateFlow<List<Chat>> = _chats
+
+    // Add properties for different message types
+    private val _personalMessages =
+        MutableStateFlow<List<MessagingManager.PersonalMessage>>(emptyList())
+    val personalMessages: StateFlow<List<MessagingManager.PersonalMessage>> = _personalMessages
+
+    private val _groupMessages = MutableStateFlow<List<MessagingManager.GroupMessage>>(emptyList())
+    val groupMessages: StateFlow<List<MessagingManager.GroupMessage>> = _groupMessages
+
+    private val _communityMessages =
+        MutableStateFlow<List<MessagingManager.CommunityMessage>>(emptyList())
+    val communityMessages: StateFlow<List<MessagingManager.CommunityMessage>> = _communityMessages
 
     init {
         loadChats()
@@ -147,5 +159,4 @@ class ChatViewModel @Inject constructor(
             }
         }
     }
-}
 }

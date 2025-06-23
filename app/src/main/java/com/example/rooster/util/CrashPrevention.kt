@@ -28,11 +28,23 @@ object CrashPrevention {
     /**
      * Execute a block of code safely with comprehensive error handling
      */
-    fun <T> safeExecute(
+    fun safeExecute(operation: String, block: () -> Unit): Unit? {
+        return try {
+            block()
+        } catch (e: Exception) {
+            handleException(operation, e)
+            null
+        }
+    }
+
+    /**
+     * Execute a block of code safely with comprehensive error handling and return a result
+     */
+    fun <T> safeExecuteWithResult(
         operation: String,
-        fallback: T? = null,
+        fallback: T,
         block: () -> T,
-    ): T? {
+    ): T {
         return try {
             block()
         } catch (e: Exception) {
@@ -80,7 +92,7 @@ object CrashPrevention {
         key: String,
         defaultValue: T,
     ): T {
-        return safeExecute("Parse get $key") {
+        return safeExecuteWithResult("Parse get $key", defaultValue) {
             when (defaultValue) {
                 is String -> parseObject?.getString(key) as? T ?: defaultValue
                 is Int -> parseObject?.getInt(key) as? T ?: defaultValue
@@ -88,7 +100,7 @@ object CrashPrevention {
                 is Boolean -> parseObject?.getBoolean(key) as? T ?: defaultValue
                 else -> parseObject?.get(key) as? T ?: defaultValue
             }
-        } ?: defaultValue
+        }
     }
 
     /**
@@ -98,7 +110,7 @@ object CrashPrevention {
         list: List<T>?,
         index: Int,
     ): T? {
-        return safeExecute("List access at index $index") {
+        return safeExecuteWithResult("List access at index $index", null) {
             if (list != null && index >= 0 && index < list.size) {
                 list[index]
             } else {
@@ -116,9 +128,7 @@ object CrashPrevention {
         block: (Context) -> T,
     ): T? {
         return if (context != null) {
-            safeExecute("Context $operation") {
-                block(context)
-            }
+            safeExecute("Context $operation", block)
         } else {
             Log.w(TAG, "Context is null for operation: $operation")
             null
@@ -161,8 +171,8 @@ object CrashPrevention {
     ) {
         safeAsync(operation, { onError(it) }) {
             try {
-                val result = block()
-                onSuccess(result)
+                val result = safeExecuteWithResult(operation, null as T?, block)
+                result?.let { onSuccess(it) }
             } catch (e: Exception) {
                 throw e // Re-throw to be caught by safeAsync
             }
@@ -176,9 +186,7 @@ object CrashPrevention {
         operation: String,
         block: () -> Unit,
     ) {
-        safeExecute("UI $operation") {
-            block()
-        }
+        safeExecute("UI $operation", block)
     }
 
     /**
@@ -189,7 +197,7 @@ object CrashPrevention {
         fallback: T? = null,
         block: () -> T,
     ): T? {
-        return safeExecute("Database $operation", fallback) {
+        return safeExecuteWithResult("Database $operation", fallback) {
             block()
         }
     }
@@ -198,7 +206,7 @@ object CrashPrevention {
      * Initialize crash prevention system
      */
     fun getInstance(context: Context) {
-        safeExecute("CrashPrevention initialization") {
+        safeExecute("CrashPrevention initialization", block = {
             // Set up global exception handler
             Thread.setDefaultUncaughtExceptionHandler { thread, exception ->
                 handleException("UncaughtException on ${thread.name}", exception)
@@ -208,7 +216,7 @@ object CrashPrevention {
             }
 
             Log.i(TAG, "CrashPrevention system initialized")
-        }
+        })
     }
 }
 
@@ -221,7 +229,7 @@ fun String?.safeSubstring(
     start: Int,
     end: Int? = null,
 ): String {
-    return CrashPrevention.safeExecute("String substring") {
+    return CrashPrevention.safeExecuteWithResult("String substring", "") {
         if (this != null && start >= 0 && start < length) {
             if (end != null && end <= length && end > start) {
                 substring(start, end)
@@ -231,7 +239,7 @@ fun String?.safeSubstring(
         } else {
             ""
         }
-    } ?: ""
+    }
 }
 
 // Safe collection operations
@@ -245,15 +253,15 @@ fun <T> List<T>?.safeGet(index: Int): T? {
 
 // Safe numeric operations
 fun String?.safeToInt(default: Int = 0): Int {
-    return CrashPrevention.safeExecute("String to Int conversion") {
+    return CrashPrevention.safeExecuteWithResult("String to Int conversion", default) {
         this?.toIntOrNull() ?: default
-    } ?: default
+    }
 }
 
 fun String?.safeToDouble(default: Double = 0.0): Double {
-    return CrashPrevention.safeExecute("String to Double conversion") {
+    return CrashPrevention.safeExecuteWithResult("String to Double conversion", default) {
         this?.toDoubleOrNull() ?: default
-    } ?: default
+    }
 }
 
 // Safe Parse operations

@@ -11,18 +11,33 @@ const Joi = require('joi');
 const { authenticateToken, optionalAuth } = require('./middleware/auth');
 const { getMessage } = require('./config/translations');
 const ParseService = require('./services/parseService');
+const PricePredictor = require('./services/pricePredictor');
 const { initializeSchemas, initializeCloudFunctions } = require('./server/init');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Initialize Parse and schemas
+// Initialize Parse and price predictor services
 const parseService = new ParseService();
+const pricePredictor = new PricePredictor();
 
-// Initialize schemas and cloud functions
-initializeSchemas()
-  .then(() => initializeCloudFunctions())
-  .catch(error => console.error('Error initializing server:', error));
+// Set up the relationship between services
+pricePredictor.setParseService(parseService);
+
+// Initialize server components
+async function initializeServer() {
+  try {
+    console.log('🚀 Initializing Rooster API Server...');
+    console.log('📊 Parse Service ready');
+    console.log('🧮 Price Predictor ready');
+    console.log('✅ Server initialization complete');
+  } catch (error) {
+    console.error('❌ Server initialization failed:', error.message);
+  }
+}
+
+// Initialize on startup
+initializeServer();
 
 // Security and optimization middleware
 app.use(helmet({

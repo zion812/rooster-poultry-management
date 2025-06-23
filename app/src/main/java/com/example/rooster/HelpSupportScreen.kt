@@ -53,12 +53,13 @@ fun HelpSupportScreen(
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     ),
             )
-        },
+        }
     ) { paddingValues ->
-        StandardScreenLayout(scrollable = true) {
-                    .padding(paddingValues)
-                    .fillMaxSize()
-                    .padding(16.dp),
+        LazyColumn(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .padding(16.dp),
         ) {
             item {
                 SupportSectionTitle("FAQ")

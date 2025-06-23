@@ -2,12 +2,13 @@ package com.example.rooster.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.rooster.data.entities.CoinTransaction
 import com.example.rooster.data.entities.CoinTransactionType
 import com.example.rooster.data.entities.Payment
 import com.example.rooster.data.entities.PaymentMethod
 import com.example.rooster.data.entities.PaymentStatus
 import com.example.rooster.data.repositories.PaymentRepository
-import com.example.rooster.data.repositories.UserRepository
+import com.example.rooster.domain.repository.UserRepository
 import com.example.rooster.util.ShoppingCartManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -68,6 +69,7 @@ class PaymentViewModel @Inject constructor(
                     PaymentMethod.CARD -> processOnlinePayment(payment)
                     PaymentMethod.NET_BANKING -> processOnlinePayment(payment)
                     PaymentMethod.WALLET -> processOnlinePayment(payment)
+                    PaymentMethod.COD -> processCodPayment(payment)
                 }
             } catch (e: Exception) {
                 FirebaseCrashlytics.getInstance().recordException(e)
@@ -88,7 +90,7 @@ class PaymentViewModel @Inject constructor(
             val transaction = paymentRepository.createCoinTransaction(
                 userId = currentUser.userId,
                 amount = -coinsRequired,
-                type = CoinTransactionType.PURCHASE,
+                type = CoinTransactionType.SPEND,
                 description = "Payment for order ${payment.orderId}"
             )
 
@@ -119,6 +121,14 @@ class PaymentViewModel @Inject constructor(
         } else {
             _paymentStatus.value = PaymentStatus.FAILED
         }
+    }
+
+    private suspend fun processCodPayment(payment: Payment) {
+        // For COD, payment is considered completed without actual processing
+        paymentRepository.completePayment(payment.copy(
+            status = PaymentStatus.COMPLETED
+        ))
+        _paymentStatus.value = PaymentStatus.COMPLETED
     }
 
     fun loadAvailableCoins() {
@@ -159,11 +169,11 @@ class PaymentViewModel @Inject constructor(
         }
     }
 
-    fun getPaymentHistory(): List<Payment> {
+    suspend fun getPaymentHistory(): List<Payment> {
         return paymentRepository.getPaymentHistory(userRepository.getCurrentUser().userId)
     }
 
-    fun getCoinTransactions(): List<CoinTransaction> {
+    suspend fun getCoinTransactions(): List<CoinTransaction> {
         return paymentRepository.getCoinTransactions(userRepository.getCurrentUser().userId)
     }
 }

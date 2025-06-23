@@ -2,8 +2,9 @@ package com.example.rooster.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -47,11 +48,11 @@ fun ProfileEditScreen(
                 title = { Text(if (isTeluguMode) "సంపాదించండి" else "Edit Profile") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
-                    IconButton(onClick = onLanguageToggle) {
+                    TextButton(onClick = onLanguageToggle) {
                         Text(if (isTeluguMode) "EN" else "తె")
                     }
                 },
@@ -66,16 +67,18 @@ fun ProfileEditScreen(
             if (loading) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             } else {
-                StandardScreenLayout(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top,
-                    scrollable = true
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    Column(
-                        Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text(if (isTeluguMode) "పేరు" else "Name") },
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     OutlinedTextField(
                         value = location,
@@ -93,7 +96,7 @@ fun ProfileEditScreen(
                                 .height(120.dp),
                         maxLines = 5,
                     )
-                    Spacer(Modifier.weight(1f))
+                    Spacer(Modifier.height(16.dp))
                     Button(
                         onClick = {
                             scope.launch {

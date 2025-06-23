@@ -24,13 +24,18 @@ import androidx.navigation.navDeepLink
 import com.example.rooster.auth.AuthViewModel
 import com.example.rooster.payment.DummyPaymentScreen
 import com.example.rooster.screens.AuctionsScreen
+import com.example.rooster.screens.AuthScreen
+import com.example.rooster.screens.CommunityScreen
 import com.example.rooster.screens.FarmerHomeScreen
 import com.example.rooster.screens.FlockMonitoringScreen
 import com.example.rooster.screens.HighLevelHomeScreen
 import com.example.rooster.screens.MarketplaceScreen
+import com.example.rooster.screens.MarketplaceListingCreateScreen
+import com.example.rooster.screens.MarketplaceListingDetailScreen
+import com.example.rooster.screens.MarketplaceListingEditScreen
 import com.example.rooster.screens.SimpleSellBirdsScreen
 import com.example.rooster.screens.SimpleViewBirdsScreen
-import com.example.rooster.ui.navigation.AuthNavigation
+import com.example.rooster.ui.navigation.NavigationRoute
 import com.example.rooster.ui.theme.RoosterTheme
 import com.razorpay.PaymentResultListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -93,12 +98,12 @@ fun RoosterApp() {
 
     val startDestination = if (authState.isAuthenticated) {
         when (authViewModel.normalizedUserRole) {
-            "farmer" -> "farmer_home"
-            "highlevel", "high_level" -> "high_level_home"
-            else -> "marketplace"
+            "farmer" -> NavigationRoute.FarmerHome.route
+            "highlevel", "high_level" -> NavigationRoute.HighLevelHome.route
+            else -> NavigationRoute.Marketplace.route
         }
     } else {
-        "auth"
+        NavigationRoute.Auth.route
     }
 
     NavHost(
@@ -106,12 +111,16 @@ fun RoosterApp() {
         startDestination = startDestination
     ) {
         // Authentication Screen
-        composable("auth") {
-            AuthNavigation(navController = navController)
+        composable(NavigationRoute.Auth.route) {
+            AuthScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
+            )
         }
 
         // Marketplace Screen
-        composable("marketplace") {
+        composable(NavigationRoute.Marketplace.route) {
             MarketplaceScreen(
                 navController = navController,
                 isTeluguMode = isTeluguMode,
@@ -120,7 +129,7 @@ fun RoosterApp() {
         }
 
         // Farmer Home Screen
-        composable("farmer_home") {
+        composable(NavigationRoute.FarmerHome.route) {
             FarmerHomeScreen(
                 navController = navController,
                 isTeluguMode = isTeluguMode,
@@ -129,7 +138,7 @@ fun RoosterApp() {
         }
 
         // High Level Home Screen
-        composable("high_level_home") {
+        composable(NavigationRoute.HighLevelHome.route) {
             HighLevelHomeScreen(
                 navController = navController,
                 isTeluguMode = isTeluguMode,
@@ -139,7 +148,7 @@ fun RoosterApp() {
 
         // Simple View Birds Screen - Fix navigation crash
         composable(
-            "simple_view_birds",
+            NavigationRoute.SimpleViewBirds.route,
             deepLinks = listOf(
                 navDeepLink { uriPattern = "android-app://androidx.navigation/simple_view_birds" }
             )
@@ -153,7 +162,7 @@ fun RoosterApp() {
 
         // Simple Sell Birds Screen - Fix navigation crash
         composable(
-            "simple_sell_birds",
+            NavigationRoute.SimpleSellBirds.route,
             deepLinks = listOf(
                 navDeepLink { uriPattern = "android-app://androidx.navigation/simple_sell_birds" }
             )
@@ -189,37 +198,89 @@ fun RoosterApp() {
 
         // Auctions Screen - Fix navigation crash
         composable(
-        "auctions",
-        deepLinks = listOf(
-        navDeepLink { uriPattern = "android-app://androidx.navigation/auctions" }
-        )
+            NavigationRoute.Auctions.route,
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "android-app://androidx.navigation/auctions" }
+            )
         ) {
-        AuctionsScreen(
-        navController = navController,
-        isTeluguMode = isTeluguMode,
-        onLanguageToggle = { isTeluguMode = !isTeluguMode }
-        )
+            AuctionsScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
+            )
+        }
+
+        // Add all navigation routes from NavigationRoute class
+        composable(NavigationRoute.Cart.route) {
+            // CartScreen placeholder
+            Text("Cart Screen - Coming Soon")
+        }
+
+        composable(NavigationRoute.OrderHistory.route) {
+            // OrderHistoryScreen placeholder  
+            Text("Order History Screen - Coming Soon")
+        }
+
+        composable(NavigationRoute.ProfileEdit.route) {
+            // ProfileEditScreen placeholder
+            Text("Profile Edit Screen - Coming Soon")
+        }
+
+        composable(NavigationRoute.HelpSupport.route) {
+            // HelpSupportScreen placeholder
+            Text("Help & Support Screen - Coming Soon")
+        }
+
+        composable(NavigationRoute.ComprehensiveMessaging.route) {
+            // MessagingScreen placeholder
+            Text("Messaging Screen - Coming Soon")
+        }
+
+        composable(NavigationRoute.Fowl.route) {
+            // FowlScreen placeholder
+            Text("Fowl Management Screen - Coming Soon")
+        }
+
+        composable(NavigationRoute.Diagnostics.route) {
+            // DiagnosticsScreen placeholder
+            Text("Diagnostics Screen - Coming Soon")
+        }
+
+        composable(NavigationRoute.HealthManagement.route) {
+            // HealthManagementScreen placeholder
+            Text("Health Management Screen - Coming Soon")
         }
 
         composable(NavigationRoute.MarketplaceListingCreate.route) {
             MarketplaceListingCreateScreen(navController = navController, isTeluguMode = isTeluguMode)
         }
-        composable(NavigationRoute.MarketplaceListingEdit.base) {
-        val listingId = it.arguments?.getString("listingId") ?: ""
-        MarketplaceListingEditScreen(navController = navController, listingId = listingId, isTeluguMode = isTeluguMode)
-        }
-        composable(NavigationRoute.MarketplaceListingDetail.base) {
-                    val listingId = it.arguments?.getString("listingId") ?: ""
-                    MarketplaceListingDetailScreen(navController = navController, listingId = listingId, isTeluguMode = isTeluguMode)
-                }
 
-                // Flock Monitoring Screen - Fix navigation crash
-                composable("flock_monitoring") {
-                    FlockMonitoringScreen(
-                        navController = navController,
-                        isTeluguMode = isTeluguMode,
-                        onLanguageToggle = { isTeluguMode = !isTeluguMode }
-                    )
-                }
+        composable(NavigationRoute.MarketplaceListingEdit.base) {
+            val listingId = it.arguments?.getString("listingId") ?: ""
+            MarketplaceListingEditScreen(navController = navController, listingId = listingId, isTeluguMode = isTeluguMode)
+        }
+
+        composable(NavigationRoute.MarketplaceListingDetail.base) {
+            val listingId = it.arguments?.getString("listingId") ?: ""
+            MarketplaceListingDetailScreen(navController = navController, listingId = listingId, isTeluguMode = isTeluguMode)
+        }
+
+        // Community Screen
+        composable(NavigationRoute.Community.route) {
+            CommunityScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
+            )
+        }
+
+        // Flock Monitoring Screen - Fix navigation crash
+        composable(NavigationRoute.FlockMonitoring.route) {
+            FlockMonitoringScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
+            )
+        }
     }
 }

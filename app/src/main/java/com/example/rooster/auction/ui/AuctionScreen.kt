@@ -47,7 +47,6 @@ fun AuctionScreen(
     onLanguageToggle: () -> Unit,
     viewModel: SimpleAuctionViewModel = hiltViewModel()
 ) {
-    StandardScreenLayout(scrollable = true) {
     val uiState by viewModel.uiState.collectAsState()
     val auctions by viewModel.auctions.collectAsState()
     val context = LocalContext.current

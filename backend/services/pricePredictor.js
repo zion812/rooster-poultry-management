@@ -6,8 +6,9 @@ const { getMessage, formatPrice, getTrendDescription } = require('../config/tran
  * Optimized for rural farming decisions
  */
 class PricePredictor {
-  constructor(parseService) {
-    this.parseService = parseService;
+  constructor() {
+    // Initialize parseService if available
+    this.parseService = null;
     this.regionalFactors = {
       'Andhra Pradesh': 1.05,
       'Telangana': 1.03,
@@ -15,6 +16,14 @@ class PricePredictor {
       'Tamil Nadu': 1.04,
       'default': 1.00
     };
+  }
+
+  /**
+   * Set Parse Service for data operations
+   * @param {Object} parseService - Parse service instance
+   */
+  setParseService(parseService) {
+    this.parseService = parseService;
   }
 
   /**

@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class BidUpdate(
     val auctionId: String,
-    val bidderId: String,
-    val amount: Double,
-    val timestamp: Long,
+    val bidAmount: Double,
+    val bidderName: String,
+    val timestamp: Long = System.currentTimeMillis()
 )

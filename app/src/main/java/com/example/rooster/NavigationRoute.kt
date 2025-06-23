@@ -1,6 +1,6 @@
 package com.example.rooster
 
-sealed class NavigationRoute(val route: String) {
+open class NavigationRoute(val route: String) {
     object Auth : NavigationRoute("auth")
     object Home : NavigationRoute("home")
     object FarmerHome : NavigationRoute("farmer_home")
@@ -64,6 +64,21 @@ sealed class NavigationRoute(val route: String) {
     object FarmUpdateIncubation : NavigationRoute("farm_update_incubation")
     object FarmUpdateBreeders : NavigationRoute("farm_update_breeders")
     object FarmUpdateEggs : NavigationRoute("farm_update_eggs")
+    object Cart : NavigationRoute("cart")
+    object OrderHistory : NavigationRoute("order_history")
+    data class OrderDetail(val orderId: String) : NavigationRoute("order_detail/$orderId") {
+        companion object {
+            const val base = "order_detail/{orderId}"
+        }
+    }
+
+    object Payment : NavigationRoute("payment")
+    object ProfileEdit : NavigationRoute("profile_edit")
+    object HelpSupport : NavigationRoute("help_support")
+    object ComprehensiveMessaging : NavigationRoute("comprehensive_messaging")
+    object Fowl : NavigationRoute("fowl")
+    object Diagnostics : NavigationRoute("diagnostics")
+    object HealthManagement : NavigationRoute("health_management")
     // Add more routes as needed
 
     companion object {
@@ -112,6 +127,16 @@ sealed class NavigationRoute(val route: String) {
                 route == FarmUpdateIncubation.route -> FarmUpdateIncubation
                 route == FarmUpdateBreeders.route -> FarmUpdateBreeders
                 route == FarmUpdateEggs.route -> FarmUpdateEggs
+                route == Cart.route -> Cart
+                route == OrderHistory.route -> OrderHistory
+                route.startsWith("order_detail/") -> OrderDetail(route.removePrefix("order_detail/"))
+                route == Payment.route -> Payment
+                route == ProfileEdit.route -> ProfileEdit
+                route == HelpSupport.route -> HelpSupport
+                route == ComprehensiveMessaging.route -> ComprehensiveMessaging
+                route == Fowl.route -> Fowl
+                route == Diagnostics.route -> Diagnostics
+                route == HealthManagement.route -> HealthManagement
                 else -> null
             }
         }

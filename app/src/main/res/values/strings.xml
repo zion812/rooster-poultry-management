@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Core and Authentication -->
     <string name="app_name">Rooster</string>
     <string name="login">Login</string>
     <string name="register">Register</string>
@@ -21,8 +20,6 @@
     <string name="auth_success">Authentication Successful</string>
     <string name="processing_auth">Processing Authentication...</string>
     <string name="profile_setup_title">Profile Setup</string>
-
-    <!-- Navigation -->
     <string name="home">Home</string>
     <string name="marketplace">Marketplace</string>
     <string name="marketplace_title">Marketplace</string>
@@ -30,8 +27,6 @@
     <string name="profile">Profile</string>
     <string name="settings">Settings</string>
     <string name="settings_title">Settings</string>
-
-    <!-- Core Actions -->
     <string name="search">Search</string>
     <string name="save">Save</string>
     <string name="save_button">Save</string>
@@ -62,8 +57,6 @@
     <string name="listings">Listings</string>
     <string name="share_profile">Share Profile</string>
     <string name="posts">Posts</string>
-
-    <!-- Placeholders for all missing/misc keys -->
     <string name="analytics">Analytics</string>
     <string name="attach_photos">Attach Photos</string>
     <string name="auction_ended">Auction Ended</string>
@@ -117,7 +110,6 @@
     <string name="data_saved_successfully">Data Saved Successfully</string>
     <string name="delete_flock_warning">Delete Flock Warning</string>
     <string name="disease_resistance">Disease Resistance</string>
-    <string name="done">Done</string>
     <string name="dressed_price">Dressed Price</string>
     <string name="egg_laying_birds">Egg Laying Birds</string>
     <string name="egg_production_rate">Egg Production Rate</string>
@@ -151,7 +143,6 @@
     <string name="flock_monitoring">Flock Monitoring</string>
     <string name="flock_summary">Flock Summary</string>
     <string name="flock_updated_success">Flock Updated Success</string>
-    <string name="followers">Followers</string>
     <string name="following">Following</string>
     <string name="fowl_details">Fowl Details</string>
     <string name="fowl_management">Fowl Management</string>
@@ -168,8 +159,8 @@
     <string name="healthy_birds">Healthy Birds</string>
     <string name="healthy_count">Healthy Count</string>
     <string name="help">Help</string>
-    <string name="help_support">Help & Support</string>
-    <string name="help_support_title">Help & Support Title</string>
+    <string name="help_support">Help &amp; Support</string>
+    <string name="help_support_title">Help &amp; Support Title</string>
     <string name="highest_bidder">Highest Bidder</string>
     <string name="icon">Icon</string>
     <string name="iot_dashboard">IoT Dashboard</string>
@@ -181,7 +172,6 @@
     <string name="listing_description">Listing Description</string>
     <string name="listing_price">Listing Price</string>
     <string name="listing_title">Listing Title</string>
-    <string name="listings">Listings</string>
     <string name="live_auctions">Live Auctions</string>
     <string name="live_weight_price">Live Weight Price</string>
     <string name="loading_auctions">Loading Auctions</string>
@@ -253,7 +243,6 @@
     <string name="place_bid">Place Bid</string>
     <string name="place_cod_order">Place COD Order</string>
     <string name="posts_tab">Posts Tab</string>
-    <string name="posts">Posts</string>
     <string name="pre_orders">Pre Orders</string>
     <string name="pre_orders_description">Pre Orders Description</string>
     <string name="price">Price</string>
@@ -270,7 +259,6 @@
     <string name="razorpay_key_test">Razorpay Key Test</string>
     <string name="read">Read</string>
     <string name="record_feeding">Record Feeding</string>
-    <string name="refresh">Refresh</string>
     <string name="resume">Resume</string>
     <string name="role_management">Role Management</string>
     <string name="role">Role</string>
@@ -286,14 +274,12 @@
     <string name="server_error">Server Error</string>
     <string name="services">Services</string>
     <string name="share_post">Share Post</string>
-    <string name="share_profile">Share Profile</string>
     <string name="showColorName">Show Color Name</string>
     <string name="showColorPreview">Show Color Preview</string>
     <string name="showDefaultColorButton">Show Default Color Button</string>
     <string name="showOldColorButton">Show Old Color Button</string>
     <string name="sick_count">Sick Count</string>
     <string name="size">Size</string>
-    <string name="skip">Skip</string>
     <string name="sold_label">Sold Label</string>
     <string name="special_instructions">Special Instructions</string>
     <string name="specialties_label">Specialties Label</string>
@@ -359,9 +345,6 @@
     <string name="winter_management">Winter Management</string>
     <string name="your_bid_amount">Your Bid Amount</string>
     <string name="yes_label">Yes</string>
-
-    <!-- Most common dialog keys -->
-    <string name="select_language">Select Language</string>
     <string name="create_template">Create Template</string>
     <string name="template_name">Template Name</string>
     <string name="template_description">Template Description</string>
@@ -369,9 +352,7 @@
     <string name="chart_type">Chart Type</string>
     <string name="date_range">Date Range</string>
     <string name="frequency">Frequency</string>
-    <string name="submit">Submit</string>
     <string name="create_category">Create Category</string>
     <string name="category_name">Category Name</string>
     <string name="category_description">Category Description</string>
-    <string name="icon">Icon</string>
 </resources>

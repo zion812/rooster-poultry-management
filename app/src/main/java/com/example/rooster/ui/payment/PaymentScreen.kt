@@ -1,6 +1,8 @@
 package com.example.rooster.ui.payment
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,9 +21,13 @@ fun PaymentScreen(
     var paymentMethod by remember { mutableStateOf("COD") }
     val isProcessing by orderViewModel.isProcessing.collectAsState()
 
-    StandardScreenLayout(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        scrollable = true
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text("Choose Payment Method", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(16.dp))

@@ -50,8 +50,7 @@ class EnhancedFowlDataFetcher
                     farmerId?.let { query.whereEqualTo("ownerId", it) }
                     query.whereEqualTo("isActive", true)
                     query.orderByDescending("createdAt")
-                    query.findInBackground { objects, _ -> objects ?: emptyList() }
-                    query.find() // Synchronous call for demonstration
+                    query.find() // Return the synchronous result
                 },
             )
         }

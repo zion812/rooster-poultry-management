@@ -7,8 +7,8 @@ import com.example.rooster.data.entities.Post
 import com.example.rooster.data.entities.PostInteraction
 import com.example.rooster.data.entities.PostType
 import com.example.rooster.data.entities.InteractionType
-import com.example.rooster.data.repositories.PostRepository
-import com.example.rooster.data.repositories.UserRepository
+import com.example.rooster.domain.repository.PostRepository
+import com.example.rooster.domain.repository.UserRepository
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
