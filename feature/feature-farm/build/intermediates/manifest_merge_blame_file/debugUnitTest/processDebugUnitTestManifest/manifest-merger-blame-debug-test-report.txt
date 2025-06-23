@@ -3,20 +3,20 @@
 3    package="com.example.rooster.feature.farm.test" >
 4
 5    <uses-sdk
-5-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest11712330915213843108.xml:5:5-74
+5-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest12559303685930268860.xml:5:5-74
 6        android:minSdkVersion="24"
-6-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest11712330915213843108.xml:5:15-41
+6-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest12559303685930268860.xml:5:15-41
 7        android:targetSdkVersion="24" />
-7-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest11712330915213843108.xml:5:42-71
+7-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest12559303685930268860.xml:5:42-71
 8
 9    <instrumentation
-9-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest11712330915213843108.xml:11:5-13:87
+9-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest12559303685930268860.xml:11:5-13:87
 10        android:name="android.test.InstrumentationTestRunner"
-10-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest11712330915213843108.xml:11:22-75
+10-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest12559303685930268860.xml:11:22-75
 11        android:label="Tests for com.example.rooster.feature.farm.test"
-11-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest11712330915213843108.xml:13:22-85
+11-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest12559303685930268860.xml:13:22-85
 12        android:targetPackage="com.example.rooster.feature.farm.test" />
-12-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest11712330915213843108.xml:12:22-83
+12-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest12559303685930268860.xml:12:22-83
 13
 14    <!-- Although the *SdkVersion is captured in gradle build files, this is required for non gradle builds -->
 15    <!-- <uses-sdk android:minSdkVersion="21" /> -->
@@ -42,14 +42,14 @@
 24-->[androidx.core:core:1.15.0] /home/user/.gradle/caches/8.11.1/transforms/66f43b82deffc7be0230c2fc982084cd/transformed/core-1.15.0/AndroidManifest.xml:26:22-94
 25
 26    <application
-26-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest11712330915213843108.xml:7:5-9:19
+26-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest12559303685930268860.xml:7:5-9:19
 27        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
 27-->[androidx.core:core:1.15.0] /home/user/.gradle/caches/8.11.1/transforms/66f43b82deffc7be0230c2fc982084cd/transformed/core-1.15.0/AndroidManifest.xml:28:18-86
 28        android:debuggable="true" >
-28-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest11712330915213843108.xml:7:18-43
+28-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest12559303685930268860.xml:7:18-43
 29        <uses-library android:name="android.test.runner" />
-29-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest11712330915213843108.xml:8:9-60
-29-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest11712330915213843108.xml:8:23-57
+29-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest12559303685930268860.xml:8:9-60
+29-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-farm/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest12559303685930268860.xml:8:23-57
 30
 31        <service
 31-->[androidx.room:room-runtime:2.6.1] /home/user/.gradle/caches/8.11.1/transforms/7b3272e737b20672c368743d7c3d7189/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
