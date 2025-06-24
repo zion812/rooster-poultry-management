@@ -55,8 +55,8 @@ class BackgroundVerificationService
         }
 
         /**
-         * Initialize background verification checks
-         */
+ * Initialize background verification checks
+ */
         fun initializeBackgroundChecks() {
             try {
                 schedulePeriodicVerificationCheck()
@@ -67,8 +67,8 @@ class BackgroundVerificationService
         }
 
         /**
-         * Check verification status for current user
-         */
+ * Check verification status for current user
+ */
         suspend fun checkCurrentUserVerification(): Result<VerificationStatus> {
             return try {
                 val currentUser =
@@ -83,8 +83,8 @@ class BackgroundVerificationService
         }
 
         /**
-         * Check verification status for specific user
-         */
+ * Check verification status for specific user
+ */
         suspend fun checkUserVerification(userId: String): Result<VerificationStatus> {
             return try {
                 // Add to pending checks
@@ -127,8 +127,8 @@ class BackgroundVerificationService
         }
 
         /**
-         * Batch check verification for multiple users
-         */
+ * Batch check verification for multiple users
+ */
         suspend fun batchCheckVerifications(userIds: List<String>): Result<Map<String, VerificationStatus>> {
             return try {
                 val results = mutableMapOf<String, VerificationStatus>()
@@ -176,15 +176,15 @@ class BackgroundVerificationService
         }
 
         /**
-         * Get cached verification status
-         */
+ * Get cached verification status
+ */
         fun getCachedVerificationStatus(userId: String): VerificationStatus? {
             return _verificationStates.value[userId]
         }
 
         /**
-         * Check if verification data is stale and needs refresh
-         */
+ * Check if verification data is stale and needs refresh
+ */
         fun isVerificationStale(
             userId: String,
             maxAgeMs: Long = 30 * 60 * 1000L,
@@ -198,15 +198,15 @@ class BackgroundVerificationService
         }
 
         /**
-         * Trigger immediate verification refresh for user
-         */
+ * Trigger immediate verification refresh for user
+ */
         suspend fun refreshUserVerification(userId: String): Result<VerificationStatus> {
             return checkUserVerification(userId)
         }
 
         /**
-         * Get verification badge display text
-         */
+ * Get verification badge display text
+ */
         fun getVerificationBadgeText(
             status: VerificationStatus,
             isTeluguMode: Boolean = false,

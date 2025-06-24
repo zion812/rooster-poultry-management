@@ -18,5 +18,5 @@ data class Auction(
     val minBidIncrement: Double = 100.0,
     val imageUrl: String = "",
     val quantity: Int = 1,
-    val location: String = ""
+    val location: String = "",
 )

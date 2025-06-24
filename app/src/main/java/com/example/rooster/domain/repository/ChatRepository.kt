@@ -7,12 +7,11 @@ import com.example.rooster.data.entities.Message
  * Domain interface for chat operations
  */
 interface ChatRepository {
-
     suspend fun createMessage(
         chatId: String,
         senderId: String,
         content: String,
-        mediaUrl: String? = null
+        mediaUrl: String? = null,
     ): Message
 
     suspend fun getMessages(chatId: String): List<Message>
@@ -26,14 +25,23 @@ interface ChatRepository {
     suspend fun updateChatLastMessage(
         chatId: String,
         lastMessage: String,
-        lastMessageTime: Long
+        lastMessageTime: Long,
     )
 
-    suspend fun updateChatUnreadCount(chatId: String, unreadCount: Int)
+    suspend fun updateChatUnreadCount(
+        chatId: String,
+        unreadCount: Int,
+    )
 
     suspend fun deleteMessage(messageId: String)
 
-    suspend fun createChat(userId1: String, userId2: String): Chat
+    suspend fun createChat(
+        userId1: String,
+        userId2: String,
+    ): Chat
 
-    suspend fun searchChats(userId: String, query: String): List<Chat>
+    suspend fun searchChats(
+        userId: String,
+        query: String,
+    ): List<Chat>
 }

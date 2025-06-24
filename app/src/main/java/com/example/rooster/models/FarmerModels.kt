@@ -12,7 +12,7 @@ data class AuctionBid(
     val amount: Double,
     val timestamp: Long = System.currentTimeMillis(),
     val status: BidStatus = BidStatus.PENDING,
-    val isApproved: Boolean = false
+    val isApproved: Boolean = false,
 )
 
 // --- Certification Models ---

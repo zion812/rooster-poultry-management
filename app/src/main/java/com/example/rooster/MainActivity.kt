@@ -21,17 +21,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navDeepLink
 import com.example.rooster.models.UserRole
-import com.example.rooster.ui.navigation.NavigationRoute
-import com.example.rooster.viewmodel.AuthViewModel
 import com.example.rooster.ui.theme.RoosterTheme
+import com.example.rooster.viewmodel.AuthViewModel
 import com.razorpay.PaymentResultListener
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(), PaymentResultListener {
-
     // Payment result handling for Razorpay
     private var onPaymentResult: ((Boolean, String?, String?) -> Unit)? = null
 
@@ -44,15 +41,19 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
         onPaymentResult?.invoke(true, paymentId, null)
     }
 
-    override fun onPaymentError(code: Int, response: String?) {
+    override fun onPaymentError(
+        code: Int,
+        response: String?,
+    ) {
         Log.e("MainActivity", "Payment failed: Code $code, Response $response")
 
-        val errorMessage = when (code) {
-            1 -> "Network error - Please check your connection"
-            2 -> "Invalid payment credentials"
-            0 -> "Payment cancelled by user"
-            else -> "Payment failed: $response"
-        }
+        val errorMessage =
+            when (code) {
+                1 -> "Network error - Please check your connection"
+                2 -> "Invalid payment credentials"
+                0 -> "Payment cancelled by user"
+                else -> "Payment failed: $response"
+            }
 
         onPaymentResult?.invoke(false, null, errorMessage)
     }
@@ -64,7 +65,7 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
             RoosterTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     RoosterApp()
                 }
@@ -85,57 +86,48 @@ fun RoosterApp() {
         authViewModel.checkAuthState()
     }
 
-    val startDestination = if (authState.isAuthenticated) {
-        when (authViewModel.normalizedUserRole) {
-            UserRole.FARMER -> NavigationRoute.FARMER_HOME.route
-            UserRole.HIGH_LEVEL -> NavigationRoute.HIGH_LEVEL_HOME.route
-            else -> NavigationRoute.MARKETPLACE.route
+    val startDestination =
+        if (authState.isAuthenticated) {
+            when (authViewModel.normalizedUserRole) {
+                UserRole.FARMER -> NavigationRoute.FarmerHome.route
+                UserRole.HIGH_LEVEL -> NavigationRoute.HighLevelHome.route
+                else -> NavigationRoute.Marketplace.route
+            }
+        } else {
+            NavigationRoute.Auth.route
         }
-    } else {
-        NavigationRoute.AUTH.route
-    }
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = startDestination,
     ) {
         // Authentication Screen
-        composable(NavigationRoute.AUTH.route) {
+        composable(NavigationRoute.Auth.route) {
             Text("Auth Screen - Coming Soon")
         }
 
         // Marketplace Screen
-        composable(NavigationRoute.MARKETPLACE.route) {
+        composable(NavigationRoute.Marketplace.route) {
             Text("Marketplace Screen - Coming Soon")
         }
 
         // Farmer Home Screen
-        composable(NavigationRoute.FARMER_HOME.route) {
+        composable(NavigationRoute.FarmerHome.route) {
             Text("Farmer Home Screen - Coming Soon")
         }
 
         // High Level Home Screen
-        composable(NavigationRoute.HIGH_LEVEL_HOME.route) {
+        composable(NavigationRoute.HighLevelHome.route) {
             Text("High Level Home Screen - Coming Soon")
         }
 
         // Simple View Birds Screen - Fix navigation crash
-        composable(
-            NavigationRoute.SIMPLE_VIEW_BIRDS.route,
-            deepLinks = listOf(
-                navDeepLink { uriPattern = "android-app://androidx.navigation/simple_view_birds" }
-            )
-        ) {
+        composable(NavigationRoute.SimpleViewBirds.route) {
             Text("Simple View Birds Screen - Coming Soon")
         }
 
         // Simple Sell Birds Screen - Fix navigation crash
-        composable(
-            NavigationRoute.SIMPLE_SELL_BIRDS.route,
-            deepLinks = listOf(
-                navDeepLink { uriPattern = "android-app://androidx.navigation/simple_sell_birds" }
-            )
-        ) {
+        composable(NavigationRoute.SimpleSellBirds.route) {
             Text("Simple Sell Birds Screen - Coming Soon")
         }
 
@@ -152,56 +144,51 @@ fun RoosterApp() {
         }
 
         // Auctions Screen - Fix navigation crash
-        composable(
-            NavigationRoute.AUCTIONS.route,
-            deepLinks = listOf(
-                navDeepLink { uriPattern = "android-app://androidx.navigation/auctions" }
-            )
-        ) {
+        composable(NavigationRoute.Auctions.route) {
             Text("Auctions Screen - Coming Soon")
         }
 
         // Cart Screen
-        composable(NavigationRoute.CART.route) {
+        composable(NavigationRoute.Cart.route) {
             Text("Cart Screen - Coming Soon")
         }
 
         // Order History Screen
-        composable(NavigationRoute.ORDER_HISTORY.route) {
+        composable(NavigationRoute.OrderHistory.route) {
             Text("Order History Screen - Coming Soon")
         }
 
         // Profile Screen
-        composable(NavigationRoute.PROFILE.route) {
+        composable(NavigationRoute.Profile.route) {
             Text("Profile Screen - Coming Soon")
         }
 
         // Help Screen
-        composable(NavigationRoute.HELP.route) {
+        composable(NavigationRoute.Help.route) {
             Text("Help Screen - Coming Soon")
         }
 
         // Compliance Screen
-        composable(NavigationRoute.COMPLIANCE_SCREEN.route) {
+        composable(NavigationRoute.ComplianceScreen.route) {
             Text("Compliance Screen - Coming Soon")
         }
 
         // Fowl Traceability Screen
-        composable(NavigationRoute.FOWL_TRACEABILITY.route) {
+        composable(NavigationRoute.FowlTraceability.route) {
             Text("Fowl Management Screen - Coming Soon")
         }
 
         // Diagnosis Help Screen
-        composable(NavigationRoute.DIAGNOSIS_HELP.route) {
+        composable(NavigationRoute.DiagnosisHelp.route) {
             Text("Diagnostics Screen - Coming Soon")
         }
 
         // Health Records Screen
-        composable(NavigationRoute.HEALTH_RECORDS.route) {
+        composable(NavigationRoute.HealthRecords.route) {
             Text("Health Management Screen - Coming Soon")
         }
 
-        composable(NavigationRoute.MARKETPLACE_LISTING_CREATE.route) {
+        composable(NavigationRoute.MarketplaceListingCreate.route) {
             Text("Marketplace Listing Create Screen - Coming Soon")
         }
 
@@ -216,12 +203,12 @@ fun RoosterApp() {
         }
 
         // Community Screen
-        composable(NavigationRoute.COMMUNITY.route) {
+        composable(NavigationRoute.Community.route) {
             Text("Community Screen - Coming Soon")
         }
 
         // Flock Monitoring Screen - Fix navigation crash
-        composable(NavigationRoute.FLOCK_MONITORING.route) {
+        composable(NavigationRoute.FlockMonitoring.route) {
             Text("Flock Monitoring Screen - Coming Soon")
         }
     }

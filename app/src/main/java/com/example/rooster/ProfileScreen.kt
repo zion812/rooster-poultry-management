@@ -27,17 +27,18 @@ fun ProfileScreen(
     onLanguageToggle: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Icon(
             imageVector = Icons.Default.Person,
             contentDescription = null,
             modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.primary,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -45,7 +46,7 @@ fun ProfileScreen(
         Text(
             text = if (isTeluguMode) "ప్రొఫైల్" else "Profile",
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -53,14 +54,14 @@ fun ProfileScreen(
         Text(
             text = if (isTeluguMode) "త్వరలో అందుబాటులోకి వస్తుంది" else "Coming Soon",
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(onClick = onLanguageToggle) {
             Text(
-                text = if (isTeluguMode) "Switch to English" else "తెలుగుకు మారండి"
+                text = if (isTeluguMode) "Switch to English" else "తెలుగుకు మారండి",
             )
         }
     }

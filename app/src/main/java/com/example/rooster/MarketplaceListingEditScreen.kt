@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -17,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -29,24 +29,24 @@ fun MarketplaceListingEditScreen(
     navController: NavController,
     listingId: String,
     isTeluguMode: Boolean,
-    onBack: () -> Unit = { navController.popBackStack() }
+    onBack: () -> Unit = { navController.popBackStack() },
 ) {
     StandardScreenLayout(
         horizontalAlignment = Alignment.CenterHorizontally,
-        scrollable = true
+        scrollable = true,
     ) {
         TopAppBar(
             title = {
                 Text(
                     text = if (isTeluguMode) "లిస్టింగ్ సవరించండి" else "Edit Listing",
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             },
             navigationIcon = {
                 Button(onClick = onBack) {
                     Text(if (isTeluguMode) "వెనుక" else "Back")
                 }
-            }
+            },
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -60,13 +60,13 @@ fun MarketplaceListingEditScreen(
                 text = if (isTeluguMode) "లిస్టింగ్ ID: $listingId" else "Listing ID: $listingId",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             )
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
                 label = { Text(if (isTeluguMode) "శీర్షిక" else "Title") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
@@ -74,19 +74,19 @@ fun MarketplaceListingEditScreen(
                 onValueChange = { description = it },
                 label = { Text(if (isTeluguMode) "వివరణ" else "Description") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+                minLines = 3,
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 value = price,
                 onValueChange = { price = it },
                 label = { Text(if (isTeluguMode) "ధర" else "Price") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = { /* TODO: Implement listing update logic */ },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(if (isTeluguMode) "లిస్టింగ్ నవీకరించండి" else "Update Listing")
             }

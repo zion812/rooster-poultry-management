@@ -1,10 +1,7 @@
 package com.example.rooster
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -16,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.rooster.NavigationRoute
 import com.example.rooster.ui.components.StandardScreenLayout
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,32 +20,32 @@ import com.example.rooster.ui.components.StandardScreenLayout
 fun MarketplaceScreen(
     navController: NavController,
     isTeluguMode: Boolean,
-    onLanguageToggle: () -> Unit
+    onLanguageToggle: () -> Unit,
 ) {
     StandardScreenLayout(
         horizontalAlignment = Alignment.CenterHorizontally,
-        scrollable = true
+        scrollable = true,
     ) {
         TopAppBar(
             title = {
                 Text(
                     text = if (isTeluguMode) "మార్కెట్‌ప్లేస్" else "Marketplace",
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
-            }
+            },
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
             text = if (isTeluguMode) "మార్కెట్‌ప్లేస్ త్వరలో వస్తుంది" else "Marketplace coming soon",
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { navController.navigate(NavigationRoute.AUCTIONS.route) }
+            onClick = { navController.navigate(NavigationRoute.Auctions.route) },
         ) {
             Text(if (isTeluguMode) "వేలాలు చూడండి" else "View Auctions")
         }

@@ -4,7 +4,12 @@ import android.app.Application
 import android.content.ComponentCallbacks2
 import android.util.Log
 import androidx.room.Room
+import androidx.work.BackoffPolicy
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.rooster.config.Constants
+import com.example.rooster.data.sync.DataSyncWorker
 import com.example.rooster.util.CrashPrevention
 import com.example.rooster.util.MemoryOptimizerStatic
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -13,12 +18,7 @@ import com.parse.Parse
 import com.parse.ParseACL
 import com.parse.ParseInstallation
 import dagger.hilt.android.HiltAndroidApp
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.BackoffPolicy
-import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
-import com.example.rooster.data.sync.DataSyncWorker
 
 @HiltAndroidApp
 @Suppress("unused")
@@ -66,12 +66,13 @@ class App : Application() {
             try {
                 Parse.setLogLevel(if (BuildConfig.DEBUG) Parse.LOG_LEVEL_DEBUG else Parse.LOG_LEVEL_ERROR)
 
-                val configuration = Parse.Configuration.Builder(this)
-                    .applicationId(Constants.BACK4APP_APP_ID)
-                    .clientKey(Constants.BACK4APP_CLIENT_KEY)
-                    .server(Constants.BACK4APP_SERVER_URL)
-                    .enableLocalDataStore() // Essential for offline-first architecture
-                    .build()
+                val configuration =
+                    Parse.Configuration.Builder(this)
+                        .applicationId(Constants.BACK4APP_APP_ID)
+                        .clientKey(Constants.BACK4APP_CLIENT_KEY)
+                        .server(Constants.BACK4APP_SERVER_URL)
+                        .enableLocalDataStore() // Essential for offline-first architecture
+                        .build()
 
                 Parse.initialize(configuration)
 
@@ -95,7 +96,6 @@ class App : Application() {
                 Log.d("App", "Server URL: ${Constants.BACK4APP_SERVER_URL}")
                 Log.d("App", "Local Datastore: Enabled (Offline-first)")
                 Log.d("App", "Rural Optimization: Enabled")
-
             } catch (e: Exception) {
                 Log.e("App", "Parse initialization failed", e)
                 FirebaseCrashlytics.getInstance().recordException(e)
@@ -138,14 +138,15 @@ class App : Application() {
 
         // Schedule background workers for data sync
         CrashPrevention.safeExecute("Background workers scheduling") {
-            val syncRequest = PeriodicWorkRequestBuilder<DataSyncWorker>(15, TimeUnit.MINUTES)
-                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.MINUTES)
-                .build()
+            val syncRequest =
+                PeriodicWorkRequestBuilder<DataSyncWorker>(15, TimeUnit.MINUTES)
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.MINUTES)
+                    .build()
             WorkManager.getInstance(this)
                 .enqueueUniquePeriodicWork(
                     "data_sync",
                     ExistingPeriodicWorkPolicy.KEEP,
-                    syncRequest
+                    syncRequest,
                 )
             Log.d("App", "Background data sync worker scheduled")
         }

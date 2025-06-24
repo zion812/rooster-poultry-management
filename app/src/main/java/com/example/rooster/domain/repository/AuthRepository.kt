@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
  * Domain layer repository interface for authentication operations
  */
 interface AuthRepository {
-
     /**
      * Current authenticated user as a Flow
      */
@@ -22,17 +21,27 @@ interface AuthRepository {
     /**
      * Verify OTP code
      */
-    suspend fun verifyOtp(phoneNumber: String, otp: String): Result<ParseUser>
+    suspend fun verifyOtp(
+        phoneNumber: String,
+        otp: String,
+    ): Result<ParseUser>
 
     /**
      * Login with phone number and password
      */
-    suspend fun login(phoneNumber: String, password: String): Result<ParseUser>
+    suspend fun login(
+        phoneNumber: String,
+        password: String,
+    ): Result<ParseUser>
 
     /**
      * Register new user
      */
-    suspend fun register(name: String, phoneNumber: String, password: String): Result<ParseUser>
+    suspend fun register(
+        name: String,
+        phoneNumber: String,
+        password: String,
+    ): Result<ParseUser>
 
     /**
      * Get current user

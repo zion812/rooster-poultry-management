@@ -9,7 +9,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import com.example.rooster.viewmodel.CommunityViewModel
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CommunityViewModelTest {
@@ -23,11 +22,12 @@ class CommunityViewModelTest {
     }
 
     @Test
-    fun `initial groups are empty`() = testScope.runTest {
-        viewModel.groups.test {
-            val groups = awaitItem()
-            assertEquals(emptyList<Any>(), groups)
+    fun `initial groups are empty`() =
+        testScope.runTest {
+            viewModel.groups.test {
+                val groups = awaitItem()
+                assertEquals(emptyList<Any>(), groups)
+            }
         }
-    }
     // Add more tests for loading, error, pagination, etc.
 }

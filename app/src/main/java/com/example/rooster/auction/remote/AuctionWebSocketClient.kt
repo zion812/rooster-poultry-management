@@ -48,7 +48,13 @@ class AuctionWebSocketClient
                         ) {
                             runCatching {
                                 // Simple JSON parsing for now - replace with proper parsing later
-                                val dto = BidUpdate(auctionId, "bidder", 100.0, System.currentTimeMillis())
+                                val dto =
+                                    BidUpdate(
+                                        auctionId,
+                                        100.0,
+                                        "bidder",
+                                        System.currentTimeMillis(),
+                                    )
                                 _updates.tryEmit(dto)
                             }.onFailure { e ->
                                 Log.e("AuctionWebSocket", "Failed to parse BidUpdate", e)

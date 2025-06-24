@@ -16,7 +16,7 @@ data class Post(
     val sharesCount: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
-    val isLikedByCurrentUser: Boolean = false
+    val isLikedByCurrentUser: Boolean = false,
 )
 
 /**
@@ -27,7 +27,7 @@ enum class PostType {
     IMAGE,
     VIDEO,
     POLL,
-    EVENT
+    EVENT,
 }
 
 /**
@@ -42,7 +42,7 @@ data class Comment(
     val content: String,
     val likesCount: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
-    val isLikedByCurrentUser: Boolean = false
+    val isLikedByCurrentUser: Boolean = false,
 )
 
 /**
@@ -53,7 +53,7 @@ data class PostInteraction(
     val postId: String,
     val userId: String,
     val type: InteractionType,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
 )
 
 /**
@@ -63,5 +63,5 @@ enum class InteractionType {
     LIKE,
     SHARE,
     SAVE,
-    REPORT
+    REPORT,
 }

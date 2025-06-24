@@ -4,9 +4,6 @@ import app.cash.turbine.test
 import com.example.rooster.model.Post
 import com.example.rooster.repository.PostRepository
 import com.example.rooster.repository.UserRepository
-import com.example.rooster.viewmodel.PostViewModel
-import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -33,12 +30,13 @@ class PostViewModelTest {
     }
 
     @Test
-    fun `initial posts list is empty`() = testScope.runTest {
-        viewModel.posts.test {
-            val posts = awaitItem()
-            assertEquals(emptyList<Post>(), posts)
+    fun `initial posts list is empty`() =
+        testScope.runTest {
+            viewModel.posts.test {
+                val posts = awaitItem()
+                assertEquals(emptyList<Post>(), posts)
+            }
         }
-    }
 
     // Add more tests for loadPosts, selectPost, deletePost, etc. as needed
 }

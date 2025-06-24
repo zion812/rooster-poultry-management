@@ -1,5 +1,10 @@
-package com.example.rooster.ui.navigation
+// DEPRECATED FILE - DO NOT USE
+// ---------------------------------------
+// All navigation route management must use:
+//   com.example.rooster.NavigationRoute
+// This file is retained for migration/reference only and should NOT be imported or modified.
 
+/*
 enum class NavigationRoute(val route: String) {
     // Core navigation routes
     AUTH("auth"),
@@ -71,3 +76,4 @@ enum class NavigationRoute(val route: String) {
         }
     }
 }
+*/

@@ -27,24 +27,24 @@ import com.example.rooster.ui.components.StandardScreenLayout
 fun MarketplaceListingCreateScreen(
     navController: NavController,
     isTeluguMode: Boolean,
-    onBack: () -> Unit = { navController.popBackStack() }
+    onBack: () -> Unit = { navController.popBackStack() },
 ) {
     StandardScreenLayout(
         horizontalAlignment = Alignment.CenterHorizontally,
-        scrollable = true
+        scrollable = true,
     ) {
         TopAppBar(
             title = {
                 Text(
                     text = if (isTeluguMode) "కొత్త లిస్టింగ్ సృష్టించండి" else "Create New Listing",
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             },
             navigationIcon = {
                 Button(onClick = onBack) {
                     Text(if (isTeluguMode) "వెనుక" else "Back")
                 }
-            }
+            },
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -58,7 +58,7 @@ fun MarketplaceListingCreateScreen(
                 value = title,
                 onValueChange = { title = it },
                 label = { Text(if (isTeluguMode) "శీర్షిక" else "Title") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
@@ -66,19 +66,19 @@ fun MarketplaceListingCreateScreen(
                 onValueChange = { description = it },
                 label = { Text(if (isTeluguMode) "వివరణ" else "Description") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+                minLines = 3,
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 value = price,
                 onValueChange = { price = it },
                 label = { Text(if (isTeluguMode) "ధర" else "Price") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = { /* TODO: Implement listing creation logic */ },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(if (isTeluguMode) "లిస్టింగ్ సృష్టించండి" else "Create Listing")
             }

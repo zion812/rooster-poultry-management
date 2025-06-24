@@ -9,7 +9,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import com.example.rooster.viewmodel.FarmerDashboardViewModel
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FarmerDashboardViewModelTest {
@@ -23,12 +22,13 @@ class FarmerDashboardViewModelTest {
     }
 
     @Test
-    fun `initial active auctions is empty`() = testScope.runTest {
-        viewModel.activeAuctions.test {
-            val auctions = awaitItem()
-            assertEquals(emptyList<String>(), auctions)
+    fun `initial active auctions is empty`() =
+        testScope.runTest {
+            viewModel.activeAuctions.test {
+                val auctions = awaitItem()
+                assertEquals(emptyList<String>(), auctions)
+            }
         }
-    }
 
     // Add more tests for loading events, bids, kycRequests, etc.
 }

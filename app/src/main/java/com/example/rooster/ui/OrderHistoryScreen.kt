@@ -45,19 +45,21 @@ fun OrderHistoryScreen(
     ) { padding ->
         if (isLoading) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(16.dp)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                contentPadding = PaddingValues(16.dp),
             ) {
                 items(orders) { order ->
                     Column(

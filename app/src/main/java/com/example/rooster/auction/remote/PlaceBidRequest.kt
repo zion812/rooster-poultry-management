@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class PlaceBidRequest(
     val auctionId: String,
     val amount: Double,
-    val userId: String
+    val userId: String,
 )

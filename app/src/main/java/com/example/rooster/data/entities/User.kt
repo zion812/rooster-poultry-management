@@ -15,5 +15,5 @@ data class User(
     val location: String? = null,
     val isActive: Boolean = true,
     val coins: Int? = null,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
 )

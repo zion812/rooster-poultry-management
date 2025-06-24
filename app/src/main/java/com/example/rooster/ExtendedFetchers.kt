@@ -1,10 +1,10 @@
 package com.example.rooster
 
 import android.util.Log
+import com.example.rooster.models.*
 import com.parse.*
 import com.parse.ParseCloud
 import java.util.*
-import com.example.rooster.models.*
 
 // Add these imports near the top after existing Auction imports:
 
@@ -909,7 +909,7 @@ private fun fetchDashboardRecentActivities(
                             RecentActivity(
                                 type = obj.getString("activityType") ?: "",
                                 description = obj.getString("description") ?: "",
-                                timeAgo = timeAgo
+                                timeAgo = timeAgo,
                             )
                         } catch (ex: Exception) {
                             null

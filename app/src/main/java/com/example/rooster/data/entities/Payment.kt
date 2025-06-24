@@ -13,7 +13,7 @@ data class Payment(
     val status: PaymentStatus,
     val transactionId: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
-    val completedAt: Long? = null
+    val completedAt: Long? = null,
 )
 
 /**
@@ -25,7 +25,7 @@ enum class PaymentMethod {
     CARD,
     NET_BANKING,
     WALLET,
-    COD
+    COD,
 }
 
 /**
@@ -37,7 +37,7 @@ enum class PaymentStatus {
     COMPLETED,
     FAILED,
     CANCELLED,
-    REFUNDED
+    REFUNDED,
 }
 
 /**
@@ -49,7 +49,7 @@ data class CoinTransaction(
     val amount: Int,
     val type: CoinTransactionType,
     val description: String,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
 )
 
 /**
@@ -59,5 +59,5 @@ enum class CoinTransactionType {
     PURCHASE,
     REWARD,
     SPEND,
-    REFUND
+    REFUND,
 }

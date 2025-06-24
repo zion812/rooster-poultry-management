@@ -28,18 +28,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Modifier
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -153,14 +151,14 @@ private fun getNavigationItems(currentUserRole: String): List<NavigationItem> {
                 NavigationItem(
                     NavigationRoute.VetConsultation,
                     "Vet",
-                    Icons.Filled.MedicalServices
+                    Icons.Filled.MedicalServices,
                 ),
                 NavigationItem(NavigationRoute.IoTDashboard, "IoT", Icons.Filled.DeviceHub),
                 NavigationItem(NavigationRoute.Auctions, "Auctions", Icons.Filled.Gavel),
                 NavigationItem(
                     NavigationRoute.HighLevelHome,
                     "Manager",
-                    Icons.Filled.AdminPanelSettings
+                    Icons.Filled.AdminPanelSettings,
                 ),
                 NavigationItem(NavigationRoute.Auth, "Auth", Icons.Filled.Person),
                 NavigationItem(NavigationRoute.Cart, "Cart", Icons.Filled.Receipt),
@@ -171,12 +169,12 @@ private fun getNavigationItems(currentUserRole: String): List<NavigationItem> {
                 NavigationItem(
                     NavigationRoute.HelpSupport,
                     "Help & Support",
-                    Icons.Filled.MedicalServices
+                    Icons.Filled.MedicalServices,
                 ),
                 NavigationItem(
                     NavigationRoute.ComprehensiveMessaging,
                     "Messages",
-                    Icons.Filled.Receipt
+                    Icons.Filled.Receipt,
                 ),
                 NavigationItem(NavigationRoute.Fowl, "Fowl", Icons.Filled.Receipt),
                 NavigationItem(NavigationRoute.Diagnostics, "Diagnostics", Icons.Filled.Receipt),
@@ -184,7 +182,7 @@ private fun getNavigationItems(currentUserRole: String): List<NavigationItem> {
                 NavigationItem(
                     NavigationRoute.MarketplaceListingCreate,
                     "Create Listing",
-                    Icons.Filled.Add
+                    Icons.Filled.Add,
                 ),
             )
 
@@ -198,7 +196,7 @@ private fun getNavigationItems(currentUserRole: String): List<NavigationItem> {
                 NavigationItem(
                     NavigationRoute.VetConsultation,
                     "Vet",
-                    Icons.Filled.MedicalServices
+                    Icons.Filled.MedicalServices,
                 ),
                 NavigationItem(NavigationRoute.IoTDashboard, "IoT", Icons.Filled.DeviceHub),
                 NavigationItem(NavigationRoute.Auctions, "Auctions", Icons.Filled.Gavel),

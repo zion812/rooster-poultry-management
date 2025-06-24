@@ -9,7 +9,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import com.example.rooster.viewmodel.OrderViewModel
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OrderViewModelTest {
@@ -23,11 +22,12 @@ class OrderViewModelTest {
     }
 
     @Test
-    fun `initial orders list is empty`() = testScope.runTest {
-        viewModel.ordersList.test {
-            val orders = awaitItem()
-            assertEquals(emptyList<Any>(), orders)
+    fun `initial orders list is empty`() =
+        testScope.runTest {
+            viewModel.ordersList.test {
+                val orders = awaitItem()
+                assertEquals(emptyList<Any>(), orders)
+            }
         }
-    }
     // Add more tests for loadOrders, submitFeedback, etc.
 }

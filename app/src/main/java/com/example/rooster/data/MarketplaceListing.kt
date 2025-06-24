@@ -7,5 +7,5 @@ data class MarketplaceListing(
     val price: Double,
     val imageUrl: String? = null,
     val sellerId: String,
-    val contactInfo: String
+    val contactInfo: String,
 )

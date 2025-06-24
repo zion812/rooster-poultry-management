@@ -22,11 +22,12 @@ class PollViewModelTest {
     }
 
     @Test
-    fun `initial results are empty`() = testScope.runTest {
-        viewModel.results.test {
-            val results = awaitItem()
-            assertEquals(emptyMap<String, Int>(), results)
+    fun `initial results are empty`() =
+        testScope.runTest {
+            viewModel.results.test {
+                val results = awaitItem()
+                assertEquals(emptyMap<String, Int>(), results)
+            }
         }
-    }
     // Add more tests for loadResults, submitVote, etc.
 }

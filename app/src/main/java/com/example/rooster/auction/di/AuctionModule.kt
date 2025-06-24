@@ -14,7 +14,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AuctionModule {
-
     @Provides
     @Named("auctionSocketUrl")
     fun provideSocketUrl(): String = "ws://localhost:8080" // Default URL

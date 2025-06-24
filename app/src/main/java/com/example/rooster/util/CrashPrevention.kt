@@ -28,7 +28,10 @@ object CrashPrevention {
     /**
      * Execute a block of code safely with comprehensive error handling
      */
-    fun safeExecute(operation: String, block: () -> Unit): Unit? {
+    fun safeExecute(
+        operation: String,
+        block: () -> Unit,
+    ): Unit? {
         return try {
             block()
         } catch (e: Exception) {
@@ -50,6 +53,22 @@ object CrashPrevention {
         } catch (e: Exception) {
             handleException(operation, e)
             fallback
+        }
+    }
+
+    /**
+     * Execute a block of code safely with comprehensive error handling and return a result
+     */
+    fun <T> safeExecute(
+        context: String,
+        block: () -> T
+    ): T? {
+        try {
+            Log.d("CrashPrevention", "Executing: $context")
+            return block()
+        } catch (e: Exception) {
+            Log.e("CrashPrevention", "Error in $context: ", e)
+            return null
         }
     }
 
@@ -128,7 +147,9 @@ object CrashPrevention {
         block: (Context) -> T,
     ): T? {
         return if (context != null) {
-            safeExecute("Context $operation", block)
+            safeExecuteWithResult("Context $operation", null) {
+                block(context)
+            }
         } else {
             Log.w(TAG, "Context is null for operation: $operation")
             null

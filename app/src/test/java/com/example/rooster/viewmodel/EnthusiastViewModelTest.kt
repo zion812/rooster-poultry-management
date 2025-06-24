@@ -22,11 +22,12 @@ class EnthusiastViewModelTest {
     }
 
     @Test
-    fun `initial flock is empty`() = testScope.runTest {
-        viewModel.flock.test {
-            val flock = awaitItem()
-            assertEquals(emptyList<Any>(), flock)
+    fun `initial flock is empty`() =
+        testScope.runTest {
+            viewModel.flock.test {
+                val flock = awaitItem()
+                assertEquals(emptyList<Any>(), flock)
+            }
         }
-    }
     // Add more tests for growth, suggestions, transfers, etc.
 }

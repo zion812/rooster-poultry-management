@@ -5,5 +5,5 @@ enum class UserRole {
     ADMIN,
     FARMER,
     BUYER,
-    GUEST // Example roles, can be adjusted later
+    GUEST, // Example roles, can be adjusted later
 }

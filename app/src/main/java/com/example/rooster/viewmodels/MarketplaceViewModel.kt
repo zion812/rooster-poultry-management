@@ -7,33 +7,34 @@ import com.example.rooster.GrowthUpdate
 import com.example.rooster.NetworkQualityLevel
 import com.example.rooster.SafeListing
 import com.example.rooster.assessNetworkQualitySafely
+import com.example.rooster.data.MarketplaceListing
 import com.example.rooster.fetchListingsSafely
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.example.rooster.data.MarketplaceListing
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MarketplaceViewModel : ViewModel() {
-
     fun getListingById(listingId: String): StateFlow<MarketplaceListing?> {
         val _listing = MutableStateFlow<MarketplaceListing?>(null)
         viewModelScope.launch {
             // Simulate fetching data
-            val dummyListing = MarketplaceListing(
-                id = listingId,
-                title = "Sample Listing $listingId",
-                description = "This is a detailed description for sample listing $listingId. It provides information about the product, its features, and benefits.",
-                price = 123.45,
-                imageUrl = "https://via.placeholder.com/150",
-                sellerId = "seller123",
-                contactInfo = "seller@example.com"
-            )
+            val dummyListing =
+                MarketplaceListing(
+                    id = listingId,
+                    title = "Sample Listing $listingId",
+                    description = "This is a detailed description for sample listing $listingId. It provides information about the product, its features, and benefits.",
+                    price = 123.45,
+                    imageUrl = "https://via.placeholder.com/150",
+                    sellerId = "seller123",
+                    contactInfo = "seller@example.com",
+                )
             _listing.value = dummyListing
         }
         return _listing
     }
+
     // UI State
     private val _uiState = MutableStateFlow(MarketplaceUiState())
     val uiState: StateFlow<MarketplaceUiState> = _uiState.asStateFlow()

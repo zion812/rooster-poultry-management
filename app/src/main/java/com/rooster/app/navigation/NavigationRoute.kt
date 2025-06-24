@@ -10,5 +10,5 @@ enum class NavigationRoute {
     PROFILE,
     AUCTIONS,
     TRANSFERS,
-    SETTINGS
+    SETTINGS,
 }

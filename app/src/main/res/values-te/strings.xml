@@ -61,6 +61,7 @@
     <string name="listing_price">ధర (₹)</string>
     <string name="verified_seller">ధృవీకరించబడిన అమ్మకందారు</string>
     <string name="verified_bloodline">ధృవీకరించబడిన వంశం</string>
+    <string name="no_listings_available" msgid="0987654321">లిస్టింగ్స్ అవయ్యలేదు</string>
 
     <!-- Auctions -->
     <string name="auction_title">వేలం</string>
@@ -263,4 +264,12 @@
     <string name="view_analytics">అనలైటిక్స్ చూడండి</string>
     <string name="manage_transfers">మార్పులను నిర్వహించండి</string>
     <string name="change_role">పాత్రాన్ని మార్చండి</string>
+
+    <!-- Telugu translations -->
+    <string name="high_price" msgid="4321098765">అధిక ధర</string>
+    <string name="downloading" msgid="4321098766">డౌన్‌లోడింగ్ చేస్తున్నారు</string>
+    <string name="farm_analytics" msgid="1098765432">కోళ్ల విశ్లేషణ</string>
+    <string name="currency" msgid="3210987654">రూ. </string>
+    <string name="select_product" msgid="4321098765">ఉత్పత్తి ని ఎంచండి</string>
+    <string name="iot_dashboard_title" msgid="5432109876">కోళ్ల పర్యవేక్షణ డాష్‌బోర్డ్</string>
 </resources>

@@ -29,7 +29,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.example.rooster.* // Import all from base package for enums and data classes
 import com.example.rooster.util.NetworkQualityManager // Explicitly use .util for the demo screen parameter
@@ -641,7 +640,7 @@ fun PhotoGridDisplay(
 }
 
 object PhotoUriHelper {
-    fun getInstance(context: Context): Uri {
+    fun newUri(context: Context): Uri {
         val timeStamp: String =
             SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val imageFileName = "JPEG_${timeStamp}_"
@@ -777,6 +776,8 @@ fun PhotoUploadComponentsDemoScreen(
                                             status = UploadStatus.PENDING,
                                             progress = 0,
                                             retryCount = 0,
+                                            errorMessage = null,
+                                            parseFileUrl = null,
                                         )
                                     photoUploadService.enqueueUpload(retryRequest)
                                 } catch (e: Exception) {

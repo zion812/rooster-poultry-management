@@ -156,9 +156,10 @@ fun SimpleFarmerScreen(
 private fun WelcomeCard(isTeluguMode: Boolean) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-        ),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+            ),
         shape = RoundedCornerShape(16.dp),
     ) {
         Column(
@@ -166,7 +167,7 @@ private fun WelcomeCard(isTeluguMode: Boolean) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(
-                imageVector = Icons.Default.Waving,
+                imageVector = Icons.Default.Person,
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.primary,
@@ -197,8 +198,9 @@ private fun ActionCard(
     onClick: () -> Unit,
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier =
+            Modifier
+                .fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = color),
         shape = RoundedCornerShape(12.dp),
         onClick = onClick,
@@ -242,9 +244,10 @@ private fun SimpleHelpCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
         shape = RoundedCornerShape(12.dp),
         onClick = onHelpClick,
     ) {

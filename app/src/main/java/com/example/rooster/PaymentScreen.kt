@@ -42,7 +42,9 @@ import androidx.navigation.NavController
 // PaymentOutcome sealed class for MVP
 sealed class PaymentOutcome {
     data class Success(val paymentId: String) : PaymentOutcome()
+
     data class Error(val code: Int, val message: String) : PaymentOutcome()
+
     object Cancelled : PaymentOutcome()
 }
 

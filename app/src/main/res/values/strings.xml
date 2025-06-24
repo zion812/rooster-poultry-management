@@ -245,7 +245,6 @@
     <string name="posts_tab">Posts Tab</string>
     <string name="pre_orders">Pre Orders</string>
     <string name="pre_orders_description">Pre Orders Description</string>
-    <string name="price">Price</string>
     <string name="price_label">Price Label</string>
     <string name="price_per_bird">Price Per Bird</string>
     <string name="privacy_policy">Privacy Policy</string>
@@ -355,4 +354,11 @@
     <string name="create_category">Create Category</string>
     <string name="category_name">Category Name</string>
     <string name="category_description">Category Description</string>
+    <string name="no_listings_available" msgid="0987654321">No listings available</string>
+    <string name="high_price" msgid="4321098765">High Price</string>
+    <string name="downloading" msgid="4321098766">Downloading</string>
+    <string name="farm_analytics" msgid="1098765432">Farm Analytics</string>
+    <string name="currency" msgid="3210987654">₹</string>
+    <string name="select_product" msgid="4321098765">Select Product</string>
+    <string name="iot_dashboard_title" msgid="5432109876">IoT Dashboard</string>
 </resources>

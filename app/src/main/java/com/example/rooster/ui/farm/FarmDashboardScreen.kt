@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.rooster.NavigationRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,7 +93,7 @@ fun FarmDashboardScreen(
 }
 
 @Composable
-fun FarmDashboardScreen(navController: NavController) {
+fun FarmDashboardTab(navController: NavController) {
     LazyColumn(
         modifier =
             Modifier
@@ -768,7 +768,7 @@ fun FamilyTreeTab() {
                                 LineageStatItem(
                                     "Success Rate",
                                     "94%",
-                                    Icons.AutoMirrored.Filled.TrendingUp,
+                                    Icons.Default.TrendingUp,
                                     Color(0xFF2196F3),
                                 ),
                             ),
@@ -1016,40 +1016,33 @@ fun SideNavigationPanel(
                 items =
                     listOf(
                         SideNavItem("New Batch", Icons.Default.Add) {
-    navController.navigate(NavigationRoute.FarmNewBatch.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmNewBatch.route)
+                            onDismiss()
+                        },
                         SideNavItem("New Bird", Icons.Default.Egg) {
-    navController.navigate(NavigationRoute.FarmNewBird.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmNewBird.route)
+                            onDismiss()
+                        },
                         SideNavItem("New Eggs", Icons.Default.EggAlt) {
-    navController.navigate(NavigationRoute.FarmNewEggs.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmNewEggs.route)
+                            onDismiss()
+                        },
                         SideNavItem("New Breeding", Icons.Default.Favorite) {
-    navController.navigate(NavigationRoute.FarmNewBreeding.route)
-    onDismiss()
-},
-
-                        SideNavItem("New Chicks", Icons.Default.Chicken) {
-    navController.navigate(NavigationRoute.FarmNewChicks.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmNewBreeding.route)
+                            onDismiss()
+                        },
+                        SideNavItem("New Chicks", Icons.Default.Pets) {
+                            navController.navigate(NavigationRoute.FarmNewChicks.route)
+                            onDismiss()
+                        },
                         SideNavItem("New Flock", Icons.Default.BugReport) {
-    navController.navigate(NavigationRoute.FarmNewFowl.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmNewFowl.route)
+                            onDismiss()
+                        },
                         SideNavItem("New Incubation", Icons.Default.Thermostat) {
-    navController.navigate(NavigationRoute.FarmNewIncubation.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmNewIncubation.route)
+                            onDismiss()
+                        },
                     ),
             )
 
@@ -1061,15 +1054,13 @@ fun SideNavigationPanel(
                 items =
                     listOf(
                         SideNavItem("Report Mortality", Icons.Default.Warning) {
-    navController.navigate(NavigationRoute.FarmReportMortality.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmReportMortality.route)
+                            onDismiss()
+                        },
                         SideNavItem("Mortality Records", Icons.Default.List) {
-    navController.navigate(NavigationRoute.FarmMortalityRecords.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmMortalityRecords.route)
+                            onDismiss()
+                        },
                     ),
             )
 
@@ -1081,34 +1072,29 @@ fun SideNavigationPanel(
                 items =
                     listOf(
                         SideNavItem("Update Chicks", Icons.Default.Update) {
-    navController.navigate(NavigationRoute.FarmUpdateChicks.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmUpdateChicks.route)
+                            onDismiss()
+                        },
                         SideNavItem("Update Adults", Icons.Default.Update) {
-    navController.navigate(NavigationRoute.FarmUpdateAdults.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmUpdateAdults.route)
+                            onDismiss()
+                        },
                         SideNavItem("Update Breeding", Icons.Default.Update) {
-    navController.navigate(NavigationRoute.FarmUpdateBreeding.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmUpdateBreeding.route)
+                            onDismiss()
+                        },
                         SideNavItem("Update Incubation", Icons.Default.Update) {
-    navController.navigate(NavigationRoute.FarmUpdateIncubation.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmUpdateIncubation.route)
+                            onDismiss()
+                        },
                         SideNavItem("Update Breeders", Icons.Default.Update) {
-    navController.navigate(NavigationRoute.FarmUpdateBreeders.route)
-    onDismiss()
-},
-
+                            navController.navigate(NavigationRoute.FarmUpdateBreeders.route)
+                            onDismiss()
+                        },
                         SideNavItem("Update Eggs", Icons.Default.Update) {
-    navController.navigate(NavigationRoute.FarmUpdateEggs.route)
-    onDismiss()
-}
+                            navController.navigate(NavigationRoute.FarmUpdateEggs.route)
+                            onDismiss()
+                        },
                     ),
             )
         }

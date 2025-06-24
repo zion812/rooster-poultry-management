@@ -10,21 +10,23 @@ import com.example.rooster.data.entities.PostType
  * Domain interface for post operations
  */
 interface PostRepository {
-
     suspend fun createPost(
         userId: String,
         username: String,
         profilePicture: String?,
         content: String,
         mediaUrls: List<String>,
-        type: PostType
+        type: PostType,
     ): Post
 
     fun getPosts(userId: String): List<Post>
 
     fun getPost(postId: String): Post?
 
-    suspend fun updatePost(postId: String, content: String): Post?
+    suspend fun updatePost(
+        postId: String,
+        content: String,
+    ): Post?
 
     suspend fun deletePost(postId: String)
 
@@ -33,7 +35,7 @@ interface PostRepository {
         userId: String,
         username: String,
         profilePicture: String?,
-        content: String
+        content: String,
     ): Comment
 
     fun getComments(postId: String): List<Comment>
@@ -41,7 +43,7 @@ interface PostRepository {
     suspend fun createPostInteraction(
         postId: String,
         userId: String,
-        type: InteractionType
+        type: InteractionType,
     ): PostInteraction
 
     fun getPostInteractions(postId: String): List<PostInteraction>

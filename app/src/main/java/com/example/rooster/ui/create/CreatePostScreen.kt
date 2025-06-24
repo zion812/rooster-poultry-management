@@ -141,7 +141,7 @@ fun CreatePostScreen(
                 postViewModel.createPost(
                     text = postText.text,
                     mediaUrls = mediaUrls,
-                    mediaTypes = mediaTypes,
+                    mimeTypes = mediaTypes,
                 ) { newId -> onPostSuccess(newId) }
             },
             enabled = !isPosting && postText.text.isNotBlank(),

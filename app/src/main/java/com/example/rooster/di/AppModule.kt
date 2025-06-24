@@ -1,10 +1,8 @@
 package com.example.rooster.di
 
-import com.example.rooster.data.AuthRepository as ConcreteAuthRepository
 import com.example.rooster.data.repositories.AuthRepositoryImpl
 import com.example.rooster.data.repositories.ChatRepositoryImpl
 import com.example.rooster.data.repositories.PaymentRepository
-import com.example.rooster.data.repositories.PostRepository as ConcretePostRepository
 import com.example.rooster.data.repositories.UserRepositoryImpl
 import com.example.rooster.domain.repository.AuthRepository
 import com.example.rooster.domain.repository.ChatRepository
@@ -16,11 +14,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import com.example.rooster.data.AuthRepository as ConcreteAuthRepository
+import com.example.rooster.data.repositories.PostRepository as ConcretePostRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
     @Provides
     @Singleton
     fun provideConcreteAuthRepository(): ConcreteAuthRepository {

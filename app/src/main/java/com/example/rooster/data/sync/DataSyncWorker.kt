@@ -1,17 +1,19 @@
 package com.example.rooster.data.sync
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import android.util.Log
 import com.parse.Parse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class DataSyncWorker(
     context: Context,
-    params: WorkerParameters
+    params: WorkerParameters,
 ) : CoroutineWorker(context, params) {
+    private val uploadType: String = "photo"
+    // TODO: Replace with actual UploadType enum/object when implemented
 
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {

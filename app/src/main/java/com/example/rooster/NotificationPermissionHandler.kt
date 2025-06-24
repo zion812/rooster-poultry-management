@@ -80,7 +80,7 @@ fun NotificationPermissionRequest(onPermissionResult: (Boolean) -> Unit = {}) {
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             when {
-                NotificationPermissionHandler.hasNotificationPermission(context) -> {
+                NotificationPermissionHandler.getInstance(context) -> {
                     // Already granted
                     onPermissionResult(true)
                 }
@@ -167,7 +167,7 @@ fun rememberNotificationPermission(): Boolean {
     var hasPermission by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        hasPermission = NotificationPermissionHandler.hasNotificationPermission(context)
+        hasPermission = NotificationPermissionHandler.getInstance(context)
     }
 
     return hasPermission

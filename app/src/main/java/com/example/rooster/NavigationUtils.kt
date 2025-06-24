@@ -12,7 +12,6 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.rooster.models.UserRole
-import com.example.rooster.ui.navigation.NavigationRoute
 
 /**
  * Navigation Utilities and Safety Extensions
@@ -74,7 +73,7 @@ fun NavController.safeNavigate(
  */
 fun NavController.safeNavigateWithFallback(
     route: String,
-    fallbackRoute: String = NavigationRoute.HOME.route,
+    fallbackRoute: String = NavigationRoute.Home.route,
 ) {
     safeNavigate(route) { error ->
         Log.w("Navigation", "Navigation to $route failed, using fallback: $fallbackRoute")
@@ -90,11 +89,9 @@ fun NavController.safeNavigateWithFallback(
  * Centralized route validation to check if a route exists in the navigation graph
  */
 fun NavController.isRouteValid(route: String): Boolean {
-    return try {
-        graph.findNode(route) != null
-    } catch (e: Exception) {
-        Log.e("Navigation", "Error validating route: $route", e)
-        false
+    return when (val navRoute = NavigationRoute.fromRoute(route)) {
+        is NavigationRoute -> graph.findNode(navRoute.route) != null
+        else -> false
     }
 }
 
@@ -150,29 +147,26 @@ object NavigationRouteRegistry {
      */
     val ALL_ROUTES =
         listOf(
-            NavigationRoute.AUTH.route,
-            NavigationRoute.HOME.route,
-            NavigationRoute.FARMER_HOME.route,
-            NavigationRoute.HIGH_LEVEL_HOME.route,
-            NavigationRoute.MARKETPLACE.route,
-            NavigationRoute.COMMUNITY.route,
-            NavigationRoute.PROFILE.route,
-            NavigationRoute.TRANSFERS.route,
-            NavigationRoute.SETTINGS.route,
-            NavigationRoute.HELP.route,
-            NavigationRoute.VET_CONSULTATION.route,
-            NavigationRoute.IOT_DASHBOARD.route,
-            NavigationRoute.CHAT.route,
-            NavigationRoute.TRANSFER_DETAIL.route,
-            NavigationRoute.ACTIVITY_VERIFICATION.route,
+            NavigationRoute.Auth.route,
+            NavigationRoute.Home.route,
+            NavigationRoute.FarmerHome.route,
+            NavigationRoute.HighLevelHome.route,
+            NavigationRoute.Marketplace.route,
+            NavigationRoute.Community.route,
+            NavigationRoute.Profile.route,
+            NavigationRoute.Transfers.route,
+            NavigationRoute.Settings.route,
+            NavigationRoute.Help.route,
+            NavigationRoute.VetConsultation.route,
+            NavigationRoute.IoTDashboard.route,
+            NavigationRoute.Chat.base,
+            NavigationRoute.TransferDetail.base,
+            NavigationRoute.ActivityVerification.route,
             "explore",
             "dashboard",
-            "feedbackScreen",
-            "diagnostics",
-            "cart",
-            "payment/{listingId}",
-            NavigationRoute.AUCTIONS.route,
-            "${NavigationRoute.AUCTION_DETAIL.route}/{auctionId}",
+            NavigationRoute.Cart.route,
+            NavigationRoute.Auctions.route,
+            "${NavigationRoute.AuctionDetail.base}",
         )
 
     /**
@@ -323,7 +317,7 @@ fun NavHostController.safeNavigate(
  * Extension function to navigate to auth screen with proper cleanup
  */
 fun NavHostController.navigateToAuth() {
-    navigate(NavigationRoute.AUTH.route) {
+    navigate(NavigationRoute.Auth.route) {
         popUpTo(graph.findStartDestination().id) {
             inclusive = true
         }
@@ -337,12 +331,12 @@ fun NavHostController.navigateToHome(userRole: UserRole) {
     val destination =
         when (userRole) {
             UserRole.FARMER, UserRole.HIGH_LEVEL, UserRole.GENERAL -> "home" // Use Instagram home route
-            UserRole.UNKNOWN -> NavigationRoute.AUTH.route
+            UserRole.UNKNOWN -> NavigationRoute.Auth.route
         }
 
     safeNavigate(
         route = destination,
-        popUpToRoute = NavigationRoute.AUTH.route,
+        popUpToRoute = NavigationRoute.Auth.route,
         inclusive = true,
     )
 }
@@ -381,23 +375,33 @@ data class NavigationArgs(
  * Navigation routes with parameter support
  */
 object NavigationRoutes {
-    const val AUTH = "auth"
-    const val HOME = "home"
-    const val MARKETPLACE = "marketplace"
-    const val EXPLORE = "explore"
-    const val CREATE = "create"
-    const val CART = "cart"
-    const val COMMUNITY = "community"
-    const val DASHBOARD = "dashboard"
-    const val TRANSFERS = "transfers"
-    const val PROFILE = "profile"
+    val Auth = NavigationRoute.Auth.route
+    val Home = NavigationRoute.Home.route
+    val Marketplace = NavigationRoute.Marketplace.route
+    val Explore = "explore"
+    val Create = "create"
+    val Cart = NavigationRoute.Cart.route
+    val Community = NavigationRoute.Community.route
+    val Dashboard = "dashboard"
+    val Transfers = NavigationRoute.Transfers.route
+    val Profile = NavigationRoute.Profile.route
+    val Settings = NavigationRoute.Settings.route
+    val Help = NavigationRoute.Help.route
+    val VetConsultation = NavigationRoute.VetConsultation.route
+    val IotDashboard = NavigationRoute.IoTDashboard.route
+    val Chat = NavigationRoute.Chat.base
+    val TransferDetail = NavigationRoute.TransferDetail.base
+    val ActivityVerification = NavigationRoute.ActivityVerification.route
+    val FarmerHome = NavigationRoute.FarmerHome.route
+    val HighLevelHome = NavigationRoute.HighLevelHome.route
+    val Auctions = NavigationRoute.Auctions.route
+    val AuctionDetail = NavigationRoute.AuctionDetail.base
 
     // Routes with parameters
-    const val TRANSFER_VERIFICATION = "transferVerification/{orderId}"
-    const val FOWL_DETAILS = "fowlDetails/{fowlId}"
-    const val LISTING_DETAILS = "listingDetails/{listingId}"
-    const val USER_PROFILE = "userProfile/{userId}"
-    const val CHAT = "chat/{receiverFirebaseUid}"
+    val TransferVerification = "transferVerification/{orderId}"
+    val FowlDetails = "fowlDetails/{fowlId}"
+    val ListingDetails = "listingDetails/{listingId}"
+    val UserProfile = "userProfile/{userId}"
 
     // Functions to create routes with parameters
     fun transferVerification(orderId: String) = "transferVerification/$orderId"
@@ -407,8 +411,6 @@ object NavigationRoutes {
     fun listingDetails(listingId: String) = "listingDetails/$listingId"
 
     fun userProfile(userId: String) = "userProfile/$userId"
-
-    fun chat(receiverFirebaseUid: String) = "chat/$receiverFirebaseUid"
 }
 
 /**
@@ -468,74 +470,5 @@ fun NavHostController.rememberNavigationManager(): NavigationManager {
  * Utility function to validate navigation routes
  */
 fun validateNavigationRoute(route: String?): Boolean {
-    return route != null && NavigationRoute.values().any { it.route == route }
-}
-
-/**
- * Deep link handling utilities
- */
-object DeepLinkHandler {
-    fun handleDeepLink(
-        deepLink: String,
-        navController: NavHostController,
-    ): Boolean {
-        return try {
-            when {
-                deepLink.contains("transferVerification") -> {
-                    val orderId = deepLink.substringAfterLast("/")
-                    navController.safeNavigate(NavigationRoutes.transferVerification(orderId))
-                    true
-                }
-
-                deepLink.contains("fowlDetails") -> {
-                    val fowlId = deepLink.substringAfterLast("/")
-                    navController.safeNavigate(NavigationRoutes.fowlDetails(fowlId))
-                    true
-                }
-
-                deepLink.contains("listingDetails") -> {
-                    val listingId = deepLink.substringAfterLast("/")
-                    navController.safeNavigate(NavigationRoutes.listingDetails(listingId))
-                    true
-                }
-
-                else -> false
-            }
-        } catch (e: Exception) {
-            false
-        }
-    }
-}
-
-/**
- * Navigation performance metrics
- */
-object NavigationMetrics {
-    private var navigationCount = 0
-    private var lastNavigationTime = 0L
-
-    fun trackNavigation(
-        fromRoute: String?,
-        toRoute: String,
-    ) {
-        navigationCount++
-        lastNavigationTime = System.currentTimeMillis()
-
-        // Track with AnalyticsTracker if needed
-        try {
-            AnalyticsTracker.trackEvent(
-                "navigation",
-                mapOf(
-                    "from_route" to (fromRoute ?: "unknown"),
-                    "to_route" to toRoute,
-                ),
-            )
-        } catch (e: Exception) {
-            // Ignore analytics errors
-        }
-    }
-
-    fun getNavigationCount(): Int = navigationCount
-
-    fun getLastNavigationTime(): Long = lastNavigationTime
+    return route != null && route == NavigationRoute.IoTDashboard.route
 }

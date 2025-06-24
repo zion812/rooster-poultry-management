@@ -62,11 +62,12 @@ fun OrderDetailScreen(
         },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
         ) {
             Text(
                 "Product: ${order!!.productName}",
@@ -83,13 +84,15 @@ fun OrderDetailScreen(
             )
 
             when (order!!.status) {
-                UserOrderStatus.PENDING -> Button(
-                    onClick = onCODConfirm,
-                ) { Text("Confirm Cash on Delivery") }
+                UserOrderStatus.PENDING ->
+                    Button(
+                        onClick = onCODConfirm,
+                    ) { Text("Confirm Cash on Delivery") }
 
-                UserOrderStatus.DELIVERED -> Button(
-                    onClick = onFeedback,
-                ) { Text("Leave Feedback") }
+                UserOrderStatus.DELIVERED ->
+                    Button(
+                        onClick = onFeedback,
+                    ) { Text("Leave Feedback") }
                 else -> {}
             }
         }

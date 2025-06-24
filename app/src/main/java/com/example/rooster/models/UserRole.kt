@@ -7,7 +7,8 @@ enum class UserRole {
     FARMER,
     GENERAL, // General marketplace user
     HIGH_LEVEL, // Admin or other privileged user
-    UNKNOWN; // Default or error state
+    UNKNOWN, // Default or error state
+    ;
 
     companion object {
         /**

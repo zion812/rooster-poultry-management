@@ -243,8 +243,8 @@ fun EnhancedAuctionCreationScreen(
         AlertDialog(
             onDismissRequest = {
                 // Navigate to marketplace to show newly listed product
-                navController.navigate(NavigationRoute.MARKETPLACE.route) {
-                    popUpTo(NavigationRoute.MARKETPLACE.route) {
+                navController.navigate(NavigationRoute.Marketplace.route) {
+                    popUpTo(NavigationRoute.Marketplace.route) {
                         inclusive = false
                     }
                 }
@@ -258,8 +258,8 @@ fun EnhancedAuctionCreationScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        navController.navigate(NavigationRoute.MARKETPLACE.route) {
-                            popUpTo(NavigationRoute.MARKETPLACE.route) {
+                        navController.navigate(NavigationRoute.Marketplace.route) {
+                            popUpTo(NavigationRoute.Marketplace.route) {
                                 inclusive = false
                             }
                         }
@@ -614,6 +614,6 @@ private fun getMonitoringCategoryDisplayName(
         BidMonitoringCategory.ALL_BIDS -> if (isTeluguMode) "అన్ని వేలాలు చూడండి" else "Show All Bids"
         BidMonitoringCategory.WINNING_BIDS_ONLY -> if (isTeluguMode) "గెలుస్తున్న వేలాలు మాత్రమే" else "Winning Bids Only"
         BidMonitoringCategory.PRIVATE_BIDDING -> if (isTeluguMode) "వ్యక్తిగత వేలం" else "Private Bidding"
-        BidMonitoringCategory.SELLER_NOTIFICATIONS_ONLY -> if (isTeluguMode) "నోటిఫికేషన్‌లు మాత్రమే" else "Notifications Only"
+        BidMonitoringCategory.SELLER_NOTIFICATIONS_ONLY -> if (isTeluguMode) "నోటిఫికేషన్లు మాత్రమే" else "Notifications Only"
     }
 }

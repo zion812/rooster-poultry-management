@@ -53,13 +53,14 @@ fun HelpSupportScreen(
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     ),
             )
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .padding(16.dp),
         ) {
             item {
                 SupportSectionTitle("FAQ")

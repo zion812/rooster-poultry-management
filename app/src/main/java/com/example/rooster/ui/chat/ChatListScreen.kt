@@ -56,17 +56,20 @@ fun ChatListScreen(
                 }
             }
             when (selectedTab) {
-                0 -> PersonalMessageList(personal, isTeluguMode) { msg ->
-                    navController.navigate(NavigationRoute.Chat(msg.senderId).route)
-                }
+                0 ->
+                    PersonalMessageList(personal, isTeluguMode) { msg ->
+                        navController.navigate(NavigationRoute.Chat(msg.senderId).route)
+                    }
 
-                1 -> GroupMessageList(group, isTeluguMode) { msg ->
-                    navController.navigate(NavigationRoute.Chat(msg.groupId).route)
-                }
+                1 ->
+                    GroupMessageList(group, isTeluguMode) { msg ->
+                        navController.navigate(NavigationRoute.Chat(msg.groupId).route)
+                    }
 
-                2 -> CommunityMessageList(community, isTeluguMode) { msg ->
-                    navController.navigate(NavigationRoute.Chat(msg.id).route)
-                }
+                2 ->
+                    CommunityMessageList(community, isTeluguMode) { msg ->
+                        navController.navigate(NavigationRoute.Chat(msg.id).route)
+                    }
             }
         }
     }
@@ -81,10 +84,11 @@ private fun PersonalMessageList(
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(items) { item ->
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .clickable { onClick(item) },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .clickable { onClick(item) },
                 elevation = CardDefaults.cardElevation(2.dp),
             ) {
                 ChatItemRow(item.senderName, item.content, isTeluguMode)
@@ -102,10 +106,11 @@ private fun GroupMessageList(
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(items) { item ->
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .clickable { onClick(item) },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .clickable { onClick(item) },
                 elevation = CardDefaults.cardElevation(2.dp),
             ) {
                 ChatItemRow(item.groupName, item.content, isTeluguMode)
@@ -123,10 +128,11 @@ private fun CommunityMessageList(
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(items) { item ->
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .clickable { onClick(item) },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .clickable { onClick(item) },
                 elevation = CardDefaults.cardElevation(2.dp),
             ) {
                 ChatItemRow(item.title, item.content, isTeluguMode)

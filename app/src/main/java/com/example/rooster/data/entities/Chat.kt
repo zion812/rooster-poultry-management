@@ -12,5 +12,5 @@ data class Chat(
     val createdAt: Long = System.currentTimeMillis(),
     val isGroup: Boolean = false,
     val groupName: String? = null,
-    val groupImageUrl: String? = null
+    val groupImageUrl: String? = null,
 )

@@ -12,7 +12,7 @@ data class Message(
     val messageType: MessageType = MessageType.TEXT,
     val createdAt: Long = System.currentTimeMillis(),
     val isRead: Boolean = false,
-    val isDelivered: Boolean = false
+    val isDelivered: Boolean = false,
 )
 
 /**
@@ -23,5 +23,5 @@ enum class MessageType {
     IMAGE,
     VIDEO,
     AUDIO,
-    DOCUMENT
+    DOCUMENT,
 }

@@ -16,5 +16,5 @@ data class CartItem(
     val sellerName: String,
     val imageUrl: String?,
     val addedAt: Date,
-    val isAvailable: Boolean // To check if the listing is still active/available
+    val isAvailable: Boolean, // To check if the listing is still active/available
 )

@@ -1,11 +1,7 @@
 package com.example.rooster
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MedicalServices
@@ -29,13 +25,13 @@ fun VetConsultationScreen(
 ) {
     StandardScreenLayout(
         horizontalAlignment = Alignment.CenterHorizontally,
-        scrollable = true
+        scrollable = true,
     ) {
         Icon(
             imageVector = Icons.Default.MedicalServices,
             contentDescription = if (isTeluguMode) "వెట్ కన్సల్టేషన్ ఐకాన్" else "Vet Consultation Icon",
             modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.primary,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -43,7 +39,7 @@ fun VetConsultationScreen(
         Text(
             text = if (isTeluguMode) "వెట్ కన్సల్టేషన్" else "Vet Consultation",
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -51,14 +47,14 @@ fun VetConsultationScreen(
         Text(
             text = if (isTeluguMode) "త్వరలో అందుబాటులోకి వస్తుంది" else "Coming Soon",
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(onClick = onLanguageToggle) {
             Text(
-                text = if (isTeluguMode) "Switch to English" else "తెలుగుకు మారండి"
+                text = if (isTeluguMode) "Switch to English" else "తెలుగుకు మారండి",
             )
         }
     }

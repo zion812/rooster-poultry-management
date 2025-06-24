@@ -22,12 +22,13 @@ fun PaymentScreen(
     val isProcessing by orderViewModel.isProcessing.collectAsState()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text("Choose Payment Method", style = MaterialTheme.typography.headlineSmall)
         Spacer(Modifier.height(16.dp))
@@ -59,13 +60,17 @@ fun PaymentScreen(
 
         Button(
             onClick = {
-                val result: Boolean = orderViewModel.placeOrder(
-                    listingId,
-                    paymentMethod,
-                    useAdvance,
-                ) { newOrderId ->
-                    onSuccess(newOrderId)
-                }
+                orderViewModel.processPayment(
+                    orderId = listingId, // Using listingId as orderId temporarily
+                    paymentMethod = when (paymentMethod) {
+                        "COD" -> com.example.rooster.data.entities.PaymentMethod.COD
+                        "Online" -> com.example.rooster.data.entities.PaymentMethod.UPI
+                        else -> com.example.rooster.data.entities.PaymentMethod.COD
+                    },
+                    coinsUsed = if (useAdvance) 10 else 0
+                )
+                // Call success callback with the listing ID as order ID
+                onSuccess(listingId)
             },
             enabled = !isProcessing,
             modifier = Modifier.fillMaxWidth(),

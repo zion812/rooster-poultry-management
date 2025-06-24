@@ -1,7 +1,7 @@
 package com.example.rooster.data.repositories
 
-import com.example.rooster.data.entities.User
 import com.example.rooster.domain.repository.UserRepository
+import com.example.rooster.models.UserRole
 import com.parse.ParseUser
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -10,32 +10,35 @@ import javax.inject.Singleton
  * Implementation of UserRepository
  */
 @Singleton
-class UserRepositoryImpl @Inject constructor() : UserRepository {
-
-    override suspend fun getCurrentUser(): User {
-        val parseUser = ParseUser.getCurrentUser()
-        return if (parseUser != null) {
-            User(
-                userId = parseUser.objectId ?: "unknown",
-                username = parseUser.username ?: "unknown",
-                email = parseUser.email ?: "unknown@example.com",
-                displayName = parseUser.getString("displayName"),
-                profileImageUrl = parseUser.getString("profileImageUrl"),
-                role = parseUser.getString("userRole") ?: "farmer",
-                phoneNumber = parseUser.getString("phoneNumber"),
-                location = parseUser.getString("location"),
-                isActive = parseUser.getBoolean("isActive") ?: true,
-                createdAt = parseUser.createdAt?.time ?: System.currentTimeMillis()
-            )
-        } else {
-            User(
-                userId = "guest",
-                username = "Guest User",
-                email = "guest@example.com"
-            )
+class UserRepositoryImpl
+    @Inject
+    constructor() : UserRepository {
+        // Returns the userId of the current ParseUser as specified by the interface
+        override suspend fun getCurrentUser(): String? {
+            val parseUser = ParseUser.getCurrentUser()
+            return parseUser?.objectId
         }
-    }
 
+        // Get the UserRole for a given user ID; stub returns FARMER for now
+        override suspend fun getUserRole(userId: String): UserRole {
+            // TODO: Replace with real lookup from ParseUser or local cache
+            return UserRole.FARMER
+        }
+
+        // Update the UserRole for a user; stub returns true for now
+        override suspend fun updateUserRole(
+            userId: String,
+            role: UserRole,
+        ): Boolean {
+            // TODO: Implement actual update logic to data backend
+            return true
+        }
+
+        // ================== EXTRA USER-CENTRIC METHODS ==================
+        // The below methods do not belong to the UserRepository interface.
+        // They are commented out for future modularization/refactoring.
+
+    /*
     override suspend fun getUser(userId: String): User? {
         // Mock implementation - in real app would query Parse Server
         return User(
@@ -70,4 +73,5 @@ class UserRepositoryImpl @Inject constructor() : UserRepository {
             )
         )
     }
-}
+     */
+    }

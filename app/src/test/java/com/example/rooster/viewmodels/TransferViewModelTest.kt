@@ -1,9 +1,9 @@
 package com.example.rooster.viewmodels
 
+import android.content.Context
 import app.cash.turbine.test
-import com.example.rooster.viewmodels.TransferViewModel
-import com.example.rooster.repository.TransferRepository
 import com.example.rooster.repository.CoinManager
+import com.example.rooster.repository.TransferRepository
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -13,7 +13,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import android.content.Context
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TransferViewModelTest {
@@ -33,12 +32,13 @@ class TransferViewModelTest {
     }
 
     @Test
-    fun `initial coin balance is zero`() = testScope.runTest {
-        viewModel.coinBalance.test {
-            val balance = awaitItem()
-            assertEquals(0, balance)
+    fun `initial coin balance is zero`() =
+        testScope.runTest {
+            viewModel.coinBalance.test {
+                val balance = awaitItem()
+                assertEquals(0, balance)
+            }
         }
-    }
 
     // Add more tests for transfer flows, error handling, etc.
 }

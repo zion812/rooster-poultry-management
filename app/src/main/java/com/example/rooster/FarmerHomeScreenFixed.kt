@@ -14,8 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.rooster.ui.navigation.NavigationRoute
-import com.example.rooster.ui.components.StandardScreenLayout
 
 /**
  * Simplified FarmerHomeScreen with working UI components
@@ -46,11 +44,13 @@ fun FarmerHomeScreen(navController: NavHostController) {
         },
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding) // Apply innerPadding from Scaffold
-                .padding(16.dp), // Add standard screen padding
-            verticalArrangement = Arrangement.spacedBy(16.dp) // Spacing between items
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding) // Apply innerPadding from Scaffold
+                    .padding(16.dp),
+            // Add standard screen padding
+            verticalArrangement = Arrangement.spacedBy(16.dp), // Spacing between items
         ) {
             // Welcome Section
             item {
@@ -106,7 +106,7 @@ fun FarmerHomeScreen(navController: NavHostController) {
                         title = if (isTeluguMode) "మార్కెట్‌ప్లేస్" else "Marketplace",
                         icon = Icons.Default.Store,
                         modifier = Modifier.weight(1f),
-                    ) { navController.navigate(NavigationRoute.MARKETPLACE.route) }
+                    ) { navController.navigate(NavigationRoute.Marketplace.route) }
                 }
             }
 
@@ -139,7 +139,7 @@ fun FarmerHomeScreen(navController: NavHostController) {
                         title = if (isTeluguMode) "విశ్లేషణలు" else "Analytics",
                         icon = Icons.Default.Analytics,
                         modifier = Modifier.weight(1f),
-                    ) { navController.navigate(NavigationRoute.FARM_ANALYTICS.route) }
+                    ) { navController.navigate(NavigationRoute.FarmAnalytics.route) }
                 }
             }
 
@@ -153,13 +153,13 @@ fun FarmerHomeScreen(navController: NavHostController) {
                         title = "Farm Dashboard",
                         icon = Icons.Default.Dashboard,
                         modifier = Modifier.weight(1f),
-                    ) { navController.navigate(NavigationRoute.FARM_DASHBOARD.route) }
+                    ) { navController.navigate(NavigationRoute.FarmDashboard.route) }
 
                     ActionCard(
                         title = if (isTeluguMode) "సరళ వ్యవసాయ" else "Simple Farm",
                         icon = Icons.Default.Agriculture,
                         modifier = Modifier.weight(1f),
-                    ) { navController.navigate(NavigationRoute.SIMPLE_FARMER.route) }
+                    ) { navController.navigate(NavigationRoute.SimpleFarmer.route) }
                 }
             }
 
@@ -173,7 +173,7 @@ fun FarmerHomeScreen(navController: NavHostController) {
                         title = if (isTeluguMode) "నా వేలం" else "My Auctions",
                         icon = Icons.Default.Gavel,
                         modifier = Modifier.weight(1f),
-                    ) { navController.navigate(NavigationRoute.AUCTIONS.route) }
+                    ) { navController.navigate(NavigationRoute.Auctions.route) }
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }

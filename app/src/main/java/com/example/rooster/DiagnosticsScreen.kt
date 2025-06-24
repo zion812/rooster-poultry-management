@@ -1,12 +1,9 @@
 package com.example.rooster
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -28,7 +25,7 @@ fun DiagnosticsScreen() {
     StandardScreenLayout(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        scrollable = true
+        scrollable = true,
     ) {
         Text("Diagnostics", style = MaterialTheme.typography.headlineLarge)
         Row(
@@ -53,13 +50,13 @@ fun DiagnosticsScreen() {
         Text("✅ SettingsScreen: Simplified", style = MaterialTheme.typography.bodyMedium)
         Text(
             "⚠️ MarketplaceScreen: Complex (Nav dependency)",
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             "MVP Status: Core screens simplified for Quick Build",
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodySmall,
         )
     }
 }
