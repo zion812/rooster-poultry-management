@@ -20,7 +20,7 @@ class UserRepositoryImpl
         }
 
         // Get the UserRole for a given user ID; stub returns FARMER for now
-        override suspend fun getUserRole(userId: String): UserRole {
+        override suspend fun getUserRole(): UserRole {
             // TODO: Replace with real lookup from ParseUser or local cache
             return UserRole.FARMER
         }

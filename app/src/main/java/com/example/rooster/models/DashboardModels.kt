@@ -113,6 +113,8 @@ data class StatItem(
 data class QuickAction(
     val title: String,
     val titleTe: String = "",
+    val description: String = "",
+    val descriptionTe: String = "",
     val route: String = "",
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
     val color: androidx.compose.ui.graphics.Color,

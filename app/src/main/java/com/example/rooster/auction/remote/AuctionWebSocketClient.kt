@@ -48,13 +48,7 @@ class AuctionWebSocketClient
                         ) {
                             runCatching {
                                 // Simple JSON parsing for now - replace with proper parsing later
-                                val dto =
-                                    BidUpdate(
-                                        auctionId,
-                                        100.0,
-                                        "bidder",
-                                        System.currentTimeMillis(),
-                                    )
+                                val dto = BidUpdate(auctionId, 100.0, "bidder", System.currentTimeMillis())
                                 _updates.tryEmit(dto)
                             }.onFailure { e ->
                                 Log.e("AuctionWebSocket", "Failed to parse BidUpdate", e)
@@ -63,8 +57,8 @@ class AuctionWebSocketClient
 
                         override fun onFailure(
                             webSocket: WebSocket,
-                            t: Throwable,
                             response: Response?,
+                            t: Throwable,
                         ) {
                             Log.e("AuctionWebSocket", "WebSocket failure for auction $auctionId, retrying…")
                             retryConnect(auctionId)

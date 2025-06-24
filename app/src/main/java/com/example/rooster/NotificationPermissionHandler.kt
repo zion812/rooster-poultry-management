@@ -27,7 +27,7 @@ object NotificationPermissionHandler {
     /**
      * Check if notification permission is granted
      */
-    fun getInstance(context: Context): Boolean {
+    fun hasNotificationPermission(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(
                 context,
@@ -80,7 +80,7 @@ fun NotificationPermissionRequest(onPermissionResult: (Boolean) -> Unit = {}) {
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             when {
-                NotificationPermissionHandler.getInstance(context) -> {
+                NotificationPermissionHandler.hasNotificationPermission(context) -> {
                     // Already granted
                     onPermissionResult(true)
                 }
@@ -167,7 +167,7 @@ fun rememberNotificationPermission(): Boolean {
     var hasPermission by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        hasPermission = NotificationPermissionHandler.getInstance(context)
+        hasPermission = NotificationPermissionHandler.hasNotificationPermission(context)
     }
 
     return hasPermission

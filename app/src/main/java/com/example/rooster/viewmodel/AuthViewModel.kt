@@ -70,7 +70,7 @@ class AuthViewModel
                     _uiState.value = _uiState.value.copy(loading = true)
                     val user = getCurrentUser()
                     if (user != null) {
-                        val role = getUserRole(user.objectId)
+                        val role = getUserRole()
                         _uiState.value =
                             _uiState.value.copy(
                                 isAuthenticated = true,
@@ -103,10 +103,9 @@ class AuthViewModel
             }
         }
 
-        private suspend fun getUserRole(userId: String): UserRole {
+        private suspend fun getUserRole(): UserRole {
             return try {
-                // Placeholder implementation
-                UserRole.FARMER
+                userRepository.getUserRole()
             } catch (e: Exception) {
                 UserRole.UNKNOWN
             }

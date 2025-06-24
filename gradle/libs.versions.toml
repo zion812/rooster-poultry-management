@@ -3,7 +3,7 @@
 
 [versions]
 # Core Android & Kotlin
-agp = "8.10.1"
+agp = "8.11.0"
 kotlin = "2.0.21"
 compose-bom = "2024.09.00"
 compose-compiler = "1.5.14"

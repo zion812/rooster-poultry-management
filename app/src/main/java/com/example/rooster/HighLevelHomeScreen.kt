@@ -23,32 +23,38 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.rooster.models.*
-import kotlinx.coroutines.delay
+import android.content.Context
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.coroutines.delay
+import com.example.rooster.models.*
+
+private fun formatDate(timestamp: Long): String {
+    val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+    val date = Date(timestamp)
+    return sdf.format(date)
+}
 
 suspend fun fetchHighLevelDashboardData(
     onResult: (HighLevelDashboardData) -> Unit,
     onError: (String) -> Unit,
-    setLoading: (Boolean) -> Unit,
+    setLoading: (Boolean) -> Unit
 ) {
     try {
         delay(1000) // Simulate network delay
-        val mockData =
-            HighLevelDashboardData(
-                overviewStats = OverviewStats(1250, 850, 15200, 450),
-                performanceMetrics = DashboardMetrics(420, 15.0, 45.0, 8.0, 125000.0, 12.0),
-                traceabilityMetrics = TraceabilityMetrics(25, 180, 12, 3, 94.5, 6.0),
-                analyticsMetrics = AnalyticsMetrics(18.0, 2500.0, 12.5, 2, 98.5, 97.8),
-                fraudAlerts = emptyList(),
-                farmVerifications = emptyList(),
-                userVerifications = emptyList(),
-                topFarmers = generateTopFarmers(),
-                recentActivities = generateRecentActivities(),
-                systemHealth = SystemHealth("Healthy", "Healthy"),
-            )
+        val mockData = HighLevelDashboardData(
+            overviewStats = OverviewStats(1250, 850, 15200, 450),
+            performanceMetrics = DashboardMetrics(420, 15.0, 45.0, 8.0, 125000.0, 12.0),
+            traceabilityMetrics = TraceabilityMetrics(25, 180, 12, 3, 94.5, 6.0),
+            analyticsMetrics = AnalyticsMetrics(18.0, 2500.0, 12.5, 2, 98.5, 97.8),
+            fraudAlerts = emptyList(),
+            farmVerifications = emptyList(),
+            userVerifications = emptyList(),
+            topFarmers = generateTopFarmers(),
+            recentActivities = generateRecentActivities(),
+            systemHealth = SystemHealth("Healthy", "Healthy")
+        )
         onResult(mockData)
         setLoading(false)
     } catch (e: Exception) {
@@ -62,7 +68,7 @@ suspend fun fetchHighLevelDashboardData(
 fun HighLevelHomeScreen(
     navController: NavController,
     isTeluguMode: Boolean,
-    onLanguageToggle: () -> Unit,
+    onLanguageToggle: () -> Unit
 ) {
     var dashboardData by remember { mutableStateOf<HighLevelDashboardData?>(null) }
     var loading by remember { mutableStateOf(true) }
@@ -90,7 +96,7 @@ fun HighLevelHomeScreen(
         TopAppBar(
             title = {
                 Text(
-                    text = "Admin Dashboard",
+                    "Admin Dashboard",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
@@ -132,7 +138,7 @@ private fun LoadingContent() {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Loading dashboard data...",
+                "Loading dashboard data...",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray,
             )
@@ -164,13 +170,13 @@ private fun ErrorContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "Error loading dashboard",
+                    "Error loading dashboard",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onErrorContainer,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = error,
+                    error,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     textAlign = TextAlign.Center,
@@ -183,7 +189,7 @@ private fun ErrorContent(
                             containerColor = Color(0xFFFF5722),
                         ),
                 ) {
-                    Text(text = "Retry", color = Color.White)
+                    Text("Retry", color = Color.White)
                 }
             }
         }
@@ -265,7 +271,7 @@ private fun OverviewStatsSection(stats: OverviewStats) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Overview",
+                "Overview",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -335,13 +341,13 @@ private fun StatCard(stat: StatItem) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = stat.value,
+                stat.value,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = stat.color,
             )
             Text(
-                text = stat.label,
+                stat.label,
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
@@ -359,7 +365,7 @@ private fun DashboardMetricsSection(metrics: DashboardMetrics) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Performance Metrics",
+                "Performance Metrics",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -404,19 +410,19 @@ private fun MetricItem(
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = value,
+            value,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = trend,
+                trend,
                 color = trendColor,
                 fontSize = 12.sp,
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = label,
+                label,
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
@@ -433,7 +439,7 @@ private fun TraceabilityMetricsSection(metrics: TraceabilityMetrics) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Transfer Traceability",
+                "Transfer Traceability",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -489,13 +495,13 @@ private fun TraceabilityItem(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = value,
+            value,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = color,
         )
         Text(
-            text = label,
+            label,
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
             maxLines = 2,
@@ -511,7 +517,7 @@ private fun AnalyticsMetricsSection(metrics: AnalyticsMetrics) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Analytics Metrics",
+                "Analytics Metrics",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -598,13 +604,13 @@ private fun AnalyticsItem(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = value,
+            value,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = color,
         )
         Text(
-            text = label,
+            label,
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
             maxLines = 2,
@@ -620,7 +626,7 @@ private fun FraudAlertsSection(fraudAlerts: List<FraudAlert>) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Fraud Alerts",
+                "Fraud Alerts",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -629,7 +635,7 @@ private fun FraudAlertsSection(fraudAlerts: List<FraudAlert>) {
 
             if (fraudAlerts.isEmpty()) {
                 Text(
-                    text = "No fraud alerts",
+                    "No fraud alerts",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
@@ -679,18 +685,18 @@ private fun FraudAlertItem(alert: FraudAlert) {
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Alert: ${alert.alertType} - Entity: ${alert.relatedEntity}",
+                    "Alert: ${alert.alertType} - Entity: ${alert.relatedEntity}",
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
-                    text = "Status: ${alert.status}",
+                    "Status: ${alert.status}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                 )
             }
 
             Text(
-                text = SimpleDateFormat("HH:mm", Locale.US).format(Date(alert.timestamp)),
+                SimpleDateFormat("HH:mm", Locale.US).format(Date(alert.timestamp)),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -707,7 +713,7 @@ private fun FarmVerificationsSection(farmVerifications: List<FarmVerification>) 
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Farm Verifications",
+                "Farm Verifications",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -716,7 +722,7 @@ private fun FarmVerificationsSection(farmVerifications: List<FarmVerification>) 
 
             if (farmVerifications.isEmpty()) {
                 Text(
-                    text = "No farm verification records",
+                    "No farm verification records",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
@@ -766,18 +772,18 @@ private fun FarmVerificationItem(verification: FarmVerification) {
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Farm: ${verification.farmName} - Owner: ${verification.ownerName}",
+                    "Farm: ${verification.farmName} - Owner: ${verification.ownerName}",
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
-                    text = "Status: ${verification.verificationStatus}",
+                    "Status: ${verification.verificationStatus}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                 )
             }
 
             Text(
-                text = SimpleDateFormat("dd/MM", Locale.US).format(Date(verification.submittedDate)),
+                formatDate(verification.submittedDate),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -794,7 +800,7 @@ private fun UserVerificationsSection(userVerifications: List<UserVerification>) 
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "User Verifications",
+                "User Verifications",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -803,7 +809,7 @@ private fun UserVerificationsSection(userVerifications: List<UserVerification>) 
 
             if (userVerifications.isEmpty()) {
                 Text(
-                    text = "No user verification records",
+                    "No user verification records",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
@@ -853,18 +859,18 @@ private fun UserVerificationItem(verification: UserVerification) {
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "User: ${verification.userName} - Type: ${verification.userType}",
+                    "User: ${verification.userName} - Type: ${verification.userType}",
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
-                    text = "Progress: ${verification.verificationProgress}%",
+                    "Progress: ${verification.verificationProgress}%",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                 )
             }
 
             Text(
-                text = SimpleDateFormat("dd/MM HH:mm", Locale.US).format(Date(verification.lastActivity)),
+                formatDate(verification.lastActivity),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -881,7 +887,7 @@ private fun TopFarmersSection(farmers: List<TopFarmer>) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Top Performing Farmers",
+                "Top Performing Farmers",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -921,7 +927,7 @@ private fun FarmerRankItem(farmer: TopFarmer) {
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = farmer.rank.toString(),
+                farmer.rank.toString(),
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
@@ -932,19 +938,19 @@ private fun FarmerRankItem(farmer: TopFarmer) {
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = farmer.name,
+                farmer.name,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
             )
             Text(
-                text = "${farmer.location} • ${farmer.fowlCount} fowl",
+                "${farmer.location} • ${farmer.fowlCount} fowl",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
             )
         }
 
         Text(
-            text = "${farmer.score}%",
+            "${farmer.score}%",
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             color = Color(0xFFFF5722),
@@ -960,7 +966,7 @@ private fun RecentActivitiesSection(activities: List<RecentActivity>) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Recent Activities",
+                "Recent Activities",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -1000,11 +1006,11 @@ private fun ActivityItem(activity: RecentActivity) {
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = activity.description,
+                activity.description,
                 style = MaterialTheme.typography.bodyMedium,
             )
             Text(
-                text = activity.timeAgo,
+                activity.timeAgo,
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
             )
@@ -1023,7 +1029,7 @@ private fun SystemHealthSection(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "System Health",
+                "System Health",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -1070,12 +1076,12 @@ private fun HealthIndicator(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = label,
+            label,
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
         )
         Text(
-            text = status,
+            status,
             style = MaterialTheme.typography.bodySmall,
             color = if (isHealthy) Color.Green else Color.Red,
             fontWeight = FontWeight.Medium,
@@ -1091,7 +1097,7 @@ private fun QuickActionsSection() {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Quick Actions",
+                "Quick Actions",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -1108,6 +1114,8 @@ private fun QuickActionsSection() {
                             titleTe = "నోటిఫికేషన్ పంపండి",
                             icon = Icons.Default.Notifications,
                             route = "notifications",
+                            description = "Send alerts to farmers",
+                            descriptionTe = "రైతులకు హెచ్చరికలు పంపండి",
                             color = Color(0xFF2196F3),
                         ),
                         QuickAction(
@@ -1115,6 +1123,8 @@ private fun QuickActionsSection() {
                             titleTe = "వినియోగదారు నిర్వహణ",
                             icon = Icons.Default.ManageAccounts,
                             route = "user_management",
+                            description = "Manage user accounts",
+                            descriptionTe = "వినియోగదారు ఖాతాలను నిర్వహించండి",
                             color = Color(0xFF4CAF50),
                         ),
                         QuickAction(
@@ -1122,14 +1132,18 @@ private fun QuickActionsSection() {
                             titleTe = "నివేదికలు",
                             icon = Icons.Default.Assessment,
                             route = "reports",
-                            color = Color(0xFFFF9800),
+                            description = "Generate reports",
+                            descriptionTe = "నివేదికలను రూపొందించండి",
+                            color = Color(0xFFFF9800)
                         ),
                         QuickAction(
                             title = "Settings",
                             titleTe = "సెట్టింగులు",
                             icon = Icons.Default.Settings,
                             route = "settings",
-                            color = Color(0xFF9C27B0),
+                            description = "System settings",
+                            descriptionTe = "సిస్టమ్ సెట్టింగులు",
+                            color = Color(0xFF9C27B0)
                         ),
                     ),
                 ) { action ->
@@ -1165,7 +1179,7 @@ private fun QuickActionCard(action: QuickAction) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = action.title,
+                action.title,
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
@@ -1177,11 +1191,11 @@ private fun QuickActionCard(action: QuickAction) {
 
 fun generateTopFarmers(): List<TopFarmer> {
     return listOf(
-        TopFarmer(id = "1", rank = 1, name = "Ravi Kumar", location = "Hyderabad, Telangana", fowlCount = 45, score = 95.0),
-        TopFarmer(id = "2", rank = 2, name = "Priya Sharma", location = "Vijayawada, AP", fowlCount = 38, score = 92.0),
-        TopFarmer(id = "3", rank = 3, name = "Suresh Reddy", location = "Mysore, Karnataka", fowlCount = 12, score = 94.5),
-        TopFarmer(id = "4", rank = 4, name = "Lakshmi Devi", location = "Chennai, Tamil Nadu", fowlCount = 41, score = 87.0),
-        TopFarmer(id = "5", rank = 5, name = "Venkat Rao", location = "Warangal, Telangana", fowlCount = 35, score = 85.0),
+        TopFarmer(id = "1", name = "Venkatesh Rao", location = "Guntur, AP", fowlCount = 120, score = 98.5, rank = 1),
+        TopFarmer(id = "2", name = "Anjali Reddy", location = "Warangal, TS", fowlCount = 95, score = 97.2, rank = 2),
+        TopFarmer(id = "3", name = "Srinivas Yadav", location = "Chittoor, AP", fowlCount = 80, score = 96.8, rank = 3),
+        TopFarmer(id = "4", name = "Lakshmi Devi", location = "Karimnagar, TS", fowlCount = 110, score = 95.5, rank = 4),
+        TopFarmer(id = "5", name = "Ramesh Kumar", location = "Vijayawada, AP", fowlCount = 70, score = 94.9, rank = 5)
     )
 }
 

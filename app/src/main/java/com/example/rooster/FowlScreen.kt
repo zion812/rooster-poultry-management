@@ -1,6 +1,10 @@
 package com.example.rooster
 
 import android.app.Application
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.parse.ParseACL
+import com.parse.ParseFile
 import com.parse.ParseObject
 import com.parse.ParseQuery
 import com.parse.ParseUser
@@ -55,6 +60,8 @@ fun FowlScreen() {
     var error by remember { mutableStateOf("") }
     var showAddFowlDialog by remember { mutableStateOf(false) }
     var selectedMilestone by remember { mutableStateOf<Pair<MilestoneType, FowlData>?>(null) }
+    var parentId by remember { mutableStateOf<String?>(null) }
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
 
     // Services
     val context = LocalContext.current.applicationContext as Application
@@ -100,6 +107,31 @@ fun FowlScreen() {
         fowl.put("type", type)
         fowl.put("birthDate", birthDate)
         fowl.put("owner", ParseUser.getCurrentUser())
+        if (parentId != null) {
+            val parentPointer = ParseObject.createWithoutData("Fowl", parentId)
+            fowl.put("parentId", parentPointer)
+        }
+        if (photoUri != null) {
+            val inputStream = LocalContext.current.contentResolver.openInputStream(photoUri!!)
+            val imageBytes = inputStream?.readBytes()
+            inputStream?.close()
+            if (imageBytes != null) {
+                val parseFile = ParseFile("fowl_photo.jpg", imageBytes)
+                parseFile.saveInBackground { e ->
+                    if (e == null) {
+                        fowl.put("photo", parseFile)
+                        saveFowlObject(fowl)
+                    } else {
+                        error = e.localizedMessage ?: "Failed to upload photo."
+                    }
+                }
+                return
+            }
+        }
+        saveFowlObject(fowl)
+    }
+
+    fun saveFowlObject(fowl: ParseObject) {
         val acl = ParseACL(ParseUser.getCurrentUser())
         acl.setPublicReadAccess(true)
         acl.setWriteAccess(ParseUser.getCurrentUser(), true)
@@ -109,6 +141,8 @@ fun FowlScreen() {
                 fowl.pinInBackground()
                 name = ""
                 birthDate = ""
+                parentId = null
+                photoUri = null
                 showAddFowlDialog = false
                 fetchFowls()
             } else {
@@ -197,10 +231,24 @@ fun FowlScreen() {
             onTypeChange = { type = it },
             birthDate = birthDate,
             onBirthDateChange = { birthDate = it },
+            parentId = parentId,
+            onParentIdChange = { parentId = it },
+            fowlOptions = fowls.map {
+                FowlData(
+                    objectId = it.objectId,
+                    name = it.getString("name") ?: "Unknown",
+                    type = it.getString("type") ?: "Unknown",
+                    birthDate = it.getString("birthDate") ?: "Unknown",
+                )
+            },
+            photoUri = photoUri,
+            onPhotoUriChange = { photoUri = it },
             onDismiss = {
                 showAddFowlDialog = false
                 name = ""
                 birthDate = ""
+                parentId = null
+                photoUri = null
             },
             onConfirm = { addFowl() },
         )
@@ -294,9 +342,14 @@ fun EnhancedFowlCard(
 ) {
     var selectedTab by remember { mutableStateOf(FowlDetailTab.MILESTONES) }
     var lineage by remember { mutableStateOf<List<FowlData>>(emptyList()) }
+    var photoUrl by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(fowlData) {
         lineage = fetchLineage(fowlData)
+        // Fetch photo URL if exists
+        val query = ParseQuery.getQuery<ParseObject>("Fowl")
+        val obj = query.get(fowlData.objectId)
+        photoUrl = obj.getParseFile("photo")?.url
     }
 
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -304,9 +357,15 @@ fun EnhancedFowlCard(
             Text("Name: ${fowlData.name}")
             Text("Type: ${fowlData.type}")
             Text("Birth Date: ${fowlData.birthDate}")
-
+            photoUrl?.let {
+                Spacer(modifier = Modifier.height(8.dp))
+                Image(
+                    painter = rememberAsyncImagePainter(it),
+                    contentDescription = "Fowl Photo",
+                    modifier = Modifier.size(80.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(12.dp))
-
             ScrollableTabRow(selectedTabIndex = selectedTab.ordinal, edgePadding = 0.dp) {
                 FowlDetailTab.values().forEach { tab ->
                     Tab(
@@ -1054,10 +1113,6 @@ fun AddBrudingDialog(
     )
 }
 
-fun formatDate(date: Date?): String {
-    return date?.let { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(it) } ?: "N/A"
-}
-
 @Composable
 fun AddFowlDialog(
     name: String,
@@ -1066,9 +1121,17 @@ fun AddFowlDialog(
     onTypeChange: (String) -> Unit,
     birthDate: String,
     onBirthDateChange: (String) -> Unit,
+    parentId: String?,
+    onParentIdChange: (String?) -> Unit,
+    fowlOptions: List<FowlData>,
+    photoUri: Uri?,
+    onPhotoUriChange: (Uri?) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        onPhotoUriChange(uri)
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add New Fowl") },
@@ -1104,6 +1167,37 @@ fun AddFowlDialog(
                     label = { Text("Birth Date (YYYY-MM-DD)") },
                     modifier = Modifier.fillMaxWidth(),
                 )
+
+                // Parent selection dropdown
+                Text("Parent (optional):", style = MaterialTheme.typography.bodyMedium)
+                var expanded by remember { mutableStateOf(false) }
+                Box {
+                    OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) {
+                        Text(fowlOptions.find { it.objectId == parentId }?.name ?: "Select Parent")
+                    }
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        DropdownMenuItem(onClick = { onParentIdChange(null); expanded = false }) {
+                            Text("No Parent (Root)")
+                        }
+                        fowlOptions.forEach { fowl ->
+                            DropdownMenuItem(onClick = { onParentIdChange(fowl.objectId); expanded = false }) {
+                                Text(fowl.name)
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Photo (optional):", style = MaterialTheme.typography.bodyMedium)
+                OutlinedButton(onClick = { launcher.launch("image/*") }, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (photoUri != null) "Change Photo" else "Pick Photo")
+                }
+                photoUri?.let {
+                    Image(
+                        painter = rememberAsyncImagePainter(it),
+                        contentDescription = "Fowl Photo",
+                        modifier = Modifier.size(80.dp)
+                    )
+                }
             }
         },
         confirmButton = {
@@ -1120,6 +1214,10 @@ fun AddFowlDialog(
             }
         },
     )
+}
+
+fun formatDate(date: Date?): String {
+    return date?.let { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(it) } ?: "N/A"
 }
 
 @Composable

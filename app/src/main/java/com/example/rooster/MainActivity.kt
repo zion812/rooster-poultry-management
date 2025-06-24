@@ -27,6 +27,11 @@ import com.example.rooster.viewmodel.AuthViewModel
 import com.razorpay.PaymentResultListener
 import dagger.hilt.android.AndroidEntryPoint
 
+// Import the screens we are about to use
+import com.example.rooster.HighLevelHomeScreen
+import com.example.rooster.MarketplaceScreen
+import com.example.rooster.FarmerHomeScreen
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(), PaymentResultListener {
     // Payment result handling for Razorpay
@@ -108,17 +113,23 @@ fun RoosterApp() {
 
         // Marketplace Screen
         composable(NavigationRoute.Marketplace.route) {
-            Text("Marketplace Screen - Coming Soon")
+            MarketplaceScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode })
         }
 
         // Farmer Home Screen
         composable(NavigationRoute.FarmerHome.route) {
-            Text("Farmer Home Screen - Coming Soon")
+            FarmerHomeScreen(navController = navController)
         }
 
         // High Level Home Screen
         composable(NavigationRoute.HighLevelHome.route) {
-            Text("High Level Home Screen - Coming Soon")
+            HighLevelHomeScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode })
         }
 
         // Simple View Birds Screen - Fix navigation crash
