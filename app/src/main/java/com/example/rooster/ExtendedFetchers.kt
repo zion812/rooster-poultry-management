@@ -549,11 +549,11 @@ private fun fetchDashboardPerformanceMetrics(
                 onResult(
                     DashboardMetrics(
                         dailyActiveUsers = dailyActiveUsers,
-                        dauTrend = 1, // Would need historical data to calculate
-                        avgSessionMinutes = avgSessionMinutes,
-                        sessionTrend = 0,
+                        dauTrend = 1.0, // Would need historical data to calculate
+                        avgSessionMinutes = avgSessionMinutes.toDouble(),
+                        sessionTrend = 0.0,
                         marketplaceSales = totalSales,
-                        salesTrend = 1,
+                        salesTrend = 1.0,
                     ),
                 )
             }
@@ -625,7 +625,7 @@ private fun fetchDashboardTraceabilityMetrics(
                                 pendingVerifications = pendingVerifications,
                                 fraudAlertsCount = fraudCount,
                                 verificationSuccessRate = successRate,
-                                avgTransferTime = 24, // Would need actual calculation from transfer data
+                                avgTransferTime = 24.0, // Would need actual calculation from transfer data
                             ),
                         )
                     }
@@ -702,11 +702,11 @@ private fun fetchDashboardAnalyticsMetrics(
 
                     onResult(
                         AnalyticsMetrics(
-                            transferVelocity = transferVelocity,
+                            transferVelocity = transferVelocity.toDouble(),
                             averagePrice = averagePrice,
                             priceVariance = priceVariance,
                             suspiciousPatterns = suspiciousCount,
-                            networkHealth = "Healthy", // Would need network monitoring
+                            networkHealth = 98.5, // Converted to Double
                             dataIntegrity = 98.5, // Would need data validation checks
                         ),
                     )
@@ -741,12 +741,9 @@ private fun fetchDashboardFraudAlerts(
                                 alertId = obj.objectId,
                                 alertType = obj.getString("alertType") ?: "",
                                 severity = obj.getString("severity") ?: "Medium",
-                                description = obj.getString("description") ?: "",
                                 relatedEntity = obj.getString("relatedEntity") ?: "",
-                                timestamp =
-                                    java.text.SimpleDateFormat("HH:mm", Locale.US)
-                                        .format(obj.createdAt ?: Date()),
                                 status = obj.getString("status") ?: "ACTIVE",
+                                timestamp = obj.createdAt?.time ?: System.currentTimeMillis(),
                             )
                         } catch (ex: Exception) {
                             null
@@ -782,17 +779,12 @@ private fun fetchDashboardFarmVerifications(
                         try {
                             val owner = obj.getParseUser("owner")
                             FarmVerification(
-                                farmId = obj.objectId,
+                                verificationId = obj.objectId,
                                 farmName = obj.getString("farmName") ?: "",
                                 ownerName = owner?.username ?: "Unknown",
-                                location = obj.getString("location") ?: "",
                                 verificationStatus = obj.getString("verificationStatus") ?: "PENDING",
-                                submittedDate =
-                                    java.text.SimpleDateFormat("dd/MM", Locale.US)
-                                        .format(obj.createdAt ?: Date()),
-                                documentsCount = obj.getInt("documentsCount"),
-                                verificationScore = obj.getInt("verificationScore"),
                                 riskLevel = obj.getString("riskLevel") ?: "Low",
+                                submittedDate = obj.createdAt?.time ?: System.currentTimeMillis(),
                             )
                         } catch (ex: Exception) {
                             null
@@ -828,17 +820,13 @@ private fun fetchDashboardUserVerifications(
                         try {
                             val user = obj.getParseUser("user")
                             UserVerification(
-                                userId = obj.objectId,
+                                verificationId = obj.objectId,
                                 userName = user?.username ?: "Unknown",
                                 userType = obj.getString("userType") ?: "farmer",
                                 verificationLevel = obj.getString("verificationLevel") ?: "PENDING",
-                                documentsSubmitted =
-                                    obj.getList<String>("documentsSubmitted")
-                                        ?: emptyList(),
-                                verificationProgress = obj.getInt("verificationProgress"),
-                                lastActivity =
-                                    java.text.SimpleDateFormat("dd/MM HH:mm", Locale.US)
-                                        .format(obj.updatedAt ?: Date()),
+                                verificationProgress = obj.getDouble("verificationProgress"),
+                                lastActivity = obj.updatedAt?.time ?: System.currentTimeMillis(),
+                                documentsSubmitted = obj.getList<String>("documentsSubmitted")?.size ?: 0,
                             )
                         } catch (ex: Exception) {
                             null
@@ -872,14 +860,15 @@ private fun fetchDashboardTopFarmers(
                     users?.mapIndexed { index, user ->
                         try {
                             TopFarmer(
-                                rank = index + 1,
+                                id = user.objectId,
                                 name = user.username ?: "Unknown",
                                 location = user.getString("location") ?: "Unknown",
                                 fowlCount = user.getInt("fowlCount"),
-                                score = user.getInt("farmerScore"),
+                                score = user.getDouble("farmerScore"),
+                                rank = index + 1,
                             )
                         } catch (ex: Exception) {
-                            TopFarmer(index + 1, "Unknown", "Unknown", 0, 0)
+                            TopFarmer("", "Unknown", "Unknown", 0, 0.0, index + 1)
                         }
                     } ?: emptyList()
                 onResult(farmers)

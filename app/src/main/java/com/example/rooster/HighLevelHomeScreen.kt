@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import android.content.Context
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlinx.coroutines.delay
 import com.example.rooster.models.*
@@ -38,9 +39,9 @@ suspend fun fetchHighLevelDashboardData(
         delay(1000) // Simulate network delay
         val mockData = HighLevelDashboardData(
             overviewStats = OverviewStats(1250, 850, 15200, 450),
-            performanceMetrics = DashboardMetrics(420, 15, 45, 8, 125000.0, 12),
-            traceabilityMetrics = TraceabilityMetrics(25, 180, 12, 3, 94.5, 6),
-            analyticsMetrics = AnalyticsMetrics(18, 2500.0, 12.5, 2, "Healthy", 97.8),
+            performanceMetrics = DashboardMetrics(420, 15.0, 45.0, 8.0, 125000.0, 12.0),
+            traceabilityMetrics = TraceabilityMetrics(25, 180, 12, 3, 94.5, 6.0),
+            analyticsMetrics = AnalyticsMetrics(18.0, 2500.0, 12.5, 2, 98.5, 97.8),
             fraudAlerts = emptyList(),
             farmVerifications = emptyList(),
             userVerifications = emptyList(),
@@ -556,15 +557,13 @@ private fun AnalyticsMetricsSection(metrics: AnalyticsMetrics) {
             ) {
                 AnalyticsItem(
                     label = "Network Health",
-                    value = metrics.networkHealth,
+                    value = "${metrics.networkHealth}%",
                     icon = Icons.Default.SignalWifiStatusbar4Bar,
                     color =
-                        if (metrics.networkHealth == "Healthy") {
+                        if (metrics.networkHealth > 90.0) {
                             Color(0xFF4CAF50)
                         } else {
-                            Color(
-                                0xFFFF9800,
-                            )
+                            Color(0xFFFF9800)
                         },
                 )
                 AnalyticsItem(
@@ -575,9 +574,7 @@ private fun AnalyticsMetricsSection(metrics: AnalyticsMetrics) {
                         if (metrics.dataIntegrity >= 95.0) {
                             Color(0xFF4CAF50)
                         } else {
-                            Color(
-                                0xFFFF9800,
-                            )
+                            Color(0xFFFF9800)
                         },
                 )
             }
@@ -693,7 +690,7 @@ private fun FraudAlertItem(alert: FraudAlert) {
             }
 
             Text(
-                alert.timestamp,
+                SimpleDateFormat("HH:mm", Locale.US).format(Date(alert.timestamp)),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
