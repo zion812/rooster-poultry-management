@@ -24,8 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.rooster.R
-import com.example.rooster.models.*
-// StandardScreenLayout was imported but not used.
 import com.example.rooster.data.models.Auction
 import com.example.rooster.data.models.Bid
 import com.example.rooster.data.models.AuctionUiState
