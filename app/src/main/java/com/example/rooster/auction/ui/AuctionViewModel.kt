@@ -173,11 +173,10 @@ class AuctionViewModel
             // Reduce update frequency and optimize bandwidth usage
             val currentState = _state.value
             if (currentState is BiddingState.Active) {
-                _state.value =
-                    currentState.copy(
-                        networkQuality = NetworkQuality.FAIR,
-                        isOptimizedForRural = true,
-                    )
+                _state.value = currentState.copy(
+                    networkQuality = NetworkQuality.FAIR,
+                    isOptimizedForRural = true
+                )
             }
         }
 
@@ -257,9 +256,9 @@ class AuctionViewModel
                         // Convert to BidUpdate for existing logic
                         val bidUpdate =
                             BidUpdate(
-                                amount = auctionUpdate.currentBid,
-                                bidderId = auctionUpdate.bidderId ?: "anonymous",
                                 auctionId = auctionUpdate.auctionId,
+                                bidAmount = auctionUpdate.currentBid,
+                                bidderName = auctionUpdate.bidderId ?: "anonymous",
                                 timestamp = auctionUpdate.timestamp,
                             )
 
