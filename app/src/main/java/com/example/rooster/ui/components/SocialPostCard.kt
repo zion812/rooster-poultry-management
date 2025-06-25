@@ -20,7 +20,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.rooster.assessNetworkQualitySafely
 import com.example.rooster.models.Post
 import java.text.SimpleDateFormat
 import java.util.*
@@ -53,7 +52,7 @@ fun SocialPostCard(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val networkQuality = remember { assessNetworkQualitySafely(context) }
+    // val networkQuality = remember { assessNetworkQualitySafely(context) }
 
     // Animation state
     var isVisible by remember { mutableStateOf(false) }
@@ -89,7 +88,9 @@ fun SocialPostCard(
                     isVerified = isVerified,
                     isTeluguMode = isTeluguMode,
                     onProfileClick = onProfileClick,
-                    networkQuality = networkQuality,
+                    // networkQuality = networkQuality,
+                    networkQuality = com.example.rooster.NetworkQualityLevel.GOOD,
+                    modifier = Modifier,
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -98,8 +99,10 @@ fun SocialPostCard(
                 PostContent(
                     content = post.text,
                     imageUrl = post.mediaUrls.firstOrNull(),
-                    networkQuality = networkQuality,
+                    // networkQuality = networkQuality,
+                    networkQuality = com.example.rooster.NetworkQualityLevel.GOOD,
                     isTeluguMode = isTeluguMode,
+                    modifier = Modifier,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -113,6 +116,7 @@ fun SocialPostCard(
                     onCommentClick = onCommentClick,
                     onShareClick = onShareClick,
                     isTeluguMode = isTeluguMode,
+                    modifier = Modifier,
                 )
             }
         }

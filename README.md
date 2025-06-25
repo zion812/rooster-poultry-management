@@ -13,7 +13,7 @@ management
 The Android app follows a Clean Architecture approach with three main layers:
 
 1. **Presentation Layer** (Jetpack Compose + MVVM)
-  - Screens and UI components organized under `com.rooster.app.screens`
+  - Screens and UI components organized under `com.example.rooster.ui.screens`
   - Navigation via `com.rooster.app.navigation.NavigationRoute`
   - State management with ViewModels annotated `@HiltViewModel`
   - Dependency Injection with Hilt (`App` application class)

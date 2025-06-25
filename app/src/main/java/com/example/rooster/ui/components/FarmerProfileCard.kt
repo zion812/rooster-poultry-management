@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.rooster.NetworkQualityLevel
-import com.example.rooster.assessNetworkQualitySafely
+// import com.example.rooster.assessNetworkQualitySafely
 
 /**
  * Farmer Profile Card Component
@@ -58,7 +58,8 @@ fun FarmerProfileCard(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val networkQuality = remember { assessNetworkQualitySafely(context) }
+    // val networkQuality = remember { assessNetworkQualitySafely(context) }
+    val networkQuality = NetworkQualityLevel.GOOD
 
     // Animation state
     var isVisible by remember { mutableStateOf(false) }

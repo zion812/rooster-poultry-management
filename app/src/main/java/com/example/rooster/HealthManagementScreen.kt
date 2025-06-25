@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -288,6 +287,7 @@ private fun HealthSummaryHeader(
                 }
             } else {
                 healthSummary?.let { summary ->
+                    val healthScore = if (summary.totalBirds > 0) (summary.healthyBirds.toFloat() / summary.totalBirds.toFloat() * 100).toInt() else 100
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -301,13 +301,13 @@ private fun HealthSummaryHeader(
                                 contentAlignment = Alignment.Center,
                             ) {
                                 CircularProgressIndicator(
-                                    progress = { summary.healthScore / 100f },
+                                    progress = { healthScore / 100f },
                                     modifier = Modifier.fillMaxSize(),
                                     strokeWidth = 8.dp,
                                     trackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
                                 )
                                 Text(
-                                    text = "${summary.healthScore}%",
+                                    text = "$healthScore%",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                 )
@@ -321,23 +321,23 @@ private fun HealthSummaryHeader(
                         // Quick Stats
                         Column {
                             QuickStatItem(
-                                icon = Icons.Default.Vaccines,
-                                label = "Vaccinations",
-                                value = "${summary.totalVaccinations}",
-                                color = Color(0xFF4CAF50),
-                            )
-                            QuickStatItem(
-                                icon = Icons.Default.Medication,
-                                label = "Active Medications",
-                                value = "${summary.activeMedications}",
+                                icon = Icons.Default.Event,
+                                label = "Upcoming Schedules",
+                                value = "${summary.upcomingVaccinations}",
                                 color = Color(0xFF2196F3),
                             )
                             QuickStatItem(
+                                icon = Icons.Default.Medication,
+                                label = "Ongoing Meds",
+                                value = "${summary.ongoingMedications}",
+                                color = Color(0xFF4CAF50),
+                            )
+                            QuickStatItem(
                                 icon = Icons.Default.Warning,
-                                label = "Overdue",
-                                value = "${summary.overdueVaccinations}",
+                                label = "Sick Birds",
+                                value = "${summary.sickBirds}",
                                 color =
-                                    if (summary.overdueVaccinations > 0) {
+                                    if (summary.sickBirds > 0) {
                                         Color(0xFFF44336)
                                     } else {
                                         Color(
@@ -390,7 +390,11 @@ private fun HealthOverviewTab(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        if (error != null) {
+        if (isLoading) {
+            item {
+                CircularProgressIndicator(modifier = Modifier.wrapContentSize(Alignment.Center))
+            }
+        } else if (error != null) {
             item {
                 Card(
                     colors =
@@ -398,92 +402,68 @@ private fun HealthOverviewTab(
                             containerColor = MaterialTheme.colorScheme.errorContainer,
                         ),
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                    ) {
-                        Icon(
-                            Icons.Default.Error,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = error,
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                    }
-                }
-            }
-        }
-
-        // Upcoming Schedules
-        item {
-            Card {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                ) {
                     Text(
-                        text = "Upcoming Health Tasks",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
+                        text = error,
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onErrorContainer,
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    if (upcomingSchedules.isEmpty()) {
-                        Text(
-                            text = "No upcoming health tasks",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    } else {
-                        upcomingSchedules.take(5).forEach { schedule ->
-                            ScheduleItem(schedule = schedule)
-                            if (schedule != upcomingSchedules.last()) {
-                                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                            }
-                        }
-                    }
                 }
             }
-        }
-
-        // Health Statistics
-        healthSummary?.let { summary ->
-            item {
-                Card {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                    ) {
-                        Text(
-                            text = "Health Statistics",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
+        } else {
+            healthSummary?.let { summary ->
+                // Grid of stats
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        StatCard("Total Birds", "${summary.totalBirds}", Icons.Default.Groups, Color(0xFF7E57C2), Modifier.weight(1f))
+                        StatCard("Healthy", "${summary.healthyBirds}", Icons.Default.CheckCircle, Color(0xFF4CAF50), Modifier.weight(1f))
+                    }
+                }
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        StatCard(
+                            "Sick",
+                            "${summary.sickBirds}",
+                            Icons.Default.SentimentVeryDissatisfied,
+                            Color(0xFFF44336),
+                            Modifier.weight(1f),
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        StatCard(
+                            "Mortality (30d)",
+                            "${String.format("%.1f", summary.mortalityRate)}%",
+                            Icons.Default.TrendingDown,
+                            Color(0xFFFF7043),
+                            Modifier.weight(1f),
+                        )
+                    }
+                }
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        StatCard("Upcoming", "${summary.upcomingVaccinations}", Icons.Default.Event, Color(0xFF2196F3), Modifier.weight(1f))
+                        StatCard(
+                            "Ongoing Meds",
+                            "${summary.ongoingMedications}",
+                            Icons.Default.Medication,
+                            Color(0xFF4CAF50),
+                            Modifier.weight(1f),
+                        )
+                    }
+                }
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                        ) {
-                            StatCard(
-                                title = "Total Cost",
-                                value = "₹${String.format("%.2f", summary.totalHealthCost)}",
-                                icon = Icons.Default.CurrencyRupee,
-                                color = Color(0xFF9C27B0),
-                            )
-                            StatCard(
-                                title = "Pending",
-                                value = "${summary.pendingVaccinations}",
-                                icon = Icons.Default.Pending,
-                                color = Color(0xFFFF9800),
-                            )
-                            StatCard(
-                                title = "Completed",
-                                value = "${summary.completedMedications}",
-                                icon = Icons.Default.CheckCircle,
-                                color = Color(0xFF4CAF50),
-                            )
-                        }
+                // Upcoming Schedules section
+                item {
+                    Text(
+                        text = "Upcoming Health Schedules",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
+                    )
+                }
+                if (upcomingSchedules.isEmpty()) {
+                    item {
+                        Text("No upcoming health schedules.")
+                    }
+                } else {
+                    items(upcomingSchedules) {
+                        ScheduleItem(schedule = it)
                     }
                 }
             }
@@ -497,36 +477,21 @@ private fun StatCard(
     value: String,
     icon: ImageVector,
     color: Color,
+    modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = Modifier.width(100.dp),
-        colors =
-            CardDefaults.cardColors(
-                containerColor = color.copy(alpha = 0.1f),
-            ),
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f)),
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(24.dp),
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = color,
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-            )
+            Icon(icon, contentDescription = null, tint = color)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = color)
+            Text(text = title, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

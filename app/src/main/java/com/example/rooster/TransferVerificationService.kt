@@ -367,6 +367,69 @@ class TransferVerificationService {
         }
     }
 
+    // Reject transfer (only buyer can reject before completion)
+    fun rejectTransferByBuyer(
+        transferRequestId: String,
+        reason: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        try {
+            val query = ParseQuery.getQuery<ParseObject>("TransferRequest")
+            query.getInBackground(transferRequestId) { transferObj, e ->
+                if (e != null) {
+                    onError(e.localizedMessage ?: "Transfer request not found")
+                    return@getInBackground
+                }
+
+                if (transferObj == null) {
+                    onError("Transfer request not found")
+                    return@getInBackground
+                }
+
+                // Only buyer can reject
+                val buyerId = transferObj.getString("buyerId")
+                if (buyerId != ParseUser.getCurrentUser()?.objectId) {
+                    onError("Only the buyer can reject this transfer")
+                    return@getInBackground
+                }
+
+                // Check if rejection is allowed
+                val status =
+                    TransferStatus.valueOf(
+                        transferObj.getString("status") ?: TransferStatus.INITIATED.name,
+                    )
+                if (status == TransferStatus.COMPLETED || status == TransferStatus.CANCELLED) {
+                    onError("Transfer cannot be rejected at this stage")
+                    return@getInBackground
+                }
+
+                transferObj.put("status", TransferStatus.CANCELLED.name)
+                transferObj.put("notes", "Rejected by buyer: $reason")
+                transferObj.put("isActive", false)
+
+                transferObj.saveInBackground { saveError ->
+                    if (saveError != null) {
+                        onError(saveError.localizedMessage ?: "Failed to reject transfer")
+                    } else {
+                        // Send cancellation notification to seller
+                        val sellerId = transferObj.getString("sellerId")
+                        sellerId?.let {
+                            sendTransferNotification(
+                                transferRequestId,
+                                it,
+                                TransferNotificationType.TRANSFER_CANCELLED,
+                            )
+                        }
+                        onSuccess()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            onError(e.localizedMessage ?: "Failed to reject transfer")
+        }
+    }
+
     // Private helper functions
 
     private fun validateFowlOwnership(

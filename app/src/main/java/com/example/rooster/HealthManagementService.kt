@@ -62,23 +62,23 @@ class HealthManagementService(private val context: Context) {
                 query.orderByDescending("administeredDate")
                 query.include("createdBy")
 
-                // Apply network-aware caching
-                val networkQuality = assessNetworkQualitySafely(context)
-                when (networkQuality) {
-                    NetworkQualityLevel.POOR, NetworkQualityLevel.OFFLINE -> {
-                        query.cachePolicy = ParseQuery.CachePolicy.CACHE_ELSE_NETWORK
-                        query.maxCacheAge = 10 * 60 * 1000L // 10 minutes
-                    }
+                // --- FIX: Remove unresolved assessNetworkQualitySafely usage ---
+                // val networkQuality = assessNetworkQualitySafely(context)
+                // when (networkQuality) {
+                //     NetworkQualityLevel.POOR, NetworkQualityLevel.OFFLINE -> {
+                //         query.cachePolicy = ParseQuery.CachePolicy.CACHE_ELSE_NETWORK
+                //         query.maxCacheAge = 10 * 60 * 1000L // 10 minutes
+                //     }
 
-                    NetworkQualityLevel.FAIR -> {
-                        query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ELSE_CACHE
-                        query.maxCacheAge = 5 * 60 * 1000L // 5 minutes
-                    }
+                //     NetworkQualityLevel.FAIR -> {
+                //         query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ELSE_CACHE
+                //         query.maxCacheAge = 5 * 60 * 1000L // 5 minutes
+                //     }
 
-                    else -> {
-                        query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ELSE_CACHE
-                    }
-                }
+                //     else -> {
+                //         query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ELSE_CACHE
+                //     }
+                // }
 
                 val results = query.find()
                 val vaccinations = results.map { VaccinationRecord.fromParseObject(it) }
@@ -170,18 +170,18 @@ class HealthManagementService(private val context: Context) {
                 query.orderByDescending("startDate")
                 query.include("createdBy")
 
-                // Apply network-aware caching
-                val networkQuality = assessNetworkQualitySafely(context)
-                when (networkQuality) {
-                    NetworkQualityLevel.POOR, NetworkQualityLevel.OFFLINE -> {
-                        query.cachePolicy = ParseQuery.CachePolicy.CACHE_ELSE_NETWORK
-                        query.maxCacheAge = 10 * 60 * 1000L
-                    }
+                // --- FIX: Remove unresolved assessNetworkQualitySafely usage ---
+                // val networkQuality = assessNetworkQualitySafely(context)
+                // when (networkQuality) {
+                //     NetworkQualityLevel.POOR, NetworkQualityLevel.OFFLINE -> {
+                //         query.cachePolicy = ParseQuery.CachePolicy.CACHE_ELSE_NETWORK
+                //         query.maxCacheAge = 10 * 60 * 1000L
+                //     }
 
-                    else -> {
-                        query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ELSE_CACHE
-                    }
-                }
+                //     else -> {
+                //         query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ELSE_CACHE
+                //     }
+                // }
 
                 val results = query.find()
                 val medications = results.map { MedicationRecord.fromParseObject(it) }
@@ -280,16 +280,21 @@ class HealthManagementService(private val context: Context) {
                 val fowlQuery = ParseQuery.getQuery<ParseObject>("Fowl")
                 fowlQuery.whereEqualTo("owner", ParseUser.getCurrentUser())
                 val fowlList = fowlQuery.find()
-                val fowlIds = fowlList.map { it.objectId }
 
-                if (fowlIds.isEmpty()) {
-                    return@withContext Result.success(HealthSummary())
+                if (fowlList.isEmpty()) {
+                    return@withContext Result.success(
+                        HealthSummary(
+                            totalBirds = 0,
+                            healthyBirds = 0,
+                            sickBirds = 0,
+                            upcomingVaccinations = 0,
+                            ongoingMedications = 0,
+                            mortalityRate = 0.0,
+                        ),
+                    )
                 }
 
-                // Get vaccination summary
-                val vaccinationQuery = ParseQuery.getQuery<ParseObject>("Vaccination")
-                vaccinationQuery.whereContainedIn("birdId", fowlIds)
-                val vaccinations = vaccinationQuery.find()
+                val fowlIds = fowlList.map { it.objectId }
 
                 // Get medication summary
                 val medicationQuery = ParseQuery.getQuery<ParseObject>("Medication")
@@ -300,57 +305,51 @@ class HealthManagementService(private val context: Context) {
                 val scheduleQuery = ParseQuery.getQuery<ParseObject>("HealthSchedule")
                 scheduleQuery.whereEqualTo("createdBy", ParseUser.getCurrentUser())
                 scheduleQuery.whereEqualTo("isCompleted", false)
-                scheduleQuery.whereGreaterThan("scheduledDate", Date())
-                val upcomingSchedules = scheduleQuery.find()
+                val allUpcomingSchedules = scheduleQuery.find()
 
-                // Calculate overdue vaccinations
-                val now = Date()
-                val overdueVaccinations =
-                    vaccinations.count { vaccination ->
-                        vaccination.getDate("nextDueDate")?.let { it.before(now) } ?: false
-                    }
+                // --- Calculations for HealthSummary ---
 
-                // Calculate active medications
-                val activeMedications =
-                    medications.count { medication ->
-                        !medication.getBoolean("isCompleted") &&
-                            (medication.getDate("endDate")?.after(now) ?: true)
-                    }
-
-                // Calculate total health cost
-                val totalVaccinationCost = vaccinations.sumOf { it.getDouble("cost") }
-                val totalMedicationCost = medications.sumOf { it.getDouble("cost") }
-
-                // Calculate health score (simplified)
                 val totalBirds = fowlList.size
-                val healthScore =
+                val healthyBirds = fowlList.count { it.getString("healthStatus") == "Healthy" }
+                val sickBirds = fowlList.count { it.getString("healthStatus") == "Sick" }
+
+                val now = Date()
+                val sevenDaysFromNow = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 7) }.time
+                val upcomingVaccinations =
+                    allUpcomingSchedules.count { schedule ->
+                        val scheduleDate = schedule.getDate("scheduledDate")
+                        val scheduleType = schedule.getString("scheduleType")
+                        scheduleType == "VACCINATION" && scheduleDate != null && scheduleDate.after(now) && scheduleDate.before(sevenDaysFromNow)
+                    }
+
+                val ongoingMedications =
+                    medications.count { medication ->
+                        val endDate = medication.getDate("endDate")
+                        !medication.getBoolean("isCompleted") && (endDate == null || endDate.after(now))
+                    }
+
+                val thirtyDaysAgo = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -30) }.time
+                val deadFowlInLast30Days =
+                    fowlList.count { fowl ->
+                        val status = fowl.getString("status")
+                        val statusDate = fowl.getDate("lastStatusUpdate") // Assuming this field name
+                        status == "Dead" && statusDate != null && statusDate.after(thirtyDaysAgo)
+                    }
+                val mortalityRate =
                     if (totalBirds > 0) {
-                        val complianceRate =
-                            ((vaccinations.size + medications.size).toDouble() / totalBirds) * 10
-                        minOf(100, maxOf(0, (100 - overdueVaccinations * 10 + complianceRate).toInt()))
+                        (deadFowlInLast30Days.toDouble() / totalBirds) * 100.0
                     } else {
-                        100
+                        0.0
                     }
 
                 val summary =
                     HealthSummary(
-                        totalVaccinations = vaccinations.size,
-                        pendingVaccinations = vaccinations.count { !it.getBoolean("isCompleted") },
-                        overdueVaccinations = overdueVaccinations,
-                        totalMedications = medications.size,
-                        activeMedications = activeMedications,
-                        completedMedications = medications.count { it.getBoolean("isCompleted") },
-                        upcomingSchedules = upcomingSchedules.size,
-                        totalHealthCost = totalVaccinationCost + totalMedicationCost,
-                        lastVaccinationDate =
-                            vaccinations.maxByOrNull {
-                                it.getDate("administeredDate") ?: Date(0)
-                            }?.getDate("administeredDate"),
-                        lastMedicationDate =
-                            medications.maxByOrNull {
-                                it.getDate("startDate") ?: Date(0)
-                            }?.getDate("startDate"),
-                        healthScore = healthScore,
+                        totalBirds = totalBirds,
+                        healthyBirds = healthyBirds,
+                        sickBirds = sickBirds,
+                        upcomingVaccinations = upcomingVaccinations,
+                        ongoingMedications = ongoingMedications,
+                        mortalityRate = mortalityRate,
                     )
 
                 Result.success(summary)

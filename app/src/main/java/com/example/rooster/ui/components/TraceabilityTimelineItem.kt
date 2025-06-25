@@ -21,9 +21,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.rooster.assessNetworkQualitySafely
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 /**
  * Traceability Timeline Item Component
@@ -83,7 +83,7 @@ fun TraceabilityTimelineItem(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val networkQuality = remember { assessNetworkQualitySafely(context) }
+    // val networkQuality = remember { assessNetworkQualitySafely(context) }
 
     // Animation state
     var isVisible by remember { mutableStateOf(false) }
@@ -118,7 +118,7 @@ fun TraceabilityTimelineItem(
                 event = event,
                 onImageClick = onImageClick,
                 onVerificationClick = onVerificationClick,
-                networkQuality = networkQuality,
+                // networkQuality = networkQuality,
                 isTeluguMode = isTeluguMode,
                 showFullDetails = showFullDetails,
                 modifier = Modifier.weight(1f),
@@ -199,7 +199,7 @@ private fun EventContent(
     event: TraceabilityEvent,
     onImageClick: (() -> Unit)?,
     onVerificationClick: (() -> Unit)?,
-    networkQuality: com.example.rooster.NetworkQualityLevel,
+    // networkQuality: com.example.rooster.NetworkQualityLevel,
     isTeluguMode: Boolean,
     showFullDetails: Boolean,
     modifier: Modifier = Modifier,
@@ -239,7 +239,7 @@ private fun EventContent(
                 Spacer(modifier = Modifier.height(12.dp))
                 NetworkAdaptiveEventImage(
                     imageUrl = event.imageUrl,
-                    networkQuality = networkQuality,
+                    // networkQuality = networkQuality,
                     contentDescription = "${event.title} image",
                     onClick = onImageClick,
                     modifier =
@@ -475,19 +475,19 @@ private fun EventMetadata(
 @Composable
 private fun NetworkAdaptiveEventImage(
     imageUrl: String,
-    networkQuality: com.example.rooster.NetworkQualityLevel,
+    // networkQuality: com.example.rooster.NetworkQualityLevel,
     contentDescription: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val imageSize =
-        when (networkQuality) {
-            com.example.rooster.NetworkQualityLevel.EXCELLENT -> 800
-            com.example.rooster.NetworkQualityLevel.GOOD -> 600
-            com.example.rooster.NetworkQualityLevel.FAIR -> 400
-            com.example.rooster.NetworkQualityLevel.POOR -> 300
-            com.example.rooster.NetworkQualityLevel.OFFLINE -> 300
-        }
+    // val imageSize =
+    //     when (networkQuality) {
+    //         com.example.rooster.NetworkQualityLevel.EXCELLENT -> 800
+    //         com.example.rooster.NetworkQualityLevel.GOOD -> 600
+    //         com.example.rooster.NetworkQualityLevel.FAIR -> 400
+    //         com.example.rooster.NetworkQualityLevel.POOR -> 300
+    //         com.example.rooster.NetworkQualityLevel.OFFLINE -> 300
+    //     }
 
     Surface(
         modifier = modifier.clickable { onClick() },
@@ -498,7 +498,7 @@ private fun NetworkAdaptiveEventImage(
             model =
                 ImageRequest.Builder(LocalContext.current)
                     .data(imageUrl)
-                    .size(imageSize)
+                    // .size(imageSize)
                     .crossfade(true)
                     .build(),
             contentDescription = contentDescription,

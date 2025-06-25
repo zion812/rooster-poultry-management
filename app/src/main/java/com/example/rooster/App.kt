@@ -10,6 +10,16 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.rooster.config.Constants
 import com.example.rooster.data.sync.DataSyncWorker
+import com.example.rooster.models.BroadcastEventParse
+import com.example.rooster.models.CertificationRequestParse
+import com.example.rooster.models.ChatParse
+import com.example.rooster.models.CommunityGroupParse
+import com.example.rooster.models.EventItemParse
+import com.example.rooster.models.MarketplaceListingParse
+import com.example.rooster.models.MessageParse
+import com.example.rooster.models.SuggestionItemParse
+import com.example.rooster.models.TraceabilityEventParse
+import com.example.rooster.models.VaccinationTemplateParse
 import com.example.rooster.util.CrashPrevention
 import com.example.rooster.util.MemoryOptimizerStatic
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -17,6 +27,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.parse.Parse
 import com.parse.ParseACL
 import com.parse.ParseInstallation
+import com.parse.ParseObject
+import com.parse.ParseUser
 import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
 
@@ -74,6 +86,17 @@ class App : Application() {
                         .enableLocalDataStore() // Essential for offline-first architecture
                         .build()
 
+                ParseObject.registerSubclass(CertificationRequestParse::class.java)
+                ParseObject.registerSubclass(EventItemParse::class.java)
+                ParseObject.registerSubclass(VaccinationTemplateParse::class.java)
+                ParseObject.registerSubclass(BroadcastEventParse::class.java)
+                ParseObject.registerSubclass(SuggestionItemParse::class.java)
+                ParseObject.registerSubclass(TraceabilityEventParse::class.java)
+                ParseObject.registerSubclass(ChatParse::class.java)
+                ParseObject.registerSubclass(MessageParse::class.java)
+                ParseObject.registerSubclass(CommunityGroupParse::class.java)
+                ParseObject.registerSubclass(MarketplaceListingParse::class.java)
+
                 Parse.initialize(configuration)
 
                 // Set default ACL for enhanced security
@@ -128,12 +151,6 @@ class App : Application() {
             analytics.setUserProperty("app_version", BuildConfig.VERSION_NAME)
 
             Log.d("App", "Firebase services initialized with rural market properties")
-        }
-
-        // Register Parse subclasses for enhanced data models
-        CrashPrevention.safeExecute("Parse subclasses registration") {
-            // TODO: Uncomment and implement Parse subclasses as needed
-            Log.d("App", "Parse subclasses registration completed")
         }
 
         // Schedule background workers for data sync

@@ -6,11 +6,12 @@ import java.util.*
 
 /**
  * Health Management Data Models for Vaccination and Medication Tracking
- * 
+ *
  * Moderate-level feature implementation for comprehensive fowl health management
  */
 
 // Vaccination Record Data Model
+
 /**
  * Vaccination Record Data Model
  */

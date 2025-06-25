@@ -38,9 +38,10 @@ interface AuthRepository {
      * Register new user
      */
     suspend fun register(
-        name: String,
-        phoneNumber: String,
+        username: String,
+        email: String,
         password: String,
+        role: String
     ): Result<ParseUser>
 
     /**

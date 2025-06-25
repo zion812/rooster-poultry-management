@@ -159,6 +159,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.material.icons)
+    implementation("androidx.compose.material:material-icons-extended")
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
@@ -213,6 +214,11 @@ dependencies {
 
     // Skydoves ColorPickerView for advanced color picker widget support
     implementation("com.github.skydoves:colorpickerview:2.2.4")
+
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
     // Testing
     testImplementation(libs.junit)

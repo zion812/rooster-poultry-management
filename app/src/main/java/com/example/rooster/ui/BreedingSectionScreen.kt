@@ -10,15 +10,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.rooster.data.BreedingRepository
 import com.example.rooster.data.model.BreedingCycle
-import com.parse.ParseQuery
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BreedingSectionScreen() {
+fun BreedingSectionScreen(
+    breedingRepository: BreedingRepository = BreedingRepository()
+) {
     val scope = rememberCoroutineScope()
     var breedingCycles by remember { mutableStateOf<List<BreedingCycle>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
@@ -30,11 +33,7 @@ fun BreedingSectionScreen() {
             loading = true
             error = null
             try {
-                val query =
-                    ParseQuery.getQuery(BreedingCycle::class.java)
-                        .orderByDescending("startDate")
-                        .setLimit(50)
-                breedingCycles = query.find()
+                breedingCycles = breedingRepository.fetchBreedingCycles()
             } catch (e: Exception) {
                 error = "Failed to load breeding cycles: ${e.message}"
                 breedingCycles = emptyList()
@@ -120,14 +119,10 @@ fun BreedingSectionScreen() {
                                 this.status = "INCUBATING"
                                 this.traceable = true
                             }
-                        newCycle.saveInBackground()
+                        breedingRepository.saveBreedingCycle(newCycle)
                         showAddDialog = false
                         // Refresh list
-                        val query =
-                            ParseQuery.getQuery(BreedingCycle::class.java)
-                                .orderByDescending("startDate")
-                                .setLimit(50)
-                        breedingCycles = query.find()
+                        breedingCycles = breedingRepository.fetchBreedingCycles()
                     } catch (e: Exception) {
                         error = "Failed to save breeding cycle: ${e.message}"
                     }

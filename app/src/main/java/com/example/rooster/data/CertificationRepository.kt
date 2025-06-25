@@ -1,28 +1,66 @@
 package com.example.rooster.data
 
 import com.example.rooster.models.CertificationRequest
-import kotlinx.coroutines.delay
-import java.util.concurrent.ConcurrentHashMap
+import com.example.rooster.models.CertificationRequestParse
+import com.example.rooster.models.RequestStatus
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.parse.ParseException
+import com.parse.ParseQuery
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.Date
 
 /**
- * Stub repository for certification requests. Replace with real backend.
+ * Repository for certification requests, integrated with Parse backend.
  */
 object CertificationRepository {
-    private val requests = ConcurrentHashMap<String, MutableList<CertificationRequest>>()
+    // No longer needed: private val requests = ConcurrentHashMap<String, MutableList<CertificationRequest>>()
 
     /** Submit a new KYC certification request for a farmer. */
     suspend fun submitKYC(
         farmerId: String,
         docs: List<String>,
     ) {
-        delay(300)
-        val req = CertificationRequest(farmerId = farmerId, docs = docs)
-        requests.computeIfAbsent(farmerId) { mutableListOf() }.add(req)
+        withContext(Dispatchers.IO) {
+            try {
+                val parseRequest = CertificationRequestParse()
+                parseRequest.farmerId = farmerId
+                parseRequest.docs = docs
+                parseRequest.status = RequestStatus.SUBMITTED.name
+                parseRequest.submittedAt = Date()
+                parseRequest.save()
+                FirebaseCrashlytics.getInstance().log("Certification request submitted for $farmerId: ${parseRequest.objectId}")
+            } catch (e: ParseException) {
+                FirebaseCrashlytics.getInstance().recordException(e)
+                throw e // Re-throw to propagate error to ViewModel
+            }
+        }
     }
 
     /** Fetch all KYC requests for a farmer. */
     suspend fun getRequests(farmerId: String): List<CertificationRequest> {
-        delay(300)
-        return requests[farmerId]?.toList() ?: emptyList()
+        return withContext(Dispatchers.IO) {
+            try {
+                val query = ParseQuery.getQuery(CertificationRequestParse::class.java)
+                query.whereEqualTo("farmerId", farmerId)
+                query.orderByDescending("submittedAt")
+                val parseRequests = query.find()
+
+                parseRequests.map { parseRequest ->
+                    CertificationRequest(
+                        requestId = parseRequest.objectId ?: "",
+                        farmerId = parseRequest.farmerId ?: "",
+                        docs = parseRequest.docs ?: emptyList(),
+                        status = RequestStatus.valueOf(parseRequest.status ?: RequestStatus.SUBMITTED.name),
+                        submittedAt = parseRequest.submittedAt?.time ?: 0L,
+                    )
+                }.also { list ->
+                    FirebaseCrashlytics.getInstance().log("Fetched ${list.size} certification requests for $farmerId")
+                }
+            } catch (e: ParseException) {
+                FirebaseCrashlytics.getInstance().recordException(e)
+                emptyList() // Return empty list on error
+            }
+        }
     }
 }

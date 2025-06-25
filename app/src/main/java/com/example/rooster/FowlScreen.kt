@@ -435,7 +435,7 @@ fun EnhancedFowlCard(
                         // Used for context, e.g., prefilling breed for a new batch
                         fowlData = fowlData,
                         hatchingAndBrudingService = hatchingAndBrudingService,
-                        onAddHatching = onAddHatching
+                        onAddHatching = onAddHatching,
                     )
                 }
 
@@ -444,7 +444,7 @@ fun EnhancedFowlCard(
                         // Used for context
                         fowlData = fowlData,
                         hatchingAndBrudingService = hatchingAndBrudingService,
-                        onAddBruding = onAddBruding
+                        onAddBruding = onAddBruding,
                     )
                 }
             }

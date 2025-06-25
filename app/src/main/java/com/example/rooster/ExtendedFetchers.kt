@@ -7,6 +7,10 @@ import com.parse.ParseCloud
 import java.util.*
 
 // Add these imports near the top after existing Auction imports:
+import com.parse.ParseQuery
+import com.parse.ParseException
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.example.rooster.models.CommunityGroupParse
 
 // Helper function to safely parse dates from String? (Copied from Fetchers.kt for standalone use if needed)
 private fun parseDate(dateString: String?): Date? =
@@ -891,6 +895,7 @@ private fun fetchDashboardRecentActivities(
                 limit = 20
             }
         query.findInBackground { objects, e ->
+            setLoading(false)
             if (e != null) {
                 onError("Failed to fetch recent activities: ${e.localizedMessage}")
             } else {
@@ -2138,50 +2143,51 @@ fun fetchOrderDetails(
             setLoading(false)
             if (e != null) {
                 if (e.code == ParseException.OBJECT_NOT_FOUND) {
-                    onResult(null) // Order not found
+                    onResult(null)
                 } else {
                     onError(e.localizedMessage)
                 }
-            } else {
-                val order =
-                    obj?.let {
-                        try {
-                            OrderDetails(
-                                orderId = it.objectId,
-                                listingId =
-                                    it.getString("listingId")
-                                        ?: "",
-                                // or it.getParseObject("listing")?.objectId
-                                buyerId = it.getParseUser("buyer")?.objectId ?: "",
-                                sellerId =
-                                    it.getParseUser("seller")?.objectId
-                                        ?: "",
-                                // May come from the Listing
-                                quantity = it.getInt("quantity"),
-                                unitPrice = it.getDouble("unitPrice"),
-                                totalAmount = it.getDouble("totalAmount"),
-                                paymentMethod =
-                                    PaymentMethod.valueOf(
-                                        it.getString("paymentMethod") ?: "COD",
-                                    ),
-                                deliveryAddress = it.getString("deliveryAddress"),
-                                specialInstructions = it.getString("specialInstructions"),
-                                orderStatus =
-                                    OrderStatus.valueOf(
-                                        it.getString("orderStatus") ?: "PENDING_PAYMENT",
-                                    ),
-                                createdAt = it.createdAt ?: Date(),
-                                estimatedDelivery = it.getDate("estimatedDelivery"),
-                            )
-                        } catch (ex: IllegalArgumentException) {
-                            onError("Invalid payment method or order status: ${ex.message}")
-                            null
-                        } catch (ex: Exception) {
-                            onError(ex.localizedMessage)
-                            null
+            } else if (obj != null) {
+                try {
+                    val winnerUser = obj.getParseUser("winnerUser")
+                    // Parse backup bidders list
+                    val backupRaw = obj.getList<Map<String, Any>>("backupBidders") ?: emptyList()
+                    val backups =
+                        backupRaw.mapNotNull { item ->
+                            try {
+                                BackupBidder(
+                                    bidderId = item["bidderId"] as? String ?: "",
+                                    bidderName = item["bidderName"] as? String ?: "",
+                                    bidAmount = (item["bidAmount"] as? Number)?.toDouble() ?: 0.0,
+                                    offerSentTime = (item["offerSentTime"] as? Date) ?: Date(),
+                                    offerResponse =
+                                        (item["offerResponse"] as? String)
+                                            ?.let { OfferResponse.valueOf(it) },
+                                    responseDeadline = (item["responseDeadline"] as? Date),
+                                )
+                            } catch (_: Exception) {
+                                null
+                            }
                         }
-                    }
-                onResult(order)
+                    val auctionWinner =
+                        AuctionWinner(
+                            auctionId = obj.getString("auctionId") ?: "",
+                            winnerId = winnerUser?.objectId ?: "",
+                            winnerName = winnerUser?.username ?: "",
+                            winningBid = obj.getDouble("winningBid"),
+                            paymentDeadline = obj.getDate("paymentDeadline") ?: Date(),
+                            paymentStatus =
+                                AuctionPaymentStatus.valueOf(
+                                    obj.getString("paymentStatus") ?: AuctionPaymentStatus.PENDING.name,
+                                ),
+                            backupBidders = backups,
+                        )
+                    onResult(auctionWinner)
+                } catch (ex: Exception) {
+                    onError(ex.localizedMessage)
+                }
+            } else {
+                onResult(null)
             }
         }
     } catch (ex: Exception) {
@@ -2331,7 +2337,7 @@ fun fetchCommunityGroups(
         Log.d("CommunityFetcher", "Testing Parse connection...")
 
         val query =
-            ParseQuery.getQuery<ParseObject>("CommunityGroup").apply {
+            ParseQuery.getQuery(CommunityGroupParse::class.java).apply {
                 groupType?.let { whereEqualTo("type", it) }
                 region?.let { whereEqualTo("location", it) } // Updated to use 'location' field
                 orderByDescending("memberCount") // Show most popular groups first
@@ -2351,6 +2357,7 @@ fun fetchCommunityGroups(
 
             if (e != null) {
                 Log.e("CommunityFetcher", "Parse query failed", e)
+                FirebaseCrashlytics.getInstance().recordException(e)
                 onError("Failed to load community groups: ${e.localizedMessage}")
             } else {
                 Log.d("CommunityFetcher", "Parse query successful")
@@ -2361,21 +2368,13 @@ fun fetchCommunityGroups(
                             Log.d("CommunityFetcher", "Processing object: ${obj.objectId}")
                             Log.d(
                                 "CommunityFetcher",
-                                "Object data: name=${obj.getString("name")}, memberCount=${obj.getInt("memberCount")}, type=${
-                                    obj.getString("type")
-                                }",
+                                "Object data: name=${obj.name}, memberCount=${obj.memberCount}, type=${obj.type}"
                             )
 
-                            CommunityGroup(
-                                id = obj.objectId,
-                                name = obj.getString("name") ?: "",
-                                memberCount = obj.getInt("memberCount"),
-                                type = obj.getString("type") ?: "public", // Default to public
-                                // description = obj.getString("description"), // Add if in your model
-                                // iconUrl = obj.getParseFile("icon")?.url // Add if in your model
-                            )
+                            obj.toCommunityGroup()
                         } catch (ex: Exception) {
                             Log.e("CommunityFetcher", "Error processing community group object", ex)
+                            FirebaseCrashlytics.getInstance().recordException(ex)
                             onError(ex.localizedMessage)
                             null
                         }
@@ -2403,9 +2402,15 @@ fun fetchCommunityGroups(
 
             Log.d("CommunityFetcher", "=== FETCH COMMUNITY GROUPS END ===")
         }
-    } catch (ex: Exception) {
-        Log.e("CommunityFetcher", "Exception in fetchCommunityGroups", ex)
+    } catch (e: Exception) {
+        Log.e("CommunityFetcher", "Exception during Parse query setup", e)
+        FirebaseCrashlytics.getInstance().recordException(e)
+        onError("An unexpected error occurred: ${e.localizedMessage}")
         setLoading(false)
-        onError("Network error: ${ex.localizedMessage}")
     }
 }
+
+// This function is no longer needed as fetchCommunityGroups now directly uses Parse
+// fun createTestCommunityGroups() {
+//    // No longer needed as data will come from Parse
+// }

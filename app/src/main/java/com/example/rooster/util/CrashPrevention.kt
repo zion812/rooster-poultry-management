@@ -112,13 +112,19 @@ object CrashPrevention {
         defaultValue: T,
     ): T {
         return safeExecuteWithResult("Parse get $key", defaultValue) {
-            when (defaultValue) {
-                is String -> parseObject?.getString(key) as? T ?: defaultValue
-                is Int -> parseObject?.getInt(key) as? T ?: defaultValue
-                is Double -> parseObject?.getDouble(key) as? T ?: defaultValue
-                is Boolean -> parseObject?.getBoolean(key) as? T ?: defaultValue
-                else -> parseObject?.get(key) as? T ?: defaultValue
+            val value: Any? = when (defaultValue) {
+                is String -> parseObject?.getString(key)
+                is Int -> parseObject?.getInt(key)
+                is Double -> parseObject?.getDouble(key)
+                is Boolean -> parseObject?.getBoolean(key)
+                else -> parseObject?.get(key)
             }
+            // This cast is unchecked because of type erasure.
+            // The 'when' block above helps by using the specific typed getters from ParseObject,
+            // which reduces the risk, but the final cast to the generic T cannot be fully
+            // checked by the compiler at this point.
+            @Suppress("UNCHECKED_CAST")
+            (value as? T) ?: defaultValue
         }
     }
 
@@ -249,7 +255,7 @@ object CrashPrevention {
 fun String?.safeSubstring(
     start: Int,
     // if null, goes to end of string
-    end: Int? = null
+    end: Int? = null,
 ): String {
     return CrashPrevention.safeExecuteWithResult("String substring", "") {
         if (this != null && start >= 0 && start < length) {
