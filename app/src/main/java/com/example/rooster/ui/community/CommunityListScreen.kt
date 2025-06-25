@@ -42,12 +42,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -56,7 +56,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.rooster.CommunityGroup
 import com.example.rooster.viewmodel.CommunityViewModel
-import com.parse.ParseObject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,7 +73,7 @@ fun CommunityListScreen(
     var searchQuery by remember { mutableStateOf("") }
     var selectedLocation by remember { mutableStateOf("All Locations") }
     var showLocationFilter by remember { mutableStateOf(false) }
-    var isSearchActive by remember { mutableStateOf(false) }
+    var isSearchActiveState by remember { mutableStateOf(false) }
 
     // Available locations for filter
     val availableLocations =
@@ -100,67 +99,18 @@ fun CommunityListScreen(
     Log.d("CommunityScreen", "Error: $error")
     Log.d("CommunityScreen", "Search query: '$searchQuery'")
     Log.d("CommunityScreen", "Selected location: '$selectedLocation'")
-    Log.d("CommunityScreen", "============================")
+    Log.d("CommunityScreen", "==========================")
 
     // Create test data if needed
     LaunchedEffect(Unit) {
-        Log.d("CommunityScreen", "LaunchedEffect: Creating test data...")
-        createTestCommunityGroups()
-
         Log.d("CommunityScreen", "LaunchedEffect: Loading groups...")
         viewModel.loadGroups()
     }
 
-    // Enhanced mock data with locations and user info
-    val mockGroups =
-        remember {
-            listOf(
-                CommunityGroup(
-                    id = "mock1",
-                    name = "Telugu Poultry Farmers - Hyderabad",
-                    memberCount = 128,
-                    type = "public",
-                ),
-                CommunityGroup(
-                    id = "mock2",
-                    name = "Rooster Breeders Community - Bangalore",
-                    memberCount = 89,
-                    type = "public",
-                ),
-                CommunityGroup(
-                    id = "mock3",
-                    name = "Local Market Updates - Chennai",
-                    memberCount = 156,
-                    type = "public",
-                ),
-                CommunityGroup(
-                    id = "mock4",
-                    name = "Farmers Network - Vizag",
-                    memberCount = 67,
-                    type = "public",
-                ),
-                CommunityGroup(
-                    id = "mock5",
-                    name = "Poultry Health Support - Vijayawada",
-                    memberCount = 45,
-                    type = "public",
-                ),
-            )
-        }
-
     // Filter and search logic
     val filteredGroups =
         remember(groups, searchQuery, selectedLocation) {
-            val baseGroups =
-                if (groups.isEmpty() && !loading) {
-                    Log.d("CommunityScreen", "Using mock data - groups empty and not loading")
-                    mockGroups
-                } else if (groups.isEmpty() && error != null) {
-                    Log.d("CommunityScreen", "Using mock data due to error: $error")
-                    mockGroups
-                } else {
-                    groups
-                }
+            val baseGroups = groups
 
             baseGroups.filter { group ->
                 val matchesSearch =
@@ -185,7 +135,7 @@ fun CommunityListScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    if (isSearchActive) {
+                    if (isSearchActiveState) {
                         OutlinedTextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
@@ -217,12 +167,12 @@ fun CommunityListScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        isSearchActive = !isSearchActive
-                        if (!isSearchActive) searchQuery = ""
+                        isSearchActiveState = !isSearchActiveState
+                        if (!isSearchActiveState) searchQuery = ""
                     }) {
                         Icon(
-                            if (isSearchActive) Icons.Default.Close else Icons.Default.Search,
-                            contentDescription = if (isSearchActive) "Close search" else "Search",
+                            if (isSearchActiveState) Icons.Default.Close else Icons.Default.Search,
+                            contentDescription = if (isSearchActiveState) "Close search" else "Search",
                         )
                     }
 
@@ -527,64 +477,5 @@ private fun EnhancedCommunityGroupItem(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-    }
-}
-
-// Function to create test community groups in Parse
-private fun createTestCommunityGroups() {
-    Log.d("CommunityScreen", "Creating test community groups...")
-
-    try {
-        val testGroups =
-            listOf(
-                mapOf(
-                    "name" to "Telugu Poultry Farmers - Hyderabad",
-                    "memberCount" to 245,
-                    "type" to "public",
-                    "location" to "Hyderabad",
-                ),
-                mapOf(
-                    "name" to "Rooster Breeding Community - Bangalore",
-                    "memberCount" to 167,
-                    "type" to "public",
-                    "location" to "Bangalore",
-                ),
-                mapOf(
-                    "name" to "Local Market Updates - Chennai",
-                    "memberCount" to 89,
-                    "type" to "public",
-                    "location" to "Chennai",
-                ),
-                mapOf(
-                    "name" to "Veterinary Support Group - Vizag",
-                    "memberCount" to 134,
-                    "type" to "public",
-                    "location" to "Vizag",
-                ),
-                mapOf(
-                    "name" to "Organic Farming Network - Vijayawada",
-                    "memberCount" to 78,
-                    "type" to "public",
-                    "location" to "Vijayawada",
-                ),
-            )
-
-        testGroups.forEach { groupData ->
-            val communityGroup = ParseObject("CommunityGroup")
-            communityGroup.put("name", groupData["name"] as String)
-            communityGroup.put("memberCount", groupData["memberCount"] as Int)
-            communityGroup.put("type", groupData["type"] as String)
-            communityGroup.put("location", groupData["location"] as String)
-
-            communityGroup.saveInBackground { e ->
-                if (e == null) {
-                    Log.d("CommunityScreen", "Successfully created group: ${groupData["name"]}")
-                } else {
-                    Log.e("CommunityScreen", "Failed to create group: ${groupData["name"]}", e)
-                }
-            }
-        }
-    } catch (e: Exception) {
-        Log.e("CommunityScreen", "Error creating test groups", e)
     }
 }

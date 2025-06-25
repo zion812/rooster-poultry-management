@@ -6,11 +6,12 @@ import java.util.Date
 
 /**
  * Hatching and Bruding Data Models
- * 
+ *
  * Moderate-level feature implementation for egg-to-chick traceability
  */
 
 // Hatching Record Data Model
+
 /**
  * Hatching Record Data Model
  */
@@ -110,6 +111,7 @@ data class HatchingRecord(
 }
 
 // Bruding (Brooding) Record Data Model
+
 /**
  * Bruding (Brooding) Record Data Model
  */
@@ -202,6 +204,7 @@ data class BrudingRecord(
 }
 
 // Egg Batch Data Model (Optional, if detailed egg tracking is needed)
+
 /**
  * Egg Batch Data Model (Optional, if detailed egg tracking is needed)
  */

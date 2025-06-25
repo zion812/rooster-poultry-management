@@ -34,6 +34,7 @@ fun TransfersScreen() {
     var showVerificationDialog by remember { mutableStateOf(false) }
     var showHandoverDialog by remember { mutableStateOf(false) }
     var isSellerConfirming by remember { mutableStateOf(false) }
+    var showRejectDialog by remember { mutableStateOf(false) }
 
     // Fetch transfers and fowl list on startup
     LaunchedEffect(Unit) {
@@ -190,6 +191,7 @@ fun TransfersScreen() {
                                 selectedTransfer = transfer
                                 when (action) {
                                     "verify" -> showVerificationDialog = true
+                                    "reject" -> showRejectDialog = true
                                     "handover" -> {
                                         isSellerConfirming = isSeller
                                         showHandoverDialog = true
@@ -293,6 +295,35 @@ fun TransfersScreen() {
                 },
             )
         }
+
+        if (showRejectDialog) {
+            RejectTransferDialog(
+                onDismiss = {
+                    showRejectDialog = false
+                    selectedTransfer = null
+                },
+                onConfirm = { reason ->
+                    transferService.rejectTransferByBuyer(
+                        transferRequestId = transfer.objectId,
+                        reason = reason,
+                        onSuccess = {
+                            showRejectDialog = false
+                            selectedTransfer = null
+                            // Refresh transfers
+                            transferService.fetchUserTransfers(
+                                onResult = { transfers = it },
+                                onError = { error = it },
+                            )
+                        },
+                        onError = { errorMsg ->
+                            error = errorMsg
+                            showRejectDialog = false
+                            selectedTransfer = null
+                        },
+                    )
+                },
+            )
+        }
     }
 }
 
@@ -387,13 +418,27 @@ fun EnhancedTransferCard(
             when (transfer.status) {
                 TransferStatus.INITIATED -> {
                     if (isBuyer) {
-                        Button(
-                            onClick = { onActionRequired("verify", false) },
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            Icon(Icons.Filled.Visibility, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Verify Transfer Details")
+                            Button(
+                                onClick = { onActionRequired("verify", false) },
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Icon(Icons.Filled.Visibility, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Verify Details")
+                            }
+                            OutlinedButton(
+                                onClick = { onActionRequired("reject", false) },
+                                modifier = Modifier.weight(1f),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                            ) {
+                                Icon(Icons.Filled.Close, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Reject")
+                            }
                         }
                     }
                 }
@@ -538,6 +583,43 @@ fun EnhancedTransferCard(
             }
         }
     }
+}
+
+@Composable
+fun RejectTransferDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+) {
+    var reason by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Reject Transfer") },
+        text = {
+            Column {
+                Text("Are you sure you want to reject this transfer? This action cannot be undone.")
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = reason,
+                    onValueChange = { reason = it },
+                    label = { Text("Reason for rejection (optional)") },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onConfirm(reason) },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+            ) {
+                Text("Confirm Rejection")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+    )
 }
 
 private fun fetchUserFowl(): List<FowlData> {

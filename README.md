@@ -13,10 +13,11 @@ management
 The Android app follows a Clean Architecture approach with three main layers:
 
 1. **Presentation Layer** (Jetpack Compose + MVVM)
-  - Screens and UI components organized under `com.rooster.app.screens`
+  - Screens and UI components organized under `com.example.rooster.ui.screens`
   - Navigation via `com.rooster.app.navigation.NavigationRoute`
   - State management with ViewModels annotated `@HiltViewModel`
   - Dependency Injection with Hilt (`App` application class)
+  - Charting with MPAndroidChart for data visualization
 
 2. **Domain Layer**
   - Use-cases encapsulated in `:
@@ -24,9 +25,15 @@ The Android app follows a Clean Architecture approach with three main layers:
     - `core-network` for repository abstractions
 
 3. **Data Layer** (Firebase + Room Hybrid)
-  - **Network**: Retrofit + Parse SDK for remote APIs
+  - **Network**: Retrofit + Parse SDK for remote APIs, including Gson for JSON processing
   - **Database**: Room for offline caching and persistence
   - **Synchronization**: WorkManager jobs for background sync
+
+---
+
+## 💳 **Payment Integration**
+
+The application integrates with **Razorpay Payment Gateway** for secure and efficient payment processing.
 
 ---
 
@@ -176,121 +183,13 @@ within the farm feature.
 
 ---
 
-## ☁️ Cloud Functions & Infra (Deep Dive)
-
-The `cloud/` directory implements extensive Parse Cloud Functions and optimizations:
-
-### 1. Live Streaming Features (`liveStreamingFunctions.js`)
-
-- **startBroadcast**: Initiate a live broadcast, deduct coins, create `BroadcastSession` and log
-  transactions.
-- **joinBroadcast**: Add viewer to session, increment `viewerCount`.
-- **sendGift**: Handle gift transactions, update session revenue, split earnings, log debit/credit.
-- **stopBroadcast**: End session, calculate duration, viewers, gifts, revenue stats.
-- **getActiveBroadcasts**: Query active sessions by region/category, ordered by popularity.
-- **getBroadcastStats**: Aggregate stats (total broadcasts, viewers, gifts, revenue) for a user by
-  period.
-
-### 2. Public & Market Data
-
-- **getPublicBirdProfile**: Fetch safe bird profile, parent lineage, cultural details.
-- **getMarketSummary** (cloud): Return public-ready market trend summaries for a region.
-- **getPerformanceMetrics** (cloud): System health metrics (user/fowl/listing counts).
-
-### 3. Query Optimizations & Indices
-
-- **beforeFind** hooks for high-traffic classes (`TransferRequest`, `GroupChat`, `ChatMessage`,
-  `Listing`, etc.) to add compound indexes.
-- **getOptimizedQuery**: Generic function adapting query limits based on network quality.
-
-### 4. Marketplace & Auction
-
-- **getMarketplaceListings**: Network-adaptive marketplace retrieval with owner info.
-- **createTestListing**: Helper to populate test listings.
-- **getMarketplacePerformance**: Measure response times and health for marketplace queries.
-- **createMarketplaceListing**: Unified listing/auction creation with traceability and validation.
-- **getEnhancedMarketplaceListings**: Fetch listings enriched with auction details and stats.
-
-### 5. Enhanced Auction & Bidding
-
-- **createEnhancedAuction**: Full-featured auction creation (reserve price, auto-extend, deposits).
-- **placeEnhancedAuctionBid**: Complex bid validation, optional deposits, proxy bids, rating.
-- **getEnhancedAuctionBids**: Seller-monitored bid retrieval with statistics and privacy modes.
-- **endEnhancedAuction**: Close auction, handle reserve, create `AuctionWinner`, set status.
-- **processAuctionCompletion** & **processWinnerPayment**: Payment handling, bidder selection, token
-  transfers, refunds.
-- **Helper functions**: deposit/payment simulation, bid updates, refund logic, index maintenance.
-
----
-
-## 🧩 Feature Modules
-
-### feature-farm (Deep Dive)
-
-The `feature-farm` module enables comprehensive farm management with the following layers:
-
-1. **Data Layer**
-  - **Local** (`data.local`): Room database (`FarmDatabase`) with DAOs: `flockDao`, `mortalityDao`,
-    `vaccinationDao`, `sensorDataDao`, `updateDao`.
-  - **Remote** (`data.remote`): Firebase Firestore & Realtime Database sources via
-    `FarmRemoteDataSource`.
-  - **Repository** (`data.repository`): Interfaces and implementations:
-    - `FarmRepository` (CRUD for farm entities)
-    - `SensorDataRepository`, `MortalityRepository`, `VaccinationRepository`, `UpdateRepository`
-
-2. **Domain Layer**
-  - **Models** (`domain.model`): Plain Kotlin data classes for Flock, MortalityRecord, SensorData,
-    VaccinationRecord, UpdateRecord.
-  - **Use Cases** (`domain.usecase`): Business logic entry points:
-    - Get: `GetFarmDetailsUseCase`, `GetFlocksByTypeUseCase`, `GetFamilyTreeUseCase`,
-      `GetAllSensorDataUseCase`, `GetSensorDataByDeviceUseCase`, `GetMortalityRecordsUseCase`,
-      `GetVaccinationRecordsUseCase`, `GetUpdateRecordsUseCase`.
-    - Register & Save: `RegisterFlockUseCase`, `SaveMortalityRecordsUseCase`,
-      `SaveVaccinationRecordsUseCase`, `SaveUpdateRecordsUseCase`.
-    - Delete: `DeleteMortalityRecordUseCase`, `DeleteVaccinationRecordUseCase`,
-      `DeleteUpdateRecordUseCase`.
-
-3. **Presentation Layer**
-  - **UI** (`ui`): Organized into subpackages:
-    - `board`: Farm overview dashboards with charts.
-    - `details`: Detailed flock information screens.
-    - `familytree`: Visualization of flock lineage.
-    - `growth`: Growth analytics with charts and stats.
-    - `monitoring`: Real-time sensor data monitoring.
-    - `mortality`: Record and view mortality statistics.
-    - `vaccination`: Schedule and record vaccinations.
-    - `updates`: Publish and view farm updates.
-    - `navigation`: Navigation graphs specific to farm flows.
-  - Each screen backed by a `ViewModel` provided via Hilt.
-
-4. **Dependency Injection**
-  - **Binds Module** (`FarmBindsModule`): Binds interfaces to implementations, and binds use-cases.
-  - **Provides Module** (`FarmProvidesModule`): Provides Singleton instances for `FarmDatabase`,
-    DAOs, `FirebaseFirestore`, and `DatabaseReference`.
-
-5. **Key DI Bindings Sample**:
-   ```kotlin
-   @Binds @Singleton fun bindFarmRepository(
-     impl: FarmRepositoryImpl
-   ): FarmRepository
-   @Provides @Singleton fun provideDatabase(@ApplicationContext ctx: Context): FarmDatabase =
-     Room.databaseBuilder(ctx, FarmDatabase::class.java, "farm_database").build()
-   ```
-
-This modular decomposition ensures maintainability, testability, and clear separation of concerns
-within the farm feature.
-
-(Additional modules TBD: marketplace, analytics, user management)
-
----
-
 ## 📊 **Project Structure**
 
 rooster-poultry-management/
 ├── app/                           # Android application module
 ├── backend/                       # Cloud Functions & server APIs
-├── core/                          # Core utilities & network layer
-├── feature/                       # Modular features (auctions, farm, marketplace)
+├── core/                          # Core utilities & network layer (includes core-common, core-network)
+├── feature/                       # Modular features (e.g., feature-farm, feature-marketplace, feature-auctions)
 ├── cloud/                         # Deployment scripts & infra configs
 ├── docs/                          # Documentation
 ├── navigation/                    # Compose navigation graphs
@@ -301,6 +200,8 @@ rooster-poultry-management/
 ├── apk-analysis/                  # APK size & performance reports
 ├── payloads/                      # Test data & mock payloads
 └── build/                         # Build artifacts
+
+*Note: Some modules (e.g., navigation, search, analytics, feature-marketplace, feature-auctions, feature-farm) are currently commented out in `settings.gradle.kts` and are either planned for future implementation or temporarily disabled.*
 
 ## 🛠️ **Script Reference**
 - **fix_*.sh**           : Automated fixes for deprecated APIs, icons, imports, etc.
@@ -428,6 +329,7 @@ rooster-poultry-management/
 - Dependency Injection with Hilt
 - Coroutines for async operations
 - Compose for UI development
+- Ktlint for code style enforcement
 
 ---
 

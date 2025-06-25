@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.MenuAnchorType
@@ -21,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -309,7 +311,7 @@ fun TransferListScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Icon(
-                            Icons.Filled.SwapHoriz,
+                            Icons.Default.SwapHoriz,
                             contentDescription = null,
                             modifier = Modifier.size(64.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -623,8 +625,10 @@ fun TransferVerificationDialog(
                             modifier = Modifier.padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
+                            val icon: ImageVector =
+                                if (overallMatch) Icons.Filled.CheckCircle else Icons.Filled.Error
                             Icon(
-                                if (overallMatch) Icons.Filled.CheckCircle else Icons.Filled.Error,
+                                imageVector = icon,
                                 contentDescription = null,
                                 tint = if (overallMatch) Color(0xFF2E7D32) else Color(0xFFC62828),
                             )
@@ -678,11 +682,6 @@ fun TransferVerificationDialog(
                 enabled = verificationPhotos.isNotEmpty(),
             ) {
                 Text("Submit Verification")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
             }
         },
     )

@@ -16,6 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -105,7 +107,7 @@ fun RoosterApp() {
     ) {
         // Authentication Screen
         composable(NavigationRoute.Auth.route) {
-            Text("Auth Screen - Coming Soon")
+            com.example.rooster.ui.screens.AuthScreen(authViewModel)
         }
 
         // Marketplace Screen

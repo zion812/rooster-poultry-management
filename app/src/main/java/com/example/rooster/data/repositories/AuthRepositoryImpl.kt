@@ -60,12 +60,12 @@ class AuthRepositoryImpl
         }
 
         override suspend fun register(
-            name: String,
-            phoneNumber: String,
+            username: String,
+            email: String,
             password: String,
+            role: String
         ): Result<ParseUser> {
-            val result =
-                concreteAuthRepository.register(phoneNumber, "$name@example.com", password, "farmer")
+            val result = concreteAuthRepository.register(username, email, password, role)
             if (result.isSuccess) {
                 val authResult = result.getOrNull()
                 if (authResult?.isSuccess == true && authResult.user != null) {

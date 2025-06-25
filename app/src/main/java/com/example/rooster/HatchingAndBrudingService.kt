@@ -90,16 +90,9 @@ class HatchingAndBrudingService(private val context: Context) {
                 query.orderByDescending("startDate")
                 query.include("createdBy")
 
-                // Network-aware caching
-                val networkQuality = assessNetworkQualitySafely(context)
-                when (networkQuality) {
-                    NetworkQualityLevel.POOR, NetworkQualityLevel.OFFLINE -> {
-                        query.cachePolicy = ParseQuery.CachePolicy.CACHE_ELSE_NETWORK
-                        query.maxCacheAge = 15 * 60 * 1000L // 15 minutes for hatching data
-                    }
-
-                    else -> query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ELSE_CACHE
-                }
+                // --- FIX: Remove unresolved assessNetworkQualitySafely usage ---
+                // val networkQuality = assessNetworkQualitySafely(context)
+                query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ELSE_CACHE
 
                 val results = query.find()
                 val records = results.map { HatchingRecord.fromParseObject(it) }
@@ -180,16 +173,9 @@ class HatchingAndBrudingService(private val context: Context) {
                 query.orderByDescending("startDate")
                 query.include("createdBy")
 
-                // Network-aware caching
-                val networkQuality = assessNetworkQualitySafely(context)
-                when (networkQuality) {
-                    NetworkQualityLevel.POOR, NetworkQualityLevel.OFFLINE -> {
-                        query.cachePolicy = ParseQuery.CachePolicy.CACHE_ELSE_NETWORK
-                        query.maxCacheAge = 15 * 60 * 1000L
-                    }
-
-                    else -> query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ELSE_CACHE
-                }
+                // --- FIX: Remove unresolved assessNetworkQualitySafely usage ---
+                // val networkQuality = assessNetworkQualitySafely(context)
+                query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ELSE_CACHE
 
                 val results = query.find()
                 val records = results.map { BrudingRecord.fromParseObject(it) }

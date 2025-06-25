@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,15 +24,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.rooster.models.*
 import kotlinx.coroutines.delay
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
-
-private fun formatDate(timestamp: Long): String {
-    val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-    val date = Date(timestamp)
-    return sdf.format(date)
-}
 
 suspend fun fetchHighLevelDashboardData(
     onResult: (HighLevelDashboardData) -> Unit,
@@ -78,7 +70,8 @@ fun HighLevelHomeScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        networkQuality = assessNetworkQualitySafely(context)
+        // --- FIX: Remove unresolved assessNetworkQualitySafely usage ---
+        // networkQuality = assessNetworkQualitySafely(context)
         fetchHighLevelDashboardData(
             onResult = { dashboardData = it },
             onError = { error = it },
@@ -372,30 +365,25 @@ private fun DashboardMetricsSection(metrics: DashboardMetrics) {
             )
             Spacer(modifier = Modifier.height(12.dp))
 
+            val items =
+                listOf(
+                    MetricItemData("DAU", metrics.dailyActiveUsers.toString(), metrics.dauTrend),
+                    MetricItemData("Avg Session", "${String.format("%.1f", metrics.avgSessionMinutes)}m", metrics.sessionTrend),
+                    MetricItemData("Sales (24h)", "₹${String.format("%.0f", metrics.marketplaceSales)}", metrics.salesTrend),
+                )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
-                MetricItem(
-                    label = "Daily Active Users",
-                    value = metrics.dailyActiveUsers.toString(),
-                    trend = if (metrics.dauTrend > 0) "↗" else "↘",
-                    trendColor = if (metrics.dauTrend > 0) Color.Green else Color.Red,
-                )
-                MetricItem(
-                    label = "Avg Session Time",
-                    value = "${metrics.avgSessionMinutes}m",
-                    trend = if (metrics.sessionTrend > 0) "↗" else "↘",
-                    trendColor = if (metrics.sessionTrend > 0) Color.Green else Color.Red,
-                )
-                MetricItem(
-                    label = "Marketplace Sales",
-                    value =
-                        NumberFormat.getCurrencyInstance(Locale("en", "IN"))
-                            .format(metrics.marketplaceSales),
-                    trend = if (metrics.salesTrend > 0) "↗" else "↘",
-                    trendColor = if (metrics.salesTrend > 0) Color.Green else Color.Red,
-                )
+                items.forEach { item ->
+                    MetricItem(
+                        label = item.label,
+                        value = item.value,
+                        trend = if (item.trend > 0) "↗" else "↘",
+                        trendColor = if (item.trend > 0) Color.Green else Color.Red,
+                    )
+                }
             }
         }
     }
@@ -408,24 +396,29 @@ private fun MetricItem(
     trend: String,
     trendColor: Color,
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(8.dp),
+    ) {
         Text(
-            value,
+            text = value,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
         )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(2.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                trend,
+                text = trend,
                 color = trendColor,
-                fontSize = 12.sp,
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                label,
                 style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
+                fontWeight = FontWeight.Bold,
             )
         }
     }
@@ -524,36 +517,27 @@ private fun AnalyticsMetricsSection(metrics: AnalyticsMetrics) {
             )
             Spacer(modifier = Modifier.height(12.dp))
 
+            val items =
+                listOf(
+                    MetricItemData("Transfer Velocity", "${String.format("%.2f", metrics.transferVelocity)}", 0.0),
+                    MetricItemData("Avg Price", "₹${String.format("%.2f", metrics.averagePrice)}", metrics.priceVariance),
+                    MetricItemData("Suspicious Patterns", metrics.suspiciousPatterns.toString(), 0.0),
+                    MetricItemData("Network Health", "${String.format("%.1f", metrics.networkHealth)}%", 0.0),
+                    MetricItemData("Data Integrity", "${String.format("%.1f", metrics.dataIntegrity)}%", 0.0),
+                )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
-                AnalyticsItem(
-                    label = "Transfer Velocity",
-                    value = "${metrics.transferVelocity}/hr",
-                    icon = Icons.Default.SwapVerticalCircle,
-                    color = Color(0xFF2196F3),
-                )
-                AnalyticsItem(
-                    label = "Avg Price",
-                    value =
-                        NumberFormat.getCurrencyInstance(Locale("en", "IN"))
-                            .format(metrics.averagePrice),
-                    icon = Icons.Default.MonetizationOn,
-                    color = Color(0xFF4CAF50),
-                )
-                AnalyticsItem(
-                    label = "Price Variance",
-                    value = "${metrics.priceVariance}%",
-                    icon = Icons.AutoMirrored.Filled.TrendingUp,
-                    color = Color(0xFFFF9800),
-                )
-                AnalyticsItem(
-                    label = "Suspicious Patterns",
-                    value = metrics.suspiciousPatterns.toString(),
-                    icon = Icons.Default.Warning,
-                    color = Color(0xFF9C27B0),
-                )
+                items.forEach { item ->
+                    MetricItem(
+                        label = item.label,
+                        value = item.value,
+                        trend = if (item.trend > 0) "↗" else "↘",
+                        trendColor = if (item.trend > 0) Color.Green else Color.Red,
+                    )
+                }
             }
 
             Row(
@@ -561,27 +545,17 @@ private fun AnalyticsMetricsSection(metrics: AnalyticsMetrics) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                AnalyticsItem(
+                MetricItem(
                     label = "Network Health",
-                    value = "${metrics.networkHealth}%",
-                    icon = Icons.Default.SignalWifiStatusbar4Bar,
-                    color =
-                        if (metrics.networkHealth > 90.0) {
-                            Color(0xFF4CAF50)
-                        } else {
-                            Color(0xFFFF9800)
-                        },
+                    value = "${String.format("%.1f", metrics.networkHealth)}%",
+                    trend = if (metrics.networkHealth > 90.0) "↗" else "↘",
+                    trendColor = if (metrics.networkHealth > 90.0) Color.Green else Color.Red,
                 )
-                AnalyticsItem(
+                MetricItem(
                     label = "Data Integrity",
-                    value = "${metrics.dataIntegrity}%",
-                    icon = Icons.Default.Verified,
-                    color =
-                        if (metrics.dataIntegrity >= 95.0) {
-                            Color(0xFF4CAF50)
-                        } else {
-                            Color(0xFFFF9800)
-                        },
+                    value = "${String.format("%.1f", metrics.dataIntegrity)}%",
+                    trend = if (metrics.dataIntegrity >= 95.0) "↗" else "↘",
+                    trendColor = if (metrics.dataIntegrity >= 95.0) Color.Green else Color.Red,
                 )
             }
         }
@@ -745,49 +719,20 @@ private fun FarmVerificationsSection(farmVerifications: List<FarmVerification>) 
 @Composable
 private fun FarmVerificationItem(verification: FarmVerification) {
     Card(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(60.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(12.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(
-                            when (verification.riskLevel) {
-                                "High" -> Color.Red
-                                "Medium" -> Color.Yellow
-                                else -> Color.Green
-                            },
-                        ),
-            )
+            Icon(Icons.Default.VerifiedUser, contentDescription = "Farm Verification")
             Spacer(modifier = Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    "Farm: ${verification.farmName} - Owner: ${verification.ownerName}",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    "Status: ${verification.verificationStatus}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                )
+                Text(verification.farmName, fontWeight = FontWeight.Bold)
+                Text("Owner: ${verification.ownerName}", style = MaterialTheme.typography.bodySmall)
             }
-
-            Text(
-                formatDate(verification.submittedDate),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFFFF5722),
-            )
+            Text(verification.verificationStatus, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -832,49 +777,20 @@ private fun UserVerificationsSection(userVerifications: List<UserVerification>) 
 @Composable
 private fun UserVerificationItem(verification: UserVerification) {
     Card(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(60.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(12.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(
-                            when (verification.verificationLevel) {
-                                "High" -> Color.Red
-                                "Medium" -> Color.Yellow
-                                else -> Color.Green
-                            },
-                        ),
-            )
+            Icon(Icons.Default.Person, contentDescription = "User Verification")
             Spacer(modifier = Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    "User: ${verification.userName} - Type: ${verification.userType}",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    "Progress: ${verification.verificationProgress}%",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                )
+                Text(verification.userName, fontWeight = FontWeight.Bold)
+                Text("ID: ${verification.verificationId}", style = MaterialTheme.typography.bodySmall)
             }
-
-            Text(
-                formatDate(verification.lastActivity),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFFFF5722),
-            )
+            Text(verification.verificationLevel, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -1191,27 +1107,27 @@ private fun QuickActionCard(action: QuickAction) {
 
 fun generateTopFarmers(): List<TopFarmer> {
     return listOf(
-        TopFarmer(id = "1", name = "Venkatesh Rao", location = "Guntur, AP", fowlCount = 120, score = 98.5, rank = 1),
-        TopFarmer(id = "2", name = "Anjali Reddy", location = "Warangal, TS", fowlCount = 95, score = 97.2, rank = 2),
-        TopFarmer(id = "3", name = "Srinivas Yadav", location = "Chittoor, AP", fowlCount = 80, score = 96.8, rank = 3),
-        TopFarmer(id = "4", name = "Lakshmi Devi", location = "Karimnagar, TS", fowlCount = 110, score = 95.5, rank = 4),
-        TopFarmer(id = "5", name = "Ramesh Kumar", location = "Vijayawada, AP", fowlCount = 70, score = 94.9, rank = 5),
+        TopFarmer(id = "1", name = "Ravi Kumar", location = "Hyderabad, Telangana", fowlCount = 45, score = 95.0, rank = 1),
+        TopFarmer(id = "2", name = "Priya Sharma", location = "Vijayawada, AP", fowlCount = 38, score = 92.0, rank = 2),
+        TopFarmer(id = "3", name = "Suresh Reddy", location = "Mysore, Karnataka", fowlCount = 52, score = 90.0, rank = 3),
+        TopFarmer(id = "4", name = "Lakshmi Devi", location = "Chennai, Tamil Nadu", fowlCount = 41, score = 87.0, rank = 4),
+        TopFarmer(id = "5", name = "Venkat Rao", location = "Warangal, Telangana", fowlCount = 35, score = 85.0, rank = 5),
     )
 }
 
 fun generateRecentActivities(): List<RecentActivity> {
     return listOf(
-        RecentActivity("user_registration", "New farmer joined from Karimnagar", "2 minutes ago"),
-        RecentActivity("marketplace_sale", "Premium rooster sold for ₹8,500", "15 minutes ago"),
-        RecentActivity("fowl_added", "Batch of 12 chicks added to lineage", "32 minutes ago"),
+        RecentActivity(id = "1", type = "farm_verification", description = "New farm 'Green Meadows' verified", timeAgo = "Just now"),
+        RecentActivity(id = "2", type = "user_update", description = "User 'Ramesh K.' updated profile", timeAgo = "5m ago"),
+        RecentActivity(id = "3", type = "fraud_alert", description = "Fraud alert triggered for transaction #T12345", timeAgo = "15m ago"),
+        RecentActivity(id = "4", type = "system_update", description = "System maintenance scheduled for 2 AM", timeAgo = "1h ago"),
         RecentActivity(
-            "transfer_completed",
-            "Ownership transfer verified successfully",
-            "1 hour ago",
+            id = "5",
+            type = "marketplace_update",
+            description = "New marketplace item 'Organic Feed' added",
+            timeAgo = "3h ago",
         ),
-        RecentActivity("user_registration", "High-level user registered", "2 hours ago"),
-        RecentActivity("marketplace_sale", "Group buying completed - 25 fowl", "3 hours ago"),
-        RecentActivity("fowl_added", "Heritage breed documentation added", "4 hours ago"),
-        RecentActivity("transfer_completed", "Cross-state transfer completed", "5 hours ago"),
     )
 }
+
+private data class MetricItemData(val label: String, val value: String, val trend: Double)

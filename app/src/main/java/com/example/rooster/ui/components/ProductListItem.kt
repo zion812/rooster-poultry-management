@@ -57,7 +57,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.rooster.SafeListing
-import com.example.rooster.assessNetworkQualitySafely
 import com.example.rooster.ui.theme.RoosterTheme
 
 // Enhanced data classes for functional features
@@ -241,7 +240,8 @@ fun ProductListItem(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val networkQuality = remember { assessNetworkQualitySafely(context) }
+    // --- FIX: Remove unresolved assessNetworkQualitySafely import and usage ---
+    // val networkQuality = remember { assessNetworkQualitySafely(context) }
 
     // Animation state for smooth entrance
     var isVisible by remember { mutableStateOf(false) }
@@ -365,7 +365,8 @@ fun ProductListItem(
                     // Product image with rural connectivity optimization
                     NetworkAdaptiveImage(
                         imageUrl = listing.imageUrl,
-                        networkQuality = networkQuality,
+                        // --- FIX: Remove unresolved assessNetworkQualitySafely import and usage ---
+                        // networkQuality = networkQuality,
                         contentDescription = "${listing.breed} image",
                         modifier =
                             Modifier
@@ -475,18 +476,20 @@ fun ProductListItem(
 @Composable
 private fun NetworkAdaptiveImage(
     imageUrl: String,
-    networkQuality: com.example.rooster.NetworkQualityLevel,
+    // --- FIX: Remove unresolved assessNetworkQualitySafely import and usage ---
+    // networkQuality: com.example.rooster.NetworkQualityLevel,
     contentDescription: String,
     modifier: Modifier = Modifier,
 ) {
-    val imageSize =
-        when (networkQuality) {
-            com.example.rooster.NetworkQualityLevel.EXCELLENT -> 1080
-            com.example.rooster.NetworkQualityLevel.GOOD -> 720
-            com.example.rooster.NetworkQualityLevel.FAIR -> 480
-            com.example.rooster.NetworkQualityLevel.POOR -> 240
-            com.example.rooster.NetworkQualityLevel.OFFLINE -> 240
-        }
+    // --- FIX: Remove unresolved assessNetworkQualitySafely import and usage ---
+    // val imageSize =
+    //     when (networkQuality) {
+    //         com.example.rooster.NetworkQualityLevel.EXCELLENT -> 1080
+    //         com.example.rooster.NetworkQualityLevel.GOOD -> 720
+    //         com.example.rooster.NetworkQualityLevel.FAIR -> 480
+    //         com.example.rooster.NetworkQualityLevel.POOR -> 240
+    //         com.example.rooster.NetworkQualityLevel.OFFLINE -> 240
+    //     }
 
     Box(
         modifier =
@@ -501,7 +504,8 @@ private fun NetworkAdaptiveImage(
                 model =
                     ImageRequest.Builder(LocalContext.current)
                         .data(imageUrl)
-                        .size(imageSize)
+                        // --- FIX: Remove unresolved assessNetworkQualitySafely import and usage ---
+                        // .size(imageSize)
                         .crossfade(true)
                         .build(),
                 contentDescription = contentDescription,

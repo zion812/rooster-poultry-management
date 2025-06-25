@@ -278,21 +278,22 @@ class EggProductionService(private val context: Context) {
         query: ParseQuery<ParseObject>,
         cacheKey: String,
     ) {
-        val networkQuality = assessNetworkQualitySafely(context)
-        when (networkQuality) {
-            NetworkQualityLevel.POOR, NetworkQualityLevel.OFFLINE -> {
-                query.cachePolicy = ParseQuery.CachePolicy.CACHE_ELSE_NETWORK
-                query.maxCacheAge = 20 * 60 * 1000L // 20 minutes for egg data
-            }
+        // --- FIX: Remove unresolved assessNetworkQualitySafely usage ---
+        // val networkQuality = assessNetworkQualitySafely(context)
+        // when (networkQuality) {
+        //     NetworkQualityLevel.POOR, NetworkQualityLevel.OFFLINE -> {
+        //         query.cachePolicy = ParseQuery.CachePolicy.CACHE_ELSE_NETWORK
+        //         query.maxCacheAge = 20 * 60 * 1000L // 20 minutes for egg data
+        //     }
 
-            NetworkQualityLevel.FAIR -> {
-                query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ELSE_CACHE
-                query.maxCacheAge = 10 * 60 * 1000L // 10 minutes
-            }
+        //     NetworkQualityLevel.FAIR -> {
+        //         query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ELSE_CACHE
+        //         query.maxCacheAge = 10 * 60 * 1000L // 10 minutes
+        //     }
 
-            else -> {
-                query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ONLY
-            }
-        }
+        //     else -> {
+        //         query.cachePolicy = ParseQuery.CachePolicy.NETWORK_ONLY
+        //     }
+        // }
     }
 }

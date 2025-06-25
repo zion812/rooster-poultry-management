@@ -3,20 +3,20 @@
 3    package="com.example.rooster.core.common.test" >
 4
 5    <uses-sdk
-5-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest2297951749490887855.xml:5:5-74
+5-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest17598417333474192597.xml:5:5-74
 6        android:minSdkVersion="24"
-6-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest2297951749490887855.xml:5:15-41
+6-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest17598417333474192597.xml:5:15-41
 7        android:targetSdkVersion="24" />
-7-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest2297951749490887855.xml:5:42-71
+7-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest17598417333474192597.xml:5:42-71
 8
 9    <instrumentation
-9-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest2297951749490887855.xml:11:5-13:86
+9-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest17598417333474192597.xml:11:5-13:86
 10        android:name="android.test.InstrumentationTestRunner"
-10-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest2297951749490887855.xml:11:22-75
+10-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest17598417333474192597.xml:11:22-75
 11        android:label="Tests for com.example.rooster.core.common.test"
-11-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest2297951749490887855.xml:13:22-84
+11-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest17598417333474192597.xml:13:22-84
 12        android:targetPackage="com.example.rooster.core.common.test" />
-12-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest2297951749490887855.xml:12:22-82
+12-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest17598417333474192597.xml:12:22-82
 13
 14    <permission
 14-->[androidx.core:core:1.15.0] C:\Users\rowdy\.gradle\caches\8.13\transforms\a629879b2b6791f4549ff52ad2c30768\transformed\core-1.15.0\AndroidManifest.xml:22:5-24:47
@@ -30,14 +30,14 @@
 18-->[androidx.core:core:1.15.0] C:\Users\rowdy\.gradle\caches\8.13\transforms\a629879b2b6791f4549ff52ad2c30768\transformed\core-1.15.0\AndroidManifest.xml:26:22-94
 19
 20    <application
-20-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest2297951749490887855.xml:7:5-9:19
+20-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest17598417333474192597.xml:7:5-9:19
 21        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
 21-->[androidx.core:core:1.15.0] C:\Users\rowdy\.gradle\caches\8.13\transforms\a629879b2b6791f4549ff52ad2c30768\transformed\core-1.15.0\AndroidManifest.xml:28:18-86
 22        android:debuggable="true" >
-22-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest2297951749490887855.xml:7:18-43
+22-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest17598417333474192597.xml:7:18-43
 23        <uses-library android:name="android.test.runner" />
-23-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest2297951749490887855.xml:8:9-60
-23-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest2297951749490887855.xml:8:23-57
+23-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest17598417333474192597.xml:8:9-60
+23-->C:\Users\rowdy\AndroidStudioProjects\rooster-poultry-management\core\core-common\build\intermediates\tmp\manifest\test\debug\tempFile1ProcessTestManifest17598417333474192597.xml:8:23-57
 24
 25        <provider
 25-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rowdy\.gradle\caches\8.13\transforms\56f1107f2912a48eebd5b4d3f6ba1186\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
