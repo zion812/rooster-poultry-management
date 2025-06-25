@@ -23,12 +23,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import android.content.Context
+import com.example.rooster.models.*
+import kotlinx.coroutines.delay
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlinx.coroutines.delay
-import com.example.rooster.models.*
 
 private fun formatDate(timestamp: Long): String {
     val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
@@ -39,22 +38,23 @@ private fun formatDate(timestamp: Long): String {
 suspend fun fetchHighLevelDashboardData(
     onResult: (HighLevelDashboardData) -> Unit,
     onError: (String) -> Unit,
-    setLoading: (Boolean) -> Unit
+    setLoading: (Boolean) -> Unit,
 ) {
     try {
         delay(1000) // Simulate network delay
-        val mockData = HighLevelDashboardData(
-            overviewStats = OverviewStats(1250, 850, 15200, 450),
-            performanceMetrics = DashboardMetrics(420, 15.0, 45.0, 8.0, 125000.0, 12.0),
-            traceabilityMetrics = TraceabilityMetrics(25, 180, 12, 3, 94.5, 6.0),
-            analyticsMetrics = AnalyticsMetrics(18.0, 2500.0, 12.5, 2, 98.5, 97.8),
-            fraudAlerts = emptyList(),
-            farmVerifications = emptyList(),
-            userVerifications = emptyList(),
-            topFarmers = generateTopFarmers(),
-            recentActivities = generateRecentActivities(),
-            systemHealth = SystemHealth("Healthy", "Healthy")
-        )
+        val mockData =
+            HighLevelDashboardData(
+                overviewStats = OverviewStats(1250, 850, 15200, 450),
+                performanceMetrics = DashboardMetrics(420, 15.0, 45.0, 8.0, 125000.0, 12.0),
+                traceabilityMetrics = TraceabilityMetrics(25, 180, 12, 3, 94.5, 6.0),
+                analyticsMetrics = AnalyticsMetrics(18.0, 2500.0, 12.5, 2, 98.5, 97.8),
+                fraudAlerts = emptyList(),
+                farmVerifications = emptyList(),
+                userVerifications = emptyList(),
+                topFarmers = generateTopFarmers(),
+                recentActivities = generateRecentActivities(),
+                systemHealth = SystemHealth("Healthy", "Healthy"),
+            )
         onResult(mockData)
         setLoading(false)
     } catch (e: Exception) {
@@ -68,7 +68,7 @@ suspend fun fetchHighLevelDashboardData(
 fun HighLevelHomeScreen(
     navController: NavController,
     isTeluguMode: Boolean,
-    onLanguageToggle: () -> Unit
+    onLanguageToggle: () -> Unit,
 ) {
     var dashboardData by remember { mutableStateOf<HighLevelDashboardData?>(null) }
     var loading by remember { mutableStateOf(true) }
@@ -1134,7 +1134,7 @@ private fun QuickActionsSection() {
                             route = "reports",
                             description = "Generate reports",
                             descriptionTe = "నివేదికలను రూపొందించండి",
-                            color = Color(0xFFFF9800)
+                            color = Color(0xFFFF9800),
                         ),
                         QuickAction(
                             title = "Settings",
@@ -1143,7 +1143,7 @@ private fun QuickActionsSection() {
                             route = "settings",
                             description = "System settings",
                             descriptionTe = "సిస్టమ్ సెట్టింగులు",
-                            color = Color(0xFF9C27B0)
+                            color = Color(0xFF9C27B0),
                         ),
                     ),
                 ) { action ->
@@ -1195,7 +1195,7 @@ fun generateTopFarmers(): List<TopFarmer> {
         TopFarmer(id = "2", name = "Anjali Reddy", location = "Warangal, TS", fowlCount = 95, score = 97.2, rank = 2),
         TopFarmer(id = "3", name = "Srinivas Yadav", location = "Chittoor, AP", fowlCount = 80, score = 96.8, rank = 3),
         TopFarmer(id = "4", name = "Lakshmi Devi", location = "Karimnagar, TS", fowlCount = 110, score = 95.5, rank = 4),
-        TopFarmer(id = "5", name = "Ramesh Kumar", location = "Vijayawada, AP", fowlCount = 70, score = 94.9, rank = 5)
+        TopFarmer(id = "5", name = "Ramesh Kumar", location = "Vijayawada, AP", fowlCount = 70, score = 94.9, rank = 5),
     )
 }
 

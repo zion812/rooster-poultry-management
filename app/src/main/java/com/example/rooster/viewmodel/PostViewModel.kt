@@ -39,32 +39,34 @@ class PostViewModel
             loadPosts()
         }
 
-    private suspend fun getCurrentUserId(): String? {
-        return userRepository.getCurrentUser()
-    }
-
-    private suspend fun getCurrentUserProfile(): UserProfile? {
-        return try {
-            val userId = getCurrentUserId()
-            if (userId != null) {
-                UserProfile(
-                    userId = userId,
-                    username = "User$userId",
-                    profilePicture = null
-                )
-            } else null
-        } catch (e: Exception) {
-            null
+        private suspend fun getCurrentUserId(): String? {
+            return userRepository.getCurrentUser()
         }
-    }
 
-    data class UserProfile(
-        val userId: String,
-        val username: String,
-        val profilePicture: String?
-    )
+        private suspend fun getCurrentUserProfile(): UserProfile? {
+            return try {
+                val userId = getCurrentUserId()
+                if (userId != null) {
+                    UserProfile(
+                        userId = userId,
+                        username = "User$userId",
+                        profilePicture = null,
+                    )
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
 
-    fun createPost(
+        data class UserProfile(
+            val userId: String,
+            val username: String,
+            val profilePicture: String?,
+        )
+
+        fun createPost(
             text: String,
             mediaUrls: List<String> = emptyList(),
             postType: PostType = PostType.TEXT,

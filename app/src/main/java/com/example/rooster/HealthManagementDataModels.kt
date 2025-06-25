@@ -1,14 +1,19 @@
 package com.example.rooster
 
+import com.parse.ParseFile
 import com.parse.ParseObject
 import java.util.*
 
 /**
  * Health Management Data Models for Vaccination and Medication Tracking
+ * 
  * Moderate-level feature implementation for comprehensive fowl health management
  */
 
 // Vaccination Record Data Model
+/**
+ * Vaccination Record Data Model
+ */
 data class VaccinationRecord(
     val id: String = "",
     val birdId: String,
@@ -30,6 +35,7 @@ data class VaccinationRecord(
     val createdBy: String = "",
     val createdAt: Date = Date(),
     val updatedAt: Date = Date(),
+    val photo: ParseFile? = null,
 ) {
     companion object {
         fun fromParseObject(parseObject: ParseObject): VaccinationRecord {
@@ -58,6 +64,7 @@ data class VaccinationRecord(
                     createdBy = parseObject.getParseUser("createdBy")?.objectId ?: "",
                     createdAt = parseObject.createdAt ?: Date(),
                     updatedAt = parseObject.updatedAt ?: Date(),
+                    photo = parseObject.getParseFile("photo"),
                 )
             } catch (e: Exception) {
                 VaccinationRecord(
@@ -90,6 +97,7 @@ data class VaccinationRecord(
         parseObject.put("cost", cost)
         parseObject.put("region", region)
         parseObject.put("updatedAt", Date())
+        photo?.let { parseObject.put("photo", it) }
         return parseObject
     }
 }
@@ -103,7 +111,8 @@ data class MedicationRecord(
     val medicineName: String,
     val dosage: String,
     val frequency: String,
-    val duration: Int, // in days
+    // in days
+    val duration: Int,
     val startDate: Date,
     val endDate: Date? = null,
     val administeredBy: String = "",
@@ -118,6 +127,7 @@ data class MedicationRecord(
     val createdBy: String = "",
     val createdAt: Date = Date(),
     val updatedAt: Date = Date(),
+    var photo: ParseFile? = null,
 ) {
     companion object {
         fun fromParseObject(parseObject: ParseObject): MedicationRecord {
@@ -148,6 +158,7 @@ data class MedicationRecord(
                     createdBy = parseObject.getParseUser("createdBy")?.objectId ?: "",
                     createdAt = parseObject.createdAt ?: Date(),
                     updatedAt = parseObject.updatedAt ?: Date(),
+                    photo = parseObject.getParseFile("photo"),
                 )
             } catch (e: Exception) {
                 MedicationRecord(
@@ -184,6 +195,7 @@ data class MedicationRecord(
         parseObject.put("cost", cost)
         parseObject.put("region", region)
         parseObject.put("updatedAt", Date())
+        photo?.let { parseObject.put("photo", it) }
         return parseObject
     }
 }
@@ -258,17 +270,14 @@ data class HealthSchedule(
 
 // Health Summary for Dashboard
 data class HealthSummary(
-    val totalVaccinations: Int = 0,
-    val pendingVaccinations: Int = 0,
-    val overdueVaccinations: Int = 0,
-    val totalMedications: Int = 0,
-    val activeMedications: Int = 0,
-    val completedMedications: Int = 0,
-    val upcomingSchedules: Int = 0,
-    val totalHealthCost: Double = 0.0,
-    val lastVaccinationDate: Date? = null,
-    val lastMedicationDate: Date? = null,
-    val healthScore: Int = 100, // 0-100 based on compliance
+    val totalBirds: Int,
+    val healthyBirds: Int,
+    val sickBirds: Int,
+    // Within next 7 days
+    val upcomingVaccinations: Int,
+    val ongoingMedications: Int,
+    // Last 30 days
+    val mortalityRate: Double,
 )
 
 // Enums for Health Management

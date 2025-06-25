@@ -61,7 +61,7 @@ object CrashPrevention {
      */
     fun <T> safeExecute(
         context: String,
-        block: () -> T
+        block: () -> T,
     ): T? {
         try {
             Log.d("CrashPrevention", "Executing: $context")
@@ -248,7 +248,8 @@ object CrashPrevention {
 // Safe string operations
 fun String?.safeSubstring(
     start: Int,
-    end: Int? = null,
+    // if null, goes to end of string
+    end: Int? = null
 ): String {
     return CrashPrevention.safeExecuteWithResult("String substring", "") {
         if (this != null && start >= 0 && start < length) {

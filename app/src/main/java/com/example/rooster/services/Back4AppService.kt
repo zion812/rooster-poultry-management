@@ -164,7 +164,7 @@ class Back4AppService
                         Log.e(TAG, "Login failed: ${e?.message}")
                         CrashPrevention.handleException("User login", e ?: RuntimeException("Login operation failed"))
                         continuation.resumeWithException(
-                            e ?: RuntimeException("Login operation failed")
+                            e ?: RuntimeException("Login operation failed"),
                         )
                     }
                 }
@@ -210,18 +210,19 @@ class Back4AppService
             return try {
                 val startTime = System.currentTimeMillis()
 
-                val connectionOk = try {
-                    val testObject = ParseObject("ConnectionTest")
-                    testObject.put("timestamp", System.currentTimeMillis())
-                    testObject.save()
-                    testObject.delete()
-                    _connectionStatus.value = ConnectionStatus.CONNECTED
-                    true
-                } catch (e: Exception) {
-                    _connectionStatus.value = ConnectionStatus.DISCONNECTED
-                    Log.e(TAG, "Connection test failed: ${e.message}")
-                    false
-                }
+                val connectionOk =
+                    try {
+                        val testObject = ParseObject("ConnectionTest")
+                        testObject.put("timestamp", System.currentTimeMillis())
+                        testObject.save()
+                        testObject.delete()
+                        _connectionStatus.value = ConnectionStatus.CONNECTED
+                        true
+                    } catch (e: Exception) {
+                        _connectionStatus.value = ConnectionStatus.DISCONNECTED
+                        Log.e(TAG, "Connection test failed: ${e.message}")
+                        false
+                    }
 
                 val queryStartTime = System.currentTimeMillis()
                 val queryTime = System.currentTimeMillis() - queryStartTime
@@ -265,20 +266,22 @@ data class HealthStatus(
     val error: String? = null,
 ) {
     companion object {
-        val HEALTHY = HealthStatus(
-            isHealthy = true,
-            responseTime = 0,
-            queryPerformance = 0,
-            cloudFunctionPerformance = 0,
-            lastCheck = System.currentTimeMillis(),
-        )
-        val UNKNOWN = HealthStatus(
-            isHealthy = false,
-            responseTime = -1,
-            queryPerformance = -1,
-            cloudFunctionPerformance = -1,
-            lastCheck = System.currentTimeMillis(),
-            error = "Unknown health status",
-        )
+        val HEALTHY =
+            HealthStatus(
+                isHealthy = true,
+                responseTime = 0,
+                queryPerformance = 0,
+                cloudFunctionPerformance = 0,
+                lastCheck = System.currentTimeMillis(),
+            )
+        val UNKNOWN =
+            HealthStatus(
+                isHealthy = false,
+                responseTime = -1,
+                queryPerformance = -1,
+                cloudFunctionPerformance = -1,
+                lastCheck = System.currentTimeMillis(),
+                error = "Unknown health status",
+            )
     }
 }

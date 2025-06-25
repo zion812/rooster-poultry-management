@@ -2,6 +2,7 @@ package com.example.rooster.core.network
 
 import android.content.Context
 import com.example.rooster.core.common.Constants
+import com.example.rooster.core.network.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

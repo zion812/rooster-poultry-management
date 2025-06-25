@@ -60,14 +60,16 @@ fun PaymentScreen(
 
         Button(
             onClick = {
+                // Using listingId as orderId temporarily
                 orderViewModel.processPayment(
-                    orderId = listingId, // Using listingId as orderId temporarily
-                    paymentMethod = when (paymentMethod) {
-                        "COD" -> com.example.rooster.data.entities.PaymentMethod.COD
-                        "Online" -> com.example.rooster.data.entities.PaymentMethod.UPI
-                        else -> com.example.rooster.data.entities.PaymentMethod.COD
-                    },
-                    coinsUsed = if (useAdvance) 10 else 0
+                    orderId = listingId,
+                    paymentMethod =
+                        when (paymentMethod) {
+                            "COD" -> com.example.rooster.data.entities.PaymentMethod.COD
+                            "Online" -> com.example.rooster.data.entities.PaymentMethod.UPI
+                            else -> com.example.rooster.data.entities.PaymentMethod.COD
+                        },
+                    coinsUsed = if (useAdvance) 10 else 0,
                 )
                 // Call success callback with the listing ID as order ID
                 onSuccess(listingId)

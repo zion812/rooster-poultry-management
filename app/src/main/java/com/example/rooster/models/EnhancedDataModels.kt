@@ -1,6 +1,7 @@
 package com.example.rooster.models
 
 import com.parse.ParseClassName
+import com.parse.ParseFile
 import com.parse.ParseObject
 import java.util.*
 
@@ -186,6 +187,12 @@ class TransferRequest : ParseObject() {
         get() = getString("proofPhotoUrl")
         set(value) {
             if (value != null) put("proofPhotoUrl", value)
+        }
+
+    var proofPhoto: ParseFile?
+        get() = getParseFile("proofPhoto")
+        set(value) {
+            if (value != null) put("proofPhoto", value)
         }
 
     var proofLatitude: Double

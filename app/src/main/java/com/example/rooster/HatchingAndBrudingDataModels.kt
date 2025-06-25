@@ -1,17 +1,25 @@
 package com.example.rooster
 
+import com.parse.ParseFile
 import com.parse.ParseObject
 import java.util.Date
 
 /**
  * Hatching and Bruding Data Models
+ * 
  * Moderate-level feature implementation for egg-to-chick traceability
  */
 
 // Hatching Record Data Model
+/**
+ * Hatching Record Data Model
+ */
 data class HatchingRecord(
     val id: String = "",
-    val eggId: String, // Link to a specific egg if tracked, or a batch ID
+    /**
+     * Link to a specific egg if tracked, or a batch ID
+     */
+    val eggId: String,
     val batchName: String = "",
     val breed: String = "",
     val numberOfEggs: Int = 1,
@@ -19,15 +27,25 @@ data class HatchingRecord(
     val expectedHatchDate: Date,
     var actualHatchDate: Date? = null,
     var hatchedCount: Int = 0,
-    var fertilityRate: Double = 0.0, // (hatchedCount / numberOfEggs) * 100
-    var hatchabilityRate: Double = 0.0, // (hatchedCount / fertileEggs) * 100 - if fertileEggs are known
-    val incubatorSettings: String = "", // Temp, humidity, turning frequency
+    /**
+     * (hatchedCount / numberOfEggs) * 100
+     */
+    var fertilityRate: Double = 0.0,
+    /**
+     * (hatchedCount / fertileEggs) * 100 - if fertileEggs are known
+     */
+    var hatchabilityRate: Double = 0.0,
+    /**
+     * Temp, humidity, turning frequency
+     */
+    val incubatorSettings: String = "",
     var status: HatchingStatus = HatchingStatus.INCUBATING,
     val notes: String = "",
     val region: String = "",
     val createdBy: String = "",
     val createdAt: Date = Date(),
     val updatedAt: Date = Date(),
+    var photo: ParseFile? = null,
 ) {
     companion object {
         fun fromParseObject(parseObject: ParseObject): HatchingRecord {
@@ -56,6 +74,7 @@ data class HatchingRecord(
                     createdBy = parseObject.getParseUser("createdBy")?.objectId ?: "",
                     createdAt = parseObject.createdAt ?: Date(),
                     updatedAt = parseObject.updatedAt ?: Date(),
+                    photo = parseObject.getParseFile("photo"),
                 )
             } catch (e: Exception) {
                 HatchingRecord(
@@ -85,21 +104,34 @@ data class HatchingRecord(
         parseObject.put("notes", notes)
         parseObject.put("region", region)
         parseObject.put("updatedAt", Date())
+        photo?.let { parseObject.put("photo", it) }
         return parseObject
     }
 }
 
 // Bruding (Brooding) Record Data Model
+/**
+ * Bruding (Brooding) Record Data Model
+ */
 data class BrudingRecord(
     val id: String = "",
-    val chickId: String, // Link to individual chick if tracked, or batch ID
+    /**
+     * Link to individual chick if tracked, or batch ID
+     */
+    val chickId: String,
     val batchName: String = "",
-    val hatchingRecordId: String? = null, // Link to HatchingRecord
+    /**
+     * Link to HatchingRecord
+     */
+    val hatchingRecordId: String? = null,
     val breed: String = "",
     val numberOfChicks: Int = 1,
     val startDate: Date,
     var endDate: Date? = null,
-    val temperatureSchedule: String = "", // e.g., Week1: 95F, Week2: 90F
+    /**
+     * e.g., Week1: 95F, Week2: 90F
+     */
+    val temperatureSchedule: String = "",
     val feedType: String = "",
     val waterSource: String = "",
     var mortalityCount: Int = 0,
@@ -170,10 +202,16 @@ data class BrudingRecord(
 }
 
 // Egg Batch Data Model (Optional, if detailed egg tracking is needed)
+/**
+ * Egg Batch Data Model (Optional, if detailed egg tracking is needed)
+ */
 data class EggBatch(
     val id: String = "",
     val batchName: String,
-    val sourceHenId: String? = null, // Link to specific hen if known
+    /**
+     * Link to specific hen if known
+     */
+    val sourceHenId: String? = null,
     val breed: String,
     val collectionDate: Date,
     val numberOfEggs: Int,

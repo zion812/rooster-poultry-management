@@ -45,7 +45,7 @@ class TransferRepository {
 
                 // Add proof photos if provided
                 if (proofPhotos.isNotEmpty()) {
-                    transferRequest.proofPhotoUrl = proofPhotos.first().url
+                    transferRequest.proofPhoto = proofPhotos.first()
                 }
 
                 transferRequest.save()

@@ -857,7 +857,7 @@ class MarketplaceViewModel : ViewModel() {
         )
     }
 
-    fun getInstance(context: Context) {
+    fun setContext(context: Context) {
         _uiState.value = _uiState.value.copy(context = context)
     }
 }

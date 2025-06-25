@@ -20,12 +20,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+import com.example.rooster.data.TransferRepository
 import com.parse.ParseACL
+import com.parse.ParseException
 import com.parse.ParseFile
 import com.parse.ParseObject
 import com.parse.ParseQuery
 import com.parse.ParseUser
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -62,21 +65,21 @@ fun FowlScreen() {
     var selectedMilestone by remember { mutableStateOf<Pair<MilestoneType, FowlData>?>(null) }
     var parentId by remember { mutableStateOf<String?>(null) }
     var photoUri by remember { mutableStateOf<Uri?>(null) }
+    var showAddHatchingDialog by remember { mutableStateOf<FowlData?>(null) }
+    var showAddBrudingDialog by remember { mutableStateOf<FowlData?>(null) }
+    var showAddTransferDialog by remember { mutableStateOf<FowlData?>(null) }
+    var showAddVaccinationDialog by remember { mutableStateOf<FowlData?>(null) }
+    var showAddMedicationDialog by remember { mutableStateOf<FowlData?>(null) }
+    var medicationPhotoUri by remember { mutableStateOf<Uri?>(null) }
+    var hatchingPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
     // Services
     val context = LocalContext.current.applicationContext as Application
     val milestoneService = remember { MilestoneTrackingService() }
     val healthManagementService = remember { HealthManagementService(context = context) }
     val hatchingAndBrudingService = remember { HatchingAndBrudingService(context = context) }
+    val transferRepository = remember { TransferRepository() }
     val coroutineScope = rememberCoroutineScope()
-
-    // State for health management dialogs
-    var showAddVaccinationDialog by remember { mutableStateOf<FowlData?>(null) }
-    var showAddMedicationDialog by remember { mutableStateOf<FowlData?>(null) }
-
-    // State for hatching/bruding dialogs
-    var showAddHatchingDialog by remember { mutableStateOf<FowlData?>(null) }
-    var showAddBrudingDialog by remember { mutableStateOf<FowlData?>(null) }
 
     fun fetchFowls() {
         loading = true
@@ -102,50 +105,55 @@ fun FowlScreen() {
     }
 
     fun addFowl() {
-        val fowl = ParseObject("Fowl")
-        fowl.put("name", name)
-        fowl.put("type", type)
-        fowl.put("birthDate", birthDate)
-        fowl.put("owner", ParseUser.getCurrentUser())
-        if (parentId != null) {
-            val parentPointer = ParseObject.createWithoutData("Fowl", parentId)
-            fowl.put("parentId", parentPointer)
-        }
-        if (photoUri != null) {
-            val inputStream = LocalContext.current.contentResolver.openInputStream(photoUri!!)
-            val imageBytes = inputStream?.readBytes()
-            inputStream?.close()
-            if (imageBytes != null) {
-                val parseFile = ParseFile("fowl_photo.jpg", imageBytes)
-                parseFile.saveInBackground { e ->
-                    if (e == null) {
+        coroutineScope.launch {
+            val fowl = ParseObject("Fowl")
+            fowl.put("name", name)
+            fowl.put("type", type)
+            fowl.put("birthDate", birthDate)
+            fowl.put("owner", ParseUser.getCurrentUser())
+            if (parentId != null) {
+                val parentPointer = ParseObject.createWithoutData("Fowl", parentId)
+                fowl.put("parentId", parentPointer)
+            }
+            if (photoUri != null) {
+                val imageBytes =
+                    try {
+                        context.contentResolver.openInputStream(photoUri!!)?.use { it.readBytes() }
+                    } catch (e: Exception) {
+                        error = "Failed to read photo: ${e.localizedMessage}"
+                        return@launch
+                    }
+
+                if (imageBytes != null) {
+                    val parseFile = ParseFile("fowl_photo.jpg", imageBytes)
+                    try {
+                        withContext(Dispatchers.IO) {
+                            parseFile.save()
+                        }
                         fowl.put("photo", parseFile)
-                        saveFowlObject(fowl)
-                    } else {
+                    } catch (e: ParseException) {
                         error = e.localizedMessage ?: "Failed to upload photo."
+                        return@launch
                     }
                 }
-                return
             }
-        }
-        saveFowlObject(fowl)
-    }
-
-    fun saveFowlObject(fowl: ParseObject) {
-        val acl = ParseACL(ParseUser.getCurrentUser())
-        acl.setPublicReadAccess(true)
-        acl.setWriteAccess(ParseUser.getCurrentUser(), true)
-        fowl.acl = acl
-        fowl.saveInBackground { e ->
-            if (e == null) {
-                fowl.pinInBackground()
+            val acl = ParseACL(ParseUser.getCurrentUser())
+            acl.setPublicReadAccess(true)
+            acl.setWriteAccess(ParseUser.getCurrentUser(), true)
+            fowl.acl = acl
+            try {
+                withContext(Dispatchers.IO) {
+                    fowl.save()
+                    fowl.pin()
+                }
+                // Reset state on main thread
                 name = ""
                 birthDate = ""
                 parentId = null
                 photoUri = null
                 showAddFowlDialog = false
                 fetchFowls()
-            } else {
+            } catch (e: ParseException) {
                 error = e.localizedMessage ?: "Failed to add fowl."
             }
         }
@@ -210,6 +218,7 @@ fun FowlScreen() {
                         milestoneService = milestoneService,
                         healthManagementService = healthManagementService,
                         hatchingAndBrudingService = hatchingAndBrudingService,
+                        transferRepository = transferRepository,
                         onAddMilestone = { milestoneType ->
                             selectedMilestone = milestoneType to fowlData
                         },
@@ -217,6 +226,7 @@ fun FowlScreen() {
                         onAddMedication = { showAddMedicationDialog = fowlData },
                         onAddHatching = { showAddHatchingDialog = fowlData },
                         onAddBruding = { showAddBrudingDialog = fowlData },
+                        onAddTransfer = { showAddTransferDialog = fowlData },
                     )
                 }
             }
@@ -233,14 +243,15 @@ fun FowlScreen() {
             onBirthDateChange = { birthDate = it },
             parentId = parentId,
             onParentIdChange = { parentId = it },
-            fowlOptions = fowls.map {
-                FowlData(
-                    objectId = it.objectId,
-                    name = it.getString("name") ?: "Unknown",
-                    type = it.getString("type") ?: "Unknown",
-                    birthDate = it.getString("birthDate") ?: "Unknown",
-                )
-            },
+            fowlOptions =
+                fowls.map {
+                    FowlData(
+                        objectId = it.objectId,
+                        name = it.getString("name") ?: "Unknown",
+                        type = it.getString("type") ?: "Unknown",
+                        birthDate = it.getString("birthDate") ?: "Unknown",
+                    )
+                },
             photoUri = photoUri,
             onPhotoUriChange = { photoUri = it },
             onDismiss = {
@@ -295,9 +306,15 @@ fun FowlScreen() {
         AddMedicationDialog(
             fowlData = fowlData,
             healthManagementService = healthManagementService,
-            onDismiss = { showAddMedicationDialog = null },
+            photoUri = medicationPhotoUri,
+            onPhotoUriChange = { medicationPhotoUri = it },
+            onDismiss = {
+                showAddMedicationDialog = null
+                medicationPhotoUri = null
+            },
             onMedicationAdded = {
                 showAddMedicationDialog = null
+                medicationPhotoUri = null
                 // Optionally refresh or update UI here
             },
         )
@@ -305,11 +322,18 @@ fun FowlScreen() {
 
     showAddHatchingDialog?.let { fowlData ->
         AddHatchingDialog(
-            fowlData = fowlData, // Pass FowlData to prefill breed if needed
+            // Pass FowlData to prefill breed if needed
+            fowlData = fowlData,
             hatchingAndBrudingService = hatchingAndBrudingService,
-            onDismiss = { showAddHatchingDialog = null },
+            photoUri = hatchingPhotoUri,
+            onPhotoUriChange = { hatchingPhotoUri = it },
+            onDismiss = {
+                showAddHatchingDialog = null
+                hatchingPhotoUri = null
+            },
             onHatchingRecordAdded = {
                 showAddHatchingDialog = null
+                hatchingPhotoUri = null
                 // Optionally refresh data or show success message
             },
         )
@@ -317,11 +341,24 @@ fun FowlScreen() {
 
     showAddBrudingDialog?.let { fowlData ->
         AddBrudingDialog(
-            fowlData = fowlData, // Pass FowlData to prefill breed if needed
+            // Pass FowlData to prefill breed if needed
+            fowlData = fowlData,
             hatchingAndBrudingService = hatchingAndBrudingService,
             onDismiss = { showAddBrudingDialog = null },
             onBrudingRecordAdded = {
                 showAddBrudingDialog = null
+                // Optionally refresh data or show success message
+            },
+        )
+    }
+
+    showAddTransferDialog?.let { fowlData ->
+        AddTransferDialog(
+            fowlData = fowlData,
+            transferRepository = transferRepository,
+            onDismiss = { showAddTransferDialog = null },
+            onTransferAdded = {
+                showAddTransferDialog = null
                 // Optionally refresh data or show success message
             },
         )
@@ -333,12 +370,14 @@ fun EnhancedFowlCard(
     fowlData: FowlData,
     milestoneService: MilestoneTrackingService,
     healthManagementService: HealthManagementService,
-    hatchingAndBrudingService: HatchingAndBrudingService, // Added service
+    hatchingAndBrudingService: HatchingAndBrudingService,
+    transferRepository: TransferRepository,
     onAddMilestone: (MilestoneType) -> Unit,
     onAddVaccination: (FowlData) -> Unit,
     onAddMedication: (FowlData) -> Unit,
-    onAddHatching: (FowlData) -> Unit, // Added callback
-    onAddBruding: (FowlData) -> Unit, // Added callback
+    onAddHatching: (FowlData) -> Unit,
+    onAddBruding: (FowlData) -> Unit,
+    onAddTransfer: (FowlData) -> Unit,
 ) {
     var selectedTab by remember { mutableStateOf(FowlDetailTab.MILESTONES) }
     var lineage by remember { mutableStateOf<List<FowlData>>(emptyList()) }
@@ -362,7 +401,7 @@ fun EnhancedFowlCard(
                 Image(
                     painter = rememberAsyncImagePainter(it),
                     contentDescription = "Fowl Photo",
-                    modifier = Modifier.size(80.dp)
+                    modifier = Modifier.size(80.dp),
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -392,11 +431,21 @@ fun EnhancedFowlCard(
                     MedicationContent(fowlData, healthManagementService, onAddMedication)
                 }
                 FowlDetailTab.HATCHING -> {
-                    HatchingContent(fowlData, hatchingAndBrudingService, onAddHatching)
+                    HatchingContent(
+                        // Used for context, e.g., prefilling breed for a new batch
+                        fowlData = fowlData,
+                        hatchingAndBrudingService = hatchingAndBrudingService,
+                        onAddHatching = onAddHatching
+                    )
                 }
 
                 FowlDetailTab.BRUDING -> {
-                    BrudingContent(fowlData, hatchingAndBrudingService, onAddBruding)
+                    BrudingContent(
+                        // Used for context
+                        fowlData = fowlData,
+                        hatchingAndBrudingService = hatchingAndBrudingService,
+                        onAddBruding = onAddBruding
+                    )
                 }
             }
 
@@ -407,6 +456,11 @@ fun EnhancedFowlCard(
                     style = MaterialTheme.typography.titleSmall,
                 )
                 LineageTree(lineage)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                IconButton(onClick = { onAddMilestone(MilestoneTypes.BIRTH) }) { Icon(Icons.Default.Add, "Milestone") }
+                IconButton(onClick = { onAddTransfer(fowlData) }) { Icon(Icons.Default.Share, "Transfer") }
             }
         }
     }
@@ -549,7 +603,8 @@ fun MedicationContent(
 
 @Composable
 fun HatchingContent(
-    fowlData: FowlData, // Used for context, e.g., prefilling breed for a new batch
+    // Used for context, e.g., prefilling breed for a new batch
+    fowlData: FowlData,
     hatchingAndBrudingService: HatchingAndBrudingService,
     onAddHatching: (FowlData) -> Unit,
 ) {
@@ -599,7 +654,8 @@ fun HatchingContent(
 
 @Composable
 fun BrudingContent(
-    fowlData: FowlData, // Used for context
+    // Used for context
+    fowlData: FowlData,
     hatchingAndBrudingService: HatchingAndBrudingService,
     onAddBruding: (FowlData) -> Unit,
 ) {
@@ -645,6 +701,66 @@ fun BrudingContent(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddTransferDialog(
+    fowlData: FowlData,
+    transferRepository: TransferRepository,
+    onDismiss: () -> Unit,
+    onTransferAdded: () -> Unit,
+) {
+    var toOwnerId by remember { mutableStateOf("") }
+    var location by remember { mutableStateOf("") }
+    var notes by remember { mutableStateOf("") }
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
+    val photoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { photoUri = it }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add Transfer for ${'$'}{fowlData.name}") },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                OutlinedTextField(toOwnerId, { toOwnerId = it }, label = { Text("To Owner ID") })
+                OutlinedTextField(location, { location = it }, label = { Text("Location (optional)") })
+                OutlinedTextField(notes, { notes = it }, label = { Text("Notes (optional)") })
+                PhotoCaptureSection(photoUri) { photoLauncher.launch("image/*") }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    scope.launch {
+                        val proof = mutableListOf<ParseFile>()
+                        if (photoUri != null) {
+                            val bytes = context.contentResolver.openInputStream(photoUri!!)?.readBytes()
+                            bytes?.let {
+                                val pf = ParseFile("transfer_proof.jpg", it)
+                                withContext(Dispatchers.IO) { pf.save() }
+                                proof.add(pf)
+                            }
+                        }
+                        val res =
+                            transferRepository.createTransferRequest(
+                                fowlId = fowlData.objectId,
+                                fromOwnerId = ParseUser.getCurrentUser()?.objectId ?: "",
+                                toOwnerId = toOwnerId,
+                                proofPhotos = proof,
+                                location = location,
+                                notes = notes,
+                            )
+                        if (res.success) onTransferAdded()
+                    }
+                },
+                enabled = toOwnerId.isNotBlank(),
+            ) {
+                Text("Save")
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+    )
 }
 
 // Simple card for displaying a vaccination record
@@ -777,7 +893,6 @@ fun BrudingCard(
     }
 }
 
-// Placeholder for AddVaccinationDialog
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddVaccinationDialog(
@@ -798,7 +913,6 @@ fun AddVaccinationDialog(
     }
     var notes by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add Vaccination for ${fowlData.name}") },
@@ -851,53 +965,42 @@ fun AddVaccinationDialog(
     )
 }
 
-// Placeholder for AddMedicationDialog
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMedicationDialog(
     fowlData: FowlData,
     healthManagementService: HealthManagementService,
+    photoUri: Uri?,
+    onPhotoUriChange: (Uri?) -> Unit,
     onDismiss: () -> Unit,
     onMedicationAdded: () -> Unit,
 ) {
-    var medicineName by remember { mutableStateOf("") }
+    var medicationName by remember { mutableStateOf("") }
     var dosage by remember { mutableStateOf("") }
-    var frequency by remember { mutableStateOf("") }
-    var duration by remember { mutableStateOf("") } // string for input
-    var startDate by remember {
-        mutableStateOf(
-            SimpleDateFormat(
-                "yyyy-MM-dd",
-                Locale.getDefault(),
-            ).format(Date()),
-        )
+    var dateAdministered by remember {
+        mutableStateOf(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()))
     }
-    var purpose by remember { mutableStateOf("") }
+    var reason by remember { mutableStateOf("") }
+    var notes by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val photoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { onPhotoUriChange(it) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add Medication for ${fowlData.name}") },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                OutlinedTextField(
-                    medicineName,
-                    { medicineName = it },
-                    label = { Text("Medicine Name") },
-                )
+                OutlinedTextField(medicationName, { medicationName = it }, label = { Text("Medication Name") })
                 OutlinedTextField(dosage, { dosage = it }, label = { Text("Dosage") })
                 OutlinedTextField(
-                    frequency,
-                    { frequency = it },
-                    label = { Text("Frequency (e.g., BID, TID)") },
+                    dateAdministered,
+                    { dateAdministered = it },
+                    label = { Text("Date Administered (YYYY-MM-DD)") },
                 )
-                OutlinedTextField(duration, { duration = it }, label = { Text("Duration (days)") })
-                OutlinedTextField(
-                    startDate,
-                    { startDate = it },
-                    label = { Text("Start Date (YYYY-MM-DD)") },
-                )
-                OutlinedTextField(purpose, { purpose = it }, label = { Text("Purpose (Optional)") })
+                OutlinedTextField(reason, { reason = it }, label = { Text("Reason for Medication") })
+                OutlinedTextField(notes, { notes = it }, label = { Text("Notes (optional)") })
+                PhotoCaptureSection(photoUri) { photoLauncher.launch("image/*") }
             }
         },
         confirmButton = {
@@ -906,26 +1009,36 @@ fun AddMedicationDialog(
                     scope.launch {
                         val record =
                             MedicationRecord(
+                                id = UUID.randomUUID().toString(),
                                 birdId = fowlData.objectId,
-                                birdName = fowlData.name,
-                                medicationType = MedicationType.ANTIBIOTIC, // Default, make selectable later
-                                medicineName = medicineName,
+                                medicationType = MedicationType.OTHER,
+                                medicineName = medicationName,
                                 dosage = dosage,
-                                frequency = frequency,
-                                duration = duration.toIntOrNull() ?: 0,
+                                frequency = "As needed",
+                                duration = 1,
                                 startDate =
                                     SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(
-                                        startDate,
+                                        dateAdministered,
                                     ) ?: Date(),
-                                purpose = purpose,
+                                purpose = reason,
+                                instructions = notes,
                             )
-                        val result =
-                            healthManagementService.addMedicationRecord(fowlData.objectId, record)
+
+                        if (photoUri != null) {
+                            val bytes = context.contentResolver.openInputStream(photoUri!!)?.readBytes()
+                            bytes?.let {
+                                val pf = ParseFile("medication_photo.jpg", it)
+                                withContext(Dispatchers.IO) { pf.save() }
+                                record.photo = pf
+                            }
+                        }
+
+                        val result = healthManagementService.addMedicationRecord(fowlData.objectId, record, photoUri, context)
                         if (result.isSuccess) onMedicationAdded()
                         // TODO: Handle error
                     }
                 },
-                enabled = medicineName.isNotBlank() && dosage.isNotBlank() && frequency.isNotBlank() && duration.isNotBlank() && startDate.isNotBlank(),
+                enabled = medicationName.isNotBlank() && dosage.isNotBlank() && dateAdministered.isNotBlank() && reason.isNotBlank(),
             ) {
                 Text("Save")
             }
@@ -937,8 +1050,11 @@ fun AddMedicationDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddHatchingDialog(
-    fowlData: FowlData, // Context for default breed, etc.
+    // Context for default breed, etc.
+    fowlData: FowlData,
     hatchingAndBrudingService: HatchingAndBrudingService,
+    photoUri: Uri?,
+    onPhotoUriChange: (Uri?) -> Unit,
     onDismiss: () -> Unit,
     onHatchingRecordAdded: () -> Unit,
 ) {
@@ -957,6 +1073,8 @@ fun AddHatchingDialog(
     var incubatorSettings by remember { mutableStateOf("Temp: 37.5°C, Humidity: 55%") }
     var notes by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val photoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { onPhotoUriChange(it) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -986,6 +1104,7 @@ fun AddHatchingDialog(
                     label = { Text("Incubator Settings") },
                 )
                 OutlinedTextField(notes, { notes = it }, label = { Text("Notes (Optional)") })
+                PhotoCaptureSection(photoUri) { photoLauncher.launch("image/*") }
             }
         },
         confirmButton = {
@@ -1001,6 +1120,7 @@ fun AddHatchingDialog(
 
                         val record =
                             HatchingRecord(
+                                id = UUID.randomUUID().toString(),
                                 eggId = UUID.randomUUID().toString(), // Or a more specific ID system
                                 batchName = batchName,
                                 breed = breed,
@@ -1012,7 +1132,17 @@ fun AddHatchingDialog(
                                 region = ParseUser.getCurrentUser()?.getString("region") ?: "",
                                 // createdBy will be set in service
                             )
-                        val result = hatchingAndBrudingService.addHatchingRecord(record)
+
+                        if (photoUri != null) {
+                            val bytes = context.contentResolver.openInputStream(photoUri!!)?.readBytes()
+                            bytes?.let {
+                                val pf = ParseFile("hatching_photo.jpg", it)
+                                withContext(Dispatchers.IO) { pf.save() }
+                                record.photo = pf
+                            }
+                        }
+
+                        val result = hatchingAndBrudingService.addHatchingRecord(record, photoUri, context)
                         if (result.isSuccess) onHatchingRecordAdded()
                         // TODO: Handle error
                     }
@@ -1029,7 +1159,8 @@ fun AddHatchingDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddBrudingDialog(
-    fowlData: FowlData, // Context for default breed
+    // Context for default breed
+    fowlData: FowlData,
     hatchingAndBrudingService: HatchingAndBrudingService,
     onDismiss: () -> Unit,
     onBrudingRecordAdded: () -> Unit,
@@ -1129,9 +1260,10 @@ fun AddFowlDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        onPhotoUriChange(uri)
-    }
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            onPhotoUriChange(uri)
+        }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add New Fowl") },
@@ -1175,14 +1307,25 @@ fun AddFowlDialog(
                     OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) {
                         Text(fowlOptions.find { it.objectId == parentId }?.name ?: "Select Parent")
                     }
-                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        DropdownMenuItem(onClick = { onParentIdChange(null); expanded = false }) {
-                            Text("No Parent (Root)")
-                        }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("None") },
+                            onClick = {
+                                onParentIdChange(null)
+                                expanded = false
+                            },
+                        )
                         fowlOptions.forEach { fowl ->
-                            DropdownMenuItem(onClick = { onParentIdChange(fowl.objectId); expanded = false }) {
-                                Text(fowl.name)
-                            }
+                            DropdownMenuItem(
+                                text = { Text(fowl.name) },
+                                onClick = {
+                                    onParentIdChange(fowl.objectId)
+                                    expanded = false
+                                },
+                            )
                         }
                     }
                 }
@@ -1195,7 +1338,7 @@ fun AddFowlDialog(
                     Image(
                         painter = rememberAsyncImagePainter(it),
                         contentDescription = "Fowl Photo",
-                        modifier = Modifier.size(80.dp)
+                        modifier = Modifier.size(80.dp),
                     )
                 }
             }

@@ -57,8 +57,8 @@ class AuctionWebSocketClient
 
                         override fun onFailure(
                             webSocket: WebSocket,
-                            response: Response?,
                             t: Throwable,
+                            response: Response?,
                         ) {
                             Log.e("AuctionWebSocket", "WebSocket failure for auction $auctionId, retrying…")
                             retryConnect(auctionId)

@@ -144,9 +144,7 @@ dependencies {
     // Core modules - all working modules
     implementation(project(":core:core-common"))
     implementation(project(":core:core-network"))
-
-    // Feature modules (only farm module available)
-    implementation(project(":feature:feature-farm"))
+    // implementation(project(":feature:feature-farm"))
 
     // Android Core
     implementation(libs.androidx.core.ktx)

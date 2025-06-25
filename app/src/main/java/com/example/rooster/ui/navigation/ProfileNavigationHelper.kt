@@ -15,8 +15,8 @@ import androidx.compose.material.icons.filled.Verified
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
-import com.example.rooster.models.UserRole
 import com.example.rooster.NavigationRoute
+import com.example.rooster.models.UserRole
 
 // Profile Navigation Helper
 object ProfileNavigationHelper {

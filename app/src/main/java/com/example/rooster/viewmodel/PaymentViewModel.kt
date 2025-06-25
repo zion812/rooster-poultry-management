@@ -41,35 +41,40 @@ class PaymentViewModel
             loadAvailableCoins()
         }
 
-    private suspend fun getCurrentUserId(): String? {
+        private suspend fun getCurrentUserId(): String? {
             return userRepository.getCurrentUser()
         }
 
-    private suspend fun getCurrentUserProfile(): UserProfile? {
-        return try {
-            val userId = getCurrentUserId()
-            if (userId != null) {
-                UserProfile(
-                    userId = userId,
-                    coins = getUserCoins(userId)
-                )
-            } else null
-        } catch (e: Exception) {
-            null
+        private suspend fun getCurrentUserProfile(): UserProfile? {
+            return try {
+                val userId = getCurrentUserId()
+                if (userId != null) {
+                    UserProfile(
+                        userId = userId,
+                        coins = getUserCoins(userId),
+                    )
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                null
+            }
         }
-    }
 
-    data class UserProfile(
-        val userId: String,
-        val coins: Int = 0
-    )
+        data class UserProfile(
+            val userId: String,
+            val coins: Int = 0,
+        )
 
-    private fun getUserCoins(userId: String): Int {
+        private fun getUserCoins(userId: String): Int {
             // Mock implementation - replace with actual repository call
             return 100
         }
 
-        private suspend fun updateUserCoins(userId: String, coins: Int): Boolean {
+        private suspend fun updateUserCoins(
+            userId: String,
+            coins: Int,
+        ): Boolean {
             // Mock implementation - replace with actual repository call
             return try {
                 // userRepository.updateUserCoins(userId, coins)
@@ -210,10 +215,11 @@ class PaymentViewModel
                         )
 
                     // Update user coins
-                    val success = updateUserCoins(
-                        currentUser?.userId ?: "",
-                        (currentUser?.coins ?: 0) + coins
-                    )
+                    val success =
+                        updateUserCoins(
+                            currentUser?.userId ?: "",
+                            (currentUser?.coins ?: 0) + coins,
+                        )
 
                     if (success) {
                         _availableCoins.value = (currentUser?.coins ?: 0) + coins

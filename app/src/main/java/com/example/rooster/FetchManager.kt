@@ -19,7 +19,7 @@ object FetchManager {
     private val _activeDownloads = MutableStateFlow<Map<Long, DownloadInfo>>(emptyMap())
     val activeDownloads: Flow<Map<Long, DownloadInfo>> = _activeDownloads.asStateFlow()
 
-    fun getInstance(context: Context) {
+    fun initialize(context: Context) {
         if (isInitialized) return
 
         try {

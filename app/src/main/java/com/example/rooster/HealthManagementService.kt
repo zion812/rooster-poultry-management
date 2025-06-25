@@ -1,8 +1,10 @@
 package com.example.rooster
 
 import android.content.Context
+import android.net.Uri
 import com.example.rooster.models.*
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.parse.ParseFile
 import com.parse.ParseObject
 import com.parse.ParseQuery
 import com.parse.ParseUser
@@ -113,21 +115,44 @@ class HealthManagementService(private val context: Context) {
     suspend fun addMedicationRecord(
         birdId: String,
         medicationRecord: MedicationRecord,
+        photoUri: Uri?,
+        context: Context,
     ): Result<MedicationRecord> {
         return withContext(Dispatchers.IO) {
             try {
-                val parseObject = medicationRecord.toParseObject()
+                var finalMedicationRecord = medicationRecord
+                if (photoUri != null) {
+                    val inputStream = context.contentResolver.openInputStream(photoUri)
+                    val imageBytes = inputStream?.readBytes()
+                    inputStream?.close()
+
+                    if (imageBytes != null) {
+                        val parseFile = ParseFile("medication_photo.jpg", imageBytes)
+                        parseFile.save()
+                        finalMedicationRecord = finalMedicationRecord.copy(photo = parseFile)
+                    } else {
+                        return@withContext Result.failure(Exception("Failed to read image data."))
+                    }
+                }
+
+                val parseObject = finalMedicationRecord.toParseObject()
                 parseObject.put("createdBy", ParseUser.getCurrentUser())
                 parseObject.save()
 
-                // Schedule reminders for medication schedule
-                if (!medicationRecord.isCompleted) {
-                    scheduleMedicationReminders(medicationRecord)
+                // Schedule reminder for next dose if applicable
+                finalMedicationRecord.endDate?.let { endDate ->
+                    scheduleHealthReminder(
+                        birdId = birdId,
+                        title = "Medication Ending: ${finalMedicationRecord.medicineName}",
+                        description = "${finalMedicationRecord.medicineName} medication ends today",
+                        scheduledDate = endDate,
+                        scheduleType = HealthScheduleType.MEDICATION,
+                    )
                 }
 
                 val result = MedicationRecord.fromParseObject(parseObject)
                 FirebaseCrashlytics.getInstance().log(
-                    "Medication recorded: ${medicationRecord.medicineName} for bird $birdId",
+                    "Medication recorded: ${finalMedicationRecord.medicineName} for bird $birdId",
                 )
                 Result.success(result)
             } catch (e: Exception) {

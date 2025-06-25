@@ -1,8 +1,10 @@
 package com.example.rooster
 
 import android.content.Context
+import android.net.Uri
 import com.example.rooster.models.*
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.parse.ParseFile
 import com.parse.ParseObject
 import com.parse.ParseQuery
 import com.parse.ParseUser
@@ -18,10 +20,29 @@ class HatchingAndBrudingService(private val context: Context) {
     /**
      * Hatching Management
      */
-    suspend fun addHatchingRecord(hatchingRecord: HatchingRecord): Result<HatchingRecord> {
+    suspend fun addHatchingRecord(
+        hatchingRecord: HatchingRecord,
+        photoUri: Uri?,
+        context: Context,
+    ): Result<HatchingRecord> {
         return withContext(Dispatchers.IO) {
             try {
-                val parseObject = hatchingRecord.toParseObject()
+                var finalHatchingRecord = hatchingRecord
+                if (photoUri != null) {
+                    val inputStream = context.contentResolver.openInputStream(photoUri)
+                    val imageBytes = inputStream?.readBytes()
+                    inputStream?.close()
+
+                    if (imageBytes != null) {
+                        val parseFile = ParseFile("hatching_photo.jpg", imageBytes)
+                        parseFile.save()
+                        finalHatchingRecord = finalHatchingRecord.copy(photo = parseFile)
+                    } else {
+                        return@withContext Result.failure(Exception("Failed to read image data."))
+                    }
+                }
+
+                val parseObject = finalHatchingRecord.toParseObject()
                 parseObject.put("createdBy", ParseUser.getCurrentUser())
                 parseObject.save()
                 val result = HatchingRecord.fromParseObject(parseObject)

@@ -88,7 +88,7 @@ fun CreateListingScreen(
         }
 
     LaunchedEffect(Unit) {
-        viewModel.setContext(context)
+        // viewModel.setContext(context)
     }
 
     Scaffold(

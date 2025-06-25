@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.parse.Parse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -21,10 +20,10 @@ class DataSyncWorker(
                 Log.d("DataSyncWorker", "Starting background data sync")
 
                 // Sync Parse offline data
-                Parse.getLocalDatastore()?.let { datastore ->
-                    // Perform sync operations here
-                    Log.d("DataSyncWorker", "Syncing Parse offline data")
-                }
+                // Parse.getLocalDatastore()?.let { datastore ->
+                //     // Perform sync operations here
+                // }
+                Log.d("DataSyncWorker", "Syncing Parse offline data")
 
                 Log.d("DataSyncWorker", "Background data sync completed successfully")
                 Result.success()
