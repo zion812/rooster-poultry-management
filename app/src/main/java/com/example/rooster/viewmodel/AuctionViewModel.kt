@@ -74,6 +74,9 @@ class AuctionViewModel : ViewModel() {
     private val _tokenBalance = MutableStateFlow(0)
     val tokenBalance: StateFlow<Int> = _tokenBalance
 
+    // Store current Razorpay Order ID for verification after payment
+    val currentRazorpayOrderId = MutableStateFlow<String?>(null)
+
     /**
      * Load the current user's token balance.
      */

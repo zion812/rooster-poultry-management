@@ -141,10 +141,15 @@ android {
 }
 
 dependencies {
-    // Core modules - all working modules
+    // Core modules
     implementation(project(":core:core-common"))
     implementation(project(":core:core-network"))
-    // implementation(project(":feature:feature-farm"))
+    implementation(project(":core:navigation"))
+    implementation(project(":core:search"))
+    implementation(project(":core:analytics"))
+    implementation(project(":feature:feature-farm"))
+    implementation(project(":feature:feature-marketplace"))
+    implementation(project(":feature:feature-auctions")) // Added auctions feature
 
     // Android Core
     implementation(libs.androidx.core.ktx)
@@ -162,7 +167,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     // Navigation
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation.compose) // This is for app-level navigation if core:navigation doesn't replace all NavHost usage
 
     // Hilt
     implementation(libs.hilt.android)
@@ -171,7 +176,7 @@ dependencies {
 
     // Firebase
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.analytics) // This is the direct SDK, core:analytics will wrap it
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
@@ -201,7 +206,7 @@ dependencies {
 
     // JSON
     implementation("com.google.code.gson:gson:2.10.1")
-    implementation(libs.kotlinx.serialization.json) // Added Kotlinx Serialization JSON dependency
+    implementation(libs.kotlinx.serialization.json)
 
     // Razorpay Payment Gateway
     implementation("com.razorpay:checkout:1.6.38")

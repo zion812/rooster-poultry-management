@@ -30,13 +30,30 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 @Composable
 fun VetConsultationScreen(
     vm: VetConsultationViewModel = viewModel(),
-    onRequestSubmitted: (String) -> Unit,
+    onRequestSubmitted: (String?) -> Unit, // Changed to String?
 ) {
     var animalId by remember { mutableStateOf(TextFieldValue("")) }
     var issueDesc by remember { mutableStateOf(TextFieldValue("")) }
     var preferredDate by remember { mutableStateOf(TextFieldValue("")) }
     var photos by remember { mutableStateOf(listOf<String>()) }
     val isLoading by vm.isSubmitting.collectAsState()
+    val error by vm.error.collectAsState() // Observe error state
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+
+    // Show error message in Snackbar
+    LaunchedEffect(error) {
+        error?.let {
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = it,
+                    duration = SnackbarDuration.Long
+                )
+                vm.clearError() // Clear error after showing
+            }
+        }
+    }
 
     // Photo picker launchers
     val singlePhotoPickerLauncher =
@@ -219,15 +236,27 @@ fun VetConsultationScreen(
             onClick = {
                 val req =
                     VetConsultationRequest(
-                        id = System.currentTimeMillis().toString(),
+                        id = System.currentTimeMillis().toString(), // Consider generating ID in ViewModel or Repository
                         animalId = animalId.text,
                         issueDescription = issueDesc.text,
                         photoUrls = photos,
-                        preferredDate = System.currentTimeMillis(), // For now using current time, can be enhanced later
+                        // Pass the actual text input for now. ViewModel/Repository should parse/validate.
+                        // TODO: Replace preferredDate text field with a DatePickerDialog for better UX.
+                        preferredDateString = preferredDate.text, // New field in model, or handle parsing here/VM
+                        preferredDate = 0L // Or handle parsing preferredDate.text to Long/Date
                     )
                 vm.submitRequest(req) { reqId ->
-                    FirebaseCrashlytics.getInstance()
-                        .log("Vet consultation request submitted: $reqId with ${photos.size} photos")
+                    if (reqId != null) {
+                        FirebaseCrashlytics.getInstance()
+                            .log("Vet consultation request submitted: $reqId with ${photos.size} photos")
+                        // Potentially show a success snackbar here too
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Request submitted successfully!", SnackbarDuration.Short)
+                        }
+                    }
+                    // onRequestSubmitted will be called by the screen that hosts this,
+                    // after this composable potentially navigates away or shows success.
+                    // Or, if it's just for logging/side-effect:
                     onRequestSubmitted(reqId)
                 }
             },

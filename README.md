@@ -183,6 +183,54 @@ within the farm feature.
 
 ---
 
+## ☁️ Backend & Cloud Infrastructure
+
+This section details the server-side components, cloud functions, and related infrastructure critical to the Rooster Poultry Management application.
+
+### `backend/` - API Server & Core Services
+
+The `backend/` directory houses a Node.js application built with the Express framework. It serves as the primary API provider for the mobile application, handling core business logic, data processing, and communication with other services.
+
+**Key Characteristics & Components:**
+
+*   **Technology Stack:** Node.js, Express.js.
+*   **Containerization:** Includes a `Dockerfile` and `docker-compose.yml` for building and running the backend services in Docker containers, ensuring consistent deployment environments.
+*   **Configuration:** Environment-specific settings are managed via `.env` files (with templates like `.env.example` and `.env.back4app.template`).
+*   **Core Functionality:**
+    *   **API Endpoints:** Provides RESTful APIs for various app features.
+    *   **Services (`services/`):**
+        *   `parseService.js`: Integrates with the Parse SDK for backend operations, likely leveraging Parse Server features.
+        *   `pricePredictor.js`: Contains logic for market price prediction, a key feature for farmers.
+    *   **Middleware (`middleware/`):** Includes functions for request processing, such as `auth.js` for authentication/authorization.
+    *   **Configuration (`config/`):** Manages application-level configurations, e.g., `translations.js`.
+    *   **Server Initialization (`server/init.js`, `server.js`):** Handles the setup and startup of the Express server.
+*   **Package Management:** Uses `package.json` and `package-lock.json` for Node.js dependency management.
+
+> **For more detailed information, refer to the `backend/README.md` file.**
+
+### `cloud/` - Cloud Functions & Serverless Logic
+
+The `cloud/` directory contains serverless functions, primarily designed to run on a cloud platform like Parse Server (using Cloud Code) or potentially Firebase Cloud Functions. These functions handle event-driven tasks, real-time operations, and other backend logic that benefits from a serverless architecture.
+
+**Key Characteristics & Components:**
+
+*   **Technology Stack:** Node.js (as indicated by `package.json`).
+*   **Main Entry Point:** `main.js` typically serves as the central file for defining and organizing cloud functions, especially in Parse Cloud Code.
+*   **Specific Functionality:**
+    *   `liveStreamingFunctions.js`: Suggests capabilities related to real-time data streaming, possibly for auctions or live updates.
+    *   `security/sanitizer.js`: Indicates the presence of input sanitization or other security-related utilities to protect cloud functions.
+*   **Package Management:** Uses `package.json` and `package-lock.json` for Node.js dependency management.
+*   **Deployment:** Likely deployed using platform-specific CLIs (e.g., Parse CLI).
+
+> **For more detailed information, refer to the `cloud/README.md` file.**
+
+### Firebase & Parse SDK Integration
+
+*   **Firebase:** While the primary backend API resides in `backend/`, Firebase services (Firestore, Realtime Database, Messaging, Analytics, Crashlytics) are used extensively, as mentioned in the mobile app architecture. The `backend/` services may interact with Firebase for data storage, user authentication, or other cloud capabilities.
+*   **Parse SDK:** The Parse SDK is utilized for interacting with a Parse Server instance. This is evident from `backend/services/parseService.js` and the structure of the `cloud/` directory, which is typical for Parse Cloud Code. This allows for leveraging Parse Server's database, cloud functions, and other backend-as-a-service features.
+
+---
+
 ## 📊 **Project Structure**
 
 rooster-poultry-management/

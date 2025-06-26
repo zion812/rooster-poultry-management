@@ -743,56 +743,106 @@ Parse.Cloud.define("processWinnerPayment", async (request) => {
     const winner = await winnerQuery.first({ useMasterKey: true });
     
     if (!winner) {
-      throw new Parse.Error(Parse.Error.OBJECT_NOT_FOUND, "Winner record not found");
+      throw new Parse.Error(Parse.Error.OBJECT_NOT_FOUND, "Winner record not found for this auction and winner ID.");
     }
-    
-    // Simulate payment processing
-    const paymentSuccess = await processPayment(winnerId, winner.get("winningBid"), paymentToken);
-    
-    if (paymentSuccess) {
-      // Payment successful
-      winner.set("paymentStatus", "COMPLETED");
-      winner.set("paymentTime", new Date());
-      await winner.save(null, { useMasterKey: true });
-      
-      auction.set("status", "COMPLETED");
+
+    // Check the paymentStatus on the AuctionWinner object.
+    // This status is assumed to be set by the backend API after Razorpay payment verification.
+    const currentPaymentStatus = winner.get("paymentStatus");
+
+    if (currentPaymentStatus === "COMPLETED") {
+      // Payment was already marked as completed by the backend.
+      // Finalize auction, refund losing bidders' deposits.
+      auction.set("status", "COMPLETED_PAID"); // More specific status
       await auction.save(null, { useMasterKey: true });
       
-      // Refund tokens to all other bidders
-      await refundLosingBidders(auctionId, winnerId);
+      await refundLosingBiddersDeposits(auctionId, winnerId);
       
       return {
         success: true,
-        message: "Payment completed successfully",
-        auctionStatus: "COMPLETED"
+        message: "Payment previously verified and completed. Auction finalized.",
+        auctionStatus: auction.get("status")
       };
       
-    } else {
-      // Payment failed - move to next highest bidder
-      winner.set("paymentStatus", "FAILED");
+    } else if (currentPaymentStatus === "PENDING" || currentPaymentStatus === "AWAITING_PAYMENT") {
+      // This function might be called by a job to check if payment deadline passed,
+      // or if client is re-attempting to confirm status.
+      // For now, we assume if it's not "COMPLETED", the client/backend handles actual payment.
+      // If a deadline check is needed, that would be separate logic.
+      // This function's role is now more about *reacting* to a payment status.
+
+      // If called because a payment *just* failed (e.g., client reports failure after trying to pay),
+      // the backend should have updated status to FAILED.
+      // For this example, let's assume if it's not COMPLETED, we consider it as "not yet paid" or "failed".
+      // This part needs more robust state management based on how payment attempts are tracked.
+
+      // Let's assume for now: if not "COMPLETED", it's effectively a failure for *this* winner attempt for now.
+      // A more robust system would have deadlines and retry logic.
+      winner.set("paymentStatus", "FAILED_OR_PENDING_DEADLINE"); // Indicate it's not completed.
       await winner.save(null, { useMasterKey: true });
       
-      // Transfer winner's token to seller
-      await transferTokenToSeller(auction.get("sellerId"), winner.get("winnerId"), winner.get("winningBid"));
+      // Logic for forfeited deposit (if applicable)
+      // This should check the BidderDeposit object status for the winner.
+      const winnerDeposit = await getBidderDeposit(winnerId, auctionId);
+      if (winnerDeposit && winnerDeposit.get("status") === "PAID") {
+         // Assuming 'PAID' deposit means it was collected. If payment fails, it might be transferred.
+         await transferForfeitedDepositToSeller(auction.get("sellerId"), winnerId, auctionId, winner.get("winningBid")); // auctionId is already here
+      }
       
-      // Try next highest bidder
       const nextResult = await processNextHighestBidder(auctionId, winnerId);
       
       return {
         success: false,
-        message: "Payment failed, trying next highest bidder",
+        message: "Winner payment not completed. Checking for next eligible bidder.",
+        auctionStatus: auction.get("status"), // Might still be "ENDED"
         nextBidder: nextResult
       };
+
+    } else if (currentPaymentStatus === "FAILED") {
+        // Already marked as FAILED by backend.
+        const winnerDeposit = await getBidderDeposit(winnerId, auctionId);
+        if (winnerDeposit && winnerDeposit.get("status") === "PAID") {
+             await transferForfeitedDepositToSeller(auction.get("sellerId"), winnerId, auctionId, winner.get("winningBid")); // auctionId is already here
+        }
+        const nextResult = await processNextHighestBidder(auctionId, winnerId);
+        return {
+            success: false,
+            message: "Winner payment previously failed. Checking for next eligible bidder.",
+            auctionStatus: auction.get("status"),
+            nextBidder: nextResult
+        };
+    } else {
+        // Unknown status or already processed (e.g. COMPLETED_PAID)
+         return {
+            success: true, // Or false depending on how to treat unknown status
+            message: `Auction winner processing: Current payment status is ${currentPaymentStatus}. No further action taken by this function call.`,
+            auctionStatus: auction.get("status")
+        };
     }
     
   } catch (error) {
-    console.error("Error processing winner payment:", error);
+    console.error("Error processing winner payment status:", error);
     if (error instanceof Parse.Error) throw error;
     throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, `Payment processing failed: ${error.message}`);
   }
 });
 
 // ============================= HELPER FUNCTIONS FOR PAYMENT PROCESSING =============================
+
+// Helper to fetch a specific bidder's deposit for an auction
+async function getBidderDeposit(bidderId, auctionId) {
+  try {
+    const depositQuery = new Parse.Query("BidderDeposit");
+    depositQuery.equalTo("bidderId", bidderId);
+    depositQuery.equalTo("auctionId", auctionId); // Ensure it's for the correct auction
+    // Optionally, add other conditions like status if needed for specific contexts
+    return await depositQuery.first({ useMasterKey: true });
+  } catch (error) {
+    console.error(`Error fetching deposit for bidder ${bidderId}, auction ${auctionId}:`, error);
+    return null; // Or throw, depending on how critical this is for the caller
+  }
+}
+
 
 async function processHighestBidder(auction, bids) {
   const highestBid = bids[0];
@@ -825,58 +875,79 @@ async function processHighestBidder(auction, bids) {
   };
 }
 
-async function processPayment(bidderId, amount, paymentToken) {
-  // Simulate payment processing - in production, integrate with actual payment gateway
+// Removed old processPayment function as actual payment is handled by client + backend API
+
+async function transferForfeitedDepositToSeller(sellerId, failedBidderId, auctionId, bidAmount) {
   try {
-    // Mock payment success rate (90% for simulation)
-    const success = Math.random() > 0.1;
+    const deposit = await getBidderDeposit(failedBidderId, auctionId);
     
-    if (success) {
-      // Create payment record
-      const payment = new Parse.Object("Payment");
-      payment.set("bidderId", bidderId);
-      payment.set("amount", amount);
-      payment.set("status", "COMPLETED");
-      payment.set("paymentToken", paymentToken);
-      payment.set("transactionId", `PAY_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
-      await payment.save(null, { useMasterKey: true });
+    if (deposit && deposit.get("status") === "PAID") { // Ensure deposit was paid and not already processed
+      // Create a record of the transfer/forfeiture for audit
+      const forfeiture = new Parse.Object("DepositForfeiture"); // Or use TokenTransfer if more generic
+      forfeiture.set("fromBidderId", failedBidderId);
+      forfeiture.set("toSellerId", sellerId);
+      forfeiture.set("auctionId", auctionId);
+      forfeiture.set("amount", deposit.get("amount")); // The actual deposit amount
+      forfeiture.set("reason", "WINNER_PAYMENT_FAILED");
+      forfeiture.set("status", "COMPLETED");
+      await forfeiture.save(null, { useMasterKey: true });
       
-      return true;
+      // Update original deposit status to show it's been forfeited
+      deposit.set("status", "FORFEITED_TO_SELLER");
+      await deposit.save(null, { useMasterKey: true });
+
+      console.log(`Deposit of ${deposit.get("amount")} from bidder ${failedBidderId} for auction ${auctionId} forfeited to seller ${sellerId}.`);
+    } else {
+      console.warn(`No PAID deposit found to forfeit for bidder ${failedBidderId}, auction ${auctionId}. Deposit status: ${deposit ? deposit.get("status") : 'N/A'}`);
     }
-    
-    return false;
-  } catch (error) {
-    console.error("Payment processing error:", error);
-    return false;
+  } catch (error) { // Corrected catch block
+      console.error("Error in transferForfeitedDepositToSeller:", error);
+      // Potentially throw new Parse.Error or handle more gracefully depending on desired behavior
   }
 }
 
-async function transferTokenToSeller(sellerId, failedBidderId, bidAmount) {
+async function refundLosingBiddersDeposits(auctionId, winnerId) {
+  // Refunds deposits for all bidders in an auction except the winner.
+  // Assumes 'BidderDeposit' objects exist and their status reflects payment.
   try {
-    // Find the bidder's deposit
-    const depositQuery = new Parse.Query("BidderDeposit");
-    depositQuery.equalTo("bidderId", failedBidderId);
-    depositQuery.equalTo("status", "PAID");
-    const deposit = await depositQuery.first({ useMasterKey: true });
-    
-    if (deposit) {
-      // Transfer deposit to seller
-      const transfer = new Parse.Object("TokenTransfer");
-      transfer.set("fromBidderId", failedBidderId);
-      transfer.set("toSellerId", sellerId);
-      transfer.set("amount", deposit.get("amount"));
-      transfer.set("reason", "PAYMENT_FAILED");
-      transfer.set("status", "COMPLETED");
-      await transfer.save(null, { useMasterKey: true });
+    const bidQuery = new Parse.Query("EnhancedAuctionBid");
+    bidQuery.equalTo("auctionId", auctionId);
+    bidQuery.notEqualTo("bidderId", winnerId); // Exclude the winner
+    bidQuery.select("bidderId"); // Only need bidderId to find their deposits
+    bidQuery.limit(1000); // Adjust limit as necessary for max bidders
+
+    const losingBids = await bidQuery.find({ useMasterKey: true });
+    const losingBidderIds = [...new Set(losingBids.map(bid => bid.get("bidderId")))]; // Unique bidder IDs
+
+    for (const bidderId of losingBidderIds) {
+      const deposit = await getBidderDeposit(bidderId, auctionId);
       
-      // Update deposit status
-      deposit.set("status", "TRANSFERRED_TO_SELLER");
-      await deposit.save(null, { useMasterKey: true });
+      if (deposit && deposit.get("status") === "PAID") { // Only refund paid deposits
+        // Create a refund record for audit purposes
+        const refundRecord = new Parse.Object("DepositRefund"); // New class for tracking refunds
+        refundRecord.set("bidderId", bidderId);
+        refundRecord.set("auctionId", auctionId);
+        refundRecord.set("amount", deposit.get("amount"));
+        refundRecord.set("reason", "AUCTION_LOST_OR_NOT_WINNER");
+        refundRecord.set("status", "PROCESSED"); // Assuming refund is processed immediately
+        await refundRecord.save(null, { useMasterKey: true });
+
+        // Update the original deposit status
+        deposit.set("status", "REFUNDED");
+        await deposit.save(null, { useMasterKey: true });
+        console.log(`Deposit for bidder ${bidderId}, auction ${auctionId} marked as REFUNDED.`);
+      } else if (deposit) {
+        console.log(`Deposit for bidder ${bidderId}, auction ${auctionId} not in PAID status (Status: ${deposit.get("status")}). No refund processed.`);
+      } else {
+        console.log(`No deposit record found for losing bidder ${bidderId}, auction ${auctionId}. No refund processed.`);
+      }
     }
   } catch (error) {
-    console.error("Error transferring token to seller:", error);
+    console.error(`Error refunding deposits for auction ${auctionId}:`, error);
+    // Potentially throw new Parse.Error or handle more gracefully
   }
 }
+
 
 async function processNextHighestBidder(auctionId, excludeBidderId) {
   try {
@@ -1160,10 +1231,12 @@ Parse.Cloud.define("placeEnhancedAuctionBid", async (request) => {
 
     if (auction.get("requiresBidderDeposit")) {
       depositAmount = bidAmount * (auction.get("bidderDepositPercentage") / 100);
-      depositStatus = await processBidderDeposit(user.id, depositAmount);
+      // Ensure depositAmount is rounded to the smallest currency unit if necessary, e.g. Math.round(depositAmount)
+      // For this example, we assume depositAmount is correctly calculated as needed by checkBidderDepositStatus.
+      depositStatus = await checkBidderDepositStatus(user.id, auctionId, depositAmount);
       
-      if (depositStatus === "FAILED") {
-        throw new Parse.Error(Parse.Error.PAYMENT_REQUIRED, "Deposit payment failed");
+      if (depositStatus !== "PAID") {
+        throw new Parse.Error(Parse.Error.PAYMENT_REQUIRED, "Required deposit not paid or found for this auction.");
       }
     }
 
@@ -1373,30 +1446,30 @@ async function validateBidRequest(auction, user, bidAmount) {
 /**
  * Processes bidder deposit payment
  */
-async function processBidderDeposit(bidderId, depositAmount) {
-  // In production, integrate with actual payment gateway
-  // For now, simulate deposit processing
+async function checkBidderDepositStatus(bidderId, auctionId, expectedDepositAmount) {
+  // This function now assumes the deposit was handled by the client via backend APIs,
+  // and a 'BidderDeposit' object was created/updated by the backend upon successful verification.
+  // It checks if a valid, paid deposit exists for this bidder and auction.
   try {
-    // Mock payment processing - 90% success rate for simulation
-    const success = Math.random() > 0.1;
+    const depositQuery = new Parse.Query("BidderDeposit");
+    depositQuery.equalTo("bidderId", bidderId);
+    depositQuery.equalTo("auctionId", auctionId); // Important to scope deposit to the auction
+    depositQuery.equalTo("status", "PAID");
+    // Optionally, verify the amount if it's critical for this specific bid context
+    // depositQuery.equalTo("amount", expectedDepositAmount);
     
-    if (success) {
-      // Create deposit record
-      const deposit = new Parse.Object("BidderDeposit");
-      deposit.set("bidderId", bidderId);
-      deposit.set("amount", depositAmount);
-      deposit.set("status", "PAID");
-      deposit.set("paymentMethod", "MOCK_PAYMENT");
-      deposit.set("transactionId", `DEP_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
-      await deposit.save(null, { useMasterKey: true });
-      
-      return "PAID";
+    const deposit = await depositQuery.first({ useMasterKey: true });
+
+    if (deposit) {
+      console.log(`Deposit PAID for bidder ${bidderId}, auction ${auctionId}`);
+      return "PAID"; // Deposit confirmed
     } else {
-      return "FAILED";
+      console.warn(`No PAID deposit found for bidder ${bidderId}, auction ${auctionId}`);
+      return "NOT_FOUND_OR_UNPAID"; // No paid deposit record found
     }
   } catch (error) {
-    console.error("Error processing bidder deposit:", error);
-    return "FAILED";
+    console.error("Error checking bidder deposit status:", error);
+    throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, "Failed to check deposit status.");
   }
 }
 
@@ -1631,6 +1704,98 @@ Parse.Cloud.define("getDashboardMetrics", async (request) => {
   }
 });
 // ----------------------------- END ADMIN DASHBOARD ---------------------------
+
+// ================================= TOKEN MANAGEMENT CLOUD FUNCTIONS =================================
+
+/**
+ * Deducts a specified number of tokens from the current user's balance.
+ * Requires user to be authenticated.
+ * @param {Object} request - The Parse Cloud Function request object.
+ * @param {Object} request.params - Parameters.
+ * @param {number} request.params.count - Number of tokens to deduct. Must be positive.
+ * @returns {Promise<Object>} Object with success status and newBalance.
+ * @throws {Parse.Error} If user not authenticated, count invalid, or insufficient tokens.
+ */
+Parse.Cloud.define("deductUserTokens", async (request) => {
+  const user = request.user;
+  if (!user) {
+    throw new Parse.Error(Parse.Error.SESSION_MISSING, "User must be authenticated to deduct tokens.");
+  }
+
+  const count = request.params.count;
+  if (typeof count !== 'number' || count <= 0) {
+    throw new Parse.Error(Parse.Error.INVALID_PARAMETER, "Invalid token count specified. Must be a positive number.");
+  }
+
+  try {
+    await user.fetch({ useMasterKey: true }); // Ensure latest user data, esp. tokenBalance
+    const currentBalance = user.get("tokenBalance") || 0;
+
+    if (currentBalance < count) {
+      throw new Parse.Error(Parse.Error.VALIDATION_ERROR, `Insufficient tokens. Current balance: ${currentBalance}, trying to deduct: ${count}`);
+    }
+
+    user.increment("tokenBalance", -count); // Atomically decrement
+    await user.save(null, { useMasterKey: true }); // useMasterKey to save User object fields
+
+    return { success: true, newBalance: user.get("tokenBalance") };
+  } catch (error) {
+    console.error(`Error in deductUserTokens for user ${user.id}, count ${count}:`, error);
+    if (error instanceof Parse.Error) throw error; // Re-throw Parse errors
+    throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, "Failed to deduct tokens due to a server error.");
+  }
+});
+
+/**
+ * Adds a specified number of tokens to the current user's balance.
+ * Requires user to be authenticated.
+ * @param {Object} request - The Parse Cloud Function request object.
+ * @param {Object} request.params - Parameters.
+ * @param {number} request.params.count - Number of tokens to add. Must be positive.
+ * @param {string} [request.params.source] - Optional source/reason for adding tokens (e.g., "purchase_pack_A").
+ * @returns {Promise<Object>} Object with success status and newBalance.
+ * @throws {Parse.Error} If user not authenticated or count invalid.
+ */
+Parse.Cloud.define("addUserTokens", async (request) => {
+  const user = request.user;
+  if (!user) {
+    throw new Parse.Error(Parse.Error.SESSION_MISSING, "User must be authenticated to add tokens.");
+  }
+
+  const count = request.params.count;
+  const source = request.params.source || "unknown";
+
+  if (typeof count !== 'number' || count <= 0) {
+    throw new Parse.Error(Parse.Error.INVALID_PARAMETER, "Invalid token count specified. Must be a positive number.");
+  }
+
+  try {
+    await user.fetch({ useMasterKey: true }); // Ensure latest user data
+    user.increment("tokenBalance", count); // Atomically increment
+    await user.save(null, { useMasterKey: true });
+
+    // Optional: Log this transaction in a TokenLedger class for auditing
+    const TokenLedger = Parse.Object.extend("TokenLedger");
+    const ledgerEntry = new TokenLedger();
+    ledgerEntry.set("userId", user.id);
+    ledgerEntry.set("username", user.get("username"));
+    ledgerEntry.set("changeAmount", count);
+    ledgerEntry.set("newBalance", user.get("tokenBalance"));
+    ledgerEntry.set("type", "credit");
+    ledgerEntry.set("source", source);
+    ledgerEntry.set("notes", `Added ${count} tokens from source: ${source}`);
+    await ledgerEntry.save(null, { useMasterKey: true }); // Log with master key
+
+    return { success: true, newBalance: user.get("tokenBalance") };
+  } catch (error) {
+    console.error(`Error in addUserTokens for user ${user.id}, count ${count}:`, error);
+    if (error instanceof Parse.Error) throw error; // Re-throw Parse errors
+    throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, "Failed to add tokens due to a server error.");
+  }
+});
+
+// ================================= END TOKEN MANAGEMENT CLOUD FUNCTIONS =================================
+
 
 // --------------------------------- ACTIVITY-BASED VERIFICATION ---------------------------------
 /**
