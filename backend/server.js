@@ -20,6 +20,8 @@ const port = process.env.PORT || 3000;
 // Initialize Parse and price predictor services
 const parseService = new ParseService();
 const pricePredictor = new PricePredictor();
+const RazorpayService = require('./services/razorpayService'); // Import RazorpayService
+const razorpayService = new RazorpayService(); // Instantiate RazorpayService
 
 // Set up the relationship between services
 pricePredictor.setParseService(parseService);
@@ -41,17 +43,29 @@ initializeServer();
 
 // Security and optimization middleware
 app.use(helmet({
-  contentSecurityPolicy: false, // Allow flexibility for rural app integration
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"], // Only allow loading resources from the same origin by default
+      scriptSrc: ["'self'"], // Add other trusted script sources if needed e.g. CDN for client-side libs
+      styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles if necessary, or specific sources
+      imgSrc: ["'self'", "data:"], // Allow data URIs for images
+      connectSrc: ["'self'"], // For XHR, WebSockets, etc. Add specific API endpoints if different.
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"], // Disallow <object>, <embed>, <applet>
+      upgradeInsecureRequests: [], // Upgrade HTTP to HTTPS
+    }
+  },
+  crossOriginResourcePolicy: { policy: "cross-origin" } // Keep this as is
 }));
 
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-app-domain.com'] 
-    : true,
+    ? ['https://your-app-domain.com'] // TODO: Replace with actual production domain
+    : true, // TODO: For non-production, restrict to specific localhost ports (e.g., React/Vue dev server) or dev domains instead of `true` for better security.
   credentials: true
 }));
 
+// TODO: Implement structured logging (e.g., Winston or Pino) for better production monitoring.
 // Compression for rural 2G networks
 app.use(compression({
   level: 9, // Maximum compression for minimal bandwidth usage
@@ -201,23 +215,29 @@ app.get('/api/predict-price', authenticateToken, async (req, res) => {
   }
 });
 
+// Validation schema for market summary
+const marketSummarySchema = Joi.object({
+  region: Joi.string().required().min(2).max(50),
+  days: Joi.number().integer().min(1).max(90).default(7),
+  lang: Joi.string().valid('en', 'te').default('en')
+});
+
 // Get market summary for a region
 app.get('/api/market-summary', authenticateToken, async (req, res) => {
   try {
-    const { region, days = 7 } = req.query;
-    const lang = req.lang || 'en';
-    
-    if (!region) {
+    const { error, value } = marketSummarySchema.validate(req.query);
+    if (error) {
       return res.status(400).json({
         success: false,
-        message: getMessage(lang, 'regionRequired'),
-        code: 'REGION_REQUIRED'
+        message: getMessage(req.query.lang || 'en', 'error', { message: error.details[0].message }),
+        code: 'VALIDATION_ERROR'
       });
     }
+    const { region, days, lang } = value;
 
     // Get average prices and trend
     const [averageData, trendData] = await Promise.all([
-      parseService.getAveragePrices(region, parseInt(days)),
+      parseService.getAveragePrices(region, days), // days is already an int
       parseService.getMarketTrend(region)
     ]);
 
@@ -257,28 +277,32 @@ app.get('/api/market-summary', authenticateToken, async (req, res) => {
   }
 });
 
+// Validation schema for bulk price prediction
+const predictBulkSchema = Joi.object({
+  regions: Joi.array().items(Joi.string().min(2).max(50)).min(1).max(5).required() // Max 5 regions
+    .messages({
+      'array.min': 'Regions array must contain at least 1 region.',
+      'array.max': 'Maximum 5 regions allowed for bulk prediction.',
+      'any.required': 'Regions array is required.'
+    }),
+  fowlType: Joi.string().optional().min(2).max(30),
+  algorithm: Joi.string().valid('simple', 'weighted').default('weighted'),
+  days: Joi.number().integer().min(7).max(90).default(30),
+  lang: Joi.string().valid('en', 'te').default('en')
+});
+
 // Bulk price prediction for multiple regions
 app.post('/api/predict-bulk', authenticateToken, async (req, res) => {
   try {
-    const { regions, fowlType, algorithm = 'weighted', days = 30 } = req.body;
-    const lang = req.lang || 'en';
-    
-    if (!regions || !Array.isArray(regions) || regions.length === 0) {
+    const { error, value } = predictBulkSchema.validate(req.body);
+    if (error) {
       return res.status(400).json({
         success: false,
-        message: getMessage(lang, 'error', { message: 'Regions array is required' }),
-        code: 'REGIONS_REQUIRED'
+        message: getMessage(req.body.lang || 'en', 'error', { message: error.details[0].message }),
+        code: 'VALIDATION_ERROR'
       });
     }
-
-    // Limit bulk requests for rural network optimization
-    if (regions.length > 5) {
-      return res.status(400).json({
-        success: false,
-        message: getMessage(lang, 'error', { message: 'Maximum 5 regions allowed' }),
-        code: 'TOO_MANY_REGIONS'
-      });
-    }
+    const { regions, fowlType, algorithm, days, lang } = value;
 
     // Process predictions in parallel
     const predictions = await Promise.allSettled(
@@ -338,6 +362,184 @@ app.get('/api/docs', (req, res) => {
   
   res.json(documentation);
 });
+
+// --- Payment Endpoints ---
+
+// Create Razorpay Order
+const createOrderSchema = Joi.object({
+  amount: Joi.number().integer().min(100).required(), // Amount in paise (e.g., 50000 for ₹500)
+  currency: Joi.string().default('INR'),
+  receiptId: Joi.string().required(), // Unique receipt ID from client
+  notes: Joi.object().optional()
+});
+
+app.post('/api/payments/orders', authenticateToken, async (req, res) => {
+  const lang = req.lang || 'en';
+  try {
+    const { error, value } = createOrderSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: getMessage(lang, 'error', { message: error.details[0].message }),
+        code: 'VALIDATION_ERROR'
+      });
+    }
+
+    const { amount, currency, receiptId, notes } = value;
+    // Additional notes could include auctionId, userId from req.user.uid, etc.
+    const orderNotes = {
+      ...notes,
+      userId: req.user.uid,
+      email: req.user.email
+    };
+
+    const order = await razorpayService.createOrder(amount, currency, receiptId, orderNotes);
+    res.json({ success: true, data: order, message: getMessage(lang, 'orderCreatedSuccess') });
+
+  } catch (error) {
+    console.error('Error creating Razorpay order:', error);
+    res.status(500).json({
+      success: false,
+      message: getMessage(lang, 'error', { message: 'Failed to create payment order.' }),
+      code: 'ORDER_CREATION_FAILED',
+      ...(process.env.NODE_ENV === 'development' && { debug: error.message })
+    });
+  }
+});
+
+// Verify Razorpay Payment (Client-driven)
+const verifyPaymentSchema = Joi.object({
+  razorpay_order_id: Joi.string().required(),
+  razorpay_payment_id: Joi.string().required(),
+  razorpay_signature: Joi.string().required(),
+  // You might want to include auctionId or other context here from client
+  auctionId: Joi.string().optional(),
+});
+
+app.post('/api/payments/verify', authenticateToken, async (req, res) => {
+  const lang = req.lang || 'en';
+  try {
+    const { error, value } = verifyPaymentSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: getMessage(lang, 'error', { message: error.details[0].message }),
+        code: 'VALIDATION_ERROR'
+      });
+    }
+
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, auctionId } = value;
+
+    const isValidSignature = razorpayService.verifyPaymentSignature(
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
+    );
+
+    if (isValidSignature) {
+      // Signature is valid. Process the payment success.
+      // 1. Update your database: Mark the order/auction deposit as paid.
+      //    e.g., await parseService.updateAuctionPaymentStatus(auctionId, razorpay_payment_id, 'COMPLETED');
+      // 2. Log the transaction.
+      //    e.g., await parseService.logTransaction({ ...payment details..., userId: req.user.uid });
+
+      // For now, just returning success
+      console.log(`Payment verified for order ${razorpay_order_id} by user ${req.user.uid}. Auction: ${auctionId}`);
+      // TODO: Implement actual database updates for payment success.
+
+      res.json({
+        success: true,
+        message: getMessage(lang, 'paymentVerifiedSuccess'),
+        data: {
+          orderId: razorpay_order_id,
+          paymentId: razorpay_payment_id,
+          status: 'VERIFIED'
+        }
+      });
+    } else {
+      // Signature is invalid.
+      console.warn(`Invalid payment signature for order ${razorpay_order_id} by user ${req.user.uid}`);
+      res.status(400).json({
+        success: false,
+        message: getMessage(lang, 'paymentVerificationFailed'),
+        code: 'SIGNATURE_INVALID'
+      });
+    }
+  } catch (error) {
+    console.error('Error verifying Razorpay payment:', error);
+    res.status(500).json({
+      success: false,
+      message: getMessage(lang, 'error', { message: 'Payment verification process failed.' }),
+      code: 'VERIFICATION_PROCESS_FAILED',
+      ...(process.env.NODE_ENV === 'development' && { debug: error.message })
+    });
+  }
+});
+
+
+// Razorpay Webhook Handler
+// Note: This endpoint should NOT use authenticateToken middleware if Razorpay doesn't send JWT.
+// It relies on webhook secret for verification.
+app.post('/api/payments/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  const lang = 'en'; // Webhooks don't have user language context easily
+
+  if (!secret) {
+    console.error('Razorpay Webhook Secret not configured.');
+    return res.status(500).send('Webhook secret not configured.');
+  }
+
+  const signature = req.headers['x-razorpay-signature'];
+
+  try {
+    const isValidWebhook = razorpayService.verifyWebhookSignature(req.body, signature, secret);
+
+    if (isValidWebhook) {
+      console.log('Razorpay Webhook received and signature verified.');
+      const eventPayload = JSON.parse(req.body.toString()); // req.body is a Buffer here
+      const eventType = eventPayload.event;
+      const paymentEntity = eventPayload.payload.payment.entity;
+      const orderEntity = eventPayload.payload.order?.entity; // Order entity might not always be present
+
+      console.log(`Webhook event: ${eventType}, Payment ID: ${paymentEntity.id}, Order ID: ${paymentEntity.order_id}`);
+
+      // Handle different webhook events, e.g., payment.captured, payment.failed, order.paid
+      switch (eventType) {
+        case 'payment.captured':
+          // Payment is successful and captured.
+          // Update your database, fulfill order, send notifications, etc.
+          // e.g., await parseService.updateOrderStatus(paymentEntity.order_id, 'CAPTURED', paymentEntity);
+          console.log(`Payment captured for Order ID: ${paymentEntity.order_id}, Payment ID: ${paymentEntity.id}`);
+          // TODO: Implement database update for payment captured.
+          break;
+        case 'payment.failed':
+          // Payment failed.
+          // Update database, notify user if necessary.
+          // e.g., await parseService.updateOrderStatus(paymentEntity.order_id, 'FAILED', paymentEntity);
+          console.log(`Payment failed for Order ID: ${paymentEntity.order_id}, Payment ID: ${paymentEntity.id}. Reason: ${paymentEntity.error_description}`);
+          // TODO: Implement database update for payment failed.
+          break;
+        case 'order.paid':
+          // Order has been paid (might not be captured yet if capture is manual).
+          console.log(`Order paid for Order ID: ${orderEntity.id}, Amount: ${orderEntity.amount_paid}`);
+          // TODO: Potentially update order status if relevant to your flow.
+          break;
+        // Add more cases as needed for other events like refunds, disputes, etc.
+        default:
+          console.log(`Unhandled webhook event type: ${eventType}`);
+      }
+
+      res.status(200).json({ status: 'ok' }); // Respond to Razorpay quickly
+    } else {
+      console.warn('Invalid Razorpay Webhook signature.');
+      res.status(400).send('Invalid signature.');
+    }
+  } catch (error) {
+    console.error('Error processing Razorpay webhook:', error);
+    res.status(500).send('Error processing webhook.');
+  }
+});
+
 
 // 404 handler
 app.use('*', (req, res) => {
