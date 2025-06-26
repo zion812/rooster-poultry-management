@@ -45,6 +45,10 @@ annotation class AuthInterceptor
 @Retention(AnnotationRetention.BINARY)
 annotation class NetworkInterceptor
 
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class PaymentApiRetrofit // New qualifier for Payment API
+
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -64,14 +68,23 @@ object NetworkModule {
     @Provides
     @Singleton
     @AuthInterceptor
-    fun provideAuthInterceptor(): Interceptor {
+    fun provideAuthInterceptor(tokenProvider: FirebaseTokenProvider): Interceptor { // Inject TokenProvider
         return Interceptor { chain ->
             val originalRequest = chain.request()
-            val newRequest = originalRequest.newBuilder()
+            val requestBuilder = originalRequest.newBuilder()
                 .addHeader("Content-Type", "application/json")
                 .addHeader("User-Agent", "Rooster-Android/${Constants.APP_VERSION}")
-                .build()
-            chain.proceed(newRequest)
+
+            // Attempt to add Firebase Auth token
+            // WARNING: Using runBlocking in an interceptor is generally discouraged due to performance.
+            // A better approach would be to use an Authenticator or ensure token is pre-fetched/cached.
+            // This is a simplification for the current context.
+            val token = kotlinx.coroutines.runBlocking { tokenProvider.getToken() }
+            token?.let {
+                requestBuilder.addHeader("Authorization", "Bearer $it")
+            }
+
+            chain.proceed(requestBuilder.build())
         }
     }
 
@@ -137,5 +150,31 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    @Provides
+    @Singleton
+    @PaymentApiRetrofit // Use the new qualifier
+    fun providePaymentApiRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        // Ensure Constants.PAYMENT_API_BASE_URL is defined, e.g., from BuildConfig or a config file
+        // For now, assuming it points to your Express backend for payments.
+        val baseUrl = Constants.PAYMENT_API_BASE_URL
+        if (baseUrl.isBlank()) {
+            throw IllegalStateException("Payment API Base URL is not configured.")
+        }
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .client(okHttpClient) // Uses the same OkHttpClient with Auth interceptor
+            .addConverterFactory(kotlinx.serialization.json.Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+            }.asConverterFactory("application/json".toMediaType()))
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun providePaymentApiService(@PaymentApiRetrofit retrofit: Retrofit): PaymentApiService {
+        return retrofit.create(PaymentApiService::class.java)
     }
 }

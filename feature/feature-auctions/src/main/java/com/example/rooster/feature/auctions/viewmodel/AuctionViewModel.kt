@@ -416,30 +416,15 @@ class AuctionViewModel @Inject constructor(
                             // Let's assume we have stored the pending bid details.
                             val pendingBid = _pendingBidDetails.value
                             if (pendingBid != null && (event.orderId == initiatedOrderId || initiatedOrderId.isNotBlank() /* if orderId from event is null */) ) {
-                                verifyAuctionDepositPayment(
-                                    razorpayOrderId = initiatedOrderId, // Use the stored one
                                     razorpayPaymentId = event.paymentId,
-                                    razorpaySignature = event.signature ?: "TODO_HANDLE_MISSING_SIGNATURE", // Signature is crucial
                                     auctionId = pendingBid.auctionId,
                                     bidAmount = pendingBid.bidAmount,
                                     depositAmount = pendingBid.depositAmount
-                                ) { isSuccess, message ->
-                                    // UI will react to _error or other state changes from verifyAuctionDepositPayment
-                                    if (!isSuccess) {
-                                        _error.value = message ?: "Payment verification callback failed."
                                     } else {
-                                        // Success already handled within verifyAuctionDepositPayment by updating states
-                                        // and calling onResult which the UI uses for snackbars.
-                                    }
-                                }
-                                _pendingBidDetails.value = null // Clear pending bid
-                                currentRazorpayOrderId.value = null // Clear order ID
                             }
                         }
                     }
                     is PaymentEvent.Failure -> {
-                         if (event.orderId == initiatedOrderId || event.orderId == null && initiatedOrderId.isNotBlank()) {
-                            _error.value = event.description ?: "Payment Failed (Code: ${event.code})"
                             FirebaseCrashlytics.getInstance().log("Razorpay payment failed event: ${event.description} for order ${initiatedOrderId}")
                             // Potentially trigger UI update to show failure more explicitly if not covered by _error
                             _pendingBidDetails.value = null // Clear pending bid
@@ -509,10 +494,6 @@ class AuctionViewModel @Inject constructor(
         razorpayPaymentId: String,
         razorpaySignature: String,
         auctionId: String,
-        bidAmount: Double, // This bidAmount must be the one for which deposit was paid
-        depositAmount: Double,
-        // Removed onResult callback as this method is now primarily internal, reacting to events
-        // UI will react to StateFlow changes (_error, or a new dedicated payment/bid status StateFlow)
     ) = viewModelScope.launch {
         _loading.value = true
         _error.value = null
