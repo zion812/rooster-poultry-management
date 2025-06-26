@@ -1,7 +1,19 @@
 package com.example.rooster
 
 import android.util.Log
-import com.example.rooster.models.*
+import com.example.rooster.models.* // Keep for other models like ParseEvent, SearchResult, etc.
+// Import relocated auction models and enums
+import com.example.rooster.core.common.models.auction.AuctionListing
+import com.example.rooster.core.common.models.auction.EnhancedAuctionBid
+import com.example.rooster.core.common.models.auction.AuctionWinner
+import com.example.rooster.core.common.models.auction.BackupBidder
+import com.example.rooster.core.common.enums.AuctionStatus
+import com.example.rooster.core.common.enums.BidMonitoringCategory
+import com.example.rooster.core.common.enums.DepositStatus
+import com.example.rooster.core.common.enums.BidStatus
+import com.example.rooster.core.common.enums.OfferResponse
+import com.example.rooster.core.common.enums.AuctionPaymentStatus
+
 import com.parse.*
 import com.parse.ParseCloud
 import java.util.*
@@ -100,148 +112,8 @@ fun fetchSearchResults(
 // AUCTION & BIDDING FETCHERS
 // ===============================
 
-fun fetchActiveAuctions(
-    onResult: (List<AuctionListing>) -> Unit,
-    onError: (String?) -> Unit,
-    setLoading: (Boolean) -> Unit,
-) {
-    setLoading(true)
-    try {
-        val query = ParseQuery.getQuery<ParseObject>("AuctionListing")
-        query.whereEqualTo("isActive", true)
-        query.whereGreaterThanOrEqualTo("endTime", Date()) // Active or very recently ended
-        query.include("seller")
-        query.orderByAscending("endTime") // Ending soonest first
-        query.limit = 50 // Limit for performance
-
-        query.findInBackground { objects, e ->
-            setLoading(false)
-            if (e != null) {
-                onError(e.localizedMessage)
-            } else {
-                val auctions =
-                    objects?.mapNotNull { obj ->
-                        try {
-                            val seller = obj.getParseUser("seller")
-                            AuctionListing(
-                                auctionId = obj.objectId,
-                                title = obj.getString("title") ?: "",
-                                description = obj.getString("description") ?: "",
-                                startingPrice = obj.getDouble("startingPrice"),
-                                currentBid = obj.getDouble("currentBid"),
-                                minimumIncrement = obj.getDouble("minimumIncrement"),
-                                startTime = obj.getDate("startTime") ?: Date(),
-                                endTime = obj.getDate("endTime") ?: Date(),
-                                sellerId = seller?.objectId ?: "",
-                                sellerName = seller?.username ?: "Unknown Seller",
-                                fowlId = obj.getString("fowlId") ?: "",
-                                bidCount = obj.getInt("bidCount"),
-                                isReserveSet = obj.getBoolean("isReserveSet"),
-                                reservePrice = obj.getDouble("reservePrice"), // Default to 0.0 if not set
-                                imageUrls = obj.getList<String>("imageUrls") ?: emptyList(),
-                                status =
-                                    AuctionStatus.valueOf(
-                                        obj.getString("status") ?: AuctionStatus.ACTIVE.name,
-                                    ),
-                                location = obj.getString("location") ?: "",
-                                category = obj.getString("category") ?: "",
-                                // Defaulting new fields from ComprehensiveDataModels
-                                customDurationHours = obj.getInt("customDurationHours"), // Default to 0 if not present
-                                minimumBidPrice = obj.getDouble("minimumBidPrice"), // Default to 0.0
-                                requiresBidderDeposit = obj.getBoolean("requiresBidderDeposit"),
-                                bidderDepositPercentage = obj.getDouble("bidderDepositPercentage"), // Default to 0.0
-                                allowsProxyBidding = obj.getBoolean("allowsProxyBidding"),
-                                sellerBidMonitoring =
-                                    BidMonitoringCategory.valueOf(
-                                        obj.getString("sellerBidMonitoring")
-                                            ?: BidMonitoringCategory.ALL_BIDS.name,
-                                    ),
-                                autoExtendOnLastMinuteBid = obj.getBoolean("autoExtendOnLastMinuteBid"),
-                                extensionMinutes = obj.getInt("extensionMinutes"), // Default to 0
-                                buyNowPrice = obj.getDouble("buyNowPrice"), // Nullable, defaults to null if not present
-                                watchers = obj.getInt("watchers"), // Default to 0
-                            )
-                        } catch (ex: IllegalArgumentException) {
-                            onError("Invalid auction status or bid monitoring category: ${ex.message}")
-                            null
-                        } catch (ex: Exception) {
-                            onError("Error parsing auction: ${ex.localizedMessage}")
-                            null
-                        }
-                    } ?: emptyList()
-                onResult(auctions)
-            }
-        }
-    } catch (ex: Exception) {
-        setLoading(false)
-        onError(ex.localizedMessage)
-    }
-}
-
-// Enhanced auction bids fetcher
-fun fetchEnhancedAuctionBids(
-    auctionId: String,
-    onResult: (List<EnhancedAuctionBid>) -> Unit,
-    onError: (String?) -> Unit,
-    setLoading: (Boolean) -> Unit,
-) {
-    setLoading(true)
-    try {
-        val query =
-            ParseQuery.getQuery<ParseObject>("Bid").apply {
-                whereEqualTo("listingId", auctionId)
-                include("bidder")
-                orderByDescending("bidAmount") // Highest bids first
-                limit = 100
-            }
-
-        query.findInBackground { objects, e ->
-            setLoading(false)
-            if (e != null) {
-                onError(e.localizedMessage)
-            } else {
-                val bids =
-                    objects?.mapNotNull { obj ->
-                        try {
-                            val bidderUser = obj.getParseUser("bidder")
-                            EnhancedAuctionBid(
-                                bidId = obj.objectId,
-                                auctionId = obj.getString("listingId") ?: "",
-                                bidderId = bidderUser?.objectId ?: "",
-                                bidderName = bidderUser?.username ?: "Unknown Bidder",
-                                bidAmount = obj.getDouble("bidAmount"),
-                                bidTime = obj.createdAt ?: Date(),
-                                isWinning = obj.getBoolean("isWinning"),
-                                isProxyBid = obj.getBoolean("isProxyBid"),
-                                proxyMaxAmount = obj.getDouble("proxyMaxAmount"),
-                                depositAmount = obj.getDouble("depositAmount"),
-                                depositStatus =
-                                    obj.getString("depositStatus")
-                                        ?.let { DepositStatus.valueOf(it) },
-                                bidStatus =
-                                    BidStatus.valueOf(
-                                        obj.getString("bidStatus") ?: BidStatus.ACTIVE.name,
-                                    ),
-                                bidMessage = obj.getString("bidMessage"),
-                                bidderRating = obj.getDouble("bidderRating"),
-                                previousBidCount = obj.getInt("previousBidCount"),
-                            )
-                        } catch (ex: IllegalArgumentException) {
-                            onError("Invalid enum value: ${ex.message}")
-                            null
-                        } catch (ex: Exception) {
-                            onError(ex.localizedMessage)
-                            null
-                        }
-                    } ?: emptyList()
-                onResult(bids)
-            }
-        }
-    } catch (ex: Exception) {
-        setLoading(false)
-        onError(ex.localizedMessage)
-    }
-}
+// fetchActiveAuctions, fetchEnhancedAuctionBids, and fetchAuctionWinner
+// have been moved to ParseAuctionRepositoryImpl in :feature:feature-auctions module.
 
 // ===============================
 // EVENTS & COMPETITIONS FETCHER

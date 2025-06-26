@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.rooster.AuctionListing // Assuming this is in a shared location like app module's models or core-common
-import com.example.rooster.feature.auctions.viewmodel.AuctionViewModel // Updated path
+import com.example.rooster.core.common.models.auction.AuctionListing // Updated import
+import com.example.rooster.feature.auctions.viewmodel.AuctionViewModel
 
 @Composable
 fun AuctionListScreen(

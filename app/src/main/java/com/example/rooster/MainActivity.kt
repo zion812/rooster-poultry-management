@@ -28,38 +28,58 @@ import com.example.rooster.ui.theme.RoosterTheme
 import com.example.rooster.viewmodel.AuthViewModel
 import com.razorpay.PaymentResultListener
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import com.example.rooster.core.common.event.AppEventBus
+import com.example.rooster.core.common.event.PaymentEvent
+import kotlinx.coroutines.GlobalScope // Use a proper scope if this needs to be tied to lifecycle
+import kotlinx.coroutines.launch
+import com.razorpay.PaymentData // For accessing orderId and signature
 
 // Import the screens we are about to use
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(), PaymentResultListener {
-    // Payment result handling for Razorpay
-    private var onPaymentResult: ((Boolean, String?, String?) -> Unit)? = null
 
-    fun setPaymentResultCallback(callback: (Boolean, String?, String?) -> Unit) {
-        onPaymentResult = callback
-    }
+    @Inject
+    lateinit var eventBus: AppEventBus
 
-    override fun onPaymentSuccess(paymentId: String?) {
-        Log.d("MainActivity", "Payment successful: $paymentId")
-        onPaymentResult?.invoke(true, paymentId, null)
-    }
+    // Remove old callback mechanism
+    // private var onPaymentResult: ((Boolean, String?, String?) -> Unit)? = null
+    // fun setPaymentResultCallback(callback: (Boolean, String?, String?) -> Unit) {
+    //     onPaymentResult = callback
+    // }
 
-    override fun onPaymentError(
-        code: Int,
-        response: String?,
-    ) {
-        Log.e("MainActivity", "Payment failed: Code $code, Response $response")
-
-        val errorMessage =
-            when (code) {
-                1 -> "Network error - Please check your connection"
-                2 -> "Invalid payment credentials"
-                0 -> "Payment cancelled by user"
-                else -> "Payment failed: $response"
+    override fun onPaymentSuccess(razorpayPaymentId: String?, paymentData: PaymentData?) { // Updated signature
+        Log.d("MainActivity", "Payment successful: $razorpayPaymentId, Data: ${paymentData?.data}")
+        GlobalScope.launch { // Use a ViewModel scope or lifecycleScope in real app
+            if (razorpayPaymentId != null) {
+                eventBus.publishPaymentEvent(
+                    PaymentEvent.Success(
+                        paymentId = razorpayPaymentId,
+                        orderId = paymentData?.orderId,
+                        signature = paymentData?.signature
+                    )
+                )
+            } else {
+                 // This case should ideally not happen if Razorpay calls onPaymentSuccess
+                eventBus.publishPaymentEvent(PaymentEvent.Failure(-1, "Payment ID null in onPaymentSuccess", paymentData?.orderId))
             }
+        }
+    }
 
-        onPaymentResult?.invoke(false, null, errorMessage)
+    override fun onPaymentError(code: Int, description: String?, paymentData: PaymentData?) { // Updated signature
+        Log.e("MainActivity", "Payment failed: Code $code, Response $description, Data: ${paymentData?.data}")
+        val errorMessage = description ?: when (code) {
+            Checkout.NETWORK_ERROR -> "Network error - Please check your connection"
+            Checkout.INVALID_OPTIONS -> "Invalid payment options"
+            Checkout.PAYMENT_CANCELED -> "Payment cancelled by user"
+            Checkout.TLS_ERROR -> "TLS error during payment"
+            // Add more specific Razorpay error codes if needed
+            else -> "Payment failed: $description"
+        }
+        GlobalScope.launch { // Use a ViewModel scope or lifecycleScope in real app
+            eventBus.publishPaymentEvent(PaymentEvent.Failure(code, errorMessage, paymentData?.orderId))
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
