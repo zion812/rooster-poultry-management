@@ -49,4 +49,11 @@ object AppModule {
     @Provides
     @Singleton
     fun provideShoppingCartManager(): ShoppingCartManager = ShoppingCartManager()
+
+    @Provides
+    @com.example.rooster.core.network.qualifiers.PaymentApiBaseUrl // Fully qualify if not imported
+    @Singleton
+    fun providePaymentApiBaseUrl(): String {
+        return com.example.rooster.BuildConfig.PAYMENT_API_BASE_URL // Fully qualify BuildConfig
+    }
 }

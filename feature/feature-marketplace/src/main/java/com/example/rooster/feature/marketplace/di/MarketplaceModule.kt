@@ -1,33 +1,100 @@
 package com.example.rooster.feature.marketplace.di
 
+import android.content.Context
+import androidx.room.Room
+import com.example.rooster.feature.marketplace.data.local.MarketplaceDatabase
+import com.example.rooster.feature.marketplace.data.local.dao.CartDao
+import com.example.rooster.feature.marketplace.data.local.dao.OrderDao
+import com.example.rooster.feature.marketplace.data.local.dao.ProductListingDao
+import com.example.rooster.feature.marketplace.data.remote.FirebaseMarketplaceDataSource
+import com.example.rooster.feature.marketplace.data.remote.MarketplaceRemoteDataSource
+import com.example.rooster.feature.marketplace.data.repository.CartRepositoryImpl // To be created
+import com.example.rooster.feature.marketplace.data.repository.OrderRepositoryImpl // To be created
+import com.example.rooster.feature.marketplace.data.repository.ProductListingRepositoryImpl // To be created
+import com.example.rooster.feature.marketplace.domain.repository.CartRepository
+import com.example.rooster.feature.marketplace.domain.repository.OrderRepository
+import com.example.rooster.feature.marketplace.domain.repository.ProductListingRepository
+// Assuming FirebaseFirestore is provided by another module (e.g., app or core-firebase)
+// import com.google.firebase.firestore.FirebaseFirestore
+import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-// import com.example.rooster.feature.marketplace.data.repository.MarketplaceRepositoryImpl
-// import com.example.rooster.feature.marketplace.domain.repository.MarketplaceRepository
-// import com.example.rooster.feature.marketplace.domain.usecase.GetProductsUseCase
-// import dagger.Provides // If providing concrete instances
-// import javax.inject.Singleton // If providing concrete instances
+import javax.inject.Singleton
 
-/**
- * Placeholder Hilt module for the Marketplace feature.
- * Dependencies for repositories, use cases, etc., will be defined here.
- */
 @Module
-@InstallIn(SingletonComponent::class) // Or ViewModelComponent if ViewModels are defined here
-abstract class MarketplaceModule {
+@InstallIn(SingletonComponent::class)
+object MarketplaceProvidesModule {
 
-    // Example of binding a repository (uncomment when implementation exists)
+    @Provides
+    @Singleton
+    fun provideMarketplaceDatabase(@ApplicationContext context: Context): MarketplaceDatabase {
+        return Room.databaseBuilder(
+            context,
+            MarketplaceDatabase::class.java,
+            "marketplace_database.db"
+        )
+        // TODO: Add proper migrations for production instead of fallbackToDestructiveMigration.
+        .fallbackToDestructiveMigration()
+        .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideProductListingDao(database: MarketplaceDatabase): ProductListingDao {
+        return database.productListingDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCartDao(database: MarketplaceDatabase): CartDao {
+        return database.cartDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideOrderDao(database: MarketplaceDatabase): OrderDao {
+        return database.orderDao()
+    }
+
+    // FirebaseFirestore is assumed to be provided by a higher-level module (e.g., AppModule or a core Firebase module)
+    // If not, it would need to be provided here:
+    // @Provides
+    // @Singleton
+    // fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class MarketplaceBindsModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindMarketplaceRemoteDataSource(
+        impl: FirebaseMarketplaceDataSource
+    ): MarketplaceRemoteDataSource
+
+    // Repository implementations (ProductListingRepositoryImpl, CartRepositoryImpl, OrderRepositoryImpl)
+    // are yet to be created. These bindings are placeholders for when they are.
+    // For the app to compile, these would need to be commented out or the Impl classes created.
+
     // @Binds
     // @Singleton
-    // abstract fun bindMarketplaceRepository(
-    //     marketplaceRepositoryImpl: MarketplaceRepositoryImpl
-    // ): MarketplaceRepository
+    // abstract fun bindProductListingRepository(
+    //     impl: ProductListingRepositoryImpl
+    // ): ProductListingRepository
 
-    // Example of providing a use case (uncomment when implementation exists)
-    // @Provides
-    // @Singleton // Or @ViewModelScoped
-    // fun provideGetProductsUseCase(repository: MarketplaceRepository): GetProductsUseCase {
-    //     return GetProductsUseCase(repository)
-    // }
+    // @Binds
+    // @Singleton
+    // abstract fun bindCartRepository(
+    //     impl: CartRepositoryImpl
+    // ): CartRepository
+
+    // @Binds
+    // @Singleton
+    // abstract fun bindOrderRepository(
+    //     impl: OrderRepositoryImpl
+    // ): OrderRepository
 }

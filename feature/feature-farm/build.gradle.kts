@@ -61,8 +61,13 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    ksp(libs.hilt.compiler) // Make sure this is the KSP version if using KSP for Hilt
+    implementation(libs.androidx.hilt.work) // Hilt WorkManager Integration
+    ksp(libs.androidx.hilt.compiler) // Hilt WorkManager Integration KSP // or specific libs.androidx.hilt.work.compiler if defined
     implementation(libs.hilt.navigation.compose) // If feature has its own navigation graphs
+
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Room Database
     implementation(libs.room.runtime)
