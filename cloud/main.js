@@ -1705,6 +1705,98 @@ Parse.Cloud.define("getDashboardMetrics", async (request) => {
 });
 // ----------------------------- END ADMIN DASHBOARD ---------------------------
 
+// ================================= TOKEN MANAGEMENT CLOUD FUNCTIONS =================================
+
+/**
+ * Deducts a specified number of tokens from the current user's balance.
+ * Requires user to be authenticated.
+ * @param {Object} request - The Parse Cloud Function request object.
+ * @param {Object} request.params - Parameters.
+ * @param {number} request.params.count - Number of tokens to deduct. Must be positive.
+ * @returns {Promise<Object>} Object with success status and newBalance.
+ * @throws {Parse.Error} If user not authenticated, count invalid, or insufficient tokens.
+ */
+Parse.Cloud.define("deductUserTokens", async (request) => {
+  const user = request.user;
+  if (!user) {
+    throw new Parse.Error(Parse.Error.SESSION_MISSING, "User must be authenticated to deduct tokens.");
+  }
+
+  const count = request.params.count;
+  if (typeof count !== 'number' || count <= 0) {
+    throw new Parse.Error(Parse.Error.INVALID_PARAMETER, "Invalid token count specified. Must be a positive number.");
+  }
+
+  try {
+    await user.fetch({ useMasterKey: true }); // Ensure latest user data, esp. tokenBalance
+    const currentBalance = user.get("tokenBalance") || 0;
+
+    if (currentBalance < count) {
+      throw new Parse.Error(Parse.Error.VALIDATION_ERROR, `Insufficient tokens. Current balance: ${currentBalance}, trying to deduct: ${count}`);
+    }
+
+    user.increment("tokenBalance", -count); // Atomically decrement
+    await user.save(null, { useMasterKey: true }); // useMasterKey to save User object fields
+
+    return { success: true, newBalance: user.get("tokenBalance") };
+  } catch (error) {
+    console.error(`Error in deductUserTokens for user ${user.id}, count ${count}:`, error);
+    if (error instanceof Parse.Error) throw error; // Re-throw Parse errors
+    throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, "Failed to deduct tokens due to a server error.");
+  }
+});
+
+/**
+ * Adds a specified number of tokens to the current user's balance.
+ * Requires user to be authenticated.
+ * @param {Object} request - The Parse Cloud Function request object.
+ * @param {Object} request.params - Parameters.
+ * @param {number} request.params.count - Number of tokens to add. Must be positive.
+ * @param {string} [request.params.source] - Optional source/reason for adding tokens (e.g., "purchase_pack_A").
+ * @returns {Promise<Object>} Object with success status and newBalance.
+ * @throws {Parse.Error} If user not authenticated or count invalid.
+ */
+Parse.Cloud.define("addUserTokens", async (request) => {
+  const user = request.user;
+  if (!user) {
+    throw new Parse.Error(Parse.Error.SESSION_MISSING, "User must be authenticated to add tokens.");
+  }
+
+  const count = request.params.count;
+  const source = request.params.source || "unknown";
+
+  if (typeof count !== 'number' || count <= 0) {
+    throw new Parse.Error(Parse.Error.INVALID_PARAMETER, "Invalid token count specified. Must be a positive number.");
+  }
+
+  try {
+    await user.fetch({ useMasterKey: true }); // Ensure latest user data
+    user.increment("tokenBalance", count); // Atomically increment
+    await user.save(null, { useMasterKey: true });
+
+    // Optional: Log this transaction in a TokenLedger class for auditing
+    const TokenLedger = Parse.Object.extend("TokenLedger");
+    const ledgerEntry = new TokenLedger();
+    ledgerEntry.set("userId", user.id);
+    ledgerEntry.set("username", user.get("username"));
+    ledgerEntry.set("changeAmount", count);
+    ledgerEntry.set("newBalance", user.get("tokenBalance"));
+    ledgerEntry.set("type", "credit");
+    ledgerEntry.set("source", source);
+    ledgerEntry.set("notes", `Added ${count} tokens from source: ${source}`);
+    await ledgerEntry.save(null, { useMasterKey: true }); // Log with master key
+
+    return { success: true, newBalance: user.get("tokenBalance") };
+  } catch (error) {
+    console.error(`Error in addUserTokens for user ${user.id}, count ${count}:`, error);
+    if (error instanceof Parse.Error) throw error; // Re-throw Parse errors
+    throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, "Failed to add tokens due to a server error.");
+  }
+});
+
+// ================================= END TOKEN MANAGEMENT CLOUD FUNCTIONS =================================
+
+
 // --------------------------------- ACTIVITY-BASED VERIFICATION ---------------------------------
 /**
  * Returns activity status for farmers: firstListingAt, total listings, last 30-day listings, eligibility flag
