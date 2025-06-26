@@ -23,7 +23,8 @@
     "express-rate-limit": "^7.1.5",
     "morgan": "^1.10.0",
     "parse": "^4.2.0",
-    "parse-server": "^6.4.0"
+    "parse-server": "^6.4.0",
+    "razorpay": "^2.9.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",

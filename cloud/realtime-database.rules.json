@@ -1,0 +1,40 @@
+{
+  "rules": {
+    // Default deny all access
+    ".read": false,
+    ".write": false,
+
+    // Example: User-specific data for farm feature
+    // Assumes data is stored under a path like /farmDetails/UID/...
+    "farmDetails": {
+      "$uid": {
+        // Only the authenticated user ($uid) can read/write their own farm details
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        // Further nesting for different farm aspects can have more granular rules
+        // e.g., flocks, sensorData, etc. if they are under this user's path
+        "flocks": {
+          // Rules for the flocks node
+        },
+        "sensorData": {
+          // Rules for sensorData, perhaps allowing writes from specific devices if needed
+        }
+      }
+    },
+
+    // Example: Publicly readable configuration data if needed
+    // "publicConfig": {
+    //   ".read": true,
+    //   ".write": false // Or admin only
+    // }
+
+    // If ChickenRecord data is in Realtime DB and needs separate rules:
+    // "ChickenRecord": {
+    //   "$birdId": {
+    //      // Assuming each bird has an ownerId
+    //     ".read": "auth != null && root.child('ChickenRecord/' + $birdId + '/ownerId').val() == auth.uid",
+    //     ".write": "auth != null && root.child('ChickenRecord/' + $birdId + '/ownerId').val() == auth.uid"
+    //   }
+    // }
+  }
+}
