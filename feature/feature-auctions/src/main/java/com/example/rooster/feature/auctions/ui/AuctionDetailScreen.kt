@@ -10,9 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.rooster.AuctionWinner // Assuming shared model
-import com.example.rooster.EnhancedAuctionBid // Assuming shared model
-import com.example.rooster.feature.auctions.viewmodel.AuctionViewModel // Updated path
+import com.example.rooster.core.common.models.auction.AuctionWinner // Updated import
+import com.example.rooster.core.common.models.auction.EnhancedAuctionBid // Updated import
+import com.example.rooster.feature.auctions.viewmodel.AuctionViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

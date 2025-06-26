@@ -41,7 +41,8 @@ class RazorpayService {
     try {
       const order = await this.instance.orders.create(options);
       console.log(`🛍️ Razorpay order created: ${order.id} for receipt: ${receiptId}`);
-      return order;
+      // Augment the order response with the key_id
+      return { ...order, key_id: process.env.RAZORPAY_KEY_ID };
     } catch (error) {
       console.error(`❌ Error creating Razorpay order for receipt ${receiptId}:`, error);
       throw new Error(`Failed to create Razorpay order: ${error.error?.description || error.message}`);
