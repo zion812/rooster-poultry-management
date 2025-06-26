@@ -39,6 +39,47 @@ import androidx.core.os.bundleOf
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.launch
 import java.util.*
+// Core search imports
+import com.example.rooster.core.search.SearchRepository
+import com.example.rooster.core.search.SearchResultItem
+import com.example.rooster.core.search.PlaceholderSearchRepository // For placeholder injection
+import kotlinx.coroutines.flow.collectLatest
+
+
+// TODO: Define these enums in :core:search or a common module accessible by both :core:search and :app
+enum class AppSearchResultType(val displayName: String) { // Renamed to avoid conflict if SearchResultType is also in core:search for other reasons
+    FOWL("Fowl"),
+    MARKETPLACE("Marketplace"),
+    FARMER("Farmer"),
+    COMMUNITY("Community"),
+    EVENT("Event"),
+    UNKNOWN("Unknown");
+
+    companion object {
+        funfromTypeString(typeString: String): AppSearchResultType {
+            return values().find { it.name.equals(typeString, ignoreCase = true) } ?: UNKNOWN
+        }
+    }
+}
+
+enum class AppSearchCategory(val displayName: String) {
+    ALL("All"),
+    FOWL("Fowl"),
+    MARKETPLACE("Marketplace"),
+    FARMERS("Farmers"),
+    COMMUNITY("Community"),
+    EVENTS("Events")
+}
+
+enum class AppSortOption(val displayName: String) {
+    RELEVANCE("Relevance"),
+    NEWEST("Newest"),
+    OLDEST("Oldest"),
+    PRICE_LOW("Price: Low to High"),
+    PRICE_HIGH("Price: High to Low"),
+    DISTANCE("Distance"),
+    RATING("Rating")
+}
 
 /**
  * Enhanced Search & Discovery System - Moderate Level Feature
@@ -46,31 +87,33 @@ import java.util.*
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EnhancedSearchScreen(onNavigateToDetails: (String, SearchResultType) -> Unit = { _, _ -> }) {
+fun EnhancedSearchScreen(
+    // TODO: Inject via Hilt ViewModel
+    searchRepository: SearchRepository = remember { PlaceholderSearchRepository() },
+    onNavigateToDetails: (String, AppSearchResultType) -> Unit = { _, _ -> }
+) {
     val context = LocalContext.current.applicationContext as Application
-    val searchService = remember { EnhancedSearchService(context) }
+    // val searchService = remember { EnhancedSearchService(context) } // Replaced by searchRepository
     val coroutineScope = rememberCoroutineScope()
 
     // Search state
     var searchQuery by rememberSaveable { mutableStateOf("") }
-    var searchResults by remember { mutableStateOf<List<SearchResult>>(emptyList()) }
+    var searchResults by remember { mutableStateOf<List<SearchResultItem>>(emptyList()) } // Use SearchResultItem
+    // Recent, popular searches and recommendations would also come from SearchRepository
     var recentSearches by remember { mutableStateOf<List<String>>(emptyList()) }
     var popularSearches by remember { mutableStateOf<List<String>>(emptyList()) }
-    var recommendations by remember { mutableStateOf<List<SearchResult>>(emptyList()) }
+    var recommendations by remember { mutableStateOf<List<SearchResultItem>>(emptyList()) } // Use SearchResultItem
     var isLoading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    // Filter and sort state with proper serialization
+    // Filter and sort state
     var showFilters by rememberSaveable { mutableStateOf(false) }
-    var selectedCategory by rememberSaveable { mutableStateOf(SearchCategory.ALL) }
+    var selectedCategory by rememberSaveable { mutableStateOf(AppSearchCategory.ALL) } // Use AppSearchCategory
     var selectedRegion by rememberSaveable { mutableStateOf("All Regions") }
-
-    // Store price range as separate start and end values for proper serialization
     var priceRangeStart by rememberSaveable { mutableStateOf(0f) }
     var priceRangeEnd by rememberSaveable { mutableStateOf(50000f) }
     val priceRange = priceRangeStart..priceRangeEnd
-
-    var sortBy by rememberSaveable { mutableStateOf(SortOption.RELEVANCE) }
+    var sortBy by rememberSaveable { mutableStateOf(AppSortOption.RELEVANCE) } // Use AppSortOption
     var selectedBreeds by remember { mutableStateOf<Set<String>>(emptySet()) }
 
     val availableRegions =
@@ -78,23 +121,15 @@ fun EnhancedSearchScreen(onNavigateToDetails: (String, SearchResultType) -> Unit
     val availableBreeds =
         listOf("Kadaknath", "Asil", "Brahma", "Leghorn", "Rhode Island Red", "Country Chicken")
 
+    // TODO: Replace local EnhancedSearchService calls with searchRepository calls for recent, popular, recommendations
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            // Load initial data
-            searchService.getRecentSearches().fold(
-                onSuccess = { searches -> recentSearches = searches },
-                onFailure = { /* Handle gracefully */ },
-            )
-
-            searchService.getPopularSearches().fold(
-                onSuccess = { searches -> popularSearches = searches },
-                onFailure = { /* Handle gracefully */ },
-            )
-
-            searchService.getPersonalizedRecommendations().fold(
-                onSuccess = { recs -> recommendations = recs },
-                onFailure = { /* Handle gracefully */ },
-            )
+            // Example:
+            // searchRepository.getRecentSearches().collectLatest { result -> ... }
+            // For now, keeping existing placeholder logic for these, will need repository methods
+             recentSearches = listOf("Kadaknath rooster", "Asil hens", "Traditional market")
+             popularSearches = listOf("Country chicken", "Broiler chicks", "Egg layers")
+             recommendations = emptyList() // Placeholder
         }
     }
 
@@ -107,43 +142,56 @@ fun EnhancedSearchScreen(onNavigateToDetails: (String, SearchResultType) -> Unit
         sortBy,
         selectedBreeds,
     ) {
-        if (searchQuery.isNotEmpty()) {
-            coroutineScope.launch {
-                isLoading = true
-                error = null
+        if (searchQuery.length > 2) { // Typically search after a few chars
+            isLoading = true
+            error = null
 
-                val filters =
-                    SearchFilters(
-                        category = selectedCategory,
-                        region = if (selectedRegion == "All Regions") null else selectedRegion,
-                        priceRange = priceRange,
-                        breeds = selectedBreeds,
-                        sortBy = sortBy,
-                    )
+            // Create filter map for SearchRepository
+            val filters = mutableMapOf<String, String>()
+            if (selectedCategory != AppSearchCategory.ALL) {
+                filters["category"] = selectedCategory.name
+            }
+            if (selectedRegion != "All Regions") {
+                filters["region"] = selectedRegion
+            }
+            filters["price_min"] = priceRange.start.toInt().toString()
+            filters["price_max"] = priceRange.endInclusive.toInt().toString()
+            if (selectedBreeds.isNotEmpty()) {
+                filters["breeds"] = selectedBreeds.joinToString(",")
+            }
+            filters["sort_by"] = sortBy.name
 
-                searchService.performSearch(searchQuery, filters).fold(
-                    onSuccess = { results ->
-                        searchResults = results
-                        // Save to recent searches
-                        searchService.saveToRecentSearches(searchQuery)
+
+            searchRepository.performSearch(searchQuery, filters).collectLatest { result ->
+                isLoading = false
+                when(result) {
+                    is com.example.rooster.core.common.Result.Success -> {
+                        searchResults = result.data
+                        error = null
+                        // TODO: Save to recent searches via repository
                         // Log search analytics
                         FirebaseAnalytics.getInstance(context).logEvent(
                             "search_performed",
                             bundleOf(
                                 "term" to searchQuery,
-                                "result_count" to results.size,
+                                "result_count" to result.data.size,
                                 "category" to selectedCategory.name,
-                                "region" to (selectedRegion ?: "All"),
+                                "region" to selectedRegion,
                             ),
                         )
-                    },
-                    onFailure = { e -> error = "Search failed: ${e.message}" },
-                )
-
-                isLoading = false
+                    }
+                    is com.example.rooster.core.common.Result.Error -> {
+                        searchResults = emptyList()
+                        error = "Search failed: ${result.exception.message}"
+                    }
+                    is com.example.rooster.core.common.Result.Loading -> {
+                        isLoading = true
+                    }
+                }
             }
         } else {
             searchResults = emptyList()
+            isLoading = false // Stop loading if query is too short
         }
     }
 
@@ -200,20 +248,20 @@ fun EnhancedSearchScreen(onNavigateToDetails: (String, SearchResultType) -> Unit
             SearchSuggestionsContent(
                 recentSearches = recentSearches,
                 popularSearches = popularSearches,
-                recommendations = recommendations,
+                recommendations = recommendations, // Now List<SearchResultItem>
                 onSearchSuggestionClick = { searchQuery = it },
-                onRecommendationClick = { result ->
-                    onNavigateToDetails(result.id, result.type)
+                onRecommendationClick = { searchResultItem -> // Changed parameter type
+                    onNavigateToDetails(searchResultItem.id, AppSearchResultType.fromTypeString(searchResultItem.type))
                 },
             )
         } else {
             // Show search results
             SearchResultsContent(
-                searchResults = searchResults,
+                searchResults = searchResults, // Now List<SearchResultItem>
                 isLoading = isLoading,
                 error = error,
-                onResultClick = { result ->
-                    onNavigateToDetails(result.id, result.type)
+                onResultClick = { searchResultItem -> // Changed parameter type
+                    onNavigateToDetails(searchResultItem.id, AppSearchResultType.fromTypeString(searchResultItem.type))
                 },
             )
         }

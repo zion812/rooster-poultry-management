@@ -8,6 +8,7 @@ data class VetConsultationRequest(
     val animalId: String,
     val issueDescription: String,
     val photoUrls: List<String> = emptyList(),
-    val preferredDate: Long,
+    val preferredDate: Long?, // Keep for parsed date
+    val preferredDateString: String? = null, // For raw string input
     val status: String = "PENDING",
 )
