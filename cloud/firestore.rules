@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only read/write their own user profile if a 'users' collection exists
+    // match /users/{userId} {
+    //   allow read, write: if request.auth != null && request.auth.uid == userId;
+    // }
+
+    // Farm related data collections
+    // Assuming each document in these collections has an 'ownerId' field storing the user's UID.
+
+    match /flocks/{flockId} {
+      allow read, create, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid; // Read existing, delete existing
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid; // Create new
+    }
+
+    match /mortalityRecords/{recordId} {
+      allow read, create, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    match /vaccinationRecords/{recordId} {
+      allow read, create, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    match /sensorData/{dataId} { // Assuming sensor data is also per-user
+      allow read, create, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    match /farmUpdates/{updateId} { // Farm updates by user
+      allow read, create, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    // Example for ChickenRecord if it's stored in Firestore and managed by users
+    // match /ChickenRecord/{birdId} {
+    //   allow read, create, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+    //   allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+    // }
+
+
+    // Default deny all other access to prevent unsecured collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
