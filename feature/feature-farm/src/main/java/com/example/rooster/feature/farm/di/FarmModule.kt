@@ -210,6 +210,9 @@ object FarmProvidesModule {
     fun provideUpdateDao(db: FarmDatabase) = db.updateDao()
 
     @Provides
+    fun provideLineageDao(db: FarmDatabase) = db.lineageDao() // Added provider for LineageDao
+
+    @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 

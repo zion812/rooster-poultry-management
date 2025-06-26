@@ -1,8 +1,11 @@
 package com.example.rooster.core.network
 
 import android.content.Context
+import android.content.Context
+import android.content.Context
 import com.example.rooster.core.common.Constants
-import com.example.rooster.core.network.BuildConfig
+import com.example.rooster.core.network.qualifiers.PaymentApiBaseUrl
+import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,7 +16,10 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+// Removed: import retrofit2.converter.gson.GsonConverterFactory
+import kotlinx.serialization.json.Json // For Kotlinx Serialization
+import okhttp3.MediaType.Companion.toMediaType // For Kotlinx Serialization
+import retrofit2.converter.kotlinx.serialization.asConverterFactory // For Kotlinx Serialization
 import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
@@ -67,19 +73,26 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth {
+        return FirebaseAuth.getInstance()
+    }
+
+    @Provides
+    @Singleton
     @AuthInterceptor
-    fun provideAuthInterceptor(tokenProvider: FirebaseTokenProvider): Interceptor { // Inject TokenProvider
+    fun provideAuthInterceptor(tokenProvider: TokenProvider): Interceptor { // Inject TokenProvider interface
         return Interceptor { chain ->
             val originalRequest = chain.request()
             val requestBuilder = originalRequest.newBuilder()
                 .addHeader("Content-Type", "application/json")
                 .addHeader("User-Agent", "Rooster-Android/${Constants.APP_VERSION}")
 
-            // Attempt to add Firebase Auth token
-            // WARNING: Using runBlocking in an interceptor is generally discouraged due to performance.
-            // A better approach would be to use an Authenticator or ensure token is pre-fetched/cached.
-            // This is a simplification for the current context.
-            val token = kotlinx.coroutines.runBlocking { tokenProvider.getToken() }
+            // Attempt to add Firebase Auth token without forcing refresh.
+            // runBlocking is still used here for simplicity to get the current token if available.
+            // Ideally, this interceptor should also be async or token managed reactively.
+            // However, the primary goal was to move forceful refresh out of the interceptor.
+            // This part could be further optimized by having a non-blocking way to get a cached token.
+            val token = kotlinx.coroutines.runBlocking { tokenProvider.getToken(forceRefresh = false) }
             token?.let {
                 requestBuilder.addHeader("Authorization", "Bearer $it")
             }
@@ -116,9 +129,11 @@ object NetworkModule {
         loggingInterceptor: HttpLoggingInterceptor,
         @AuthInterceptor authInterceptor: Interceptor,
         @NetworkInterceptor networkInterceptor: Interceptor,
+        tokenAuthenticator: TokenAuthenticator, // Add TokenAuthenticator
         cache: Cache
     ): OkHttpClient {
         return OkHttpClient.Builder()
+            .authenticator(tokenAuthenticator) // Add authenticator
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
             .addNetworkInterceptor(networkInterceptor)
@@ -133,42 +148,50 @@ object NetworkModule {
     @Provides
     @Singleton
     @ParseRetrofit
-    fun provideParseRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideParseRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit { // Inject Json
         return Retrofit.Builder()
             .baseUrl(Constants.PARSE_SERVER_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 
     @Provides
     @Singleton
     @GeneralRetrofit
-    fun provideGeneralRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideGeneralRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit { // Inject Json
         return Retrofit.Builder()
             .baseUrl("https://api.rooster.com/v1/") // Replace with actual API base URL
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 
     @Provides
     @Singleton
+    fun provideJson(): Json { // Provide Json instance
+        return Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            coerceInputValues = true // Good for handling potential minor schema mismatches
+        }
+    }
+
+    @Provides
+    @Singleton
     @PaymentApiRetrofit // Use the new qualifier
-    fun providePaymentApiRetrofit(okHttpClient: OkHttpClient): Retrofit {
-        // Ensure Constants.PAYMENT_API_BASE_URL is defined, e.g., from BuildConfig or a config file
-        // For now, assuming it points to your Express backend for payments.
-        val baseUrl = Constants.PAYMENT_API_BASE_URL
+    fun providePaymentApiRetrofit(
+        okHttpClient: OkHttpClient,
+        @PaymentApiBaseUrl baseUrl: String, // Inject the base URL
+        json: Json // Inject Json
+    ): Retrofit {
         if (baseUrl.isBlank()) {
-            throw IllegalStateException("Payment API Base URL is not configured.")
+            throw IllegalStateException("Payment API Base URL is not configured or blank.")
         }
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(okHttpClient) // Uses the same OkHttpClient with Auth interceptor
-            .addConverterFactory(kotlinx.serialization.json.Json {
-                ignoreUnknownKeys = true
-                isLenient = true
-            }.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 

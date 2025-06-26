@@ -15,6 +15,9 @@ class FirebaseFarmDataSource @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val realtimeDatabase: DatabaseReference
 ) {
+    private val flocksCollection = firestore.collection("flocks_v2") // Using a potentially versioned collection
+    private val lineageLinksCollection = firestore.collection("lineage_links")
+
 
     fun getFlockRealTime(flockId: String): Flow<Result<Map<String, Any>?>> = callbackFlow {
         val listener = object : ValueEventListener {
@@ -122,13 +125,13 @@ class FirebaseFarmDataSource @Inject constructor(
         return try {
             val id = flockData["id"] as? String ?: UUID.randomUUID().toString()
             val dataWithTimestamp = flockData.toMutableMap().apply {
-                put("updatedAt", ServerValue.TIMESTAMP)
-                put("id", id)
+                this["updatedAt"] = ServerValue.TIMESTAMP // Use this[] for map
+                this["id"] = id
             }
 
             // Save to both Firestore and Realtime Database
-            firestore.collection("flocks").document(id).set(dataWithTimestamp).await()
-            realtimeDatabase.child("flocks").child(id).setValue(dataWithTimestamp).await()
+            flocksCollection.document(id).set(dataWithTimestamp).await() // Use defined collection
+            realtimeDatabase.child("flocks_v2").child(id).setValue(dataWithTimestamp).await() // Use versioned RTDB path
 
             Result.success(Unit)
         } catch (e: Exception) {
@@ -140,12 +143,13 @@ class FirebaseFarmDataSource @Inject constructor(
         return try {
             val id = recordData["id"] as? String ?: UUID.randomUUID().toString()
             val dataWithTimestamp = recordData.toMutableMap().apply {
-                put("createdAt", ServerValue.TIMESTAMP)
-                put("id", id)
+                this["createdAt"] = ServerValue.TIMESTAMP
+                this["id"] = id
             }
 
             firestore.collection("mortality_records").document(id).set(dataWithTimestamp).await()
-            realtimeDatabase.child("mortality_records").child(id).setValue(dataWithTimestamp)
+            // Assuming mortality also goes to a versioned path or specific path
+            realtimeDatabase.child("mortality_records_v2").child(id).setValue(dataWithTimestamp)
                 .await()
 
             Result.success(Unit)
@@ -158,12 +162,12 @@ class FirebaseFarmDataSource @Inject constructor(
         return try {
             val id = sensorData["id"] as? String ?: UUID.randomUUID().toString()
             val dataWithTimestamp = sensorData.toMutableMap().apply {
-                put("timestamp", ServerValue.TIMESTAMP)
-                put("id", id)
+                this["timestamp"] = ServerValue.TIMESTAMP
+                this["id"] = id
             }
 
             // Only save to Realtime Database for sensor data (for performance)
-            realtimeDatabase.child("sensor_data").child(id).setValue(dataWithTimestamp).await()
+            realtimeDatabase.child("sensor_data_v2").child(id).setValue(dataWithTimestamp).await() // Use versioned RTDB path
 
             Result.success(Unit)
         } catch (e: Exception) {
@@ -173,11 +177,41 @@ class FirebaseFarmDataSource @Inject constructor(
 
     suspend fun deleteFlock(flockId: String): Result<Unit> {
         return try {
-            firestore.collection("flocks").document(flockId).delete().await()
-            realtimeDatabase.child("flocks").child(flockId).removeValue().await()
+            flocksCollection.document(flockId).delete().await() // Use defined collection
+            realtimeDatabase.child("flocks_v2").child(flockId).removeValue().await() // Use versioned RTDB path
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    // --- Lineage Link Methods ---
+    suspend fun saveLineageLink(link: com.example.rooster.feature.farm.data.local.LineageLinkEntity): Result<Unit> {
+        return try {
+            // Create a unique ID for the link document, e.g., childId_parentId_type
+            val documentId = "${link.childFlockId}_${link.parentFlockId}_${link.relationshipType.name}"
+            // Store a map representation, excluding needsSync or handling it if remote also tracks sync
+            val remoteLinkData = mapOf(
+                "childFlockId" to link.childFlockId,
+                "parentFlockId" to link.parentFlockId,
+                "relationshipType" to link.relationshipType.name,
+                "timestamp" to FieldValue.serverTimestamp() // Add a timestamp for auditing
+            )
+            lineageLinksCollection.document(documentId).set(remoteLinkData).await()
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+
+    suspend fun deleteLineageLink(childFlockId: String, parentFlockId: String, relationshipTypeName: String): Result<Unit> {
+        return try {
+            val documentId = "${childFlockId}_${parentFlockId}_${relationshipTypeName}"
+            lineageLinksCollection.document(documentId).delete().await()
+            Result.Success(Unit)
+        } catch (e: Exception)
+        {
+            Result.Error(e)
         }
     }
 }
