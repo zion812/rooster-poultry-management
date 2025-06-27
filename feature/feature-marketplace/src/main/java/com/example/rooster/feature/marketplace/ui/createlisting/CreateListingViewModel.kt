@@ -7,7 +7,11 @@ import com.example.rooster.feature.marketplace.domain.model.ProductCategory
 import com.example.rooster.feature.marketplace.domain.model.ProductListing
 import com.example.rooster.feature.marketplace.domain.model.ListingStatus
 import com.example.rooster.feature.marketplace.domain.repository.ProductListingRepository
+ jules/arch-assessment-1
 import com.example.rooster.core.common.user.UserIdProvider // Import UserIdProvider
+
+// import com.example.rooster.core.auth.UserManager // For sellerId
+  main
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,7 +31,12 @@ data class CreateListingFormState(
     val quantityAvailable: String = "", // Input as String, convert to Int
     val locationCity: String = "",
     val locationDistrict: String = "",
+ jules/arch-assessment-1
     val imageUris: List<android.net.Uri> = emptyList(), // Store list of content URIs
+=======
+    // TODO: Add fields for image URIs (local file paths initially)
+    // val imageUris: List<String> = emptyList(),
+ main
     val isSubmitting: Boolean = false,
     val submissionError: String? = null,
     val submissionSuccess: Boolean = false
@@ -35,14 +44,24 @@ data class CreateListingFormState(
 
 @HiltViewModel
 class CreateListingViewModel @Inject constructor(
+< jules/arch-assessment-1
     private val productListingRepository: ProductListingRepository,
     private val userIdProvider: UserIdProvider // Inject UserIdProvider
+=======
+    private val productListingRepository: ProductListingRepository
+    // @Inject private val userManager: UserManager // Ideal to get current sellerId
+ main
 ) : ViewModel() {
 
     private val _formState = MutableStateFlow(CreateListingFormState())
     val formState: StateFlow<CreateListingFormState> = _formState.asStateFlow()
 
+<<< jules/arch-assessment-1
     // Removed placeholder currentSellerId
+=======
+    // TODO: Replace with actual User ID from an authentication manager/repository
+    private val currentSellerId: String = "placeholder_seller_id"
+ main
 
     fun onTitleChange(title: String) {
         _formState.value = _formState.value.copy(title = title, submissionError = null, submissionSuccess = false)
@@ -86,6 +105,7 @@ class CreateListingViewModel @Inject constructor(
 
     // TODO: Add fun onImageSelected(uris: List<String>)
 
+ jules/arch-assessment-1
     fun onImagesSelected(uris: List<android.net.Uri>) {
         _formState.value = _formState.value.copy(imageUris = uris, submissionError = null, submissionSuccess = false)
     }
@@ -98,16 +118,21 @@ class CreateListingViewModel @Inject constructor(
         )
     }
 
+=======
+ main
     fun submitListing() {
         viewModelScope.launch {
             _formState.value = _formState.value.copy(isSubmitting = true, submissionError = null, submissionSuccess = false)
 
+ jules/arch-assessment-1
             val currentSellerId = userIdProvider.getCurrentUserId()
             if (currentSellerId == null) {
                 _formState.value = _formState.value.copy(isSubmitting = false, submissionError = "You must be logged in to create a listing.")
                 return@launch
             }
 
+=======
+ main
             val currentState = _formState.value
             // Basic Validation (more robust validation needed)
             if (currentState.title.isBlank() || currentState.price.isBlank() || currentState.quantityAvailable.isBlank()) {
@@ -142,7 +167,11 @@ class CreateListingViewModel @Inject constructor(
                 weightInKg = weightDouble,
                 price = priceDouble,
                 quantityAvailable = quantityInt,
+ jules/arch-assessment-1
                 imageUrls = currentState.imageUris.map { it.toString() }, // Store URI strings for now
+
+                imageUrls = emptyList(), // TODO: Populate with uploaded image URLs
+               main
                 locationCity = currentState.locationCity.takeIf { it.isNotBlank() },
                 locationDistrict = currentState.locationDistrict.takeIf { it.isNotBlank() },
                 postedDateTimestamp = now,
