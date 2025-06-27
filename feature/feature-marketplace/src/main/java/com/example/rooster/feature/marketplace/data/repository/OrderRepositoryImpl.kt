@@ -103,6 +103,10 @@ class OrderRepositoryImpl @Inject constructor(
     }
 
     override fun getOrderDetails(orderId: String): Flow<Result<Order?>> {
+ jules/arch-assessment-1
+=======
+<<< jules/arch-assessment-1
+ main
         return localBackedRemoteResourceOrder( // Using a specific helper for Order or make generic one more adaptable
             localCall = {
                 orderDao.getOrderWithItemsById(orderId).map { it?.let { owi -> mapOrderWithItemsToDomain(owi) } }
@@ -169,12 +173,56 @@ class OrderRepositoryImpl @Inject constructor(
             }
             // If remote fails, needsSync=true remains, worker will pick it up.
             remoteResult // Return the result of the remote operation
+ jules/arch-assessment-1
+=======
+=======
+        return orderDao.getOrderWithItemsById(orderId).map { orderWithItems ->
+            if (orderWithItems != null) {
+                Result.Success(mapOrderWithItemsToDomain(orderWithItems))
+            } else {
+                // Try fetching from remote if not found locally (or if forceRefresh)
+                // For now, simplified: if not local, it's null.
+                // TODO: Implement remote fetch and cache update for getOrderDetails
+                Result.Success(null)
+            }
+        }.flowOn(Dispatchers.IO)
+        // TODO: Add .catch
+    }
+
+    override fun getOrdersForUser(userId: String): Flow<Result<List<Order>>> {
+        return orderDao.getOrdersWithItemsForUser(userId).map { list ->
+            Result.Success(list.map { mapOrderWithItemsToDomain(it) })
+        }.flowOn(Dispatchers.IO)
+        // TODO: Add .catch and potentially fetch from remote and update cache
+    }
+
+    override suspend fun updateOrderStatus(orderId: String, newStatus: String): Result<Unit> = withContext(Dispatchers.IO) {
+        // This is a simplified update. A real app would have more robust logic.
+        // It should also update the remote data source.
+        try {
+            val statusEnum = OrderStatus.valueOf(newStatus) // Ensure valid status
+            val now = System.currentTimeMillis()
+            orderDao.updateOrderStatus(orderId, statusEnum.name, now)
+
+            // Also mark for sync and attempt remote update
+            val orderEntity = orderDao.getOrderWithItemsById(orderId).map { it?.order }. LATER: This is flow, need to get value
+            // For now, just updating locally. Remote update + sync flag needs more careful handling here.
+            // TODO: Fetch order, update status, set needsSync=true, save locally, attempt remote update.
+
+            remoteDataSource.updateOrderStatus(orderId, newStatus) // Attempt remote update
+            Result.Success(Unit)
+>> main
+ main
         } catch (e: Exception) {
             Result.Error(e)
         }
     }
 
     override suspend fun cancelOrder(orderId: String, reason: String?): Result<Unit> = withContext(Dispatchers.IO) {
+ jules/arch-assessment-1
+=======
+<<<<< jules/arch-assessment-1
+ main
         // Using the same improved pattern as updateOrderStatus
         try {
             val now = System.currentTimeMillis()
@@ -193,11 +241,27 @@ class OrderRepositoryImpl @Inject constructor(
                 orderDao.updateOrder(updatedEntity.copy(needsSync = false))
             }
             remoteResult
+ jules/arch-assessment-1
+=======
+=======
+        // Similar to updateOrderStatus, needs robust handling for local and remote.
+        try {
+            val now = System.currentTimeMillis()
+            orderDao.updateOrderStatus(orderId, OrderStatus.CANCELLED_BY_USER.name, now)
+            // TODO: Fetch order, update status, set needsSync=true, save locally, attempt remote update.
+            remoteDataSource.cancelOrder(orderId) // Attempt remote update
+            Result.Success(Unit)
+> main
+ main
         } catch (e: Exception) {
             Result.Error(e)
         }
     }
 
+ jules/arch-assessment-1
+=======
+<<<< jules/arch-assessment-1
+ main
 // Generic helper for network-bound resource pattern (adapted for Order)
 // S: Source type from remote (e.g., Order, List<Order>)
 // D: Domain model type (e.g., Order, List<Order>)
@@ -263,7 +327,11 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
         emit(Result.Success(emptyList()))
     }
 }
+ jules/arch-assessment-1
 
+=======
+      main
+ main
 
     // --- Mappers ---
     private fun mapDomainToEntity(domain: Order, needsSync: Boolean): OrderEntity {

@@ -31,9 +31,12 @@ interface PostDao {
     @Query("SELECT * FROM community_posts WHERE authorUserId = :userId ORDER BY createdTimestamp DESC")
     fun getPostsByAuthor(userId: String): Flow<List<PostEntity>>
 
+ jules/arch-assessment-1
     @Query("SELECT * FROM community_posts WHERE tags LIKE '%' || :tag || '%' ORDER BY createdTimestamp DESC")
     fun getPostsByTag(tag: String): Flow<List<PostEntity>>
 
+=======
+ main
     @Query("SELECT * FROM community_posts WHERE needsSync = 1 ORDER BY createdTimestamp ASC") // Sync older posts first
     suspend fun getUnsyncedPostsSuspend(): List<PostEntity>
 
