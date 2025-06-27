@@ -33,6 +33,9 @@ class ProductListingRepositoryImpl @Inject constructor(
         searchTerm: String?, // Basic client-side filtering for now
         forceRefresh: Boolean
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
     ): Flow<Result<List<ProductListing>>> {
         // Improved strategy: Network-Bound Resource approach
         // 1. Emit Loading.
@@ -105,6 +108,8 @@ class ProductListingRepositoryImpl @Inject constructor(
         ).flowOn(Dispatchers.IO)
     }
 
+ jules/arch-assessment-1
+=======
     ): Flow<Result<List<ProductListing>>> = flow {
         // For simplicity, this initial implementation fetches all and then filters client-side if needed.
         // A more robust solution would pass filters to remoteDataSource and have server-side filtering.
@@ -199,6 +204,7 @@ class ProductListingRepositoryImpl @Inject constructor(
     }.flowOn(Dispatchers.IO)
  main
 
+ main
 
     override suspend fun createProductListing(listing: ProductListing): Result<String> = withContext(Dispatchers.IO) {
         try {
@@ -208,6 +214,9 @@ class ProductListingRepositoryImpl @Inject constructor(
 
             val remoteResult = remoteDataSource.createProductListing(listingWithId)
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
             if (remoteResult is Result.Success && remoteResult.data != null) {
                 // Mark as synced if remote save is successful
                 localDataSource.insertListing(entity.copy(needsSync = false))
@@ -218,6 +227,8 @@ class ProductListingRepositoryImpl @Inject constructor(
             } else {
                 // Remote save "succeeded" but returned null ID, treat as error or handle as per API contract
                 Result.Error(Exception("Remote data source returned null ID for created listing"))
+ jules/arch-assessment-1
+=======
 =======
             if (remoteResult is Result.Success) {
                 // Mark as synced if remote save is successful
@@ -226,6 +237,7 @@ class ProductListingRepositoryImpl @Inject constructor(
             } else {
                 // Remote save failed, needsSync remains true for worker
                 Result.Error((remoteResult as Result.Error).exception)
+ main
  main
             }
         } catch (e: Exception) {
@@ -237,17 +249,22 @@ class ProductListingRepositoryImpl @Inject constructor(
          try {
             val entity = mapDomainToEntity(listing, needsSync = true) // Mark for sync
  jules/arch-assessment-1
+=======
+ main
             localDataSource.insertListing(entity) // Use insert with OnConflictStrategy.REPLACE for update
 
             val remoteResult = remoteDataSource.updateProductListing(listing)
             if (remoteResult is Result.Success) {
                 localDataSource.insertListing(entity.copy(needsSync = false)) // Update to synced
+ jules/arch-assessment-1
+=======
 =======
             localDataSource.updateListing(entity) // or insert, as it's REPLACE
 
             val remoteResult = remoteDataSource.updateProductListing(listing)
             if (remoteResult is Result.Success) {
                 localDataSource.updateListing(entity.copy(needsSync = false))
+ main
  main
             }
             // If remote fails, needsSync=true ensures worker picks it up.
@@ -259,6 +276,9 @@ class ProductListingRepositoryImpl @Inject constructor(
 
     override suspend fun deleteProductListing(listingId: String): Result<Unit> = withContext(Dispatchers.IO) {
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
         // For robust offline deletion, this would mark as 'deleted' locally and sync that state.
         // Current implementation: local delete, then attempt remote delete.
         // If remote fails, the item is gone locally but might still exist remotely.
@@ -273,6 +293,8 @@ class ProductListingRepositoryImpl @Inject constructor(
                 // Or, don't delete locally and return the error.
                 Result.Error((remoteDeleteResult as Result.Error).exception)
             }
+ jules/arch-assessment-1
+=======
 =======
         try {
             localDataSource.deleteListingById(listingId) // Delete locally first
@@ -283,12 +305,16 @@ class ProductListingRepositoryImpl @Inject constructor(
             // For now, assume remote deletion is attempted.
             remoteDataSource.deleteProductListing(listingId)
  main
+ main
         } catch (e: Exception) {
             Result.Error(e)
         }
     }
 
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
 // Generic helper for network-bound resource pattern
 // S: Source type from remote (e.g., ProductListing, List<ProductListing>)
 // L: Local entity type (e.g., ProductListingEntity, List<ProductListingEntity>)
@@ -338,7 +364,10 @@ private inline fun <D, S> localBackedRemoteResource(
 }
 
 
+ jules/arch-assessment-1
 =======
+=======
+ main
  main
     // --- Mappers ---
     // TODO: Extract mappers to a separate utility if they become complex or are shared.

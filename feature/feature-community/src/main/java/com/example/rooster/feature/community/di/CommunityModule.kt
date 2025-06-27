@@ -72,7 +72,10 @@ abstract class CommunityBindsModule {
     // Repository implementations are yet to be created.
     // These bindings are placeholders.
 
+ jules/arch-assessment-1
+=======
 <<jules/arch-assessment-1
+ main
     @Binds
     @Singleton
     abstract fun bindCommunityUserProfileRepository(
@@ -90,6 +93,8 @@ abstract class CommunityBindsModule {
     abstract fun bindCommentRepository(
         impl: CommentRepositoryImpl
     ): CommentRepository
+ jules/arch-assessment-1
+=======
 
     // @Binds
     // @Singleton
@@ -109,4 +114,5 @@ abstract class CommunityBindsModule {
     //     impl: CommentRepositoryImpl
     // ): CommentRepository
 main
+ main
 }

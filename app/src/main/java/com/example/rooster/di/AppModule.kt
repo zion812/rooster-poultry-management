@@ -9,9 +9,18 @@ import com.example.rooster.domain.repository.ChatRepository
 import com.example.rooster.domain.repository.PostRepository
 import com.example.rooster.domain.repository.UserRepository
 import com.example.rooster.util.ShoppingCartManager
+ jules/arch-assessment-1
+import com.example.rooster.core.common.user.UserIdProvider
+import com.example.rooster.core.common.storage.ImageUploadService // Import interface
+import com.example.rooster.data.authprovider.FirebaseUserIdProvider
+import com.example.rooster.data.storage.FirebaseStorageImageUploadService // Import impl
+import com.google.firebase.storage.FirebaseStorage // Import FirebaseStorage
+import dagger.Binds
+=======
 import com.example.rooster.core.common.user.UserIdProvider // Import interface
 import com.example.rooster.data.authprovider.FirebaseUserIdProvider // Import impl
 import dagger.Binds // Import Binds
+ main
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -59,6 +68,28 @@ object AppModule {
     fun providePaymentApiBaseUrl(): String {
         return com.example.rooster.BuildConfig.PAYMENT_API_BASE_URL // Fully qualify BuildConfig
     }
+ jules/arch-assessment-1
+
+    @Provides
+    @Singleton
+    fun provideFirebaseStorage(): FirebaseStorage { // Provide FirebaseStorage
+        return FirebaseStorage.getInstance()
+    }
+}
+
+// AuthBindsModule remains separate for @Binds methods
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class AuthBindsModule {
+    @Binds
+    @Singleton
+    abstract fun bindUserIdProvider(impl: FirebaseUserIdProvider): UserIdProvider
+
+    @Binds
+    @Singleton
+    abstract fun bindImageUploadService(impl: FirebaseStorageImageUploadService): ImageUploadService
+=======
+ main
 }
 
 // Separate module for Binds is cleaner, or can be added to AppModule if it's an abstract class.

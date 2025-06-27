@@ -107,8 +107,13 @@ fun ProductDetailsContent(listing: ProductListing, modifier: Modifier = Modifier
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(listing.imageUrls[page])
+ jules/arch-assessment-1
+                        .placeholder(com.example.rooster.R.drawable.placeholder_image) // Assuming R is app level
+                        .error(com.example.rooster.R.drawable.error_image) // Assuming R is app level
+=======
                         // .placeholder(R.drawable.placeholder_image)
                         // .error(R.drawable.error_image)
+ main
                         .crossfade(true)
                         .build(),
                     contentDescription = "${listing.title} image ${page + 1}",

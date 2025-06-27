@@ -291,6 +291,30 @@ class FarmRepositoryImpl @Inject constructor(
             val centralNode = mapEntityToLineageNode(centralFlockEntity)
 
             // Placeholder: Actual recursive fetching of parents and children needs to be implemented
+ jules/arch-assessment-1
+            // Build the tree structure
+            coroutineScope {
+                val fatherNodeDeferred = if (depthUp > 0) async { buildAncestorTree(flockId, RelationshipType.FATHER, 0, depthUp) } else async { null }
+                val motherNodeDeferred = if (depthUp > 0) async { buildAncestorTree(flockId, RelationshipType.MOTHER, 0, depthUp) } else async { null }
+                val childrenNodesDeferred = if (depthDown > 0) async { buildDescendantList(flockId, 0, depthDown) } else async { emptyList<LineageNode>() }
+
+                centralNode.father = fatherNodeDeferred.await()
+                centralNode.mother = motherNodeDeferred.await()
+                // The LineageNode.children is for direct children of *that* node in a display tree.
+                // The LineageInfo might want a flat list of all descendants up to a certain depth, or a tree.
+                // For now, populating direct children of the central node.
+                centralNode.children = childrenNodesDeferred.await()
+            }
+
+            // Actual depth achieved might be less than requested if lineage ends or maxDepth hit.
+            // This calculation would be more complex if returning the full tree structure within LineageInfo.
+            // For now, using requested depth as a simplification.
+            val lineageInfo = LineageInfo(
+                centralFlockId = flockId,
+                centralFlockNode = centralNode,
+                generationDepthUp = depthUp,
+                generationDepthDown = depthDown
+=======
             // For parents (depthUp):
             // Call a recursive helper function: fetchAncestors(centralNode, depthUp)
             // For children (depthDown):
@@ -302,6 +326,7 @@ class FarmRepositoryImpl @Inject constructor(
                 centralFlockNode = centralNode, // This node will be populated by recursive helpers
                 generationDepthUp = 0, // Actual depth achieved by fetchAncestors
                 generationDepthDown = 0 // Actual depth achieved by fetchDescendants
+ main
             )
             emit(com.example.rooster.core.common.Result.Success(lineageInfo))
         } catch (e: Exception) {
@@ -309,6 +334,61 @@ class FarmRepositoryImpl @Inject constructor(
         }
     }
 
+ jules/arch-assessment-1
+    private suspend fun buildAncestorTree(
+        childFlockId: String,
+        relationshipType: RelationshipType,
+        currentDepth: Int,
+        maxDepth: Int,
+        visited: MutableSet<String> = mutableSetOf()
+    ): LineageNode? {
+        if (currentDepth >= maxDepth || childFlockId in visited) {
+            return null
+        }
+        visited.add(childFlockId) // Add before fetching to break cycles early for this path
+
+        val parentLink = lineageDao.getSpecificParentOfType(childFlockId, relationshipType)
+        val parentFlockId = parentLink?.parentFlockId ?: return null
+
+        val parentEntity = flockDao.getById(parentFlockId).firstOrNull() ?: return null
+        val parentNode = mapEntityToLineageNode(parentEntity)
+
+        // Recursively find grandparents
+        parentNode.father = buildAncestorTree(parentFlockId, RelationshipType.FATHER, currentDepth + 1, maxDepth, visited.toMutableSet()) // Pass copy of visited
+        parentNode.mother = buildAncestorTree(parentFlockId, RelationshipType.MOTHER, currentDepth + 1, maxDepth, visited.toMutableSet()) // Pass copy of visited
+
+        return parentNode
+    }
+
+    private suspend fun buildDescendantList(
+        parentFlockId: String,
+        currentDepth: Int,
+        maxDepth: Int,
+        visited: MutableSet<String> = mutableSetOf()
+    ): List<LineageNode> {
+        if (currentDepth >= maxDepth || parentFlockId in visited) {
+            return emptyList()
+        }
+        visited.add(parentFlockId)
+
+        val childrenLinks = lineageDao.getChildren(parentFlockId).firstOrNull() ?: emptyList()
+        val childrenNodes = mutableListOf<LineageNode>()
+
+        for (link in childrenLinks) {
+            val childEntity = flockDao.getById(link.childFlockId).firstOrNull()
+            if (childEntity != null) {
+                val childNode = mapEntityToLineageNode(childEntity)
+                // Recursively find grandchildren
+                childNode.children = buildDescendantList(link.childFlockId, currentDepth + 1, maxDepth, visited.toMutableSet()) // Pass copy
+                childrenNodes.add(childNode)
+            }
+        }
+        return childrenNodes
+    }
+
+
+=======
+ main
     private fun mapEntityToLineageNode(entity: FlockEntity): LineageNode {
         // Ensure FlockType.valueOf is handled safely if entity.type could be invalid
         val flockType = try { FlockType.valueOf(entity.type) } catch (e: IllegalArgumentException) { FlockType.UNKNOWN }
