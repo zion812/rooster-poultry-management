@@ -12,10 +12,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+ jules/arch-assessment-1
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+=======
+ main
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+ jules/arch-assessment-1
+import coil.compose.AsyncImage
+=======
+ main
 import com.example.rooster.feature.marketplace.domain.model.ProductCategory
 import kotlinx.coroutines.flow.collectLatest
 
@@ -157,8 +175,16 @@ fun CreateListingScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
+ jules/arch-assessment-1
+            ImageSelectionSection(
+                selectedImageUris = formState.imageUris,
+                onImagesSelected = viewModel::onImagesSelected,
+                onRemoveImage = viewModel::removeImage
+            )
+=======
             // TODO: Image selection UI (e.g., button to open gallery, display selected image thumbnails)
             Text("Image Upload: (TODO)", style = MaterialTheme.typography.labelLarge)
+ main
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
@@ -237,3 +263,65 @@ fun PreviewCreateListingScreen() {
         CreateListingScreen(onNavigateBack = {}, onListingCreatedSuccessfully = {})
     }
 }
+ jules/arch-assessment-1
+
+@Composable
+fun ImageSelectionSection(
+    selectedImageUris: List<android.net.Uri>,
+    onImagesSelected: (List<android.net.Uri>) -> Unit,
+    onRemoveImage: (android.net.Uri) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uris: List<android.net.Uri> ->
+        if (uris.isNotEmpty()) {
+            onImagesSelected(uris)
+        }
+    }
+
+    Column(modifier = modifier) {
+        Text("Select Images (Max 5)", style = MaterialTheme.typography.labelLarge)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(onClick = { imagePickerLauncher.launch("image/*") }) {
+            Icon(Icons.Filled.AddPhotoAlternate, contentDescription = "Add Images")
+            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+            Text("Choose Images")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (selectedImageUris.isNotEmpty()) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(selectedImageUris) { uri ->
+                    Box(modifier = Modifier.size(100.dp)) {
+                        AsyncImage(
+                            model = uri,
+                            contentDescription = "Selected image",
+                            modifier = Modifier.fillMaxSize().clip(MaterialTheme.shapes.small),
+                            contentScale = ContentScale.Crop
+                        )
+                        IconButton(
+                            onClick = { onRemoveImage(uri) },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(4.dp)
+                                .size(24.dp)
+                                .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                        ) {
+                            Icon(Icons.Filled.Close, contentDescription = "Remove image", tint = Color.White, modifier = Modifier.size(16.dp))
+                        }
+                    }
+                }
+            }
+        } else {
+            Text(
+                "No images selected.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+=======
+ main

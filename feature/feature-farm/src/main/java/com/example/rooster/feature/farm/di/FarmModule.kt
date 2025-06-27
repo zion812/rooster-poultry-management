@@ -3,6 +3,7 @@ package com.example.rooster.feature.farm.di
 import android.content.Context
 import androidx.room.Room
 import com.example.rooster.feature.farm.data.local.FarmDatabase
+import com.example.rooster.feature.farm.data.local.FarmDatabaseMigrations // Import Migrations
 import com.example.rooster.feature.farm.data.repository.FarmRepository
 import com.example.rooster.feature.farm.data.repository.FarmRepositoryImpl
 import com.example.rooster.feature.farm.data.repository.MortalityRepository
@@ -191,7 +192,10 @@ object FarmProvidesModule {
             context,
             FarmDatabase::class.java,
             "farm_database"
-        ).build()
+        )
+        .addMigrations(FarmDatabaseMigrations.MIGRATION_1_2, FarmDatabaseMigrations.MIGRATION_2_3)
+        // .fallbackToDestructiveMigration() // Removed for production readiness
+        .build()
     }
 
     @Provides

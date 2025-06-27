@@ -6,9 +6,13 @@ import com.example.rooster.core.common.Result
 import com.example.rooster.feature.marketplace.domain.model.CartItem
 import com.example.rooster.feature.marketplace.domain.model.ProductListing
 import com.example.rooster.feature.marketplace.domain.repository.CartRepository
+jules/arch-assessment-1
+import com.example.rooster.core.common.user.UserIdProvider // Import UserIdProvider
+=======
 // Assuming a central User ID provider/manager exists, e.g., from an Auth module
 // For now, hardcoding a placeholder userId for cart operations.
 // import com.example.rooster.core.auth.UserManager
+ main
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -35,12 +39,21 @@ sealed interface CartUserMessage {
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
+ jules/arch-assessment-1
+    private val cartRepository: CartRepository,
+    private val userIdProvider: UserIdProvider // Inject UserIdProvider
+) : ViewModel() {
+
+    // No longer a hardcoded placeholder. Fetched reactively or on demand.
+    // private val currentUserId: String = "placeholder_user_id"
+=======
     private val cartRepository: CartRepository
     // @Inject private val userManager: UserManager // Ideal scenario
 ) : ViewModel() {
 
     // TODO: Replace with actual User ID from an authentication manager/repository
     private val currentUserId: String = "placeholder_user_id"
+ main
 
     private val _cartUiState = MutableStateFlow<CartUiState>(CartUiState.Loading)
     val cartUiState: StateFlow<CartUiState> = _cartUiState.asStateFlow()
@@ -49,6 +62,51 @@ class CartViewModel @Inject constructor(
     val userMessages: SharedFlow<CartUserMessage> = _userMessages.asSharedFlow()
 
     init {
+ jules/arch-assessment-1
+        // Observe userId changes and reload cart if userId changes (e.g., login/logout)
+        viewModelScope.launch {
+            userIdProvider.currentUserIdFlow.collectLatest { userId ->
+                if (userId != null) {
+                    loadCartForUser(userId)
+                } else {
+                    _cartUiState.value = CartUiState.Success(emptyList(), 0, 0.0) // Or an "auth required" state
+                }
+            }
+        }
+    }
+
+    private fun loadCartForUser(userId: String) {
+        // Combine cart items and item count flows
+        cartRepository.getCartItems(userId)
+            .combine(cartRepository.getCartItemCount(userId)) { itemsResult, countResult ->
+                Pair(itemsResult, countResult)
+            }
+            .onEach { (itemsResult, countResult) ->
+                 _cartUiState.value = when {
+                    itemsResult is Result.Success && countResult is Result.Success -> {
+                        val items = itemsResult.data
+                        val count = countResult.data
+                        val subTotal = items.sumOf { it.unitPrice * it.quantity }
+                        CartUiState.Success(items, count, subTotal)
+                    }
+                    itemsResult is Result.Error -> CartUiState.Error(itemsResult.exception.message ?: "Failed to load cart items")
+                    countResult is Result.Error -> CartUiState.Error(countResult.exception.message ?: "Failed to load cart count")
+                    // If one is loading and other is success, consider how to represent. For now, Loading if any part is loading.
+                    itemsResult is Result.Loading || countResult is Result.Loading -> CartUiState.Loading
+                    else -> CartUiState.Error("Unknown cart state") // Should not happen
+                }
+            }
+            .catch { e -> _cartUiState.value = CartUiState.Error(e.message ?: "Error observing cart") }
+            .launchIn(viewModelScope)
+    }
+
+    fun addItemToCart(listing: ProductListing, quantity: Int = 1) {
+        val userId = userIdProvider.getCurrentUserId()
+        if (userId == null) {
+            viewModelScope.launch { _userMessages.emit(CartUserMessage.ErrorAddingItem("You must be logged in to add items to cart.")) }
+            return
+        }
+=======
         loadCart()
     }
 
@@ -84,6 +142,7 @@ class CartViewModel @Inject constructor(
     }
 
     fun addItemToCart(listing: ProductListing, quantity: Int = 1) {
+ main
         viewModelScope.launch {
             if (quantity <= 0) return@launch
 
@@ -97,7 +156,11 @@ class CartViewModel @Inject constructor(
                 stockAvailable = listing.quantityAvailable,
                 addedToCartTimestamp = System.currentTimeMillis()
             )
+ jules/arch-assessment-1
+            val result = cartRepository.addItemToCart(userId, cartItem)
+=======
             val result = cartRepository.addItemToCart(currentUserId, cartItem)
+ main
             if (result is Result.Success) {
                 _userMessages.emit(CartUserMessage.ItemAdded(listing.title))
             } else if (result is Result.Error) {
@@ -107,6 +170,16 @@ class CartViewModel @Inject constructor(
     }
 
     fun updateItemQuantity(listingId: String, newQuantity: Int) {
+ jules/arch-assessment-1
+        val userId = userIdProvider.getCurrentUserId()
+        if (userId == null) { /* Handle error or ignore */ return }
+        viewModelScope.launch {
+            val result = cartRepository.updateCartItemQuantity(userId, listingId, newQuantity)
+            if (result is Result.Success) {
+                 _userMessages.emit(CartUserMessage.ItemUpdated("Item")) // Simplified
+            } else if (result is Result.Error) {
+                // Handle error
+=======
         viewModelScope.launch {
             val result = cartRepository.updateCartItemQuantity(currentUserId, listingId, newQuantity)
             // Optionally, get item name for message
@@ -114,28 +187,51 @@ class CartViewModel @Inject constructor(
                  _userMessages.emit(CartUserMessage.ItemUpdated("Item")) // Simplified message
             } else if (result is Result.Error) {
                 // Handle error message
+ main
             }
         }
     }
 
     fun removeItemFromCart(listingId: String, itemName: String) {
+ jules/arch-assessment-1
+        val userId = userIdProvider.getCurrentUserId()
+        if (userId == null) { /* Handle error or ignore */ return }
+        viewModelScope.launch {
+            val result = cartRepository.removeCartItem(userId, listingId)
+             if (result is Result.Success) {
+                 _userMessages.emit(CartUserMessage.ItemRemoved(itemName))
+            } else if (result is Result.Error) {
+                // Handle error
+=======
         viewModelScope.launch {
             val result = cartRepository.removeCartItem(currentUserId, listingId)
              if (result is Result.Success) {
                  _userMessages.emit(CartUserMessage.ItemRemoved(itemName))
             } else if (result is Result.Error) {
                 // Handle error message
+ main
             }
         }
     }
 
     fun clearCart() {
+ jules/arch-assessment-1
+        val userId = userIdProvider.getCurrentUserId()
+        if (userId == null) { /* Handle error or ignore */ return }
+        viewModelScope.launch {
+            val result = cartRepository.clearCart(userId)
+            if (result is Result.Success) {
+                 _userMessages.emit(CartUserMessage.CartCleared)
+            } else if (result is Result.Error) {
+                // Handle error
+=======
         viewModelScope.launch {
             val result = cartRepository.clearCart(currentUserId)
             if (result is Result.Success) {
                  _userMessages.emit(CartUserMessage.CartCleared)
             } else if (result is Result.Error) {
                 // Handle error message
+ main
             }
         }
     }
