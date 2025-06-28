@@ -50,8 +50,6 @@ data class MortalityEntity(
     val recordedAt: Long,
     val createdAt: Long,
     val needsSync: Boolean = true
-    val createdAt: Long,
-    val needsSync: Boolean = true
 )
 
 @Entity(
@@ -76,7 +74,8 @@ data class VaccinationEntity(
     val notes: String?,
     val photos: String?, // JSON array
     val recordedAt: Long,
-    val createdAt: Long
+    val createdAt: Long,
+    val needsSync: Boolean = true
 )
 
 @Entity(

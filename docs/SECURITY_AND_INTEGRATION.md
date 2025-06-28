@@ -3,9 +3,9 @@
 ---
 
 ## 1. Authentication & Authorization
-- **Mobile App:** Uses Firebase Auth or JWT for user authentication.
-- **Backend:** Verifies JWT/Firebase tokens on protected endpoints.
-- **Cloud Functions:** Enforce user roles and permissions via Parse security rules.
+- **Mobile App:** Primarily uses Firebase Authentication for user sign-in and ID token generation.
+- **Backend (`backend/` - Node.js/Express):** Protected API endpoints (e.g., for price prediction, payment order creation) verify Firebase ID Tokens sent in the `Authorization` header using the `firebase-admin` SDK.
+- **Cloud Functions (`cloud/` - Parse Cloud Code):** Parse Cloud Functions can leverage the authenticated Parse User (`request.user`) for authorization. For functions called by the authenticated mobile app (if the app also authenticates with Parse directly) or by the `backend/` server (which might use a master key or specific roles), Parse Class-Level Permissions (CLPs) and Access Control Lists (ACLs) on Parse Objects are the primary mechanisms for enforcing user roles and permissions.
 
 ---
 
@@ -23,9 +23,12 @@
 ---
 
 ## 4. Integration Flows
-- **App ↔ Backend:** REST API with token-based auth, JSON payloads.
-- **Backend ↔ Cloud:** Event-driven (webhooks, direct API calls), secured via shared secrets or service accounts.
-- **Notifications:** Firebase Cloud Messaging (FCM) for real-time updates.
+- **App ↔ Firebase Services (Direct):** App directly interacts with Firebase Auth, Firestore, Realtime Database, and Storage for features like farm management, marketplace listings, community content, and image uploads. Access is controlled by Firebase Security Rules.
+- **App ↔ Custom Backend (`backend/` - Node.js):** App sends REST API requests (HTTPS) to the Node.js backend for services like price prediction and payment orchestration. These requests are authenticated using Firebase ID Tokens.
+- **Custom Backend (`backend/`) ↔ Parse Platform (Back4App):** The Node.js backend uses the Parse SDK (or direct REST calls via `axios` as seen in `parseService.js`) to interact with the Parse database (e.g., for historical price data) and potentially invoke Parse Cloud Functions. This communication would typically use Parse Application ID and REST API Key / Master Key.
+- **Custom Backend (`backend/`) ↔ Razorpay:** The Node.js backend integrates with Razorpay SDK for creating payment orders and verifying signatures. Razorpay webhooks are also received by this backend.
+- **App ↔ Parse Cloud Functions (`cloud/`):** While not explicitly detailed for all features, the app could potentially call Parse Cloud Functions directly if it also manages a Parse User session. The auction system heavily relies on Parse Cloud Code.
+- **Notifications:** Firebase Cloud Messaging (FCM) for push notifications, likely triggered by backend services or Cloud Functions.
 
 ---
 
