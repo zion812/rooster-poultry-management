@@ -30,6 +30,11 @@ android {
         debug {
             isMinifyEnabled = false
         }
+        create("staging") {
+            initWith(getByName("release"))
+            // Add any staging-specific configurations here if needed in the future
+            // For example: manifestPlaceholders["somePlaceholder"] = "stagingValue"
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11 // Match app module
@@ -61,27 +66,12 @@ dependencies {
 
     // Hilt for DI
     implementation(libs.hilt.android)
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
- main
-    ksp(libs.hilt.compiler) // Make sure this is the KSP version if using KSP for Hilt
-    implementation(libs.androidx.hilt.work) // Hilt WorkManager Integration
-    ksp(libs.androidx.hilt.compiler) // Hilt WorkManager Integration KSP // or specific libs.androidx.hilt.work.compiler if defined
-    implementation(libs.hilt.navigation.compose) // If feature has its own navigation graphs
-=======
-    implementation(libs.hilt.work)
+    implementation(libs.hilt.work) // For HiltWorkerFactory
     ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose) // If feature has its own navigation graphs
 
     // Work Manager for background sync
     implementation(libs.work.runtime.ktx)
- main
-
-    // WorkManager
-    implementation(libs.androidx.work.runtime.ktx)
-
-    // WorkManager
-    implementation(libs.androidx.work.runtime.ktx)
 
     // Room Database
     implementation(libs.room.runtime)
@@ -108,18 +98,18 @@ dependencies {
     implementation(libs.lifecycle.runtime.compose) // For collectAsStateWithLifecycle
 
     // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3") // Consider using libs.kotlinx.coroutines.core
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3") // Consider using libs.kotlinx.coroutines.android
 
     // Testing
     testImplementation(libs.junit)
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.20")
-    testImplementation("io.mockk:mockk:1.13.8")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.20") // Consider aliasing in libs.versions.toml
+    testImplementation("io.mockk:mockk:1.13.8") // Consider aliasing in libs.versions.toml
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") // Consider aliasing
 
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.7")
+    androidTestImplementation(libs.androidx.junit) // Corrected from androidx.test.ext:junit
+    androidTestImplementation(libs.androidx.espresso.core) // Corrected from androidx.test.espresso:espresso-core
+    androidTestImplementation(libs.androidx.ui.test.junit4) // Corrected from androidx.compose.ui:ui-test-junit4
 
     // Debug
     debugImplementation(libs.androidx.ui.tooling)

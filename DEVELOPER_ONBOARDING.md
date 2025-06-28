@@ -8,10 +8,10 @@
 rooster-poultry-management-3/
 ├── app/                # Main Android app (Kotlin, Compose, Hilt)
 │   └── src/main/java/com/example/rooster/...
-├── core/               # Shared logic (core-common, core-network)
-├── feature/            # Feature modules (feature-farm)
-├── backend/            # Node.js REST API (price prediction, etc.)
-├── cloud/              # Parse Cloud Functions (marketplace, auctions)
+├── core/               # Shared logic (core-common, core-network, navigation, search, analytics)
+├── feature/            # Feature modules (e.g., feature-farm, feature-marketplace, feature-community)
+├── backend/            # Node.js REST API (price prediction, payment orchestration, Parse interaction)
+├── cloud/              # Parse Cloud Code (auctions, live streaming, etc.) & Firebase Rules
 ├── tests/              # Playwright UI tests (web)
 ├── scripts/, docs/, tools/ # Automation, documentation, utilities
 └── ...
@@ -43,7 +43,8 @@ rooster-poultry-management-3/
 - **Install:**
   1. `cd cloud`
   2. `npm install`
-- **Deploy:** `npm run deploy` (requires Parse CLI and credentials)
+- **Deploy:** `npm run deploy` (requires Parse CLI and credentials for Parse Cloud Code).
+- **Note on Firebase Rules:** This directory also contains `firestore.rules` and `realtime-database.rules.json`. These Firebase security rules are typically deployed using the Firebase CLI (e.g., `firebase deploy --only firestore:rules`).
 
 ### Playwright UI Tests
 - **Install:** `npm install` (in project root or as per Playwright docs)

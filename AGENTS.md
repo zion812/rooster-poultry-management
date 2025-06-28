@@ -2,6 +2,28 @@
 
 This document provides guidance for AI agents working on the Rooster Poultry Management App codebase. Adherence to these principles is crucial for maintaining a scalable, maintainable, and robust application.
 
+## 0. Current Development Context & Priorities
+
+**Primary Objective: Functional Application Showcase for Fundraising**
+
+The immediate development goal is to produce a compelling and functional showcase of the Rooster app's capabilities. This showcase is intended for presentations to potential investors and stakeholders to secure funding for further development and full-scale deployment.
+
+**Implications for AI Agent Tasks:**
+
+*   **Feature Completeness for Demonstration:** Implement features as completely as possible in the codebase to demonstrate their full potential and user experience, even if some backend dependencies are simplified or mocked for this phase.
+*   **Payment Gateway Integration (Deferred Live Transactions):**
+    *   For features requiring payments (e.g., marketplace checkout, auction deposits), the UI and backend flows should be built out.
+    *   However, direct calls to live payment gateway APIs (like Razorpay) should be **stubbed, mocked, or use a test mode** if available from the gateway. Live API keys are not expected to be available during this phase.
+    *   The system must be designed for straightforward integration of live API keys when they are procured post-funding. Document the integration points clearly.
+*   **Free-Tier Resource Management:**
+    *   Be mindful that backend services (Firebase, Back4app/Parse) are operating on free tiers.
+    *   Avoid implementing solutions that would clearly lead to excessive costs or quick exhaustion of free tier limits during normal showcase usage (e.g., overly frequent polling, storage of excessively large unoptimized media, very complex and frequent Cloud Function invocations for non-critical paths).
+    *   Flag operations that are potentially resource-intensive for future optimization or scaling considerations once funding allows for paid tiers.
+    *   Prioritize efficient data models and queries.
+*   **Focus on Demonstrable Value:** When prioritizing tasks or encountering TODOs, consider their impact on the ability to showcase the app's core value proposition to farmers and potential investors.
+
+---
+
 ## 1. Core Architectural Principles
 
 *   **Clean Architecture:** The project follows Clean Architecture. Ensure all new code respects the separation of layers (Presentation, Domain, Data).
@@ -43,7 +65,9 @@ This application targets rural users with potentially unreliable and slow (2G) i
     *   Provide immediate user feedback (loading states, progress indicators).
     *   Gracefully handle network errors and timeouts.
 *   **Synchronization:**
-    *   **`feature-farm` Data Sync:** Uses a `FarmDataSyncWorker` (WorkManager `CoroutineWorker`) to upload locally created/modified farm data (Flocks, etc.) to Firebase.
+    *   **`feature-farm` Data Sync:**
+        *   Uses a `FarmDataSyncWorker` (WorkManager `CoroutineWorker`) to upload locally created/modified farm data (currently `FlockEntity` objects) to Firebase. Other entities in `feature-farm` with `needsSync` flags (e.g., `MortalityEntity`, `LineageLinkEntity`, `VaccinationEntity`) may require similar worker-based synchronization or rely on direct repository-mediated sync attempts.
+        *   The `FirebaseFarmDataSource` for `feature-farm` employs a dual-write strategy for some entities (e.g., Flocks, Mortality records), saving them to both Firestore and Firebase Realtime Database. This is an important characteristic to be aware of for data consistency and retrieval.
     *   **Sync Flags:** Room entities intended for synchronization (e.g., `FlockEntity`) use a `needsSync: Boolean` flag. This flag is set to `true` when data is created/modified locally. The sync worker uploads items where `needsSync = true` and sets it to `false` upon successful remote persistence.
     *   **Enqueueing:** Sync workers are typically enqueued periodically and/or when network connectivity is restored.
     *   WorkManager jobs should be designed to be resilient to network interruptions, with appropriate retry strategies.
@@ -93,8 +117,14 @@ This application targets rural users with potentially unreliable and slow (2G) i
     *   **Module & Data Layer:** The `feature-community` module has been created. Domain models (UserProfile, Post, Comment), Room entities (with `needsSync`), DAOs, `CommunityDatabase`, repository interfaces, and a `FirebaseCommunityDataSource` shell are defined. Hilt modules are set up.
 *   **`feature-farm` Lineage Foundation:**
     *   **Data Layer:** Lineage domain models, `LineageLinkEntity`, `LineageDao`, and updates to `FarmDatabase` (version 3), `FarmRepository`, and `FirebaseFarmDataSource` have been implemented to support tracking flock lineage.
-*   **User ID Integration:** A `UserIdProvider` interface (in `core-common`) and `FirebaseUserIdProvider` implementation (in `app` module, using Firebase Auth) have been introduced. ViewModels like `CartViewModel` and `CreateListingViewModel` now use this provider instead of placeholder IDs.
+*   **User ID Integration:** A `UserIdProvider` interface (in `core-common`) and `FirebaseUserIdProvider` implementation (in `app` module's `data/authprovider` package, using Firebase Auth) have been introduced. ViewModels like `CartViewModel` and `CreateListingViewModel` now use this provider instead of placeholder IDs. The `:app` module's `AuthBindsModule` handles binding `FirebaseUserIdProvider` to `UserIdProvider`.
+*   **Image Upload Service:** The `ImageUploadService` interface (defined in `core-common`) has its concrete implementation `FirebaseStorageImageUploadService` located in the `:app` module's `data/storage` package. This service is used by features like Marketplace for uploading images to Firebase Storage. The `:app` module's `AuthBindsModule` handles binding this implementation. Image compression options are part of the interface, but actual client-side compression logic is noted as pending in the implementation.
+*   **WorkManager Hilt Integration:** The main `App.kt` class implements `Configuration.Provider` and injects `HiltWorkerFactory` to enable dependency injection in `WorkManager` workers (e.g., `FarmDataSyncWorker`).
+*   **Parse SDK Initialization:** The Parse SDK (Back4App) is initialized in `App.kt`, including registration of ParseObject subclasses. This indicates Parse is used for some backend functionalities alongside Firebase. A specific `app/config/Constants.kt` provides the Back4App keys.
+*   **Additional App-Level Database (`PhotoUploadDatabase`):** The `:app` module initializes a Room database named `PhotoUploadDatabase` (for `PhotoUploadEntity` and `MessageEntity`). This database currently uses `fallbackToDestructiveMigration()` and a static singleton access pattern, which are points for future review if this database becomes critical or its schema complex.
 *   **Room Migrations (`feature-farm`):** `FarmDatabase` migrations for versions 1-to-2 (adding `needsSync`) and 2-to-3 (adding `lineage_links` table) have been implemented and added to the database builder in `FarmProvidesModule`. `fallbackToDestructiveMigration` has been removed for `FarmDatabase`.
+*   **Room Migrations (`feature-marketplace`):** `MarketplaceDatabase` is currently at version 1 and uses `fallbackToDestructiveMigration()` in its Hilt module (`MarketplaceProvidesModule`). **Action Item:** Proper migration strategies MUST be implemented for `MarketplaceDatabase` before any schema changes are made in a production context, adhering to the general database migration guidelines.
+*   **Room Migrations (`feature-community`):** `CommunityDatabase` is currently at version 1 and uses `fallbackToDestructiveMigration()` in its Hilt module (`CommunityProvidesModule`). **Action Item:** Similar to Marketplace, proper migration strategies MUST be implemented for `CommunityDatabase` for production readiness.
 *   **Marketplace Repository Refinements:** `ProductListingRepositoryImpl` and `OrderRepositoryImpl` were enhanced with a more robust network-bound resource pattern for data fetching and caching. `needsSync` handling in `OrderRepositoryImpl` for updates was improved.
  jules/arch-assessment-1
 =======
