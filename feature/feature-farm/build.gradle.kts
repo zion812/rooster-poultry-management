@@ -62,6 +62,9 @@ dependencies {
     // Hilt for DI
     implementation(libs.hilt.android)
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
     ksp(libs.hilt.compiler) // Make sure this is the KSP version if using KSP for Hilt
     implementation(libs.androidx.hilt.work) // Hilt WorkManager Integration
     ksp(libs.androidx.hilt.compiler) // Hilt WorkManager Integration KSP // or specific libs.androidx.hilt.work.compiler if defined
@@ -73,6 +76,9 @@ dependencies {
     // Work Manager for background sync
     implementation(libs.work.runtime.ktx)
  main
+
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)

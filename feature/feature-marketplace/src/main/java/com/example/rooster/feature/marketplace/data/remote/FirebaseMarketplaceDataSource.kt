@@ -22,6 +22,24 @@ class FirebaseMarketplaceDataSource @Inject constructor(
     private val listingsCollection = firestore.collection("marketplace_listings")
     private val ordersCollection = firestore.collection("marketplace_orders")
 
+ jules/arch-assessment-1
+    companion object {
+        const val DEFAULT_PAGE_SIZE = 10
+    }
+
+    override fun getProductListingsStream(
+        category: String?,
+        sellerId: String?,
+        searchTerm: String?,
+        pageSize: Int,
+        lastVisibleTimestamp: Long?,
+        lastVisibleDocId: String?
+    ): Flow<Result<List<ProductListing>>> = callbackFlow {
+        var query: Query = listingsCollection
+            .orderBy("postedDateTimestamp", Query.Direction.DESCENDING)
+            // Add secondary sort key for stable pagination if timestamps can be identical
+            .orderBy(FieldPath.documentId(), Query.Direction.DESCENDING)
+=======
     override fun getProductListingsStream(
         category: String?,
         sellerId: String?,
@@ -29,6 +47,7 @@ class FirebaseMarketplaceDataSource @Inject constructor(
     ): Flow<Result<List<ProductListing>>> = callbackFlow {
         var query: Query = listingsCollection
             .orderBy("postedDateTimestamp", Query.Direction.DESCENDING)
+ main
 
         if (category != null) {
             query = query.whereEqualTo("category", category)
@@ -36,6 +55,61 @@ class FirebaseMarketplaceDataSource @Inject constructor(
         if (sellerId != null) {
             query = query.whereEqualTo("sellerId", sellerId)
         }
+ jules/arch-assessment-1
+        // TODO: Server-side searchTerm filtering (e.g., using array-contains on keywords field, or Algolia)
+        // For now, searchTerm is handled client-side after this fetch.
+
+        query = query.limit(pageSize.toLong())
+
+        if (lastVisibleTimestamp != null && lastVisibleDocId != null) {
+            // Fetch the actual DocumentSnapshot for startAfter
+            // This requires an extra read but is the most reliable way for non-trivial sorting/filtering.
+            // A simpler but potentially less robust way is to use startAfter(lastVisibleTimestamp, lastVisibleDocId)
+            // if the fields used in orderBy are exactly what you pass to startAfter.
+            firestore.collection("marketplace_listings").document(lastVisibleDocId).get()
+                .addOnSuccessListener { lastDocSnapshot ->
+                    if (lastDocSnapshot.exists()) {
+                        val paginatedQuery = query.startAfter(lastDocSnapshot)
+                        val listener = paginatedQuery.addSnapshotListener { snapshots, e ->
+                            if (e != null) {
+                                trySend(Result.Error(e)).isFailure
+                                return@addSnapshotListener
+                            }
+                            if (snapshots != null) {
+                                val listings = snapshots.toObjects<ProductListing>()
+                                trySend(Result.Success(listings)).isSuccess
+                            } else {
+                                trySend(Result.Success(emptyList())).isSuccess
+                            }
+                        }
+                        awaitClose { listener.remove() }
+                    } else {
+                        // Last visible doc not found, maybe it was deleted? Start from beginning of next logical page (hard without it)
+                        // Or simply emit empty or error. For simplicity, emit empty.
+                         trySend(Result.Success(emptyList())).isSuccess
+                    }
+                }
+                .addOnFailureListener { e ->
+                     trySend(Result.Error(e)).isFailure
+                }
+        } else {
+            // First page
+            val listener = query.addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    trySend(Result.Error(e)).isFailure
+                    return@addSnapshotListener
+                }
+                if (snapshots != null) {
+                    val listings = snapshots.toObjects<ProductListing>()
+                    trySend(Result.Success(listings)).isSuccess
+                } else {
+                    trySend(Result.Success(emptyList())).isSuccess
+                }
+            }
+            awaitClose { listener.remove() }
+        }
+    }
+=======
         // Firestore basic search is limited. For robust search, use a dedicated search service.
         // This basic version might filter client-side or require specific indexing for searchTerm on title.
         // For now, not implementing searchTerm directly in query to avoid complexity.
@@ -43,6 +117,7 @@ class FirebaseMarketplaceDataSource @Inject constructor(
         val listener = query.addSnapshotListener { snapshots, e ->
             if (e != null) {
                 trySend(Result.Error(e)).isFailure
+ main
                 return@addSnapshotListener
             }
             if (snapshots != null) {

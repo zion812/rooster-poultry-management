@@ -17,6 +17,9 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
  main
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -34,7 +37,10 @@ import androidx.compose.ui.layout.ContentScale
 =======
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
 =======
+=======
+ main
  main
  main
  main
@@ -51,6 +57,10 @@ import coil.compose.AsyncImage
  jules/arch-assessment-1
 import coil.compose.AsyncImage
 =======
+ jules/arch-assessment-1
+import coil.compose.AsyncImage
+=======
+ main
  main
  main
  main
@@ -200,6 +210,9 @@ fun CreateListingScreen(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
  main
             ImageSelectionSection(
@@ -211,9 +224,12 @@ fun CreateListingScreen(
 =======
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
             // TODO: Image selection UI (e.g., button to open gallery, display selected image thumbnails)
             Text("Image Upload: (TODO)", style = MaterialTheme.typography.labelLarge)
+ main
  main
  main
  main
@@ -300,6 +316,9 @@ fun PreviewCreateListingScreen() {
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
  main
 
@@ -365,7 +384,10 @@ fun ImageSelectionSection(
 =======
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
 =======
+=======
+ main
  main
  main
  main

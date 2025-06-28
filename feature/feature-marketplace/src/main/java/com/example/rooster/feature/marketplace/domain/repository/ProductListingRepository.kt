@@ -10,10 +10,20 @@ interface ProductListingRepository {
         category: ProductCategory? = null,
         sellerId: String? = null,
         searchTerm: String? = null,
+ jules/arch-assessment-1
+        forceRefresh: Boolean = false,
+        pageSize: Int = 10, // Default page size
+        lastVisibleTimestamp: Long? = null,
+        lastVisibleDocId: String? = null
+    ): Flow<Result<List<ProductListing>>>
+
+    fun getProductListingDetails(listingId: String): Flow<Result<ProductListing?>> // Stays same for now
+=======
         forceRefresh: Boolean = false
     ): Flow<Result<List<ProductListing>>>
 
     fun getProductListingDetails(listingId: String): Flow<Result<ProductListing?>>
+ main
 
     suspend fun createProductListing(listing: ProductListing): Result<String> // Returns ID of created listing
 

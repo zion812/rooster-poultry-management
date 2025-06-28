@@ -107,10 +107,13 @@ class OrderRepositoryImpl @Inject constructor(
 =======
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 <<< jules/arch-assessment-1
 
      
       main
+ main
         return localBackedRemoteResourceOrder( // Using a specific helper for Order or make generic one more adaptable
             localCall = {
                 orderDao.getOrderWithItemsById(orderId).map { it?.let { owi -> mapOrderWithItemsToDomain(owi) } }
@@ -181,6 +184,8 @@ class OrderRepositoryImpl @Inject constructor(
 =======
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
         return orderDao.getOrderWithItemsById(orderId).map { orderWithItems ->
             if (orderWithItems != null) {
@@ -220,6 +225,7 @@ class OrderRepositoryImpl @Inject constructor(
 >> main
  main
  main
+ main
         } catch (e: Exception) {
             Result.Error(e)
         }
@@ -230,7 +236,10 @@ class OrderRepositoryImpl @Inject constructor(
 =======
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 <<<<< jules/arch-assessment-1
+ main
  main
  main
         // Using the same improved pattern as updateOrderStatus
@@ -255,6 +264,8 @@ class OrderRepositoryImpl @Inject constructor(
 =======
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
         // Similar to updateOrderStatus, needs robust handling for local and remote.
         try {
@@ -266,6 +277,7 @@ class OrderRepositoryImpl @Inject constructor(
 > main
  main
  main
+ main
         } catch (e: Exception) {
             Result.Error(e)
         }
@@ -275,7 +287,10 @@ class OrderRepositoryImpl @Inject constructor(
 =======
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 <<<< jules/arch-assessment-1
+ main
  main
  main
 // Generic helper for network-bound resource pattern (adapted for Order)
@@ -349,7 +364,11 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
  jules/arch-assessment-1
 
 =======
+ jules/arch-assessment-1
+
+=======
       main
+ main
  main
  main
 

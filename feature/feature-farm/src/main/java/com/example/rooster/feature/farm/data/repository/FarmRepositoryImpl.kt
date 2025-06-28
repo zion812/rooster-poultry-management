@@ -48,7 +48,11 @@ class FarmRepositoryImpl @Inject constructor(
                         val flock = mapRemoteToFlock(remoteData)
 
                         // Update local cache asynchronously, marking it as synced
+ jules/arch-assessment-1
+                        val entity = mapFlockToEntity(flock, needsSync = false) // Corrected: needsSync = false
+=======
                         val entity = mapFlockToEntity(flock)
+ main
                         try {
                             flockDao.insert(entity) // Use flockDao
                         } catch (e: Exception) {
@@ -294,6 +298,9 @@ class FarmRepositoryImpl @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
             // Build the tree structure
             coroutineScope {
@@ -319,6 +326,8 @@ class FarmRepositoryImpl @Inject constructor(
                 generationDepthDown = depthDown
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
             // For parents (depthUp):
             // Call a recursive helper function: fetchAncestors(centralNode, depthUp)
@@ -333,6 +342,7 @@ class FarmRepositoryImpl @Inject constructor(
                 generationDepthDown = 0 // Actual depth achieved by fetchDescendants
  main
  main
+ main
             )
             emit(com.example.rooster.core.common.Result.Success(lineageInfo))
         } catch (e: Exception) {
@@ -343,6 +353,9 @@ class FarmRepositoryImpl @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
     private suspend fun buildAncestorTree(
         childFlockId: String,
@@ -398,7 +411,10 @@ class FarmRepositoryImpl @Inject constructor(
 
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
 =======
+=======
+ main
  main
  main
     private fun mapEntityToLineageNode(entity: FlockEntity): LineageNode {

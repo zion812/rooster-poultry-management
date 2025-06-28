@@ -99,6 +99,9 @@ This application targets rural users with potentially unreliable and slow (2G) i
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
 *   **Community Repository Implementations:** `CommunityUserProfileRepositoryImpl`, `PostRepositoryImpl`, and `CommentRepositoryImpl` in `feature-community` have been fleshed out with core logic for local/remote data handling, `needsSync` management, and use a network-bound resource pattern.
 *   **Basic Community UI (`feature-community`):**
@@ -115,10 +118,18 @@ This application targets rural users with potentially unreliable and slow (2G) i
     *   Marketplace UI (`ProductListScreen`, `ProductDetailScreen`) now displays images from these Firebase Storage URLs via Coil.
 *   **Unit Testing Initiated:** Shell test files with initial test cases created for `CreateListingViewModel` and `FirebaseStorageImageUploadService` as a starting point for comprehensive testing.
  jules/arch-assessment-1
+*   **2G Performance Optimization (Ongoing):**
+    *   **Pagination (Marketplace Product Listings):** Implemented server-side pagination in `FirebaseMarketplaceDataSource`, `ProductListingRepository`, `ProductListViewModel`, and `ProductListScreen` to significantly reduce initial data load. This serves as a pattern for other list-based features.
+    *   **Image Compression (Conceptual Setup):** `ImageUploadService` interface and implementation method signatures updated to accept `ImageCompressionOptions`. `CreateListingViewModel` passes default options. *Actual client-side compression logic is pending.*
+    *   **Caching Bugfix:** Corrected `needsSync` flag assignment in `FarmRepositoryImpl.getFlockById` when caching remote data.
+    *   **General Best Practice:** For 2G, prioritize server-side pagination for all lists, implement client-side image compression before upload, optimize image loading in UI (e.g. Coil size requests), and use efficient WorkManager strategies. Test thoroughly under simulated 2G conditions.
+=======
+ jules/arch-assessment-1
 =======
 =======
 *   **Community Repository Shells:** Initial shell implementations for `CommunityUserProfileRepositoryImpl`, `PostRepositoryImpl`, and `CommentRepositoryImpl` were created, including basic local/remote interaction logic and `needsSync` management. Hilt bindings were updated.
 *   **Image Handling (Marketplace):** `CreateListingViewModel` and `CreateListingScreen` now support selection of multiple image URIs. The `ProductListing` model stores these as strings (local URIs for now). Actual cloud upload is deferred.
+ main
  main
  main
 

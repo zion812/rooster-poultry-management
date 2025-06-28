@@ -8,10 +8,20 @@ import kotlinx.coroutines.flow.Flow
 interface MarketplaceRemoteDataSource {
     // Product Listings
     fun getProductListingsStream(
+ jules/arch-assessment-1
+        category: String? = null,
+        sellerId: String? = null,
+        searchTerm: String? = null,
+        pageSize: Int,
+        lastVisibleTimestamp: Long? = null, // Timestamp of the last item on the previous page
+        lastVisibleDocId: String? = null   // ID of the last item for tie-breaking
+    ): Flow<Result<List<ProductListing>>>
+=======
         category: String? = null, // Using String for remote flexibility
         sellerId: String? = null,
         searchTerm: String? = null
     ): Flow<Result<List<ProductListing>>> // Assuming ProductListing domain model can be directly deserialized
+ main
 
     suspend fun getProductListingDetails(listingId: String): Result<ProductListing?>
     suspend fun createProductListing(listingData: ProductListing): Result<String> // Returns ID

@@ -31,12 +31,19 @@ class ProductListingRepositoryImpl @Inject constructor(
         category: ProductCategory?,
         sellerId: String?,
         searchTerm: String?, // Basic client-side filtering for now
+ jules/arch-assessment-1
+        forceRefresh: Boolean,
+        pageSize: Int,
+        lastVisibleTimestamp: Long?,
+        lastVisibleDocId: String?
+=======
         forceRefresh: Boolean
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+ main
  main
  main
     ): Flow<Result<List<ProductListing>>> {
@@ -56,6 +63,44 @@ class ProductListingRepositoryImpl @Inject constructor(
                 }
             },
             remoteCall = {
+ jules/arch-assessment-1
+                // The remoteDataSource.getProductListingsStream is a Flow,
+                // but localBackedRemoteResource expects suspend () -> Result<S?>.
+                // We need to collect the first emission for the paginated fetch.
+                // This also means the 'Stream' naming in DataSource might be misleading if used this way.
+                // Alternatively, the repository itself directly collects the stream from data source
+                // if continuous updates for a page are needed, which complicates pagination logic.
+                // For simple pagination, a suspend fun in DataSource returning Result<List<ProductListing>> is cleaner.
+                // Assuming for now getProductListingsStream will be adapted or a new suspend fun added.
+                // For this change, I'll assume remoteDataSource.getProductListingsStream is modified to a suspend fun
+                // or we adapt. Let's assume a new suspend function for clarity:
+                // remoteDataSource.fetchProductListingsPage(...)
+                // For now, I will adapt the existing stream call by taking the first element.
+                // This is NOT ideal for a stream meant for real-time updates for that page.
+                // A proper fix would be a separate suspend fun in DataSource for paginated fetches.
+                val result = remoteDataSource.getProductListingsStream(
+                    category = category?.name,
+                    sellerId = sellerId,
+                    searchTerm = searchTerm,
+                    pageSize = pageSize,
+                    lastVisibleTimestamp = lastVisibleTimestamp,
+                    lastVisibleDocId = lastVisibleDocId
+                ).firstOrNull() // Taking first emission for pagination
+                result ?: Result.Success(emptyList()) // If flow completes without emission
+            },
+            saveRemoteResult = { listings ->
+                val entities = listings.map { mapDomainToEntity(it, needsSync = false) }
+                if (lastVisibleTimestamp == null && lastVisibleDocId == null) {
+                    // First page: clear existing and insert new.
+                    // TODO: More nuanced local cache handling for pagination (e.g. append, or smarter updates)
+                    // For now, this simple strategy might clear too much if local filters were different.
+                    // localDataSource.clearAllListings() // This is too aggressive if filters change
+                }
+                localDataSource.insertListings(entities) // Appends or replaces based on ID
+            },
+            shouldFetch = { localData ->
+                forceRefresh || localData.isNullOrEmpty() || (lastVisibleTimestamp != null) // Always fetch if paginating, or if first page is empty/forced
+=======
                 remoteDataSource.getProductListingsStream(
                     category = category?.name,
                     sellerId = sellerId,
@@ -68,6 +113,7 @@ class ProductListingRepositoryImpl @Inject constructor(
             },
             shouldFetch = { localData ->
                 forceRefresh || localData.isNullOrEmpty() // Basic condition, could be time-based staleness
+ main
             }
         ).flowOn(Dispatchers.IO)
     }
@@ -110,6 +156,9 @@ class ProductListingRepositoryImpl @Inject constructor(
             shouldFetch = { localData -> localData == null } // Fetch if not in cache
         ).flowOn(Dispatchers.IO)
     }
+ jules/arch-assessment-1
+
+=======
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
@@ -210,6 +259,7 @@ class ProductListingRepositoryImpl @Inject constructor(
 
  main
  main
+ main
 
     override suspend fun createProductListing(listing: ProductListing): Result<String> = withContext(Dispatchers.IO) {
         try {
@@ -223,6 +273,9 @@ class ProductListingRepositoryImpl @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
  main
             if (remoteResult is Result.Success && remoteResult.data != null) {
@@ -239,6 +292,8 @@ class ProductListingRepositoryImpl @Inject constructor(
 =======
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
             if (remoteResult is Result.Success) {
                 // Mark as synced if remote save is successful
@@ -247,6 +302,7 @@ class ProductListingRepositoryImpl @Inject constructor(
             } else {
                 // Remote save failed, needsSync remains true for worker
                 Result.Error((remoteResult as Result.Error).exception)
+ main
  main
  main
  main
@@ -263,6 +319,9 @@ class ProductListingRepositoryImpl @Inject constructor(
 =======
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
+ main
  main
  main
             localDataSource.insertListing(entity) // Use insert with OnConflictStrategy.REPLACE for update
@@ -274,12 +333,15 @@ class ProductListingRepositoryImpl @Inject constructor(
 =======
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
             localDataSource.updateListing(entity) // or insert, as it's REPLACE
 
             val remoteResult = remoteDataSource.updateProductListing(listing)
             if (remoteResult is Result.Success) {
                 localDataSource.updateListing(entity.copy(needsSync = false))
+ main
  main
  main
  main
@@ -297,6 +359,9 @@ class ProductListingRepositoryImpl @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
  main
         // For robust offline deletion, this would mark as 'deleted' locally and sync that state.
@@ -317,6 +382,8 @@ class ProductListingRepositoryImpl @Inject constructor(
 =======
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
         try {
             localDataSource.deleteListingById(listingId) // Delete locally first
@@ -329,11 +396,27 @@ class ProductListingRepositoryImpl @Inject constructor(
  main
  main
  main
+ main
         } catch (e: Exception) {
             Result.Error(e)
         }
     }
 
+ jules/arch-assessment-1
+// Generic helper for network-bound resource pattern
+// Generic helper for network-bound resource pattern
+// S: Source type from remote (e.g., ProductListing, List<ProductListing>)
+// D: Domain model type (e.g., ProductListing, List<ProductListing>)
+// Note: This helper is for single item. For lists, a different one or adaptation is needed if localCall returns List.
+private inline fun <D, S> localBackedRemoteResource( // This is for SINGLE item detail
+    crossinline localCall: () -> Flow<D?>,
+    crossinline remoteCall: suspend () -> Result<S?>,
+    crossinline saveRemoteResult: suspend (S) -> Unit,
+    crossinline shouldFetch: (D?) -> Boolean = { true }
+): Flow<Result<D?>> = flow {
+    emit(Result.Loading)
+    val localData = localCall().firstOrNull()
+=======
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
@@ -353,6 +436,7 @@ private inline fun <D, S> localBackedRemoteResource(
 ): Flow<Result<D?>> = flow {
     emit(Result.Loading)
     val localData = localCall().firstOrNull() // Get initial local data once
+ main
 
     if (localData != null) {
         emit(Result.Success(localData)) // Emit local data first
@@ -365,7 +449,11 @@ private inline fun <D, S> localBackedRemoteResource(
                     saveRemoteResult(remoteResult.data)
                     // After saving, localCall() flow should emit the new data if it's an observable query
                     // If localCall is not continuously emitting, or to ensure latest data:
+ jules/arch-assessment-1
+    localCall().collect { updatedLocalData -> emit(Result.Success(updatedLocalData)) } // This re-emits from local source
+=======
                     localCall().collect { updatedLocalData -> emit(Result.Success(updatedLocalData)) }
+ main
                 } else {
                     // Remote call succeeded but no data (e.g. 404 not found for details)
                     // If localData was null, this means not found anywhere.
@@ -389,12 +477,52 @@ private inline fun <D, S> localBackedRemoteResource(
     emit(Result.Error(e))
 }
 
+ jules/arch-assessment-1
+// A specific helper for lists, or adapt the generic one.
+// For getProductListings which returns Flow<Result<List<ProductListing>>>
+private inline fun <D, S> localBackedRemoteResourceList(
+    crossinline localCall: () -> Flow<List<D>>,
+    crossinline remoteCall: suspend () -> Result<List<S>>, // Remote call fetches a list
+    crossinline saveRemoteResult: suspend (List<S>) -> Unit,
+    crossinline shouldFetch: (List<D>?) -> Boolean = { true }
+): Flow<Result<List<D>>> = flow {
+    emit(Result.Loading)
+    val localData = localCall().firstOrNull()
+
+    if (localData != null && localData.isNotEmpty()) { // Emit local data if not empty
+        emit(Result.Success(localData))
+    } else if (localData != null && localData.isEmpty() && !shouldFetch(localData)) {
+        // If local data is empty and we are not fetching, emit empty success
+        emit(Result.Success(emptyList()))
+    }
+
+
+    if (shouldFetch(localData)) {
+        when (val remoteResult = remoteCall()) {
+            is Result.Success -> {
+                saveRemoteResult(remoteResult.data)
+                localCall().collect { updatedLocalData -> emit(Result.Success(updatedLocalData)) }
+            }
+            is Result.Error -> {
+                // Emit error, but UI can still show localData if it was previously emitted
+                emit(Result.Error(remoteResult.exception, localData ?: emptyList()))
+            }
+            Result.Loading -> { /* Should not be emitted by remoteCall directly if it's a suspend fun */ }
+        }
+    } else if (localData == null) { // Only if local data was null and we didn't fetch
+        emit(Result.Success(emptyList()))
+    }
+}.catch { e -> emit(Result.Error(e)) }
+
+
+=======
 
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
 =======
 =======
+ main
  main
  main
  main
