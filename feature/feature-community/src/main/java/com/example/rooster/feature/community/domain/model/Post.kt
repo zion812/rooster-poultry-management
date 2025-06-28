@@ -23,6 +23,7 @@ data class Post(
     // Store aggregated reactions if more complex than just likes
     // val reactions: Map<ReactionType, Int>? = null,
     val isEdited: Boolean = false,
+    val likedBy: List<String> = emptyList(), // List of user IDs who liked the post
     val relatedFlockId: String? = null // Optional: Link to a specific flock/rooster from feature-farm
 )
 

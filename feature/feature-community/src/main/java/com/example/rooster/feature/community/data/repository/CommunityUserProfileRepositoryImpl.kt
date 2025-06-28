@@ -50,6 +50,27 @@ class CommunityUserProfileRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getUnsyncedUserProfiles(): List<CommunityUserProfile> = withContext(Dispatchers.IO) {
+        localDataSource.getUnsyncedProfilesSuspend().map { mapEntityToDomain(it) }
+    }
+
+    override suspend fun syncUserProfile(profile: CommunityUserProfile): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // Assuming remoteDataSource.updateCommunityUserProfile can create if not exists,
+            // or a specific createOrUpdateProfile method exists.
+            // For simplicity, let's use update, assuming profile.userId is always present.
+            val remoteResult = remoteDataSource.updateCommunityUserProfile(profile)
+            if (remoteResult is Result.Success) {
+                localDataSource.insertProfile(mapDomainToEntity(profile, needsSync = false)) // Use insert for REPLACE
+                Result.Success(Unit)
+            } else {
+                Result.Error((remoteResult as Result.Error).exception)
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+
     override suspend fun updateCommunityUserProfile(profile: CommunityUserProfile): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val entity = mapDomainToEntity(profile, needsSync = true)
@@ -63,6 +84,29 @@ class CommunityUserProfileRepositoryImpl @Inject constructor(
             Result.Error(e)
         }
     }
+
+    // New methods for SyncWorker
+    override suspend fun getUnsyncedUserProfiles(): List<CommunityUserProfile> = withContext(Dispatchers.IO) {
+        localDataSource.getUnsyncedProfilesSuspend().map { mapEntityToDomain(it) }
+    }
+
+    override suspend fun syncUserProfile(profile: CommunityUserProfile): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // Using updateCommunityUserProfile from remote which should handle create or update.
+            val remoteResult = remoteDataSource.updateCommunityUserProfile(profile)
+            if (remoteResult is Result.Success) {
+                // Mark as synced locally
+                localDataSource.insertProfile(mapDomainToEntity(profile, needsSync = false))
+                Result.Success(Unit)
+            } else {
+                // Propagate error
+                Result.Error((remoteResult as Result.Error).exception)
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+    // End of new methods for SyncWorker
 
     // --- Mappers ---
     private fun mapEntityToDomain(entity: CommunityUserProfileEntity): CommunityUserProfile {

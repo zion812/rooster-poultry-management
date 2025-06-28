@@ -15,7 +15,9 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.rooster.config.Constants
 import com.example.rooster.data.sync.DataSyncWorker
-import com.example.rooster.feature.farm.worker.FarmDataSyncWorker // Import new worker
+import com.example.rooster.feature.farm.worker.FarmDataSyncWorker
+import com.example.rooster.feature.marketplace.worker.MarketplaceSyncWorker // Import Marketplace worker
+import com.example.rooster.feature.community.worker.CommunitySyncWorker // Import Community worker
 import com.example.rooster.models.BroadcastEventParse
 import com.example.rooster.models.CertificationRequestParse
 import com.example.rooster.models.ChatParse
@@ -201,6 +203,32 @@ class App : Application(), Configuration.Provider { // Implement Configuration.P
                 farmSyncRequest
             )
             Log.d("App", "Farm data sync worker scheduled (periodic, network connected)")
+
+            // Schedule MarketplaceSyncWorker
+            val marketplaceSyncRequest =
+                PeriodicWorkRequestBuilder<MarketplaceSyncWorker>(4, TimeUnit.HOURS) // Every 4 hours
+                    .setConstraints(farmSyncConstraints) // Reuse same constraints (network connected)
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, PeriodicWorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
+                    .build()
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                MarketplaceSyncWorker.WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                marketplaceSyncRequest
+            )
+            Log.d("App", "Marketplace data sync worker scheduled (periodic, network connected)")
+
+            // Schedule CommunitySyncWorker
+            val communitySyncRequest =
+                PeriodicWorkRequestBuilder<CommunitySyncWorker>(3, TimeUnit.HOURS) // Every 3 hours
+                    .setConstraints(farmSyncConstraints) // Reuse same constraints
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, PeriodicWorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
+                    .build()
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                CommunitySyncWorker.WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                communitySyncRequest
+            )
+            Log.d("App", "Community data sync worker scheduled (periodic, network connected)")
 
         }
 

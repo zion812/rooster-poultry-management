@@ -12,6 +12,11 @@ interface PostRepository {
     suspend fun deletePost(postId: String, authorUserId: String): Result<Unit> // Ensure user can only delete their own
     suspend fun likePost(postId: String, userId: String): Result<Unit> // Or addReaction
     suspend fun unlikePost(postId: String, userId: String): Result<Unit> // Or removeReaction
+
+    // Methods for SyncWorker
+    suspend fun getUnsyncedPosts(): List<Post>
+    suspend fun syncPost(post: Post): Result<Unit>
+
     // Add methods for reporting posts, getting user's own posts, etc.
 }
 
