@@ -31,18 +31,44 @@ class PostRepositoryImpl @Inject constructor(
         return localBackedCommunityResourceList(
             localCall = {
                 val localPostsFlow = when (feedType) {
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
                     FeedType.GLOBAL_RECENT -> localDataSource.getAllPosts()
                     FeedType.USER_SPECIFIC -> if (userId != null) localDataSource.getPostsByAuthor(userId) else flowOf(emptyList())
                     FeedType.TAG_SPECIFIC -> if (userId != null) localDataSource.getPostsByTag(userId) else flowOf(emptyList()) // Assuming 'userId' here was meant to be 'tag' from interface
                     // FeedType.FOLLOWING would need more complex local querying or rely more on remote
                     else -> localDataSource.getAllPosts() // Fallback for e.g. FOLLOWING
+ jules/arch-assessment-1
+=======
+=======
+                    FeedType.GLOBAL_RECENT -> localDataSource.getAllPosts() // TODO: Add pagination to DAO
+                    FeedType.USER_SPECIFIC -> if (userId != null) localDataSource.getPostsByAuthor(userId) else flowOf(emptyList())
+                    // FeedType.FOLLOWING and FeedType.TAG_SPECIFIC would need more complex local querying or rely more on remote
+                    else -> localDataSource.getAllPosts() // Fallback
+ main
+ main
                 }
                 localPostsFlow.map { entities -> entities.map { mapEntityToDomain(it) } }
             },
             remoteCall = {
+ jules/arch-assessment-1
                 val tagForRemote = if (feedType == FeedType.TAG_SPECIFIC) userId else null // Assuming userId variable here holds the tag for TAG_SPECIFIC
                 remoteDataSource.getPostsStream(feedType, if (feedType == FeedType.USER_SPECIFIC) userId else null, tagForRemote).firstOrNull()
                     ?: Result.Success(emptyList())
+=======
+ jules/arch-assessment-1
+                val tagForRemote = if (feedType == FeedType.TAG_SPECIFIC) userId else null // Assuming userId variable here holds the tag for TAG_SPECIFIC
+                remoteDataSource.getPostsStream(feedType, if (feedType == FeedType.USER_SPECIFIC) userId else null, tagForRemote).firstOrNull()
+                    ?: Result.Success(emptyList())
+=======
+                // Assuming remote can handle these, or it fetches a general list and client filters.
+                // The remoteDataSource.getPostsStream is a Flow, so take first for this pattern.
+                remoteDataSource.getPostsStream(feedType, userId, null /* TODO: tag for TAG_SPECIFIC */).firstOrNull()
+                    ?: Result.Success(emptyList()) // Provide default if stream is empty or ends fast
+ main
+ main
             },
             saveRemoteResult = { posts ->
                 val entities = posts.map { mapDomainToEntity(it, needsSync = false) }

@@ -47,8 +47,7 @@ dependencies {
 
     // Firebase Analytics (the actual implementation provider)
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics.ktx) // Use the KTX version
-
+    implementation(libs.firebase.analytics) // Use the correct reference
 
     // Testing
     testImplementation(libs.junit)
