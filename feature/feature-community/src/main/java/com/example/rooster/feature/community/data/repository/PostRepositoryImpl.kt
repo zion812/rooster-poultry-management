@@ -160,16 +160,62 @@ class PostRepositoryImpl @Inject constructor(
         // For now, just pass through to remote.
         val remoteResult = remoteDataSource.likePost(postId, userId)
         if (remoteResult is Result.Success) {
-            // Optionally update local PostEntity's likeCount here for immediate UI feedback
-            // val post = localDataSource.getPostById(postId) ... (this is a Flow, need suspend fun)
-            // localDataSource.updateLikeCount(postId, newCount)
+            // Update local data after successful remote operation
+            val currentPostEntity = localDataSource.getPostByIdSuspend(postId)
+            if (currentPostEntity != null) {
+                val newLikedBy = currentPostEntity.likedBy.toMutableList().apply { add(userId) }.distinct()
+                val updatedEntity = currentPostEntity.copy(
+                    likeCount = newLikedBy.size, // Recalculate based on distinct list size
+                    likedBy = newLikedBy
+                )
+                localDataSource.updatePost(updatedEntity)
+            }
         }
         return@withContext remoteResult
     }
 
     override suspend fun unlikePost(postId: String, userId: String): Result<Unit> = withContext(Dispatchers.IO) {
-        // Similar to likePost, needs more robust implementation.
-        return@withContext remoteDataSource.unlikePost(postId, userId)
+        val remoteResult = remoteDataSource.unlikePost(postId, userId)
+        if (remoteResult is Result.Success) {
+            // Update local data after successful remote operation
+            val currentPostEntity = localDataSource.getPostByIdSuspend(postId)
+            if (currentPostEntity != null) {
+                val newLikedBy = currentPostEntity.likedBy.toMutableList().apply { remove(userId) }
+                val updatedEntity = currentPostEntity.copy(
+                    likeCount = newLikedBy.size, // Recalculate
+                    likedBy = newLikedBy
+                )
+                localDataSource.updatePost(updatedEntity)
+            }
+        }
+        return@withContext remoteResult
+    }
+
+    override suspend fun getUnsyncedPosts(): List<Post> = withContext(Dispatchers.IO) {
+        localDataSource.getUnsyncedPostsSuspend().map { mapEntityToDomain(it) }
+    }
+
+    override suspend fun syncPost(post: Post): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // Assuming remoteDataSource.createPost can handle if post already exists (e.g. by ID)
+            // or a specific remoteDataSource.updatePost exists and is chosen based on some logic.
+            // For simplicity, using createPost for new unsynced items.
+            // If it's an update to an existing post that went offline, updatePost would be more appropriate.
+            val remoteResult = remoteDataSource.createPost(post) // Or updatePost(post)
+
+            if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
+                // Update local entity to set needsSync = false and potentially use remote ID
+                val entity = mapDomainToEntity(post.copy(postId = remoteResult.data), needsSync = false)
+                localDataSource.insertPost(entity) // REPLACE will update it
+                Result.Success(Unit)
+            } else if (remoteResult is Result.Error) {
+                Result.Error(remoteResult.exception)
+            } else {
+                 Result.Error(Exception("Remote data source returned invalid ID or unknown error during post sync"))
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
     }
 
     // --- Mappers ---
@@ -191,6 +237,7 @@ class PostRepositoryImpl @Inject constructor(
             location = entity.location,
             mentionsUserIds = entity.mentionsUserIds,
             isEdited = entity.isEdited,
+            likedBy = entity.likedBy,
             relatedFlockId = entity.relatedFlockId
         )
     }
@@ -214,6 +261,7 @@ class PostRepositoryImpl @Inject constructor(
             mentionsUserIds = domain.mentionsUserIds,
             isEdited = domain.isEdited,
             relatedFlockId = domain.relatedFlockId,
+            likedBy = domain.likedBy,
             needsSync = needsSync
         )
     }

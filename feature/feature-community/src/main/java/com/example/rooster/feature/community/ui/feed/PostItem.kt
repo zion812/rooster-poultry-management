@@ -32,16 +32,29 @@ import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalPagerApi::class) // For HorizontalPager
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember // Added for remembering currentUserId
+
+@OptIn(ExperimentalPagerApi::class) // For HorizontalPager
 @Composable
 fun PostItem(
     post: Post,
+    currentUserId: String?, // Added to determine if post is liked by current user
     onPostClick: (postId: String) -> Unit,
     onAuthorClick: (authorId: String) -> Unit,
-    onLikeClick: (postId: String) -> Unit,
+    onLikeClick: (postId: String) -> Unit, // This will now be onLikeUnlikeClick
+    onUnlikeClick: (postId: String) -> Unit, // Added
     onCommentClick: (postId: String) -> Unit,
     onShareClick: (postId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isLikedByCurrentUser = remember(post.likedBy, currentUserId) {
+        currentUserId != null && post.likedBy.contains(currentUserId)
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -141,9 +154,21 @@ fun PostItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ActionButton(
-                    icon = Icons.Filled.FavoriteBorder, // TODO: Change icon if liked
+                    icon = {
+                        if (isLikedByCurrentUser) {
+                            Icon(Icons.Filled.Favorite, contentDescription = "Unlike", tint = MaterialTheme.colorScheme.primary)
+                        } else {
+                            Icon(Icons.Filled.FavoriteBorder, contentDescription = "Like")
+                        }
+                    },
                     text = post.likeCount.toString(),
-                    onClick = { onLikeClick(post.postId) }
+                    onClick = {
+                        if (isLikedByCurrentUser) {
+                            onUnlikeClick(post.postId)
+                        } else {
+                            onLikeClick(post.postId)
+                        }
+                    }
                 )
                 ActionButton(
                     icon = Icons.Filled.Comment,

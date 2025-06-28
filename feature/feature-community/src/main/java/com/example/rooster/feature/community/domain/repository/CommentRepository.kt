@@ -12,4 +12,8 @@ interface CommentRepository {
     suspend fun deleteComment(commentId: String, authorUserId: String): Result<Unit> // Ensure user can only delete own
     suspend fun likeComment(commentId: String, userId: String): Result<Unit>
     suspend fun unlikeComment(commentId: String, userId: String): Result<Unit>
+
+    // Methods for SyncWorker
+    suspend fun getUnsyncedComments(): List<Comment>
+    suspend fun syncComment(comment: Comment): Result<Unit>
 }

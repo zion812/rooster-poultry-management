@@ -37,8 +37,9 @@ object MarketplaceProvidesModule {
             MarketplaceDatabase::class.java,
             "marketplace_database.db"
         )
-        // TODO: Add proper migrations for production instead of fallbackToDestructiveMigration.
-        .fallbackToDestructiveMigration()
+        // TODO: Add proper migrations for production.
+        // .fallbackToDestructiveMigration() // Replaced with addMigrations
+        .addMigrations() // Add actual Migration objects here when schema changes
         .build()
     }
 

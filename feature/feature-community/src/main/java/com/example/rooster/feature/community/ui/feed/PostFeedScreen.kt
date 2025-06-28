@@ -24,9 +24,25 @@ fun PostFeedScreen(
     // TODO: Add callbacks for like, comment, share if handled by a parent coordinator/ViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val currentUserId by viewModel.currentUserId.collectAsState() // Collect current user ID
     var showFeedTypeMenu by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.singleEventFlow.collect { event ->
+            when (event) {
+                is PostFeedSingleEvent.LikeUnlikeError -> {
+                    snackbarHostState.showSnackbar(
+                        message = event.message,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            }
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }, // Add SnackbarHost
         topBar = {
             TopAppBar(
                 title = { Text("Community Feed") },
@@ -86,9 +102,11 @@ fun PostFeedScreen(
                             items(state.posts, key = { it.postId }) { post ->
                                 PostItem(
                                     post = post,
+                                    currentUserId = currentUserId,
                                     onPostClick = { onNavigateToPostDetail(post.postId) },
                                     onAuthorClick = { onNavigateToUserProfile(post.authorUserId) },
-                                    onLikeClick = { /* TODO: viewModel.likePost(post.postId) */ },
+                                    onLikeClick = { viewModel.onLikeClicked(post.postId) },
+                                    onUnlikeClick = { viewModel.onUnlikeClicked(post.postId) },
                                     onCommentClick = { onNavigateToPostDetail(post.postId) /* Or specific comment section */ },
                                     onShareClick = { /* TODO: Implement share functionality */ }
                                 )
