@@ -29,13 +29,15 @@ include(":app")
 // Core modules - stable
 include(":core:core-common")
 include(":core:core-network")
+include(":core:core-auth") // New core auth module
 
 // Enable navigation and search modules for production (temporarily disabled)
 include(":core:navigation")
 include(":core:search")
 include(":core:analytics")
 
-// Feature modules (commented out until implemented)
+// Feature modules
 include(":feature:feature-marketplace")
-include(":feature:feature-auctions")
+include(":feature:feature-auctions") // Still commented out / future
 include(":feature:feature-farm")
+include(":feature:feature-community") // New feature module

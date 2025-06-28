@@ -3,8 +3,13 @@ package com.example.rooster.feature.farm.di
 import android.content.Context
 import androidx.room.Room
 import com.example.rooster.feature.farm.data.local.FarmDatabase
+import com.example.rooster.feature.farm.data.local.FarmDatabaseMigrations // Import Migrations
 import com.example.rooster.feature.farm.data.repository.FarmRepository
 import com.example.rooster.feature.farm.data.repository.FarmRepositoryImpl
+// Import IFarmRemoteDataSource and ParseFarmDataSource
+import com.example.rooster.feature.farm.data.remote.IFarmRemoteDataSource
+import com.example.rooster.feature.farm.data.remote.ParseFarmDataSource
+// Remove MockFarmRemoteDataSource if it was bound here, or ensure correct binding
 import com.example.rooster.feature.farm.data.repository.MortalityRepository
 import com.example.rooster.feature.farm.data.repository.MortalityRepositoryImpl
 import com.example.rooster.feature.farm.data.repository.SensorDataRepository
@@ -59,11 +64,20 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class FarmBindsModule {
 
+    // This binds FarmRepositoryImpl to FarmRepository. FarmRepositoryImpl will inject IFarmRemoteDataSource.
     @Binds
     @Singleton
     abstract fun bindFarmRepository(
         impl: FarmRepositoryImpl
     ): FarmRepository
+
+    // Binding for the remote data source
+    @Binds
+    @Singleton
+    abstract fun bindFarmRemoteDataSource(
+        impl: ParseFarmDataSource // Bind Parse implementation
+    ): IFarmRemoteDataSource
+
 
     @Binds
     @Singleton
@@ -191,7 +205,10 @@ object FarmProvidesModule {
             context,
             FarmDatabase::class.java,
             "farm_database"
-        ).build()
+        )
+        .addMigrations(FarmDatabaseMigrations.MIGRATION_1_2, FarmDatabaseMigrations.MIGRATION_2_3)
+        // .fallbackToDestructiveMigration() // Removed for production readiness
+        .build()
     }
 
     @Provides
@@ -208,6 +225,9 @@ object FarmProvidesModule {
 
     @Provides
     fun provideUpdateDao(db: FarmDatabase) = db.updateDao()
+
+    @Provides
+    fun provideLineageDao(db: FarmDatabase) = db.lineageDao() // Added provider for LineageDao
 
     @Provides
     @Singleton

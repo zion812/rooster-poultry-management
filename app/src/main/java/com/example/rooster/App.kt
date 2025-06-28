@@ -6,10 +6,16 @@ import android.util.Log
 import androidx.room.Room
 import androidx.work.BackoffPolicy
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.BackoffPolicy
+import androidx.work.Configuration
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.rooster.config.Constants
 import com.example.rooster.data.sync.DataSyncWorker
+import com.example.rooster.feature.farm.worker.FarmDataSyncWorker // Import new worker
 import com.example.rooster.models.BroadcastEventParse
 import com.example.rooster.models.CertificationRequestParse
 import com.example.rooster.models.ChatParse
@@ -30,11 +36,22 @@ import com.parse.ParseInstallation
 import com.parse.ParseObject
 import com.parse.ParseUser
 import dagger.hilt.android.HiltAndroidApp
+import androidx.hilt.work.HiltWorkerFactory // Import HiltWorkerFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject // Import Inject
 
 @HiltAndroidApp
 @Suppress("unused")
-class App : Application() {
+class App : Application(), Configuration.Provider { // Implement Configuration.Provider
+    @Inject // Inject HiltWorkerFactory
+    lateinit var workerFactory: HiltWorkerFactory
+
+    override fun getWorkManagerConfiguration() =
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .setMinimumLoggingLevel(android.util.Log.INFO) // Optional: for easier debugging
+            .build()
+
     companion object {
         lateinit var photoUploadDatabase: PhotoUploadDatabase
             private set
@@ -166,6 +183,25 @@ class App : Application() {
                     syncRequest,
                 )
             Log.d("App", "Background data sync worker scheduled")
+
+            // Schedule FarmDataSyncWorker
+            val farmSyncConstraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
+            val farmSyncRequest =
+                PeriodicWorkRequestBuilder<FarmDataSyncWorker>(6, TimeUnit.HOURS) // Every 6 hours
+                    .setConstraints(farmSyncConstraints)
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, PeriodicWorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
+                    .build()
+
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                FarmDataSyncWorker.WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                farmSyncRequest
+            )
+            Log.d("App", "Farm data sync worker scheduled (periodic, network connected)")
+
         }
 
         Log.d("RoosterApp", "=== APP INITIALIZATION COMPLETED SUCCESSFULLY ===")
