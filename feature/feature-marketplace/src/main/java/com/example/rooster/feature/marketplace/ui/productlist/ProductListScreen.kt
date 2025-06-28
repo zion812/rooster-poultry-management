@@ -111,9 +111,14 @@ fun ProductListItem(
                         .placeholder(com.example.rooster.R.drawable.placeholder_image) // Assuming R is app level
                         .error(com.example.rooster.R.drawable.error_image) // Assuming R is app level
 =======
+ jules/arch-assessment-1
+                        .placeholder(com.example.rooster.R.drawable.placeholder_image) // Assuming R is app level
+                        .error(com.example.rooster.R.drawable.error_image) // Assuming R is app level
+=======
                     // TODO: Add placeholder and error drawables from core module
                     // .placeholder(R.drawable.placeholder_image)
                     // .error(R.drawable.error_image)
+ main
  main
                     .crossfade(true)
                     .build(),

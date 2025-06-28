@@ -105,8 +105,12 @@ class OrderRepositoryImpl @Inject constructor(
     override fun getOrderDetails(orderId: String): Flow<Result<Order?>> {
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 <<< jules/arch-assessment-1
- main
+
+     
+      main
         return localBackedRemoteResourceOrder( // Using a specific helper for Order or make generic one more adaptable
             localCall = {
                 orderDao.getOrderWithItemsById(orderId).map { it?.let { owi -> mapOrderWithItemsToDomain(owi) } }
@@ -175,6 +179,8 @@ class OrderRepositoryImpl @Inject constructor(
             remoteResult // Return the result of the remote operation
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
         return orderDao.getOrderWithItemsById(orderId).map { orderWithItems ->
             if (orderWithItems != null) {
@@ -213,6 +219,7 @@ class OrderRepositoryImpl @Inject constructor(
             Result.Success(Unit)
 >> main
  main
+ main
         } catch (e: Exception) {
             Result.Error(e)
         }
@@ -221,7 +228,10 @@ class OrderRepositoryImpl @Inject constructor(
     override suspend fun cancelOrder(orderId: String, reason: String?): Result<Unit> = withContext(Dispatchers.IO) {
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 <<<<< jules/arch-assessment-1
+ main
  main
         // Using the same improved pattern as updateOrderStatus
         try {
@@ -243,6 +253,8 @@ class OrderRepositoryImpl @Inject constructor(
             remoteResult
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
         // Similar to updateOrderStatus, needs robust handling for local and remote.
         try {
@@ -253,6 +265,7 @@ class OrderRepositoryImpl @Inject constructor(
             Result.Success(Unit)
 > main
  main
+ main
         } catch (e: Exception) {
             Result.Error(e)
         }
@@ -260,7 +273,10 @@ class OrderRepositoryImpl @Inject constructor(
 
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 <<<< jules/arch-assessment-1
+ main
  main
 // Generic helper for network-bound resource pattern (adapted for Order)
 // S: Source type from remote (e.g., Order, List<Order>)
@@ -330,7 +346,11 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
  jules/arch-assessment-1
 
 =======
+ jules/arch-assessment-1
+
+=======
       main
+ main
  main
 
     // --- Mappers ---

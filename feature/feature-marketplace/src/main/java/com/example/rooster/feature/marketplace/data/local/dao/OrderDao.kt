@@ -47,12 +47,18 @@ interface OrderDao {
     suspend fun getOrderByIdSuspend(orderId: String): OrderEntity?
 
 =======
+ jules/arch-assessment-1
+    @Query("SELECT * FROM orders WHERE orderId = :orderId")
+    suspend fun getOrderByIdSuspend(orderId: String): OrderEntity?
+
+=======
 << jules/arch-assessment-1
     @Query("SELECT * FROM orders WHERE orderId = :orderId")
     suspend fun getOrderByIdSuspend(orderId: String): OrderEntity?
 
 =======
 > main
+ main
  main
     // Add other queries as needed, e.g., to update order status, delete orders etc.
     @Query("UPDATE orders SET status = :newStatus, lastUpdatedTimestamp = :timestamp WHERE orderId = :orderId")

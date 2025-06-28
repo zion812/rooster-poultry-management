@@ -8,6 +8,9 @@ import com.example.rooster.feature.marketplace.domain.model.ProductListing
 import com.example.rooster.feature.marketplace.domain.repository.CartRepository
  jules/arch-assessment-1
 import com.example.rooster.core.common.user.UserIdProvider // Import UserIdProvider
+=======
+ jules/arch-assessment-1
+import com.example.rooster.core.common.user.UserIdProvider // Import UserIdProvider
 
 jules/arch-assessment-1
 import com.example.rooster.core.common.user.UserIdProvider // Import UserIdProvider
@@ -15,6 +18,7 @@ import com.example.rooster.core.common.user.UserIdProvider // Import UserIdProvi
 // Assuming a central User ID provider/manager exists, e.g., from an Auth module
 // For now, hardcoding a placeholder userId for cart operations.
 // import com.example.rooster.core.auth.UserManager
+ main
  main
  main
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,6 +50,9 @@ class CartViewModel @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
     private val cartRepository: CartRepository,
     private val userIdProvider: UserIdProvider // Inject UserIdProvider
@@ -55,6 +62,8 @@ class CartViewModel @Inject constructor(
     // private val currentUserId: String = "placeholder_user_id"
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
     private val cartRepository: CartRepository
     // @Inject private val userManager: UserManager // Ideal scenario
@@ -62,6 +71,7 @@ class CartViewModel @Inject constructor(
 
     // TODO: Replace with actual User ID from an authentication manager/repository
     private val currentUserId: String = "placeholder_user_id"
+ main
  main
  main
 
@@ -75,6 +85,9 @@ class CartViewModel @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
         // Observe userId changes and reload cart if userId changes (e.g., login/logout)
         viewModelScope.launch {
@@ -121,6 +134,8 @@ class CartViewModel @Inject constructor(
         }
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
         loadCart()
     }
@@ -159,6 +174,7 @@ class CartViewModel @Inject constructor(
     fun addItemToCart(listing: ProductListing, quantity: Int = 1) {
  main
  main
+ main
         viewModelScope.launch {
             if (quantity <= 0) return@launch
 
@@ -178,7 +194,11 @@ class CartViewModel @Inject constructor(
  jules/arch-assessment-1
             val result = cartRepository.addItemToCart(userId, cartItem)
 =======
+ jules/arch-assessment-1
+            val result = cartRepository.addItemToCart(userId, cartItem)
+=======
             val result = cartRepository.addItemToCart(currentUserId, cartItem)
+ main
  main
  main
             if (result is Result.Success) {
@@ -193,6 +213,9 @@ class CartViewModel @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
         val userId = userIdProvider.getCurrentUserId()
         if (userId == null) { /* Handle error or ignore */ return }
@@ -202,6 +225,8 @@ class CartViewModel @Inject constructor(
                  _userMessages.emit(CartUserMessage.ItemUpdated("Item")) // Simplified
             } else if (result is Result.Error) {
                 // Handle error
+ jules/arch-assessment-1
+=======
  jules/arch-assessment-1
 =======
 =======
@@ -214,6 +239,7 @@ class CartViewModel @Inject constructor(
                 // Handle error message
  main
  main
+ main
             }
         }
     }
@@ -222,6 +248,9 @@ class CartViewModel @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
         val userId = userIdProvider.getCurrentUserId()
         if (userId == null) { /* Handle error or ignore */ return }
@@ -231,6 +260,8 @@ class CartViewModel @Inject constructor(
                  _userMessages.emit(CartUserMessage.ItemRemoved(itemName))
             } else if (result is Result.Error) {
                 // Handle error
+ jules/arch-assessment-1
+=======
 jules/arch-assessment-1
 =======
 =======
@@ -242,6 +273,7 @@ jules/arch-assessment-1
                 // Handle error message
  main
 > main
+ main
             }
         }
     }
@@ -250,6 +282,9 @@ jules/arch-assessment-1
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
         val userId = userIdProvider.getCurrentUserId()
         if (userId == null) { /* Handle error or ignore */ return }
@@ -261,6 +296,8 @@ jules/arch-assessment-1
                 // Handle error
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
         viewModelScope.launch {
             val result = cartRepository.clearCart(currentUserId)
@@ -268,6 +305,7 @@ jules/arch-assessment-1
                  _userMessages.emit(CartUserMessage.CartCleared)
             } else if (result is Result.Error) {
                 // Handle error message
+ main
  main
  main
             }

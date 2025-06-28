@@ -15,6 +15,9 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,7 +32,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
 =======
+=======
+ main
  main
  main
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,6 +48,10 @@ import coil.compose.AsyncImage
  jules/arch-assessment-1
 import coil.compose.AsyncImage
 =======
+ jules/arch-assessment-1
+import coil.compose.AsyncImage
+=======
+ main
  main
  main
 import com.example.rooster.feature.marketplace.domain.model.ProductCategory
@@ -188,6 +198,9 @@ fun CreateListingScreen(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
             ImageSelectionSection(
                 selectedImageUris = formState.imageUris,
@@ -196,9 +209,12 @@ fun CreateListingScreen(
             )
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
             // TODO: Image selection UI (e.g., button to open gallery, display selected image thumbnails)
             Text("Image Upload: (TODO)", style = MaterialTheme.typography.labelLarge)
+ main
  main
  main
             Spacer(modifier = Modifier.height(24.dp))
@@ -282,6 +298,9 @@ fun PreviewCreateListingScreen() {
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
 
 @Composable
@@ -344,6 +363,9 @@ fun ImageSelectionSection(
 }
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
 =======
+=======
+ main
  main
  main

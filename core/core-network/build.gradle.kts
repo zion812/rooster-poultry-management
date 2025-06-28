@@ -55,10 +55,17 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Retrofit & OkHttp for Networking
+ jules/arch-assessment-1
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.converter.kotlinx.serialization) // Make sure this alias exists or use the direct dependency
+    implementation(libs.okhttp.core)
+    implementation(libs.okhttp.logging.interceptor) // For logging network requests
+=======
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlin.serialization)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+ main
 
     // Coroutines for asynchronous operations
     implementation(libs.bundles.coroutines) // Assuming this bundle includes core and android
@@ -67,6 +74,11 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
+ jules/arch-assessment-1
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
+=======
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+ main
 }

@@ -10,16 +10,22 @@ import com.example.rooster.domain.repository.PostRepository
 import com.example.rooster.domain.repository.UserRepository
 import com.example.rooster.util.ShoppingCartManager
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
 import com.example.rooster.core.common.user.UserIdProvider
 import com.example.rooster.core.common.storage.ImageUploadService // Import interface
 import com.example.rooster.data.authprovider.FirebaseUserIdProvider
 import com.example.rooster.data.storage.FirebaseStorageImageUploadService // Import impl
 import com.google.firebase.storage.FirebaseStorage // Import FirebaseStorage
 import dagger.Binds
+ jules/arch-assessment-1
+=======
 =======
 import com.example.rooster.core.common.user.UserIdProvider // Import interface
 import com.example.rooster.data.authprovider.FirebaseUserIdProvider // Import impl
 import dagger.Binds // Import Binds
+ main
  main
 import dagger.Module
 import dagger.Provides
@@ -69,6 +75,9 @@ object AppModule {
         return com.example.rooster.BuildConfig.PAYMENT_API_BASE_URL // Fully qualify BuildConfig
     }
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
 
     @Provides
     @Singleton
@@ -88,7 +97,10 @@ abstract class AuthBindsModule {
     @Binds
     @Singleton
     abstract fun bindImageUploadService(impl: FirebaseStorageImageUploadService): ImageUploadService
+ jules/arch-assessment-1
 =======
+=======
+ main
  main
 }
 

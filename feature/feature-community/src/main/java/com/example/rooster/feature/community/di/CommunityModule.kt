@@ -74,7 +74,10 @@ abstract class CommunityBindsModule {
 
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 <<jules/arch-assessment-1
+ main
  main
     @Binds
     @Singleton
@@ -93,6 +96,8 @@ abstract class CommunityBindsModule {
     abstract fun bindCommentRepository(
         impl: CommentRepositoryImpl
     ): CommentRepository
+ jules/arch-assessment-1
+=======
  jules/arch-assessment-1
 =======
 
@@ -114,5 +119,6 @@ abstract class CommunityBindsModule {
     //     impl: CommentRepositoryImpl
     // ): CommentRepository
 main
+ main
  main
 }

@@ -12,10 +12,15 @@ import com.example.rooster.core.common.user.UserIdProvider
 import com.example.rooster.core.common.storage.ImageUploadService // Import ImageUploadService
 =======
  jules/arch-assessment-1
+import com.example.rooster.core.common.user.UserIdProvider
+import com.example.rooster.core.common.storage.ImageUploadService // Import ImageUploadService
+=======
+ jules/arch-assessment-1
 import com.example.rooster.core.common.user.UserIdProvider // Import UserIdProvider
 
 // import com.example.rooster.core.auth.UserManager // For sellerId
   main
+ main
  main
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,11 +42,16 @@ data class CreateListingFormState(
     val locationCity: String = "",
     val locationDistrict: String = "",
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
     val imageUris: List<android.net.Uri> = emptyList(), // Store list of content URIs
     val isSubmitting: Boolean = false,
     val submissionError: String? = null,
     val submissionSuccess: Boolean = false,
     val createdListingId: String? = null // Corrected from createdPostId
+ jules/arch-assessment-1
+=======
 =======
  jules/arch-assessment-1
     val imageUris: List<android.net.Uri> = emptyList(), // Store list of content URIs
@@ -53,10 +63,16 @@ data class CreateListingFormState(
     val submissionError: String? = null,
     val submissionSuccess: Boolean = false
  main
+ main
 )
 
 @HiltViewModel
 class CreateListingViewModel @Inject constructor(
+ jules/arch-assessment-1
+    private val productListingRepository: ProductListingRepository,
+    private val userIdProvider: UserIdProvider,
+    private val imageUploadService: ImageUploadService // Inject ImageUploadService
+=======
  jules/arch-assessment-1
     private val productListingRepository: ProductListingRepository,
     private val userIdProvider: UserIdProvider,
@@ -70,6 +86,7 @@ class CreateListingViewModel @Inject constructor(
     // @Inject private val userManager: UserManager // Ideal to get current sellerId
  main
  main
+ main
 ) : ViewModel() {
 
     private val _formState = MutableStateFlow(CreateListingFormState())
@@ -78,11 +95,15 @@ class CreateListingViewModel @Inject constructor(
  jules/arch-assessment-1
     // Removed placeholder currentSellerId
 =======
+ jules/arch-assessment-1
+    // Removed placeholder currentSellerId
+=======
 <<< jules/arch-assessment-1
     // Removed placeholder currentSellerId
 =======
     // TODO: Replace with actual User ID from an authentication manager/repository
     private val currentSellerId: String = "placeholder_seller_id"
+ main
  main
  main
 
@@ -131,6 +152,9 @@ class CreateListingViewModel @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
     fun onImagesSelected(uris: List<android.net.Uri>) {
         _formState.value = _formState.value.copy(imageUris = uris, submissionError = null, submissionSuccess = false)
@@ -146,7 +170,10 @@ class CreateListingViewModel @Inject constructor(
 
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
 =======
+=======
+ main
  main
  main
     fun submitListing() {
@@ -156,6 +183,9 @@ class CreateListingViewModel @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
             val currentSellerId = userIdProvider.getCurrentUserId()
             if (currentSellerId == null) {
@@ -165,7 +195,10 @@ class CreateListingViewModel @Inject constructor(
 
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
 =======
+=======
+ main
  main
  main
             val currentState = _formState.value
@@ -191,6 +224,9 @@ class CreateListingViewModel @Inject constructor(
             // Add more validation for age, weight if needed
 
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
             // Step 1: Upload Images if any are selected
             val imageUrls = if (currentState.imageUris.isNotEmpty()) {
                 val listingIdForPath = UUID.randomUUID().toString() // Generate once for path consistency
@@ -215,10 +251,13 @@ class CreateListingViewModel @Inject constructor(
             val now = System.currentTimeMillis()
             val newListing = ProductListing(
                 id = UUID.randomUUID().toString(),
+ jules/arch-assessment-1
+=======
 =======
             val now = System.currentTimeMillis()
             val newListing = ProductListing(
                 id = UUID.randomUUID().toString(), // Repository can also generate if ID is empty
+ main
  main
                 sellerId = currentSellerId,
                 title = currentState.title.trim(),
@@ -233,16 +272,23 @@ class CreateListingViewModel @Inject constructor(
                 imageUrls = imageUrls, // Use the URLs from Firebase Storage
 =======
  jules/arch-assessment-1
+                imageUrls = imageUrls, // Use the URLs from Firebase Storage
+=======
+ jules/arch-assessment-1
                 imageUrls = currentState.imageUris.map { it.toString() }, // Store URI strings for now
 
                 imageUrls = emptyList(), // TODO: Populate with uploaded image URLs
                main
+ main
  main
                 locationCity = currentState.locationCity.takeIf { it.isNotBlank() },
                 locationDistrict = currentState.locationDistrict.takeIf { it.isNotBlank() },
                 postedDateTimestamp = now,
                 updatedDateTimestamp = now,
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
                 status = ListingStatus.ACTIVE // Or PENDING_APPROVAL
             )
 
@@ -254,6 +300,8 @@ class CreateListingViewModel @Inject constructor(
                     submissionError = createListingResult.exception.message ?: "Failed to create listing."
                 )
                 Result.Loading -> currentState.copy(isSubmitting = true)
+ jules/arch-assessment-1
+=======
 =======
                 status = ListingStatus.ACTIVE // Or PENDING_APPROVAL if moderation is implemented
             )
@@ -266,6 +314,7 @@ class CreateListingViewModel @Inject constructor(
                     submissionError = result.exception.message ?: "Failed to create listing."
                 )
                 Result.Loading -> currentState.copy(isSubmitting = true) // Should not happen from suspend fun
+ main
  main
             }
         }

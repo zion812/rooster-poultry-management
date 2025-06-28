@@ -35,6 +35,9 @@ class ProductListingRepositoryImpl @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
     ): Flow<Result<List<ProductListing>>> {
         // Improved strategy: Network-Bound Resource approach
@@ -107,7 +110,8 @@ class ProductListingRepositoryImpl @Inject constructor(
             shouldFetch = { localData -> localData == null } // Fetch if not in cache
         ).flowOn(Dispatchers.IO)
     }
-
+ jules/arch-assessment-1
+=======
  jules/arch-assessment-1
 =======
     ): Flow<Result<List<ProductListing>>> = flow {
@@ -205,6 +209,7 @@ class ProductListingRepositoryImpl @Inject constructor(
  main
 
  main
+ main
 
     override suspend fun createProductListing(listing: ProductListing): Result<String> = withContext(Dispatchers.IO) {
         try {
@@ -216,6 +221,9 @@ class ProductListingRepositoryImpl @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
             if (remoteResult is Result.Success && remoteResult.data != null) {
                 // Mark as synced if remote save is successful
@@ -229,6 +237,8 @@ class ProductListingRepositoryImpl @Inject constructor(
                 Result.Error(Exception("Remote data source returned null ID for created listing"))
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
             if (remoteResult is Result.Success) {
                 // Mark as synced if remote save is successful
@@ -237,6 +247,7 @@ class ProductListingRepositoryImpl @Inject constructor(
             } else {
                 // Remote save failed, needsSync remains true for worker
                 Result.Error((remoteResult as Result.Error).exception)
+ main
  main
  main
             }
@@ -250,6 +261,9 @@ class ProductListingRepositoryImpl @Inject constructor(
             val entity = mapDomainToEntity(listing, needsSync = true) // Mark for sync
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
+ main
  main
             localDataSource.insertListing(entity) // Use insert with OnConflictStrategy.REPLACE for update
 
@@ -258,12 +272,15 @@ class ProductListingRepositoryImpl @Inject constructor(
                 localDataSource.insertListing(entity.copy(needsSync = false)) // Update to synced
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
             localDataSource.updateListing(entity) // or insert, as it's REPLACE
 
             val remoteResult = remoteDataSource.updateProductListing(listing)
             if (remoteResult is Result.Success) {
                 localDataSource.updateListing(entity.copy(needsSync = false))
+ main
  main
  main
             }
@@ -278,6 +295,9 @@ class ProductListingRepositoryImpl @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
         // For robust offline deletion, this would mark as 'deleted' locally and sync that state.
         // Current implementation: local delete, then attempt remote delete.
@@ -295,6 +315,8 @@ class ProductListingRepositoryImpl @Inject constructor(
             }
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
+=======
 =======
         try {
             localDataSource.deleteListingById(listingId) // Delete locally first
@@ -306,6 +328,7 @@ class ProductListingRepositoryImpl @Inject constructor(
             remoteDataSource.deleteProductListing(listingId)
  main
  main
+ main
         } catch (e: Exception) {
             Result.Error(e)
         }
@@ -314,6 +337,9 @@ class ProductListingRepositoryImpl @Inject constructor(
  jules/arch-assessment-1
 =======
  jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
  main
 // Generic helper for network-bound resource pattern
 // S: Source type from remote (e.g., ProductListing, List<ProductListing>)
@@ -366,7 +392,10 @@ private inline fun <D, S> localBackedRemoteResource(
 
  jules/arch-assessment-1
 =======
+ jules/arch-assessment-1
 =======
+=======
+ main
  main
  main
     // --- Mappers ---
