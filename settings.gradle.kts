@@ -35,7 +35,8 @@ include(":core:navigation")
 include(":core:search")
 include(":core:analytics")
 
-// Feature modules (commented out until implemented)
+// Feature modules
 include(":feature:feature-marketplace")
-include(":feature:feature-auctions")
+include(":feature:feature-auctions") // Still commented out / future
 include(":feature:feature-farm")
+include(":feature:feature-community") // New feature module

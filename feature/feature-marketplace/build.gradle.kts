@@ -61,6 +61,11 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
+    // Room Database
+    implementation(libs.room.runtime)
+    ksp(libs.room.compiler) // or libs.room.compiler_ksp if defined that way
+    implementation(libs.room.ktx)
+
     // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

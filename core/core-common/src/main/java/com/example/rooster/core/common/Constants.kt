@@ -17,9 +17,7 @@ object Constants {
     const val WRITE_TIMEOUT = 30L   // In seconds
     const val MAX_RETRIES = 3
     const val RETRY_DELAY_MS = 1000L
-    // TODO: Define this in app's build.gradle or a secure config file, not hardcoded here.
-    // For now, using a placeholder. This should be the base URL of your Express payment backend.
-    const val PAYMENT_API_BASE_URL = "http://10.0.2.2:3000/" // Example for Android emulator accessing localhost
+    // PAYMENT_API_BASE_URL is now sourced from BuildConfig in the app module and provided via Hilt.
 
     // Parse Configuration
     const val PARSE_APPLICATION_ID = "parse_app_id"
