@@ -96,6 +96,13 @@ This application targets rural users with potentially unreliable and slow (2G) i
 *   **User ID Integration:** A `UserIdProvider` interface (in `core-common`) and `FirebaseUserIdProvider` implementation (in `app` module, using Firebase Auth) have been introduced. ViewModels like `CartViewModel` and `CreateListingViewModel` now use this provider instead of placeholder IDs.
 *   **Room Migrations (`feature-farm`):** `FarmDatabase` migrations for versions 1-to-2 (adding `needsSync`) and 2-to-3 (adding `lineage_links` table) have been implemented and added to the database builder in `FarmProvidesModule`. `fallbackToDestructiveMigration` has been removed for `FarmDatabase`.
 *   **Marketplace Repository Refinements:** `ProductListingRepositoryImpl` and `OrderRepositoryImpl` were enhanced with a more robust network-bound resource pattern for data fetching and caching. `needsSync` handling in `OrderRepositoryImpl` for updates was improved.
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
+ main
 *   **Community Repository Implementations:** `CommunityUserProfileRepositoryImpl`, `PostRepositoryImpl`, and `CommentRepositoryImpl` in `feature-community` have been fleshed out with core logic for local/remote data handling, `needsSync` management, and use a network-bound resource pattern.
 *   **Basic Community UI (`feature-community`):**
     *   `CommunityProfileScreen` and `ViewModel` created for basic profile display.
@@ -110,11 +117,21 @@ This application targets rural users with potentially unreliable and slow (2G) i
     *   `CreateListingViewModel` now uses `ImageUploadService` to upload selected images. The returned public URLs are stored in `ProductListing.imageUrls`.
     *   Marketplace UI (`ProductListScreen`, `ProductDetailScreen`) now displays images from these Firebase Storage URLs via Coil.
 *   **Unit Testing Initiated:** Shell test files with initial test cases created for `CreateListingViewModel` and `FirebaseStorageImageUploadService` as a starting point for comprehensive testing.
+ jules/arch-assessment-1
 *   **2G Performance Optimization (Ongoing):**
     *   **Pagination (Marketplace Product Listings):** Implemented server-side pagination in `FirebaseMarketplaceDataSource`, `ProductListingRepository`, `ProductListViewModel`, and `ProductListScreen` to significantly reduce initial data load. This serves as a pattern for other list-based features.
     *   **Image Compression (Conceptual Setup):** `ImageUploadService` interface and implementation method signatures updated to accept `ImageCompressionOptions`. `CreateListingViewModel` passes default options. *Actual client-side compression logic is pending.*
     *   **Caching Bugfix:** Corrected `needsSync` flag assignment in `FarmRepositoryImpl.getFlockById` when caching remote data.
     *   **General Best Practice:** For 2G, prioritize server-side pagination for all lists, implement client-side image compression before upload, optimize image loading in UI (e.g. Coil size requests), and use efficient WorkManager strategies. Test thoroughly under simulated 2G conditions.
+=======
+ jules/arch-assessment-1
+=======
+=======
+*   **Community Repository Shells:** Initial shell implementations for `CommunityUserProfileRepositoryImpl`, `PostRepositoryImpl`, and `CommentRepositoryImpl` were created, including basic local/remote interaction logic and `needsSync` management. Hilt bindings were updated.
+*   **Image Handling (Marketplace):** `CreateListingViewModel` and `CreateListingScreen` now support selection of multiple image URIs. The `ProductListing` model stores these as strings (local URIs for now). Actual cloud upload is deferred.
+ main
+ main
+ main
 
 This document is a living guide. It will be updated as the project evolves.
 If you have suggestions for improving these guidelines, please discuss them with the team.

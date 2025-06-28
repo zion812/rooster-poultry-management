@@ -2,10 +2,18 @@ package com.example.rooster.feature.marketplace.ui.productlist
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+ jules/arch-assessment-1
 import androidx.compose.foundation.lazy.grid.* // Import all from grid
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect // For detecting scroll to end
+=======
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+ main
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,6 +41,7 @@ fun ProductListScreen(
 
     Scaffold(
         topBar = {
+ jules/arch-assessment-1
             // TODO: Implement actual SearchBar and Category Filter UI that calls ViewModel methods
             TopAppBar(
                 title = { Text( "Marketplace" ) },
@@ -43,6 +52,10 @@ fun ProductListScreen(
                     // }
                 }
             )
+=======
+            TopAppBar(title = { Text("Marketplace") })
+            // TODO: Add SearchBar and Category filter options here
+ main
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onNavigateToCreateListing) {
@@ -52,6 +65,7 @@ fun ProductListScreen(
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             when (val state = uiState) {
+ jules/arch-assessment-1
                 is ProductListUiState.InitialLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
@@ -87,6 +101,29 @@ fun ProductListScreen(
                             Text("Retry")
                         }
                     }
+=======
+                is ProductListUiState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+                is ProductListUiState.Success -> {
+                    if (state.listings.isEmpty()) {
+                        Text(
+                            text = "No products found.",
+                            modifier = Modifier.align(Alignment.Center),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    } else {
+                        ProductGrid(listings = state.listings, onProductClick = onProductClick)
+                    }
+                }
+                is ProductListUiState.Error -> {
+                    Text(
+                        text = "Error: ${state.message}",
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+ main
                 }
             }
         }
@@ -97,6 +134,7 @@ fun ProductListScreen(
 fun ProductGrid(
     listings: List<ProductListing>,
     onProductClick: (listingId: String) -> Unit,
+ jules/arch-assessment-1
     isLoadingMore: Boolean,
     canLoadMore: Boolean,
     onLoadMore: () -> Unit,
@@ -106,6 +144,11 @@ fun ProductGrid(
 
     LazyVerticalGrid(
         state = gridState,
+=======
+    modifier: Modifier = Modifier
+) {
+    LazyVerticalGrid(
+ main
         columns = GridCells.Fixed(2), // Or Adaptive(minSize = 160.dp)
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -115,6 +158,7 @@ fun ProductGrid(
         items(listings, key = { it.id }) { listing ->
             ProductListItem(listing = listing, onProductClick = onProductClick)
         }
+ jules/arch-assessment-1
 
         if (isLoadingMore) {
             item(span = { GridItemSpan(2) }) { // Span across all columns
@@ -136,6 +180,8 @@ fun ProductGrid(
                     onLoadMore()
                 }
             }
+=======
+ main
     }
 }
 
@@ -155,6 +201,7 @@ fun ProductListItem(
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(listing.imageUrls.firstOrNull())
+ jules/arch-assessment-1
                         .placeholder(com.example.rooster.R.drawable.placeholder_image) // Assuming R is app level
                         .error(com.example.rooster.R.drawable.error_image) // Assuming R is app level
                     .crossfade(true)
@@ -291,6 +338,21 @@ fun ProductListItem(
                     .data(listing.imageUrls.firstOrNull())
                         .placeholder(com.example.rooster.R.drawable.placeholder_image) // Assuming R is app level
                         .error(com.example.rooster.R.drawable.error_image) // Assuming R is app level
+=======
+ jules/arch-assessment-1
+                        .placeholder(com.example.rooster.R.drawable.placeholder_image) // Assuming R is app level
+                        .error(com.example.rooster.R.drawable.error_image) // Assuming R is app level
+=======
+ jules/arch-assessment-1
+                        .placeholder(com.example.rooster.R.drawable.placeholder_image) // Assuming R is app level
+                        .error(com.example.rooster.R.drawable.error_image) // Assuming R is app level
+=======
+                    // TODO: Add placeholder and error drawables from core module
+                    // .placeholder(R.drawable.placeholder_image)
+                    // .error(R.drawable.error_image)
+ main
+ main
+ main
                     .crossfade(true)
                     .build(),
                 contentDescription = listing.title,

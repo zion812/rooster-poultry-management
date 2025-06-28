@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed interface ProductListUiState {
+ jules/arch-assessment-1
     data object InitialLoading : ProductListUiState // For the very first load
     data class Success(
         val listings: List<ProductListing>,
@@ -25,6 +26,11 @@ sealed interface ProductListUiState {
     ) : ProductListUiState
     data class Error(val message: String, val currentListings: List<ProductListing> = emptyList()) : ProductListUiState
     // Error state can also hold current listings to show stale data + error message
+=======
+    data object Loading : ProductListUiState
+    data class Success(val listings: List<ProductListing>) : ProductListUiState
+    data class Error(val message: String) : ProductListUiState
+ main
 }
 
 @HiltViewModel
@@ -32,6 +38,7 @@ class ProductListViewModel @Inject constructor(
     private val productListingRepository: ProductListingRepository
 ) : ViewModel() {
 
+ jules/arch-assessment-1
     private val _uiState = MutableStateFlow<ProductListUiState>(ProductListUiState.InitialLoading)
     val uiState: StateFlow<ProductListUiState> = _uiState.asStateFlow()
 
@@ -129,12 +136,39 @@ class ProductListViewModel @Inject constructor(
                             currentListings = currentSuccessState?.listings ?: emptyList()
                         )
                     }
+=======
+    private val _uiState = MutableStateFlow<ProductListUiState>(ProductListUiState.Loading)
+    val uiState: StateFlow<ProductListUiState> = _uiState.asStateFlow()
+
+    // TODO: Add parameters for category, sellerId, searchTerm from UI interactions
+    private var currentCategory: String? = null
+    private var currentSellerId: String? = null
+    private var currentSearchTerm: String? = null
+
+    init {
+        fetchProductListings()
+    }
+
+    fun fetchProductListings(forceRefresh: Boolean = false) {
+        viewModelScope.launch {
+            productListingRepository.getProductListings(
+                category = null, // TODO: map currentCategory (String) to ProductCategory enum if needed by repo
+                sellerId = currentSellerId,
+                searchTerm = currentSearchTerm,
+                forceRefresh = forceRefresh
+            ).onEach { result ->
+                _uiState.value = when (result) {
+                    is Result.Loading -> ProductListUiState.Loading
+                    is Result.Success -> ProductListUiState.Success(result.data)
+                    is Result.Error -> ProductListUiState.Error(result.exception.message ?: "Unknown error")
+ main
                 }
             }.launchIn(viewModelScope)
         }
     }
 
     fun onSearchQueryChanged(query: String) {
+ jules/arch-assessment-1
         currentSearchTermFilter = query.takeIf { it.isNotBlank() }
         // Add debounce here if desired
         loadProductListings(isRefresh = true)
@@ -144,4 +178,17 @@ class ProductListViewModel @Inject constructor(
         currentCategoryFilter = category
         loadProductListings(isRefresh = true)
     }
+=======
+        currentSearchTerm = query
+        // Could add debounce here if desired
+        fetchProductListings()
+    }
+
+    fun onCategorySelected(category: String?) { // Assuming category comes as String from UI
+        currentCategory = category
+        fetchProductListings()
+    }
+
+    // TODO: Add methods for pagination (loadMore) if implementing infinite scroll
+ main
 }

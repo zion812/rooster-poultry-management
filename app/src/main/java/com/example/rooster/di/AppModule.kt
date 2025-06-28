@@ -9,12 +9,30 @@ import com.example.rooster.domain.repository.ChatRepository
 import com.example.rooster.domain.repository.PostRepository
 import com.example.rooster.domain.repository.UserRepository
 import com.example.rooster.util.ShoppingCartManager
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
+ main
 import com.example.rooster.core.common.user.UserIdProvider
 import com.example.rooster.core.common.storage.ImageUploadService // Import interface
 import com.example.rooster.data.authprovider.FirebaseUserIdProvider
 import com.example.rooster.data.storage.FirebaseStorageImageUploadService // Import impl
 import com.google.firebase.storage.FirebaseStorage // Import FirebaseStorage
 import dagger.Binds
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+=======
+import com.example.rooster.core.common.user.UserIdProvider // Import interface
+import com.example.rooster.data.authprovider.FirebaseUserIdProvider // Import impl
+import dagger.Binds // Import Binds
+ main
+ main
+ main
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -62,6 +80,13 @@ object AppModule {
     fun providePaymentApiBaseUrl(): String {
         return com.example.rooster.BuildConfig.PAYMENT_API_BASE_URL // Fully qualify BuildConfig
     }
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
+ main
 
     @Provides
     @Singleton
@@ -81,4 +106,41 @@ abstract class AuthBindsModule {
     @Binds
     @Singleton
     abstract fun bindImageUploadService(impl: FirebaseStorageImageUploadService): ImageUploadService
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+=======
+ main
+ main
+ main
 }
+
+// Separate module for Binds is cleaner, or can be added to AppModule if it's an abstract class.
+// For simplicity, if AppModule remains an 'object', we can't use @Binds here.
+// Let's create a new AuthBindsModule or similar in the app.di package.
+// However, to keep it simple for now, I'll modify AppModule to be abstract and add @Binds.
+// This is a common pattern change if a module needs both @Provides and @Binds.
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class AuthBindsModule { // New module for bindings related to auth or user providers
+    @Binds
+    @Singleton
+    abstract fun bindUserIdProvider(impl: FirebaseUserIdProvider): UserIdProvider
+}
+
+// If AppModule needs to stay an 'object' and cannot be abstract:
+// We would need to provide FirebaseUserIdProvider via @Provides in AppModule,
+// and then also provide UserIdProvider by taking FirebaseUserIdProvider as a parameter.
+// e.g. in AppModule:
+// @Provides
+// @Singleton
+// fun provideFirebaseUserIdProvider(firebaseAuth: FirebaseAuth): FirebaseUserIdProvider {
+//     return FirebaseUserIdProvider(firebaseAuth)
+// }
+// @Provides
+// @Singleton
+// fun provideUserIdProvider(impl: FirebaseUserIdProvider): UserIdProvider = impl
+// But since FirebaseUserIdProvider is @Singleton and @Inject constructor, Hilt can create it.
+// So, just binding is enough if we use a module that supports @Binds.

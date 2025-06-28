@@ -31,10 +31,21 @@ class ProductListingRepositoryImpl @Inject constructor(
         category: ProductCategory?,
         sellerId: String?,
         searchTerm: String?, // Basic client-side filtering for now
+ jules/arch-assessment-1
         forceRefresh: Boolean,
         pageSize: Int,
         lastVisibleTimestamp: Long?,
         lastVisibleDocId: String?
+=======
+        forceRefresh: Boolean
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
+ main
+ main
     ): Flow<Result<List<ProductListing>>> {
         // Improved strategy: Network-Bound Resource approach
         // 1. Emit Loading.
@@ -52,6 +63,7 @@ class ProductListingRepositoryImpl @Inject constructor(
                 }
             },
             remoteCall = {
+ jules/arch-assessment-1
                 // The remoteDataSource.getProductListingsStream is a Flow,
                 // but localBackedRemoteResource expects suspend () -> Result<S?>.
                 // We need to collect the first emission for the paginated fetch.
@@ -88,6 +100,20 @@ class ProductListingRepositoryImpl @Inject constructor(
             },
             shouldFetch = { localData ->
                 forceRefresh || localData.isNullOrEmpty() || (lastVisibleTimestamp != null) // Always fetch if paginating, or if first page is empty/forced
+=======
+                remoteDataSource.getProductListingsStream(
+                    category = category?.name,
+                    sellerId = sellerId,
+                    searchTerm = searchTerm // Assuming remote can handle this or it's for consistency
+                )
+            },
+            saveRemoteResult = { listings ->
+                val entities = listings.map { mapDomainToEntity(it, needsSync = false) }
+                localDataSource.insertListings(entities)
+            },
+            shouldFetch = { localData ->
+                forceRefresh || localData.isNullOrEmpty() // Basic condition, could be time-based staleness
+ main
             }
         ).flowOn(Dispatchers.IO)
     }
@@ -130,7 +156,110 @@ class ProductListingRepositoryImpl @Inject constructor(
             shouldFetch = { localData -> localData == null } // Fetch if not in cache
         ).flowOn(Dispatchers.IO)
     }
+ jules/arch-assessment-1
 
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+    ): Flow<Result<List<ProductListing>>> = flow {
+        // For simplicity, this initial implementation fetches all and then filters client-side if needed.
+        // A more robust solution would pass filters to remoteDataSource and have server-side filtering.
+        // Also, it always fetches from remote first if forceRefresh is true or local is empty, then updates cache.
+
+        // Emit loading
+        emit(Result.Loading)
+
+        // Attempt to fetch from remote
+        // TODO: Implement more sophisticated caching:
+        // 1. Emit local data first.
+        // 2. Then fetch remote.
+        // 3. If remote fetch successful, update local and emit updated local data.
+        // 4. If remote fetch fails, emit error but user still has stale local data.
+        // This current version is a simpler fetch-and-cache.
+
+        try {
+            val remoteListingsFlow = remoteDataSource.getProductListingsStream(
+                category = category?.name, // Pass category name
+                sellerId = sellerId,
+                searchTerm = searchTerm // searchTerm might not be used by remote yet
+            )
+
+            remoteListingsFlow.collect { remoteResult ->
+                when (remoteResult) {
+                    is Result.Success -> {
+                        val domainListings = remoteResult.data
+                        // Cache the results
+                        val entities = domainListings.map { mapDomainToEntity(it, needsSync = false) }
+                        localDataSource.insertListings(entities)
+                        // Emit the fresh data
+                        emit(Result.Success(filterListings(domainListings, searchTerm)))
+                    }
+                    is Result.Error -> {
+                        // On remote error, try to serve from local cache
+                        val cachedListings = localDataSource.getAllListings().map { entities ->
+                            entities.map { mapEntityToDomain(it) }
+                        }
+                        // This needs to be collected from the Flow
+                        // For now, simplified error propagation
+                        emit(Result.Error(remoteResult.exception))
+                        // TODO: Actually emit cachedListings if remote fails
+                    }
+                    Result.Loading -> { /* Handled by initial emit */ }
+                }
+            }
+        } catch (e: Exception) {
+            emit(Result.Error(e))
+        }
+    }.flowOn(Dispatchers.IO)
+
+
+    private fun filterListings(listings: List<ProductListing>, searchTerm: String?): List<ProductListing> {
+        if (searchTerm.isNullOrBlank()) {
+            return listings
+        }
+        val lowerSearchTerm = searchTerm.lowercase()
+        return listings.filter {
+            it.title.lowercase().contains(lowerSearchTerm) ||
+            it.description.lowercase().contains(lowerSearchTerm) ||
+            it.breed?.lowercase()?.contains(lowerSearchTerm) == true
+        }
+    }
+
+
+    override fun getProductListingDetails(listingId: String): Flow<Result<ProductListing?>> = flow {
+        emit(Result.Loading)
+        // Try local first
+        val localListing = localDataSource.getListingById(listingId).map { entity ->
+            entity?.let { mapEntityToDomain(it) }
+        }
+        // Simplified: fetch remote and update cache, then re-emit.
+        // A more complex strategy would emit local then update from remote.
+        try {
+            val remoteResult = remoteDataSource.getProductListingDetails(listingId)
+            if (remoteResult is Result.Success && remoteResult.data != null) {
+                val domainListing = remoteResult.data
+                localDataSource.insertListing(mapDomainToEntity(domainListing, needsSync = false))
+                emit(Result.Success(domainListing))
+            } else if (remoteResult is Result.Error) {
+                // If remote fails, rely on whatever localListing flow emits.
+                // This part needs to be structured better to combine flows.
+                // For now, just propagating remote error if data is null.
+                 localListing.collect { emit(Result.Success(it)) } // emit local if remote fails to get data
+            } else {
+                 localListing.collect { emit(Result.Success(it)) }
+            }
+        } catch (e: Exception) {
+            emit(Result.Error(e))
+        }
+
+    }.flowOn(Dispatchers.IO)
+ main
+
+ main
+ main
+ main
 
     override suspend fun createProductListing(listing: ProductListing): Result<String> = withContext(Dispatchers.IO) {
         try {
@@ -139,6 +268,16 @@ class ProductListingRepositoryImpl @Inject constructor(
             localDataSource.insertListing(entity)
 
             val remoteResult = remoteDataSource.createProductListing(listingWithId)
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
+ main
+ main
             if (remoteResult is Result.Success && remoteResult.data != null) {
                 // Mark as synced if remote save is successful
                 localDataSource.insertListing(entity.copy(needsSync = false))
@@ -149,6 +288,24 @@ class ProductListingRepositoryImpl @Inject constructor(
             } else {
                 // Remote save "succeeded" but returned null ID, treat as error or handle as per API contract
                 Result.Error(Exception("Remote data source returned null ID for created listing"))
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+=======
+            if (remoteResult is Result.Success) {
+                // Mark as synced if remote save is successful
+                localDataSource.insertListing(entity.copy(needsSync = false))
+                Result.Success(remoteResult.data) // Return ID from remote
+            } else {
+                // Remote save failed, needsSync remains true for worker
+                Result.Error((remoteResult as Result.Error).exception)
+ main
+ main
+ main
+ main
             }
         } catch (e: Exception) {
             Result.Error(e)
@@ -158,11 +315,36 @@ class ProductListingRepositoryImpl @Inject constructor(
     override suspend fun updateProductListing(listing: ProductListing): Result<Unit> = withContext(Dispatchers.IO) {
          try {
             val entity = mapDomainToEntity(listing, needsSync = true) // Mark for sync
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ main
+ main
+ main
             localDataSource.insertListing(entity) // Use insert with OnConflictStrategy.REPLACE for update
 
             val remoteResult = remoteDataSource.updateProductListing(listing)
             if (remoteResult is Result.Success) {
                 localDataSource.insertListing(entity.copy(needsSync = false)) // Update to synced
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+=======
+            localDataSource.updateListing(entity) // or insert, as it's REPLACE
+
+            val remoteResult = remoteDataSource.updateProductListing(listing)
+            if (remoteResult is Result.Success) {
+                localDataSource.updateListing(entity.copy(needsSync = false))
+ main
+ main
+ main
+ main
             }
             // If remote fails, needsSync=true ensures worker picks it up.
             remoteResult // Return the result of the remote operation
@@ -172,6 +354,16 @@ class ProductListingRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteProductListing(listingId: String): Result<Unit> = withContext(Dispatchers.IO) {
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
+ main
+ main
         // For robust offline deletion, this would mark as 'deleted' locally and sync that state.
         // Current implementation: local delete, then attempt remote delete.
         // If remote fails, the item is gone locally but might still exist remotely.
@@ -186,11 +378,31 @@ class ProductListingRepositoryImpl @Inject constructor(
                 // Or, don't delete locally and return the error.
                 Result.Error((remoteDeleteResult as Result.Error).exception)
             }
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+=======
+        try {
+            localDataSource.deleteListingById(listingId) // Delete locally first
+
+            // Attempt to delete from remote.
+            // If this fails, there's no local record to mark as needsSync for deletion.
+            // This scenario requires a "pending deletes" table or soft deletes if robust offline deletion sync is needed.
+            // For now, assume remote deletion is attempted.
+            remoteDataSource.deleteProductListing(listingId)
+ main
+ main
+ main
+ main
         } catch (e: Exception) {
             Result.Error(e)
         }
     }
 
+ jules/arch-assessment-1
 // Generic helper for network-bound resource pattern
 // Generic helper for network-bound resource pattern
 // S: Source type from remote (e.g., ProductListing, List<ProductListing>)
@@ -204,6 +416,27 @@ private inline fun <D, S> localBackedRemoteResource( // This is for SINGLE item 
 ): Flow<Result<D?>> = flow {
     emit(Result.Loading)
     val localData = localCall().firstOrNull()
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
+ main
+// Generic helper for network-bound resource pattern
+// S: Source type from remote (e.g., ProductListing, List<ProductListing>)
+// L: Local entity type (e.g., ProductListingEntity, List<ProductListingEntity>)
+// D: Domain model type (e.g., ProductListing, List<ProductListing>)
+private inline fun <D, S> localBackedRemoteResource(
+    crossinline localCall: () -> Flow<D?>, // Flow of domain model from local source
+    crossinline remoteCall: suspend () -> Result<S?>, // Suspend fun for remote source, S is remote type
+    crossinline saveRemoteResult: suspend (S) -> Unit, // Save remote S type to local
+    crossinline shouldFetch: (D?) -> Boolean = { true } // When to fetch remote
+): Flow<Result<D?>> = flow {
+    emit(Result.Loading)
+    val localData = localCall().firstOrNull() // Get initial local data once
+ main
 
     if (localData != null) {
         emit(Result.Success(localData)) // Emit local data first
@@ -216,7 +449,11 @@ private inline fun <D, S> localBackedRemoteResource( // This is for SINGLE item 
                     saveRemoteResult(remoteResult.data)
                     // After saving, localCall() flow should emit the new data if it's an observable query
                     // If localCall is not continuously emitting, or to ensure latest data:
+ jules/arch-assessment-1
     localCall().collect { updatedLocalData -> emit(Result.Success(updatedLocalData)) } // This re-emits from local source
+=======
+                    localCall().collect { updatedLocalData -> emit(Result.Success(updatedLocalData)) }
+ main
                 } else {
                     // Remote call succeeded but no data (e.g. 404 not found for details)
                     // If localData was null, this means not found anywhere.
@@ -240,6 +477,7 @@ private inline fun <D, S> localBackedRemoteResource( // This is for SINGLE item 
     emit(Result.Error(e))
 }
 
+ jules/arch-assessment-1
 // A specific helper for lists, or adapt the generic one.
 // For getProductListings which returns Flow<Result<List<ProductListing>>>
 private inline fun <D, S> localBackedRemoteResourceList(
@@ -277,6 +515,17 @@ private inline fun <D, S> localBackedRemoteResourceList(
 }.catch { e -> emit(Result.Error(e)) }
 
 
+=======
+
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+=======
+ main
+ main
+ main
+ main
     // --- Mappers ---
     // TODO: Extract mappers to a separate utility if they become complex or are shared.
 

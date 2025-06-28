@@ -24,11 +24,15 @@ class FirebaseStorageImageUploadService @Inject constructor(
     @ApplicationContext private val appContext: Context // Using ApplicationContext
 ) : ImageUploadService {
 
+ jules/arch-assessment-1
     override suspend fun uploadImages(
         uris: List<Uri>,
         pathPrefix: String,
         compressionOptions: ImageCompressionOptions? // Added parameter
     ): Result<List<String>> = withContext(Dispatchers.IO) {
+=======
+    override suspend fun uploadImages(uris: List<Uri>, pathPrefix: String): Result<List<String>> = withContext(Dispatchers.IO) {
+ main
         if (uris.isEmpty()) {
             return@withContext Result.Success(emptyList())
         }
@@ -36,6 +40,7 @@ class FirebaseStorageImageUploadService @Inject constructor(
             val contentResolver = appContext.contentResolver
             val uploadTasks = uris.map { uri ->
                 async { // Launch each upload concurrently
+ jules/arch-assessment-1
                     // TODO: Implement actual image compression based on compressionOptions before upload
                     // For now, it still uploads the original stream.
                     // InputStream will need to be from the compressed bitmap.
@@ -55,10 +60,27 @@ class FirebaseStorageImageUploadService @Inject constructor(
             Result.Success(downloadUrls)
         } catch (e: Exception) {
             Timber.e(e, "Error uploading images to Firebase Storage with options: $compressionOptions")
+=======
+                    val fileName = "${UUID.randomUUID()}.${getExtension(contentResolver, uri) ?: "jpg"}"
+                    val imageRef = firebaseStorage.reference.child("$pathPrefix/$fileName")
+
+                    contentResolver.openInputStream(uri)?.use { inputStream ->
+                        imageRef.putStream(inputStream).await() // UploadTask
+                    } ?: throw Exception("Failed to open input stream for URI: $uri")
+
+                    imageRef.downloadUrl.await().toString() // Get download URL
+                }
+            }
+            val downloadUrls = uploadTasks.awaitAll() // Wait for all uploads to complete
+            Result.Success(downloadUrls)
+        } catch (e: Exception) {
+            Timber.e(e, "Error uploading images to Firebase Storage")
+ main
             Result.Error(e)
         }
     }
 
+ jules/arch-assessment-1
     override suspend fun uploadImage(
         uri: Uri,
         pathPrefix: String,
@@ -83,10 +105,31 @@ class FirebaseStorageImageUploadService @Inject constructor(
             Result.Error(Exception("Storage error: ${e.message}", e))
         } catch (e: Exception) {
             Timber.e(e, "Error uploading image to Firebase Storage with options $compressionOptions")
+=======
+    override suspend fun uploadImage(uri: Uri, pathPrefix: String): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val contentResolver = appContext.contentResolver
+            val fileName = "${UUID.randomUUID()}.${getExtension(contentResolver, uri) ?: "jpg"}"
+            val imageRef = firebaseStorage.reference.child("$pathPrefix/$fileName")
+
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                imageRef.putStream(inputStream).await() // UploadTask
+            } ?: throw Exception("Failed to open input stream for URI: $uri")
+
+            val downloadUrl = imageRef.downloadUrl.await().toString() // Get download URL
+            Result.Success(downloadUrl)
+        } catch (e: StorageException) {
+            Timber.e(e, "Firebase Storage specific error uploading image")
+            Result.Error(Exception("Storage error: ${e.message}", e))
+        }
+        catch (e: Exception) {
+            Timber.e(e, "Error uploading image to Firebase Storage")
+ main
             Result.Error(e)
         }
     }
 
+ jules/arch-assessment-1
     private fun getExtension(contentResolver: ContentResolver, uri: Uri, compressionOptions: ImageCompressionOptions? = null): String? {
         if (compressionOptions != null) {
             return when (compressionOptions.format.uppercase()) {
@@ -98,10 +141,14 @@ class FirebaseStorageImageUploadService @Inject constructor(
                          }
             }
         }
+=======
+    private fun getExtension(contentResolver: ContentResolver, uri: Uri): String? {
+ main
         return contentResolver.getType(uri)?.let { mimeType ->
             android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
         }
     }
+ jules/arch-assessment-1
 
     // TODO: Placeholder for actual compression logic
     // private suspend fun getPossiblyCompressedInputStream(uri: Uri, options: ImageCompressionOptions?): InputStream {
@@ -116,4 +163,6 @@ class FirebaseStorageImageUploadService @Inject constructor(
     //     // return ByteArrayInputStream(outputStream.toByteArray())
     //     return originalStream // Placeholder
     // }
+=======
+ main
 }

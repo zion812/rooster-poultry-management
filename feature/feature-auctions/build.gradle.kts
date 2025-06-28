@@ -70,9 +70,9 @@ dependencies {
     implementation(libs.androidx.compose.material.icons)
     implementation("androidx.compose.material:material-icons-extended")
 
-    // Lifecycle & ViewModel
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
+    // Lifecycle & ViewModels
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.lifecycle.runtime.compose)
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")

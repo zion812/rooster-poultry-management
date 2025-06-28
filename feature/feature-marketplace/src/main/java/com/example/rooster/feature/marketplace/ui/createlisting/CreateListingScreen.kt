@@ -12,6 +12,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
+ main
+ main
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -23,11 +33,37 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+=======
+ main
+ main
+ main
+ main
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+ jules/arch-assessment-1
 import coil.compose.AsyncImage
+=======
+ jules/arch-assessment-1
+import coil.compose.AsyncImage
+=======
+ jules/arch-assessment-1
+import coil.compose.AsyncImage
+=======
+ jules/arch-assessment-1
+import coil.compose.AsyncImage
+=======
+ main
+ main
+ main
+ main
 import com.example.rooster.feature.marketplace.domain.model.ProductCategory
 import kotlinx.coroutines.flow.collectLatest
 
@@ -169,11 +205,34 @@ fun CreateListingScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
+ main
+ main
             ImageSelectionSection(
                 selectedImageUris = formState.imageUris,
                 onImagesSelected = viewModel::onImagesSelected,
                 onRemoveImage = viewModel::removeImage
             )
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+=======
+            // TODO: Image selection UI (e.g., button to open gallery, display selected image thumbnails)
+            Text("Image Upload: (TODO)", style = MaterialTheme.typography.labelLarge)
+ main
+ main
+ main
+ main
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
@@ -252,6 +311,16 @@ fun PreviewCreateListingScreen() {
         CreateListingScreen(onNavigateBack = {}, onListingCreatedSuccessfully = {})
     }
 }
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+ main
+ main
+ main
 
 @Composable
 fun ImageSelectionSection(
@@ -311,3 +380,14 @@ fun ImageSelectionSection(
         }
     }
 }
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+ jules/arch-assessment-1
+=======
+=======
+ main
+ main
+ main
+ main
