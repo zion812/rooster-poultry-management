@@ -65,6 +65,7 @@ android {
     buildTypes {
         getByName("debug") {
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_test_dummy\"")
+            buildConfigField("String", "PAYMENT_API_BASE_URL", "\"http://10.0.2.2:3000/debug/\"") // Placeholder
             versionNameSuffix = "-debug"
             isDebuggable = true
             isMinifyEnabled = false
@@ -76,6 +77,7 @@ android {
         }
         getByName("release") {
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_live_dummy\"")
+            buildConfigField("String", "PAYMENT_API_BASE_URL", "\"https://api.roosterapp.com/payment/release/\"") // Placeholder
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
@@ -95,6 +97,7 @@ android {
         create("staging") {
             initWith(getByName("release"))
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_test_dummy\"")
+            buildConfigField("String", "PAYMENT_API_BASE_URL", "\"https://staging.api.roosterapp.com/payment/\"") // Placeholder
             // Remove staging suffix to prevent Google Services mismatch
             // applicationIdSuffix = ".staging"
             versionNameSuffix = "-staging"

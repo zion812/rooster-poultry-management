@@ -24,7 +24,8 @@ data class FlockEntity(
     val certified: Boolean,
     val verified: Boolean,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val needsSync: Boolean = true
 )
 
 @Entity(
@@ -47,7 +48,10 @@ data class MortalityEntity(
     val weight: Float?,
     val photos: String?, // JSON array
     val recordedAt: Long,
-    val createdAt: Long
+    val createdAt: Long,
+    val needsSync: Boolean = true
+    val createdAt: Long,
+    val needsSync: Boolean = true
 )
 
 @Entity(
@@ -91,7 +95,8 @@ data class SensorDataEntity(
     val lightLevel: Float?,
     val noiseLevel: Float?,
     val timestamp: Long,
-    val createdAt: Long
+    val createdAt: Long,
+    val needsSync: Boolean = true
 )
 
 @Entity(
@@ -115,7 +120,8 @@ data class UpdateEntity(
     val weight: Float?,
     val photos: String?, // JSON array
     val recordedAt: Long,
-    val createdAt: Long
+    val createdAt: Long,
+    val needsSync: Boolean = true
 )
 
 @Dao
@@ -143,6 +149,9 @@ interface FlockDao {
 
     @Query("DELETE FROM flocks WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    @Query("SELECT * FROM flocks WHERE needsSync = 1") // 1 for true in SQLite
+    suspend fun getUnsyncedFlocksSuspend(): List<FlockEntity>
 }
 
 @Dao
@@ -223,10 +232,11 @@ interface UpdateDao {
         MortalityEntity::class,
         VaccinationEntity::class,
         SensorDataEntity::class,
-        UpdateEntity::class
+        UpdateEntity::class,
+        LineageLinkEntity::class // Added LineageLinkEntity
     ],
-    version = 1,
-    exportSchema = false
+    version = 3, // Incremented version due to adding LineageLinkEntity
+    exportSchema = false // Set to true for production and provide schema location
 )
 @TypeConverters(Converters::class)
 abstract class FarmDatabase : RoomDatabase() {
@@ -235,6 +245,7 @@ abstract class FarmDatabase : RoomDatabase() {
     abstract fun vaccinationDao(): VaccinationDao
     abstract fun sensorDataDao(): SensorDataDao
     abstract fun updateDao(): UpdateDao
+    abstract fun lineageDao(): LineageDao // Added LineageDao
 }
 
 class Converters {
@@ -246,5 +257,15 @@ class Converters {
     @TypeConverter
     fun toStringList(value: String?): List<String>? {
         return value?.split(",")?.map { it.trim() }
+    }
+
+    @TypeConverter
+    fun fromRelationshipType(type: RelationshipType?): String? {
+        return type?.name
+    }
+
+    @TypeConverter
+    fun toRelationshipType(name: String?): RelationshipType? {
+        return name?.let { RelationshipType.valueOf(it) }
     }
 }
