@@ -24,12 +24,19 @@ class MarketplaceSyncWorker @AssistedInject constructor(
  feature/phase1-foundations-community-likes
         private const val MAX_SYNC_ATTEMPTS = 5
 =======
+ feature/phase1-foundations-community-likes
+        private const val MAX_SYNC_ATTEMPTS = 5
+=======
+ main
  main
     }
 
     override suspend fun doWork(): Result {
         Timber.d("MarketplaceSyncWorker started")
  feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
         var overallSuccess = true // Tracks if all items were synced or skipped correctly
 
         // Sync Product Listings
@@ -65,6 +72,8 @@ class MarketplaceSyncWorker @AssistedInject constructor(
                         val error = (syncResult as? com.example.rooster.core.common.Result.Error)?.exception
                         Timber.e(error, "Failed to sync product listing: ${entity.id}, attempt: ${entityToAttempt.syncAttempts}")
                         overallSuccess = false
+ feature/phase1-foundations-community-likes
+=======
 =======
 
         var success = true
@@ -96,6 +105,7 @@ class MarketplaceSyncWorker @AssistedInject constructor(
                     } else {
                         Timber.d("Successfully synced product listing: ${listing.id}")
  main
+ main
                     }
                 }
             } else {
@@ -106,14 +116,22 @@ class MarketplaceSyncWorker @AssistedInject constructor(
             Timber.e(e, "Error processing product listings for sync")
             overallSuccess = false
 =======
+ feature/phase1-foundations-community-likes
+            Timber.e(e, "Error processing product listings for sync")
+            overallSuccess = false
+=======
             Timber.e(e, "Error syncing product listings")
             success = false
+ main
  main
         }
 
         // Sync Orders
         try {
  feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
             val unsyncedOrderEntities = orderRepository.getUnsyncedOrderEntities()
             if (unsyncedOrderEntities.isNotEmpty()) {
                 Timber.d("Found ${unsyncedOrderEntities.size} unsynced orders.")
@@ -144,6 +162,8 @@ class MarketplaceSyncWorker @AssistedInject constructor(
                         val error = (syncResult as? com.example.rooster.core.common.Result.Error)?.exception
                         Timber.e(error, "Failed to sync order: ${entity.orderId}, attempt: ${entityToAttempt.syncAttempts}")
                         overallSuccess = false
+ feature/phase1-foundations-community-likes
+=======
 =======
             val unsyncedOrders = orderRepository.getUnsyncedOrders() // Needs to be added to repo
             if (unsyncedOrders.isNotEmpty()) {
@@ -156,6 +176,7 @@ class MarketplaceSyncWorker @AssistedInject constructor(
                     } else {
                         Timber.d("Successfully synced order: ${order.id}")
  main
+ main
                     }
                 }
             } else {
@@ -163,6 +184,9 @@ class MarketplaceSyncWorker @AssistedInject constructor(
             }
         } catch (e: Exception) {
  feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
             Timber.e(e, "Error processing orders for sync")
             overallSuccess = false
         }
@@ -173,6 +197,8 @@ class MarketplaceSyncWorker @AssistedInject constructor(
         } else {
             Timber.w("MarketplaceSyncWorker completed with errors or items still needing sync. Retrying.")
             Result.retry()
+ feature/phase1-foundations-community-likes
+=======
 =======
             Timber.e(e, "Error syncing orders")
             success = false
@@ -184,6 +210,7 @@ class MarketplaceSyncWorker @AssistedInject constructor(
         } else {
             Timber.w("MarketplaceSyncWorker completed with errors, retrying.")
             Result.retry() // Retry if any part failed
+ main
  main
         }
     }

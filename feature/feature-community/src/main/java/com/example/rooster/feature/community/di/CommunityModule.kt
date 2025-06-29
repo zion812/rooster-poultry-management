@@ -41,7 +41,11 @@ object CommunityProvidesModule {
  feature/phase1-foundations-community-likes
         .addMigrations(CommunityDatabaseMigrations.MIGRATION_1_2) // Added migration
 =======
+ feature/phase1-foundations-community-likes
+        .addMigrations(CommunityDatabaseMigrations.MIGRATION_1_2) // Added migration
+=======
         .addMigrations() // Add actual Migration objects here when schema changes
+ main
  main
         .build()
     }

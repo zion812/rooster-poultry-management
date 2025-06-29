@@ -26,12 +26,19 @@ class CommunitySyncWorker @AssistedInject constructor(
  feature/phase1-foundations-community-likes
         private const val MAX_SYNC_ATTEMPTS = 5
 =======
+ feature/phase1-foundations-community-likes
+        private const val MAX_SYNC_ATTEMPTS = 5
+=======
+ main
  main
     }
 
     override suspend fun doWork(): Result {
         Timber.d("CommunitySyncWorker started")
  feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
         var overallSuccess = true // True if all items synced or correctly skipped (max attempts)
 
         // Sync User Profiles
@@ -59,6 +66,8 @@ class CommunitySyncWorker @AssistedInject constructor(
                     } else {
                         Timber.e((syncResult as CoreResult.Error).exception, "Failed to sync user profile: ${entity.userId}, attempt: ${entityToAttempt.syncAttempts}")
                         overallSuccess = false
+ feature/phase1-foundations-community-likes
+=======
 =======
         var overallSuccess = true
 
@@ -75,6 +84,7 @@ class CommunitySyncWorker @AssistedInject constructor(
                     } else {
                         Timber.d("Successfully synced user profile: ${profile.userId}")
  main
+ main
                     }
                 }
             } else {
@@ -84,7 +94,11 @@ class CommunitySyncWorker @AssistedInject constructor(
  feature/phase1-foundations-community-likes
             Timber.e(e, "Error processing user profiles for sync")
 =======
+ feature/phase1-foundations-community-likes
+            Timber.e(e, "Error processing user profiles for sync")
+=======
             Timber.e(e, "Error syncing user profiles")
+ main
  main
             overallSuccess = false
         }
@@ -92,6 +106,9 @@ class CommunitySyncWorker @AssistedInject constructor(
         // Sync Posts
         try {
  feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
             val unsyncedPostEntities = postRepository.getUnsyncedPostEntities()
             if (unsyncedPostEntities.isNotEmpty()) {
                 Timber.d("Found ${unsyncedPostEntities.size} unsynced posts.")
@@ -122,6 +139,8 @@ class CommunitySyncWorker @AssistedInject constructor(
                     } else {
                         Timber.e((syncResult as CoreResult.Error).exception, "Failed to sync post: ${entity.postId}, attempt: ${entityToAttempt.syncAttempts}")
                         overallSuccess = false
+ feature/phase1-foundations-community-likes
+=======
 =======
             val unsyncedPosts = postRepository.getUnsyncedPosts() // Add to repo
             if (unsyncedPosts.isNotEmpty()) {
@@ -134,6 +153,7 @@ class CommunitySyncWorker @AssistedInject constructor(
                     } else {
                         Timber.d("Successfully synced post: ${post.postId}")
  main
+ main
                     }
                 }
             } else {
@@ -143,7 +163,11 @@ class CommunitySyncWorker @AssistedInject constructor(
  feature/phase1-foundations-community-likes
             Timber.e(e, "Error processing posts for sync")
 =======
+ feature/phase1-foundations-community-likes
+            Timber.e(e, "Error processing posts for sync")
+=======
             Timber.e(e, "Error syncing posts")
+ main
  main
             overallSuccess = false
         }
@@ -151,6 +175,9 @@ class CommunitySyncWorker @AssistedInject constructor(
         // Sync Comments
         try {
  feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
             val unsyncedCommentEntities = commentRepository.getUnsyncedCommentEntities()
             if (unsyncedCommentEntities.isNotEmpty()) {
                 Timber.d("Found ${unsyncedCommentEntities.size} unsynced comments.")
@@ -174,6 +201,8 @@ class CommunitySyncWorker @AssistedInject constructor(
                     } else {
                         Timber.e((syncResult as CoreResult.Error).exception, "Failed to sync comment: ${entity.commentId}, attempt: ${entityToAttempt.syncAttempts}")
                         overallSuccess = false
+ feature/phase1-foundations-community-likes
+=======
 =======
             val unsyncedComments = commentRepository.getUnsyncedComments() // Add to repo
             if (unsyncedComments.isNotEmpty()) {
@@ -186,6 +215,7 @@ class CommunitySyncWorker @AssistedInject constructor(
                     } else {
                         Timber.d("Successfully synced comment: ${comment.commentId}")
  main
+ main
                     }
                 }
             } else {
@@ -195,7 +225,11 @@ class CommunitySyncWorker @AssistedInject constructor(
  feature/phase1-foundations-community-likes
             Timber.e(e, "Error processing comments for sync")
 =======
+ feature/phase1-foundations-community-likes
+            Timber.e(e, "Error processing comments for sync")
+=======
             Timber.e(e, "Error syncing comments")
+ main
  main
             overallSuccess = false
         }
@@ -207,7 +241,11 @@ class CommunitySyncWorker @AssistedInject constructor(
  feature/phase1-foundations-community-likes
             Timber.w("CommunitySyncWorker completed with errors or items still needing sync. Retrying.")
 =======
+ feature/phase1-foundations-community-likes
+            Timber.w("CommunitySyncWorker completed with errors or items still needing sync. Retrying.")
+=======
             Timber.w("CommunitySyncWorker completed with errors, retrying.")
+ main
  main
             Result.retry()
         }

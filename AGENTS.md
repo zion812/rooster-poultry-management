@@ -65,12 +65,16 @@ This application targets rural users with potentially unreliable and slow (2G) i
     *   Provide immediate user feedback (loading states, progress indicators).
     *   Gracefully handle network errors and timeouts.
 *   **Synchronization:**
-    *   **`feature-farm` Data Sync:**
-        *   Uses a `FarmDataSyncWorker` (WorkManager `CoroutineWorker`) to upload locally created/modified farm data (currently `FlockEntity` objects) to Firebase. Other entities in `feature-farm` with `needsSync` flags (e.g., `MortalityEntity`, `LineageLinkEntity`, `VaccinationEntity`) may require similar worker-based synchronization or rely on direct repository-mediated sync attempts.
-        *   The `FirebaseFarmDataSource` for `feature-farm` employs a dual-write strategy for some entities (e.g., Flocks, Mortality records), saving them to both Firestore and Firebase Realtime Database. This is an important characteristic to be aware of for data consistency and retrieval.
-    *   **Sync Flags:** Room entities intended for synchronization (e.g., `FlockEntity`) use a `needsSync: Boolean` flag. This flag is set to `true` when data is created/modified locally. The sync worker uploads items where `needsSync = true` and sets it to `false` upon successful remote persistence.
-    *   **Enqueueing:** Sync workers are typically enqueued periodically and/or when network connectivity is restored.
-    *   WorkManager jobs should be designed to be resilient to network interruptions, with appropriate retry strategies.
+        *   Dedicated `WorkManager` workers (`FarmDataSyncWorker`, `MarketplaceSyncWorker`, `CommunitySyncWorker`) are implemented for `feature-farm`, `feature-marketplace`, and `feature-community` respectively.
+        *   These workers are responsible for uploading locally created/modified entities (e.g., `FlockEntity`, `ProductListingEntity`, `OrderEntity`, `CommunityUserProfileEntity`, `PostEntity`, `CommentEntity`) that are marked with `needsSync = true` to the remote backend (primarily Firestore).
+        *   **Per-Item Retry Logic:** Workers now implement per-item retry logic. Entities track `syncAttempts` and `lastSyncAttemptTimestamp`. If an item fails to sync, its `syncAttempts` count is incremented. If `syncAttempts` exceeds `MAX_SYNC_ATTEMPTS` (e.g., 5), the worker will skip that item in the current run (logging this) but will still signal a retry for the overall job if other items failed or if skipped items still require syncing. Successful sync resets `syncAttempts` to 0 and `needsSync` to `false`.
+        *   The `FirebaseFarmDataSource` for `feature-farm` employs a dual-write strategy for some entities (e.g., Flocks, Mortality records), saving them to both Firestore and Firebase Realtime Database.
+    *   **Sync Flags & Attempt Tracking:** Room entities intended for synchronization use:
+            *   `needsSync: Boolean`: Set to `true` when data is created/modified locally. Cleared by the sync worker upon successful remote persistence.
+            *   `syncAttempts: Int`: Tracks the number of failed synchronization attempts for an item.
+            *   `lastSyncAttemptTimestamp: Long`: Records the timestamp of the last sync attempt.
+    *   **Enqueueing:** Sync workers are enqueued periodically (e.g., every few hours) via `App.kt` and are constrained by network connectivity.
+    *   WorkManager jobs utilize `Result.retry()` for transient failures or when items still require syncing after individual attempt limits are considered in a run.
 
 ## 4. Code Quality and Conventions
 
@@ -95,11 +99,20 @@ This application targets rural users with potentially unreliable and slow (2G) i
 
 ## 6. Data Synchronization Strategy (General)
 
-*   **Conflict Resolution:** (Future Work) Define and implement clear strategies for handling data conflicts between local and remote sources (e.g., last-write-wins, server authoritative, user prompted). This is critical for bidirectional sync.
+*   **Conflict Resolution (Initial Steps):**
+    *   When fetching data that is also cached locally (e.g., details for a flock, product, or post), if the local version has `needsSync = true` (indicating unsynced local changes), the system will prioritize emitting the local data and log a warning, rather than immediately overwriting the cache with potentially stale remote data from a listener or general fetch. This helps prevent loss of pending offline edits.
+    *   Full conflict resolution (e.g., merging strategies, user prompts for conflicting edits) remains future work for true bidirectional sync scenarios.
 *   **Integrity:** Ensure data remains consistent across client and server.
 *   **Transparency:** Provide users with feedback on sync status and any errors.
-*   **Uploads:** For features requiring offline creation/modification (like `feature-farm`), use a `needsSync` flag in local Room entities. A dedicated `WorkManager` worker should periodically query for items with `needsSync = true`, attempt to upload them to the remote data source, and clear the flag on success.
-*   **Downloads/Caching:** Data fetched from remote sources should be cached in Room. If real-time updates are needed, use mechanisms like Firebase Realtime listeners or Firestore snapshot listeners, updating the Room cache upon receiving new remote data. Cached data from remote should have its `needsSync` flag set to `false`.
+*   **Uploads (via Sync Workers):**
+    *   Features requiring offline creation/modification use a `needsSync: Boolean` flag in local Room entities.
+    *   Additionally, entities now include `syncAttempts: Int` and `lastSyncAttemptTimestamp: Long` to support robust retry logic.
+    *   Dedicated `WorkManager` workers (`FarmDataSyncWorker`, `MarketplaceSyncWorker`, `CommunitySyncWorker`) periodically query for entities with `needsSync = true`.
+    *   Workers attempt to upload these items, incrementing `syncAttempts` on failure. Items exceeding `MAX_SYNC_ATTEMPTS` are temporarily skipped in a run to prevent blocking other items.
+    *   On successful upload, the worker clears the `needsSync` flag to `false` and resets `syncAttempts` to `0`.
+*   **Downloads/Caching:**
+    *   Data fetched from remote sources is cached in Room.
+    *   When updating the cache from remote listeners or fetches, the system now checks if a local version of the item has `needsSync = true`. If so, the cache update for that specific item is deferred to prevent overwriting unsynced local edits, as detailed under "Conflict Resolution (Initial Steps)". Otherwise, cached data from remote has its `needsSync` flag set to `false`.
 
 ## 7. Resolved Configuration Issues & Key Architectural Decisions
 
@@ -153,6 +166,13 @@ This application targets rural users with potentially unreliable and slow (2G) i
     *   **Image Compression (Conceptual Setup):** `ImageUploadService` interface and implementation method signatures updated to accept `ImageCompressionOptions`. `CreateListingViewModel` passes default options. *Actual client-side compression logic is pending.*
     *   **Caching Bugfix:** Corrected `needsSync` flag assignment in `FarmRepositoryImpl.getFlockById` when caching remote data.
     *   **General Best Practice:** For 2G, prioritize server-side pagination for all lists, implement client-side image compression before upload, optimize image loading in UI (e.g. Coil size requests), and use efficient WorkManager strategies. Test thoroughly under simulated 2G conditions.
+*   **Client-Side Image Compression Implemented:** `FirebaseStorageImageUploadService` now incorporates client-side image compression logic before uploading to Firebase Storage, using `ImageCompressionOptions`.
+*   **Dedicated Sync Workers for Marketplace & Community:** `MarketplaceSyncWorker` and `CommunitySyncWorker` created and enqueued to handle offline data synchronization for their respective features, similar to `FarmDataSyncWorker`.
+*   **Robust Sync Worker Retry Logic:** All sync workers (`FarmDataSyncWorker`, `MarketplaceSyncWorker`, `CommunitySyncWorker`) updated to include per-item retry logic. Relevant Room entities (`FlockEntity`, `ProductListingEntity`, `OrderEntity`, `CommunityUserProfileEntity`, `PostEntity`, `CommentEntity`) now have `syncAttempts` and `lastSyncAttemptTimestamp` fields (with corresponding DB migrations) to track and limit retry attempts for individual items, preventing problematic items from blocking the entire sync queue.
+*   **Conflict Resolution Enhancement for Local Unsynced Data:** Repository methods that fetch data and update local caches (e.g., `getFlockById`, `getProductListingDetails`, `getOrderDetails`, `getCommunityUserProfile`, `getPostDetails`, `getCommentsForPost`, and list-based equivalents) have been refined. They now check if a local entity has `needsSync = true` before overwriting it with data from a remote listener or fetch, prioritizing local unsynced changes to prevent data loss.
+*   **Standardized Result Type for Farm Registration:** The `registerFlock` pathway in `feature-farm` (DataSource, Repository, UseCase, ViewModel) was refactored to use the project's standard `com.example.rooster.core.common.Result<T>` for consistency.
+*   **Community Post Liking Feature:** Implemented the ability for users to like and unlike posts in the `feature-community`. This includes UI updates, ViewModel logic, UseCases, Repository methods, and a Firebase backend implementation using Firestore transactions to update `likeCount` and a `likedBy` list on post documents.
+*   **Hardened Deserialization and Enum Mapping:** Improved robustness in `FirebaseCommunityDataSource` by adding try-catch blocks for `toObject`/`toObjects` calls to handle potential deserialization errors (e.g., from enum mismatches). Enhanced enum type converters in `MarketplaceTypeConverters` with try-catch and logging.
 =======
  jules/arch-assessment-1
 =======

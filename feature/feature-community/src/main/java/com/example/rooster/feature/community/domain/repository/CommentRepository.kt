@@ -15,12 +15,18 @@ interface CommentRepository {
 
     // Methods for SyncWorker
  feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
     suspend fun getUnsyncedCommentEntities(): List<com.example.rooster.feature.community.data.local.model.CommentEntity>
     suspend fun syncCommentRemote(comment: Comment): Result<Unit> // Returns ID of synced comment from remote, or error
     suspend fun updateLocalCommentEntity(commentEntity: com.example.rooster.feature.community.data.local.model.CommentEntity)
     fun mapCommentEntityToDomain(commentEntity: com.example.rooster.feature.community.data.local.model.CommentEntity): Comment
+ feature/phase1-foundations-community-likes
+=======
 =======
     suspend fun getUnsyncedComments(): List<Comment>
     suspend fun syncComment(comment: Comment): Result<Unit>
+ main
  main
 }

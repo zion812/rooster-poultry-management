@@ -122,6 +122,9 @@ class FarmRepositoryImpl @Inject constructor(
                 fatherId = data.fatherId,
                 motherId = data.motherId,
  feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
                 type = FlockType.valueOf(data.ageGroup.name.uppercase(Locale.ROOT)),
                 name = "New Flock",
 =======
@@ -161,6 +164,9 @@ class FarmRepositoryImpl @Inject constructor(
             )
 
  feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
             val entity = mapFlockToEntity(flock, needsSync = true)
             flockDao.insert(entity)
 
@@ -190,6 +196,8 @@ class FarmRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e, "Failed to register flock locally.")
             com.example.rooster.core.common.Result.Error(e)
+ feature/phase1-foundations-community-likes
+=======
 =======
             val entity = mapFlockToEntity(flock, needsSync = true) // New flocks always need sync
             flockDao.insert(entity)
@@ -212,6 +220,7 @@ class FarmRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e, "Failed to register flock locally.")
             Result.Error(e)
+ main
  main
         }
     }

@@ -44,6 +44,12 @@ data class PostEntity(
     var syncAttempts: Int = 0,
     var lastSyncAttemptTimestamp: Long = 0L
 =======
+ feature/phase1-foundations-community-likes
+    var needsSync: Boolean = true, // For offline created/updated posts
+    var syncAttempts: Int = 0,
+    var lastSyncAttemptTimestamp: Long = 0L
+=======
     var needsSync: Boolean = true // For offline created/updated posts
+ main
  main
 )
