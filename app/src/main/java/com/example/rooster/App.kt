@@ -5,8 +5,6 @@ import android.content.ComponentCallbacks2
 import android.util.Log
 import androidx.room.Room
 import androidx.work.BackoffPolicy
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.BackoffPolicy
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -36,11 +34,13 @@ import com.parse.Parse
 import com.parse.ParseACL
 import com.parse.ParseInstallation
 import com.parse.ParseObject
-import com.parse.ParseUser
 import dagger.hilt.android.HiltAndroidApp
 import androidx.hilt.work.HiltWorkerFactory // Import HiltWorkerFactory
+import androidx.work.PeriodicWorkRequest
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject // Import Inject
+import kotlin.jvm.java
 
 @HiltAndroidApp
 @Suppress("unused")
@@ -77,6 +77,23 @@ class App : Application(), Configuration.Provider { // Implement Configuration.P
 
     override fun onCreate() {
         super.onCreate()
+
+        // Initialize Timber logging
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        } else {
+            // For release builds, you might want to plant a different tree
+            // that doesn't log sensitive information
+            Timber.plant(object : Timber.Tree() {
+                override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+                    if (priority >= Log.WARN) {
+                        // Only log warnings and errors in release builds
+                        FirebaseCrashlytics.getInstance().log("$tag: $message")
+                        t?.let { FirebaseCrashlytics.getInstance().recordException(it) }
+                    }
+                }
+            })
+        }
 
         Log.d("RoosterApp", "=== APP INITIALIZATION STARTED ===")
         Log.d("RoosterApp", "Enhanced Parse Server 6.2.0 Integration")

@@ -21,11 +21,15 @@ class MarketplaceSyncWorker @AssistedInject constructor(
 
     companion object {
         const val WORK_NAME = "MarketplaceSyncWorker"
+ feature/phase1-foundations-community-likes
         private const val MAX_SYNC_ATTEMPTS = 5
+=======
+ main
     }
 
     override suspend fun doWork(): Result {
         Timber.d("MarketplaceSyncWorker started")
+ feature/phase1-foundations-community-likes
         var overallSuccess = true // Tracks if all items were synced or skipped correctly
 
         // Sync Product Listings
@@ -61,18 +65,55 @@ class MarketplaceSyncWorker @AssistedInject constructor(
                         val error = (syncResult as? com.example.rooster.core.common.Result.Error)?.exception
                         Timber.e(error, "Failed to sync product listing: ${entity.id}, attempt: ${entityToAttempt.syncAttempts}")
                         overallSuccess = false
+=======
+
+        var success = true
+
+        // Sync Product Listings
+        try {
+            val unsyncedListings = productListingRepository.getUnsyncedProductListings() // Needs to be added to repo
+            if (unsyncedListings.isNotEmpty()) {
+                Timber.d("Found ${unsyncedListings.size} unsynced product listings.")
+                // In a real scenario, we might want to upload them one by one or in batches
+                // and handle individual failures.
+                // For simplicity, let's assume a bulk sync attempt or iterate.
+                for (listing in unsyncedListings) {
+                    // The repository's save method should handle setting needsSync = false on successful remote save.
+                    // Or we might need a specific sync method in the repository.
+                    // For now, assuming createOrUpdateProductListing handles this by re-fetching or updating local.
+                    // This part needs careful implementation in the repository.
+                    // A more robust approach would be a dedicated sync method in the repository.
+                    // Let's assume a simple re-save for now if createOrUpdate handles local update post-sync.
+                    // This is a placeholder for more robust repository interaction.
+                    // productListingRepository.createOrUpdateProductListing(listing) // This might not be ideal.
+                    // A better approach:
+                    val syncResult = productListingRepository.syncListing(listing) // Requires syncListing in Repository
+                    if (syncResult is com.example.rooster.core.common.Result.Error) {
+                        Timber.e(syncResult.exception, "Failed to sync product listing: ${listing.id}")
+                        success = false
+                        // Decide if we should continue or retry this specific item later.
+                        // For now, we'll mark the overall work as failed if any item fails.
+                    } else {
+                        Timber.d("Successfully synced product listing: ${listing.id}")
+ main
                     }
                 }
             } else {
                 Timber.d("No unsynced product listings to sync.")
             }
         } catch (e: Exception) {
+ feature/phase1-foundations-community-likes
             Timber.e(e, "Error processing product listings for sync")
             overallSuccess = false
+=======
+            Timber.e(e, "Error syncing product listings")
+            success = false
+ main
         }
 
         // Sync Orders
         try {
+ feature/phase1-foundations-community-likes
             val unsyncedOrderEntities = orderRepository.getUnsyncedOrderEntities()
             if (unsyncedOrderEntities.isNotEmpty()) {
                 Timber.d("Found ${unsyncedOrderEntities.size} unsynced orders.")
@@ -103,12 +144,25 @@ class MarketplaceSyncWorker @AssistedInject constructor(
                         val error = (syncResult as? com.example.rooster.core.common.Result.Error)?.exception
                         Timber.e(error, "Failed to sync order: ${entity.orderId}, attempt: ${entityToAttempt.syncAttempts}")
                         overallSuccess = false
+=======
+            val unsyncedOrders = orderRepository.getUnsyncedOrders() // Needs to be added to repo
+            if (unsyncedOrders.isNotEmpty()) {
+                Timber.d("Found ${unsyncedOrders.size} unsynced orders.")
+                for (order in unsyncedOrders) {
+                    val syncResult = orderRepository.syncOrder(order) // Requires syncOrder in Repository
+                    if (syncResult is com.example.rooster.core.common.Result.Error) {
+                        Timber.e(syncResult.exception, "Failed to sync order: ${order.id}")
+                        success = false
+                    } else {
+                        Timber.d("Successfully synced order: ${order.id}")
+ main
                     }
                 }
             } else {
                 Timber.d("No unsynced orders to sync.")
             }
         } catch (e: Exception) {
+ feature/phase1-foundations-community-likes
             Timber.e(e, "Error processing orders for sync")
             overallSuccess = false
         }
@@ -119,6 +173,18 @@ class MarketplaceSyncWorker @AssistedInject constructor(
         } else {
             Timber.w("MarketplaceSyncWorker completed with errors or items still needing sync. Retrying.")
             Result.retry()
+=======
+            Timber.e(e, "Error syncing orders")
+            success = false
+        }
+
+        return if (success) {
+            Timber.d("MarketplaceSyncWorker completed successfully")
+            Result.success()
+        } else {
+            Timber.w("MarketplaceSyncWorker completed with errors, retrying.")
+            Result.retry() // Retry if any part failed
+ main
         }
     }
 }

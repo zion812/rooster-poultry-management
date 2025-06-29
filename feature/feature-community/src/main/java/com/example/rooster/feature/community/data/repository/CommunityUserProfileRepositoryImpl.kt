@@ -91,6 +91,7 @@ class CommunityUserProfileRepositoryImpl @Inject constructor(
         }
     }
 
+ feature/phase1-foundations-community-likes
 import timber.log.Timber // Ensure Timber is imported
 
     // New methods for SyncWorker
@@ -126,6 +127,29 @@ import timber.log.Timber // Ensure Timber is imported
     override fun mapUserProfileEntityToDomain(profileEntity: CommunityUserProfileEntity): CommunityUserProfile {
         return mapEntityToDomain(profileEntity) // Use existing private mapper
     }
+=======
+    // New methods for SyncWorker
+    override suspend fun getUnsyncedUserProfiles(): List<CommunityUserProfile> = withContext(Dispatchers.IO) {
+        localDataSource.getUnsyncedProfilesSuspend().map { mapEntityToDomain(it) }
+    }
+
+    override suspend fun syncUserProfile(profile: CommunityUserProfile): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // Using updateCommunityUserProfile from remote which should handle create or update.
+            val remoteResult = remoteDataSource.updateCommunityUserProfile(profile)
+            if (remoteResult is Result.Success) {
+                // Mark as synced locally
+                localDataSource.insertProfile(mapDomainToEntity(profile, needsSync = false))
+                Result.Success(Unit)
+            } else {
+                // Propagate error
+                Result.Error((remoteResult as Result.Error).exception)
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+ main
     // End of new methods for SyncWorker
 
     // --- Mappers ---

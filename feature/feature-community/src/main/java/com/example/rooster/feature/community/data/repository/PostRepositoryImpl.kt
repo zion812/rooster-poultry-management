@@ -213,6 +213,7 @@ class PostRepositoryImpl @Inject constructor(
         return@withContext remoteResult
     }
 
+ feature/phase1-foundations-community-likes
 import timber.log.Timber // Ensure Timber is imported
 
     override suspend fun getUnsyncedPostEntities(): List<PostEntity> = withContext(Dispatchers.IO) {
@@ -261,6 +262,33 @@ import timber.log.Timber // Ensure Timber is imported
 
     override fun mapPostEntityToDomain(postEntity: PostEntity): Post {
         return mapEntityToDomain(postEntity)
+=======
+    override suspend fun getUnsyncedPosts(): List<Post> = withContext(Dispatchers.IO) {
+        localDataSource.getUnsyncedPostsSuspend().map { mapEntityToDomain(it) }
+    }
+
+    override suspend fun syncPost(post: Post): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // Assuming remoteDataSource.createPost can handle if post already exists (e.g. by ID)
+            // or a specific remoteDataSource.updatePost exists and is chosen based on some logic.
+            // For simplicity, using createPost for new unsynced items.
+            // If it's an update to an existing post that went offline, updatePost would be more appropriate.
+            val remoteResult = remoteDataSource.createPost(post) // Or updatePost(post)
+
+            if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
+                // Update local entity to set needsSync = false and potentially use remote ID
+                val entity = mapDomainToEntity(post.copy(postId = remoteResult.data), needsSync = false)
+                localDataSource.insertPost(entity) // REPLACE will update it
+                Result.Success(Unit)
+            } else if (remoteResult is Result.Error) {
+                Result.Error(remoteResult.exception)
+            } else {
+                 Result.Error(Exception("Remote data source returned invalid ID or unknown error during post sync"))
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+ main
     }
 
     // --- Mappers ---

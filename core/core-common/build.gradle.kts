@@ -23,6 +23,9 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            isMinifyEnabled = false
+        }
         create("staging") {
             initWith(getByName("release"))
         }
@@ -58,7 +61,13 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.kotlinx.serialization.json)
 
+    // Logging
+    implementation(libs.timber.logger)
+
     // Testing
-    testImplementation(libs.bundles.testing)
-    // Removed androidTestImplementation until versions are fixed
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

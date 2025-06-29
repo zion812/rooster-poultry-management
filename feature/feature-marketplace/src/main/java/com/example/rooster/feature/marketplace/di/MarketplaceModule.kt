@@ -40,7 +40,11 @@ object MarketplaceProvidesModule {
         )
         // TODO: Add proper migrations for production.
         // .fallbackToDestructiveMigration() // Replaced with addMigrations
+ feature/phase1-foundations-community-likes
         .addMigrations(MarketplaceDatabaseMigrations.MIGRATION_1_2) // Added migration
+=======
+        .addMigrations() // Add actual Migration objects here when schema changes
+ main
         .build()
     }
 

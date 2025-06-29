@@ -38,7 +38,11 @@ object CommunityProvidesModule {
         )
         // TODO: Add proper migrations for production.
         // .fallbackToDestructiveMigration() // Replaced with addMigrations
+ feature/phase1-foundations-community-likes
         .addMigrations(CommunityDatabaseMigrations.MIGRATION_1_2) // Added migration
+=======
+        .addMigrations() // Add actual Migration objects here when schema changes
+ main
         .build()
     }
 
