@@ -32,10 +32,21 @@ interface ProductListingRepository {
     suspend fun deleteProductListing(listingId: String): Result<Unit>
 
     // Methods for SyncWorker
+ feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
     suspend fun getUnsyncedProductListingEntities(): List<com.example.rooster.feature.marketplace.data.local.model.ProductListingEntity>
     suspend fun syncListingRemote(productListing: ProductListing): Result<Unit>
     suspend fun updateLocalListing(listingEntity: com.example.rooster.feature.marketplace.data.local.model.ProductListingEntity) // For worker
     fun mapListingEntityToDomain(listingEntity: com.example.rooster.feature.marketplace.data.local.model.ProductListingEntity): ProductListing // For worker
+ feature/phase1-foundations-community-likes
+=======
+=======
+    suspend fun getUnsyncedProductListings(): List<ProductListing>
+    suspend fun syncListing(productListing: ProductListing): Result<Unit>
+ main
+ main
 
 
     // TODO: Add methods for user's own listings, favorites, etc.

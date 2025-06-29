@@ -550,6 +550,10 @@ private inline fun <D, S> localBackedRemoteResourceList(
  main
  main
  main
+ feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
     override suspend fun getUnsyncedProductListingEntities(): List<ProductListingEntity> = withContext(Dispatchers.IO) {
         localDataSource.getUnsyncedListingsSuspend()
     }
@@ -562,20 +566,57 @@ private inline fun <D, S> localBackedRemoteResourceList(
         try {
             val remoteResult = remoteDataSource.createProductListing(productListing) // This effectively acts as an upsert if ID is consistent
             if (remoteResult is Result.Success && remoteResult.data != null && remoteResult.data.isNotBlank()) {
+ feature/phase1-foundations-community-likes
+=======
+=======
+    override suspend fun getUnsyncedProductListings(): List<ProductListing> = withContext(Dispatchers.IO) {
+        localDataSource.getUnsyncedListingsSuspend().map { mapEntityToDomain(it) }
+    }
+
+    override suspend fun syncListing(productListing: ProductListing): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // Attempt to save to remote
+            val remoteResult = remoteDataSource.createProductListing(productListing) // Or update if exists logic needed in remote
+            // val remoteResult = remoteDataSource.updateProductListing(productListing) // Choose based on desired sync behavior
+
+            if (remoteResult is Result.Success) {
+                // If remote save is successful, update local entity to set needsSync = false
+                val entity = mapDomainToEntity(productListing, needsSync = false)
+                localDataSource.insertListing(entity) // REPLACE will update it
+ main
+ main
                 Result.Success(Unit)
             } else if (remoteResult is Result.Error) {
                 Timber.e(remoteResult.exception, "Failed to sync listing ${productListing.id} to remote.")
                 Result.Error(remoteResult.exception)
             } else {
+ feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
                 Timber.w("Remote sync for listing ${productListing.id} did not return a specific error but was not successful (e.g. null ID).")
                 Result.Error(Exception("Unknown error or unsuccessful remote sync for listing ${productListing.id}"))
             }
         } catch (e: Exception) {
             Timber.e(e, "Exception during remote listing sync for ${productListing.id}")
+ feature/phase1-foundations-community-likes
+=======
+=======
+                 Timber.e("Unknown error while syncing listing ${productListing.id} to remote.")
+                Result.Error(Exception("Unknown error during listing sync"))
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Exception during listing sync for ${productListing.id}")
+ main
+ main
             Result.Error(e)
         }
     }
 
+ feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
     override suspend fun updateLocalListing(listingEntity: ProductListingEntity) {
         withContext(Dispatchers.IO) {
             localDataSource.insertListing(listingEntity) // Uses REPLACE strategy
@@ -586,6 +627,11 @@ private inline fun <D, S> localBackedRemoteResourceList(
         return mapEntityToDomain(listingEntity) // Call the existing private mapper
     }
 
+ feature/phase1-foundations-community-likes
+=======
+=======
+ main
+ main
     // --- Mappers ---
     // TODO: Extract mappers to a separate utility if they become complex or are shared.
 

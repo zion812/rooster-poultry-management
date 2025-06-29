@@ -53,6 +53,7 @@ sealed interface PostFeedSingleEvent {
 
 import com.example.rooster.core.common.user.UserIdProvider // Added
 
+ feature/phase1-foundations-community-likes
 import android.content.Context // Added
 import dagger.hilt.android.qualifiers.ApplicationContext // Added
 
@@ -63,6 +64,14 @@ class PostFeedViewModel @Inject constructor(
     private val likePostUseCase: LikePostUseCase,
     private val unlikePostUseCase: UnlikePostUseCase,
     private val userIdProvider: UserIdProvider
+=======
+@HiltViewModel
+class PostFeedViewModel @Inject constructor(
+    private val postRepository: PostRepository, // Keep for fetching posts
+    private val likePostUseCase: LikePostUseCase,
+    private val unlikePostUseCase: UnlikePostUseCase,
+    private val userIdProvider: UserIdProvider // Added
+ main
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PostFeedUiState>(PostFeedUiState.Loading)
@@ -126,7 +135,11 @@ class PostFeedViewModel @Inject constructor(
                     // No explicit state update needed here if PostRepository's Flow emits on change.
                 }
                 is Result.Error -> {
+ feature/phase1-foundations-community-likes
                     _singleEventFlow.emit(PostFeedSingleEvent.LikeUnlikeError(result.exception.toUserFriendlyMessage(appContext)))
+=======
+                    _singleEventFlow.emit(PostFeedSingleEvent.LikeUnlikeError(result.exception.message ?: "Failed to like post"))
+ main
                 }
                 else -> { /* Loading state not typically handled for this kind of action directly in VM event */ }
             }
@@ -140,7 +153,11 @@ class PostFeedViewModel @Inject constructor(
                     // Similar to like, local data update in repo should refresh UI.
                 }
                 is Result.Error -> {
+ feature/phase1-foundations-community-likes
                     _singleEventFlow.emit(PostFeedSingleEvent.LikeUnlikeError(result.exception.toUserFriendlyMessage(appContext)))
+=======
+                    _singleEventFlow.emit(PostFeedSingleEvent.LikeUnlikeError(result.exception.message ?: "Failed to unlike post"))
+ main
                 }
                 else -> {}
             }

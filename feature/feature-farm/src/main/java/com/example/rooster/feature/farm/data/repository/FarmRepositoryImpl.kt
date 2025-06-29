@@ -121,21 +121,29 @@ class FarmRepositoryImpl @Inject constructor(
                 ownerId = data.ownerId,
                 fatherId = data.fatherId,
                 motherId = data.motherId,
+ feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
                 type = FlockType.valueOf(data.ageGroup.name.uppercase(Locale.ROOT)),
                 name = "New Flock",
+=======
+                type = FlockType.valueOf(data.ageGroup.name.uppercase(Locale.ROOT)), // Ensure uppercase for enum
+                name = "New Flock", // Consider making name part of registration data
+ main
                 breed = data.breed,
                 weight = data.weight?.toFloat(),
                 height = null,
                 color = null,
-                gender = null,
+                gender = null, // Consider adding to registration data
                 certified = false,
                 verified = false,
                 verificationLevel = VerificationLevel.BASIC,
-                traceable = false,
+                traceable = false, // Depends on system capabilities
                 ageGroup = data.ageGroup,
-                dateOfBirth = null,
+                dateOfBirth = null, // Consider adding to registration data
                 placeOfBirth = null,
-                currentAge = null,
+                currentAge = null, // Usually calculated
                 vaccinationStatus = VaccinationStatus.NOT_STARTED,
                 lastVaccinationDate = null,
                 healthStatus = HealthStatus.GOOD,
@@ -155,6 +163,10 @@ class FarmRepositoryImpl @Inject constructor(
                 updatedAt = Date(now)
             )
 
+ feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
             val entity = mapFlockToEntity(flock, needsSync = true)
             flockDao.insert(entity)
 
@@ -184,6 +196,32 @@ class FarmRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e, "Failed to register flock locally.")
             com.example.rooster.core.common.Result.Error(e)
+ feature/phase1-foundations-community-likes
+=======
+=======
+            val entity = mapFlockToEntity(flock, needsSync = true) // New flocks always need sync
+            flockDao.insert(entity)
+
+            // Attempt immediate remote sync, but don't block/fail registration. Worker will handle it.
+            try {
+                val remoteData = mapFlockToRemote(flock)
+                val remoteResult = remoteDataSource.saveFlock(remoteData) // Assuming saveFlock takes the Map
+                if (remoteResult is Result.Success) {
+                    flockDao.insert(mapFlockToEntity(flock, needsSync = false)) // Mark as synced
+                    Timber.d("Flock ID $id: Registered and immediately synced.")
+                } else if (remoteResult is Result.Error) {
+                    Timber.w(remoteResult.exception, "Flock ID $id: Registered locally, but immediate remote sync failed. Worker will retry.")
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Flock ID $id: Exception during immediate remote sync attempt after registration.")
+            }
+
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to register flock locally.")
+            Result.Error(e)
+ main
+ main
         }
     }
 

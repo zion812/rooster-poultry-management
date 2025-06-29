@@ -32,8 +32,6 @@ android {
         }
         create("staging") {
             initWith(getByName("release"))
-            // Add any staging-specific configurations here if needed in the future
-            // For example: manifestPlaceholders["somePlaceholder"] = "stagingValue"
         }
     }
     compileOptions {
@@ -92,7 +90,6 @@ dependencies {
     implementation(libs.androidx.compose.material.icons)
     implementation("androidx.compose.material:material-icons-extended")
 
-
     // Lifecycle for ViewModels
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.lifecycle.runtime.compose) // For collectAsStateWithLifecycle
@@ -100,6 +97,9 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3") // Consider using libs.kotlinx.coroutines.core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3") // Consider using libs.kotlinx.coroutines.android
+
+    // Logging
+    implementation(libs.timber.logger)
 
     // Testing
     testImplementation(libs.junit)

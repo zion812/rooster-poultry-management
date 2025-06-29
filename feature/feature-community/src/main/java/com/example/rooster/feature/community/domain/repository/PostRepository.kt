@@ -14,10 +14,21 @@ interface PostRepository {
     suspend fun unlikePost(postId: String, userId: String): Result<Unit> // Or removeReaction
 
     // Methods for SyncWorker
+ feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
     suspend fun getUnsyncedPostEntities(): List<com.example.rooster.feature.community.data.local.model.PostEntity>
     suspend fun syncPostRemote(post: Post): Result<Unit> // Returns ID of synced post from remote, or error
     suspend fun updateLocalPostEntity(postEntity: com.example.rooster.feature.community.data.local.model.PostEntity)
     fun mapPostEntityToDomain(postEntity: com.example.rooster.feature.community.data.local.model.PostEntity): Post
+ feature/phase1-foundations-community-likes
+=======
+=======
+    suspend fun getUnsyncedPosts(): List<Post>
+    suspend fun syncPost(post: Post): Result<Unit>
+ main
+ main
 
     // Add methods for reporting posts, getting user's own posts, etc.
 }

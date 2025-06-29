@@ -28,6 +28,9 @@ android {
         debug {
             isMinifyEnabled = false
         }
+        create("staging") {
+            initWith(getByName("release"))
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -90,6 +93,12 @@ dependencies {
 
     // Kotlinx Serialization
     implementation(libs.kotlinx.serialization.json)
+
+    // Background work
+    implementation(libs.work.runtime.ktx)
+
+    // Logging
+    implementation(libs.timber.logger)
 
     // Testing
     testImplementation(libs.junit)

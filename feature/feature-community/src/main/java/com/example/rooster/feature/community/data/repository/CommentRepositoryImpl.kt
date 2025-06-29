@@ -175,6 +175,10 @@ class CommentRepositoryImpl @Inject constructor(
         return@withContext remoteDataSource.unlikeComment(commentId, userId)
     }
 
+ feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
 import timber.log.Timber // Ensure Timber is imported
 
     override suspend fun getUnsyncedCommentEntities(): List<CommentEntity> = withContext(Dispatchers.IO) {
@@ -200,10 +204,41 @@ import timber.log.Timber // Ensure Timber is imported
             }
         } catch (e: Exception) {
             Timber.e(e, "Exception during remote comment sync for ${comment.commentId}")
+ feature/phase1-foundations-community-likes
+=======
+=======
+    override suspend fun getUnsyncedComments(): List<Comment> = withContext(Dispatchers.IO) {
+        localDataSource.getUnsyncedCommentsSuspend().map { mapEntityToDomain(it) }
+    }
+
+    override suspend fun syncComment(comment: Comment): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // Assuming remoteDataSource.addComment can handle if comment already exists
+            // or a specific remoteDataSource.updateComment exists.
+            // Using addComment for new unsynced items.
+            val remoteResult = remoteDataSource.addComment(comment) // Or updateComment(comment)
+
+            if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
+                // Update local entity to set needsSync = false and use remote ID
+                val entity = mapDomainToEntity(comment.copy(commentId = remoteResult.data), needsSync = false)
+                localDataSource.insertComment(entity) // REPLACE will update it
+                Result.Success(Unit)
+            } else if (remoteResult is Result.Error) {
+                Result.Error(remoteResult.exception)
+            } else {
+                Result.Error(Exception("Remote data source returned invalid ID or unknown error during comment sync"))
+            }
+        } catch (e: Exception) {
+ main
+ main
             Result.Error(e)
         }
     }
 
+ feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
     override suspend fun updateLocalCommentEntity(commentEntity: CommentEntity) {
         withContext(Dispatchers.IO) {
             localDataSource.insertComment(commentEntity) // OnConflictStrategy.REPLACE
@@ -214,6 +249,11 @@ import timber.log.Timber // Ensure Timber is imported
         return mapEntityToDomain(commentEntity)
     }
 
+ feature/phase1-foundations-community-likes
+=======
+=======
+ main
+ main
     // --- Mappers ---
     private fun mapEntityToDomain(entity: CommentEntity): Comment {
         return Comment(

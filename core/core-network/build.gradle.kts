@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.ksp) // For Hilt and other annotation processors
+    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -44,26 +44,30 @@ android {
 }
 
 dependencies {
-    // Project Dependencies
     implementation(project(":core:core-common"))
 
-    // Hilt for Dependency Injection
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    
+    // Firebase dependencies with BOM
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
 
-    // Kotlinx Serialization
+    // Parse SDK for backend integration
+    implementation(libs.parse)
+
     implementation(libs.kotlinx.serialization.json)
 
-    // Retrofit & OkHttp for Networking
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlin.serialization)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
 
-    // Coroutines for asynchronous operations
-    implementation(libs.bundles.coroutines) // Assuming this bundle includes core and android
+    implementation(libs.bundles.coroutines)
 
-    // Testing
+    // Logging
+    implementation(libs.timber.logger)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)

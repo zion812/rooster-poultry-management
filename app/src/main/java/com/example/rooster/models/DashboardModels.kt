@@ -119,3 +119,12 @@ data class QuickAction(
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
     val color: androidx.compose.ui.graphics.Color,
 )
+
+// Add missing NetworkQualityLevel enum
+enum class NetworkQualityLevel {
+    EXCELLENT,
+    GOOD,
+    FAIR,
+    POOR,
+    VERY_POOR
+}

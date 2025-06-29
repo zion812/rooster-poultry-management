@@ -399,6 +399,10 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
  main
  main
 
+ feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
     override suspend fun getUnsyncedOrderEntities(): List<OrderEntity> = withContext(Dispatchers.IO) {
         orderDao.getUnsyncedOrdersSuspend()
     }
@@ -410,20 +414,66 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
         try {
             val remoteResult = remoteDataSource.createOrder(order) // This acts as an upsert
             if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
+ feature/phase1-foundations-community-likes
+=======
+=======
+    override suspend fun getUnsyncedOrders(): List<Order> = withContext(Dispatchers.IO) {
+        val unsyncedOrderEntities = orderDao.getUnsyncedOrdersSuspend()
+        unsyncedOrderEntities.map { orderEntity ->
+            val items = orderDao.getOrderItemsForOrderSuspend(orderEntity.orderId)
+            mapOrderWithItemsToDomain(OrderWithItems(orderEntity, items))
+        }
+    }
+
+    override suspend fun syncOrder(order: Order): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // Attempt to save to remote. The remote source should handle if it's a create or update.
+            // For simplicity, let's assume remoteDataSource.createOrder can also update if ID exists,
+            // or there's a specific remoteDataSource.updateOrder method.
+            // We'll use createOrder as an example, assuming it can handle conflicts or is for new unsynced items.
+            val remoteResult = remoteDataSource.createOrder(order) // Or updateOrder(order)
+
+            if (remoteResult is Result.Success) {
+                // If remote save is successful, update local entity to set needsSync = false
+                val entity = mapDomainToEntity(order, needsSync = false)
+                // We need to ensure order items are also correctly handled if they were part of the entity update.
+                // The insertOrderWithItems already handles this if we pass the full domain object.
+                val orderItemEntities = order.items.map { mapDomainToOrderItemEntity(it, order.orderId) }
+                orderDao.insertOrderWithItems(entity, orderItemEntities) // This will replace existing
+ main
+ main
                 Result.Success(Unit)
             } else if (remoteResult is Result.Error) {
                 Timber.e(remoteResult.exception, "Failed to sync order ${order.orderId} to remote.")
                 Result.Error(remoteResult.exception)
             } else {
+ feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
                 Timber.w("Remote sync for order ${order.orderId} did not return a specific error but was not successful.")
                 Result.Error(Exception("Unknown error or unsuccessful remote sync for order ${order.orderId}"))
             }
         } catch (e: Exception) {
             Timber.e(e, "Exception during remote order sync for ${order.orderId}")
+ feature/phase1-foundations-community-likes
+=======
+=======
+                Timber.e("Unknown error while syncing order ${order.orderId} to remote.")
+                Result.Error(Exception("Unknown error during order sync"))
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Exception during order sync for ${order.orderId}")
+ main
+ main
             Result.Error(e)
         }
     }
 
+ feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
     override suspend fun updateLocalOrder(orderEntity: OrderEntity) {
         withContext(Dispatchers.IO) {
             // Note: If OrderEntity contained OrderItemEntities directly, this would be simpler.
@@ -443,6 +493,11 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
         mapOrderWithItemsToDomain(OrderWithItems(orderEntity, items)) // Call the existing private mapper
     }
 
+ feature/phase1-foundations-community-likes
+=======
+=======
+ main
+ main
     // --- Mappers ---
     private fun mapDomainToEntity(domain: Order, needsSync: Boolean): OrderEntity {
         return OrderEntity(

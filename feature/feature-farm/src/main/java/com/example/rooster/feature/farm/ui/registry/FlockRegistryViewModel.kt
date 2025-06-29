@@ -157,7 +157,11 @@ class FlockRegistryViewModel @Inject constructor(
                     is com.example.rooster.core.common.Result.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
+ feature/phase1-foundations-community-likes
                             error = result.exception.toUserFriendlyMessage(appContext)
+=======
+                            error = result.exception.localizedMessage ?: "Registration failed"
+ main
                         )
                     }
                     is com.example.rooster.core.common.Result.Loading -> {
@@ -171,7 +175,11 @@ class FlockRegistryViewModel @Inject constructor(
             } catch (e: Exception) { // Catch any unexpected exceptions from the launch block
                 _uiState.value = _uiState.value.copy( // Use _uiState.value
                     isLoading = false,
+ feature/phase1-foundations-community-likes
                     error = e.toUserFriendlyMessage(appContext)
+=======
+                    error = e.localizedMessage ?: "An unexpected error occurred"
+ main
                 )
             }
         }

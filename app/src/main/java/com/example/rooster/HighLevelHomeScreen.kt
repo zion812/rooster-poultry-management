@@ -89,7 +89,7 @@ fun HighLevelHomeScreen(
         TopAppBar(
             title = {
                 Text(
-                    "Admin Dashboard",
+                    text = "Admin Dashboard",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
@@ -131,7 +131,7 @@ private fun LoadingContent() {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                "Loading dashboard data...",
+                text = "Loading dashboard data...",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray,
             )
@@ -163,13 +163,13 @@ private fun ErrorContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    "Error loading dashboard",
+                    text = "Error loading dashboard",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onErrorContainer,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    error,
+                    text = error,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     textAlign = TextAlign.Center,
@@ -182,7 +182,7 @@ private fun ErrorContent(
                             containerColor = Color(0xFFFF5722),
                         ),
                 ) {
-                    Text("Retry", color = Color.White)
+                    Text(text = "Retry", color = Color.White)
                 }
             }
         }
@@ -264,7 +264,7 @@ private fun OverviewStatsSection(stats: OverviewStats) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "Overview",
+                text = "Overview",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -334,13 +334,13 @@ private fun StatCard(stat: StatItem) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                stat.value,
+                text = stat.value,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = stat.color,
             )
             Text(
-                stat.label,
+                text = stat.label,
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
@@ -358,7 +358,7 @@ private fun DashboardMetricsSection(metrics: DashboardMetrics) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "Performance Metrics",
+                text = "Performance Metrics",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -432,7 +432,7 @@ private fun TraceabilityMetricsSection(metrics: TraceabilityMetrics) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "Transfer Traceability",
+                text = "Transfer Traceability",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -488,13 +488,13 @@ private fun TraceabilityItem(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            value,
+            text = value,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = color,
         )
         Text(
-            label,
+            text = label,
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
             maxLines = 2,
@@ -510,7 +510,7 @@ private fun AnalyticsMetricsSection(metrics: AnalyticsMetrics) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "Analytics Metrics",
+                text = "Analytics Metrics",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -528,7 +528,7 @@ private fun AnalyticsMetricsSection(metrics: AnalyticsMetrics) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 items.forEach { item ->
                     MetricItem(
@@ -578,13 +578,13 @@ private fun AnalyticsItem(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            value,
+            text = value,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = color,
         )
         Text(
-            label,
+            text = label,
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
             maxLines = 2,
@@ -600,7 +600,7 @@ private fun FraudAlertsSection(fraudAlerts: List<FraudAlert>) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "Fraud Alerts",
+                text = "Fraud Alerts",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -609,7 +609,7 @@ private fun FraudAlertsSection(fraudAlerts: List<FraudAlert>) {
 
             if (fraudAlerts.isEmpty()) {
                 Text(
-                    "No fraud alerts",
+                    text = "No fraud alerts",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
@@ -659,18 +659,18 @@ private fun FraudAlertItem(alert: FraudAlert) {
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "Alert: ${alert.alertType} - Entity: ${alert.relatedEntity}",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = "Alert: ${alert.alertType} - Entity: ${alert.relatedEntity}",
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    "Status: ${alert.status}",
+                    text = "Status: ${alert.status}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
+                    color = Color.Gray
                 )
             }
 
             Text(
-                SimpleDateFormat("HH:mm", Locale.US).format(Date(alert.timestamp)),
+                text = SimpleDateFormat("HH:mm", Locale.US).format(Date(alert.timestamp)),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -687,7 +687,7 @@ private fun FarmVerificationsSection(farmVerifications: List<FarmVerification>) 
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "Farm Verifications",
+                text = "Farm Verifications",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -696,7 +696,7 @@ private fun FarmVerificationsSection(farmVerifications: List<FarmVerification>) 
 
             if (farmVerifications.isEmpty()) {
                 Text(
-                    "No farm verification records",
+                    text = "No farm verification records",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
@@ -729,10 +729,19 @@ private fun FarmVerificationItem(verification: FarmVerification) {
             Icon(Icons.Default.VerifiedUser, contentDescription = "Farm Verification")
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(verification.farmName, fontWeight = FontWeight.Bold)
-                Text("Owner: ${verification.ownerName}", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = verification.farmName,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = "Owner: ${verification.ownerName}",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
-            Text(verification.verificationStatus, fontWeight = FontWeight.Medium)
+            Text(
+                text = verification.verificationStatus,
+                fontWeight = FontWeight.Medium,
+            )
         }
     }
 }
@@ -745,7 +754,7 @@ private fun UserVerificationsSection(userVerifications: List<UserVerification>) 
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "User Verifications",
+                text = "User Verifications",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -754,7 +763,7 @@ private fun UserVerificationsSection(userVerifications: List<UserVerification>) 
 
             if (userVerifications.isEmpty()) {
                 Text(
-                    "No user verification records",
+                    text = "No user verification records",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
@@ -787,10 +796,19 @@ private fun UserVerificationItem(verification: UserVerification) {
             Icon(Icons.Default.Person, contentDescription = "User Verification")
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(verification.userName, fontWeight = FontWeight.Bold)
-                Text("ID: ${verification.verificationId}", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = verification.userName,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = "ID: ${verification.verificationId}",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
-            Text(verification.verificationLevel, fontWeight = FontWeight.Medium)
+            Text(
+                text = verification.verificationLevel,
+                fontWeight = FontWeight.Medium,
+            )
         }
     }
 }
@@ -803,7 +821,7 @@ private fun TopFarmersSection(farmers: List<TopFarmer>) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "Top Performing Farmers",
+                text = "Top Performing Farmers",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -843,7 +861,7 @@ private fun FarmerRankItem(farmer: TopFarmer) {
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                farmer.rank.toString(),
+                text = farmer.rank.toString(),
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
@@ -854,19 +872,19 @@ private fun FarmerRankItem(farmer: TopFarmer) {
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                farmer.name,
+                text = farmer.name,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
             )
             Text(
-                "${farmer.location} • ${farmer.fowlCount} fowl",
+                text = "${farmer.location} • ${farmer.fowlCount} fowl",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
             )
         }
 
         Text(
-            "${farmer.score}%",
+            text = "${farmer.score}%",
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             color = Color(0xFFFF5722),
@@ -882,7 +900,7 @@ private fun RecentActivitiesSection(activities: List<RecentActivity>) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "Recent Activities",
+                text = "Recent Activities",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -922,11 +940,11 @@ private fun ActivityItem(activity: RecentActivity) {
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                activity.description,
+                text = activity.description,
                 style = MaterialTheme.typography.bodyMedium,
             )
             Text(
-                activity.timeAgo,
+                text = activity.timeAgo,
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
             )
@@ -945,7 +963,7 @@ private fun SystemHealthSection(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "System Health",
+                text = "System Health",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -992,12 +1010,12 @@ private fun HealthIndicator(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            label,
+            text = label,
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
         )
         Text(
-            status,
+            text = status,
             style = MaterialTheme.typography.bodySmall,
             color = if (isHealthy) Color.Green else Color.Red,
             fontWeight = FontWeight.Medium,
@@ -1013,7 +1031,7 @@ private fun QuickActionsSection() {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "Quick Actions",
+                text = "Quick Actions",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFF5722),
@@ -1030,8 +1048,6 @@ private fun QuickActionsSection() {
                             titleTe = "నోటిఫికేషన్ పంపండి",
                             icon = Icons.Default.Notifications,
                             route = "notifications",
-                            description = "Send alerts to farmers",
-                            descriptionTe = "రైతులకు హెచ్చరికలు పంపండి",
                             color = Color(0xFF2196F3),
                         ),
                         QuickAction(
@@ -1039,8 +1055,6 @@ private fun QuickActionsSection() {
                             titleTe = "వినియోగదారు నిర్వహణ",
                             icon = Icons.Default.ManageAccounts,
                             route = "user_management",
-                            description = "Manage user accounts",
-                            descriptionTe = "వినియోగదారు ఖాతాలను నిర్వహించండి",
                             color = Color(0xFF4CAF50),
                         ),
                         QuickAction(
@@ -1048,8 +1062,6 @@ private fun QuickActionsSection() {
                             titleTe = "నివేదికలు",
                             icon = Icons.Default.Assessment,
                             route = "reports",
-                            description = "Generate reports",
-                            descriptionTe = "నివేదికలను రూపొందించండి",
                             color = Color(0xFFFF9800),
                         ),
                         QuickAction(
@@ -1057,8 +1069,6 @@ private fun QuickActionsSection() {
                             titleTe = "సెట్టింగులు",
                             icon = Icons.Default.Settings,
                             route = "settings",
-                            description = "System settings",
-                            descriptionTe = "సిస్టమ్ సెట్టింగులు",
                             color = Color(0xFF9C27B0),
                         ),
                     ),
@@ -1095,7 +1105,7 @@ private fun QuickActionCard(action: QuickAction) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                action.title,
+                text = action.title,
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
@@ -1107,11 +1117,46 @@ private fun QuickActionCard(action: QuickAction) {
 
 fun generateTopFarmers(): List<TopFarmer> {
     return listOf(
-        TopFarmer(id = "1", name = "Ravi Kumar", location = "Hyderabad, Telangana", fowlCount = 45, score = 95.0, rank = 1),
-        TopFarmer(id = "2", name = "Priya Sharma", location = "Vijayawada, AP", fowlCount = 38, score = 92.0, rank = 2),
-        TopFarmer(id = "3", name = "Suresh Reddy", location = "Mysore, Karnataka", fowlCount = 52, score = 90.0, rank = 3),
-        TopFarmer(id = "4", name = "Lakshmi Devi", location = "Chennai, Tamil Nadu", fowlCount = 41, score = 87.0, rank = 4),
-        TopFarmer(id = "5", name = "Venkat Rao", location = "Warangal, Telangana", fowlCount = 35, score = 85.0, rank = 5),
+        TopFarmer(
+            id = "1",
+            name = "Ravi Kumar",
+            location = "Hyderabad, Telangana",
+            fowlCount = 45,
+            score = 95.0,
+            rank = 1
+        ),
+        TopFarmer(
+            id = "2",
+            name = "Priya Sharma",
+            location = "Vijayawada, AP",
+            fowlCount = 38,
+            score = 92.0,
+            rank = 2
+        ),
+        TopFarmer(
+            id = "3",
+            name = "Suresh Reddy",
+            location = "Mysore, Karnataka",
+            fowlCount = 52,
+            score = 90.0,
+            rank = 3
+        ),
+        TopFarmer(
+            id = "4",
+            name = "Lakshmi Devi",
+            location = "Chennai, Tamil Nadu",
+            fowlCount = 41,
+            score = 87.0,
+            rank = 4
+        ),
+        TopFarmer(
+            id = "5",
+            name = "Venkat Rao",
+            location = "Warangal, Telangana",
+            fowlCount = 35,
+            score = 85.0,
+            rank = 5
+        ),
     )
 }
 
