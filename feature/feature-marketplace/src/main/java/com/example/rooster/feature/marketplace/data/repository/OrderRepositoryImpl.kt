@@ -372,6 +372,43 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
  main
  main
 
+    override suspend fun getUnsyncedOrders(): List<Order> = withContext(Dispatchers.IO) {
+        val unsyncedOrderEntities = orderDao.getUnsyncedOrdersSuspend()
+        unsyncedOrderEntities.map { orderEntity ->
+            val items = orderDao.getOrderItemsForOrderSuspend(orderEntity.orderId)
+            mapOrderWithItemsToDomain(OrderWithItems(orderEntity, items))
+        }
+    }
+
+    override suspend fun syncOrder(order: Order): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // Attempt to save to remote. The remote source should handle if it's a create or update.
+            // For simplicity, let's assume remoteDataSource.createOrder can also update if ID exists,
+            // or there's a specific remoteDataSource.updateOrder method.
+            // We'll use createOrder as an example, assuming it can handle conflicts or is for new unsynced items.
+            val remoteResult = remoteDataSource.createOrder(order) // Or updateOrder(order)
+
+            if (remoteResult is Result.Success) {
+                // If remote save is successful, update local entity to set needsSync = false
+                val entity = mapDomainToEntity(order, needsSync = false)
+                // We need to ensure order items are also correctly handled if they were part of the entity update.
+                // The insertOrderWithItems already handles this if we pass the full domain object.
+                val orderItemEntities = order.items.map { mapDomainToOrderItemEntity(it, order.orderId) }
+                orderDao.insertOrderWithItems(entity, orderItemEntities) // This will replace existing
+                Result.Success(Unit)
+            } else if (remoteResult is Result.Error) {
+                Timber.e(remoteResult.exception, "Failed to sync order ${order.orderId} to remote.")
+                Result.Error(remoteResult.exception)
+            } else {
+                Timber.e("Unknown error while syncing order ${order.orderId} to remote.")
+                Result.Error(Exception("Unknown error during order sync"))
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Exception during order sync for ${order.orderId}")
+            Result.Error(e)
+        }
+    }
+
     // --- Mappers ---
     private fun mapDomainToEntity(domain: Order, needsSync: Boolean): OrderEntity {
         return OrderEntity(

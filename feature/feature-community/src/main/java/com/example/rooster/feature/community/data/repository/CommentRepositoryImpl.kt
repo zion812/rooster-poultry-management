@@ -111,6 +111,32 @@ class CommentRepositoryImpl @Inject constructor(
         return@withContext remoteDataSource.unlikeComment(commentId, userId)
     }
 
+    override suspend fun getUnsyncedComments(): List<Comment> = withContext(Dispatchers.IO) {
+        localDataSource.getUnsyncedCommentsSuspend().map { mapEntityToDomain(it) }
+    }
+
+    override suspend fun syncComment(comment: Comment): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // Assuming remoteDataSource.addComment can handle if comment already exists
+            // or a specific remoteDataSource.updateComment exists.
+            // Using addComment for new unsynced items.
+            val remoteResult = remoteDataSource.addComment(comment) // Or updateComment(comment)
+
+            if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
+                // Update local entity to set needsSync = false and use remote ID
+                val entity = mapDomainToEntity(comment.copy(commentId = remoteResult.data), needsSync = false)
+                localDataSource.insertComment(entity) // REPLACE will update it
+                Result.Success(Unit)
+            } else if (remoteResult is Result.Error) {
+                Result.Error(remoteResult.exception)
+            } else {
+                Result.Error(Exception("Remote data source returned invalid ID or unknown error during comment sync"))
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+
     // --- Mappers ---
     private fun mapEntityToDomain(entity: CommentEntity): Comment {
         return Comment(

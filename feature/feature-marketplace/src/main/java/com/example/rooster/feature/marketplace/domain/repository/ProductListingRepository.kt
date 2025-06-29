@@ -31,5 +31,10 @@ interface ProductListingRepository {
 
     suspend fun deleteProductListing(listingId: String): Result<Unit>
 
+    // Methods for SyncWorker
+    suspend fun getUnsyncedProductListings(): List<ProductListing>
+    suspend fun syncListing(productListing: ProductListing): Result<Unit>
+
+
     // TODO: Add methods for user's own listings, favorites, etc.
 }

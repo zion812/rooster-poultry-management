@@ -25,5 +25,9 @@ interface OrderRepository {
 
     suspend fun cancelOrder(orderId: String, reason: String?): Result<Unit>
 
+    // Methods for SyncWorker
+    suspend fun getUnsyncedOrders(): List<Order>
+    suspend fun syncOrder(order: Order): Result<Unit>
+
     // TODO: Add methods for reorder, track shipment, etc.
 }
