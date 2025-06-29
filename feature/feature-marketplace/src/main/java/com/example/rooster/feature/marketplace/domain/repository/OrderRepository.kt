@@ -25,5 +25,11 @@ interface OrderRepository {
 
     suspend fun cancelOrder(orderId: String, reason: String?): Result<Unit>
 
+    // Methods for SyncWorker
+    suspend fun getUnsyncedOrderEntities(): List<com.example.rooster.feature.marketplace.data.local.model.OrderEntity>
+    suspend fun syncOrderRemote(order: Order): Result<Unit>
+    suspend fun updateLocalOrder(orderEntity: com.example.rooster.feature.marketplace.data.local.model.OrderEntity) // For worker
+    suspend fun mapOrderEntityToDomain(orderEntity: com.example.rooster.feature.marketplace.data.local.model.OrderEntity): Order // For worker, suspend due to items
+
     // TODO: Add methods for reorder, track shipment, etc.
 }

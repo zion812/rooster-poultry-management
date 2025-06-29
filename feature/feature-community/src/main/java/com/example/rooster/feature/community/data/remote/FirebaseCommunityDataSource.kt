@@ -6,6 +6,7 @@ import com.example.rooster.feature.community.domain.model.CommunityUserProfile
 import com.example.rooster.feature.community.domain.model.Post
 import com.example.rooster.feature.community.domain.repository.FeedType
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
@@ -13,6 +14,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOf // For placeholder returns
+import timber.log.Timber
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,9 +32,15 @@ class FirebaseCommunityDataSource @Inject constructor(
     override fun getCommunityUserProfileStream(userId: String): Flow<Result<CommunityUserProfile?>> = callbackFlow {
         val listener = profilesCollection.document(userId).addSnapshotListener { snapshot, e ->
             if (e != null) {
+                Timber.w(e, "Error fetching profile $userId")
                 trySend(Result.Error(e)); channel.close(); return@addSnapshotListener
             }
-            trySend(Result.Success(snapshot?.toObject<CommunityUserProfile>())).isSuccess
+            try {
+                trySend(Result.Success(snapshot?.toObject<CommunityUserProfile>())).isSuccess
+            } catch (serEx: Exception) {
+                Timber.e(serEx, "Error deserializing profile $userId")
+                trySend(Result.Error(serEx)) // Propagate deserialization error
+            }
         }
         awaitClose { listener.remove() }
     }
@@ -65,16 +73,32 @@ class FirebaseCommunityDataSource @Inject constructor(
         // TODO: Add pagination support (e.g., .limit(), .startAfter())
 
         val listener = query.addSnapshotListener { snapshots, e ->
-            if (e != null) { trySend(Result.Error(e)); channel.close(); return@addSnapshotListener }
-            trySend(Result.Success(snapshots?.toObjects<Post>() ?: emptyList())).isSuccess
+            if (e != null) {
+                Timber.w(e, "Error fetching posts for feedType: $feedType, userId: $userId, tag: $tag")
+                trySend(Result.Error(e)); channel.close(); return@addSnapshotListener
+            }
+            try {
+                trySend(Result.Success(snapshots?.toObjects<Post>() ?: emptyList())).isSuccess
+            } catch (serEx: Exception) {
+                Timber.e(serEx, "Error deserializing posts for feedType: $feedType, userId: $userId, tag: $tag")
+                trySend(Result.Error(serEx))
+            }
         }
         awaitClose { listener.remove() }
     }
 
     override fun getPostDetailsStream(postId: String): Flow<Result<Post?>> = callbackFlow {
         val listener = postsCollection.document(postId).addSnapshotListener { snapshot, e ->
-            if (e != null) { trySend(Result.Error(e)); channel.close(); return@addSnapshotListener }
-            trySend(Result.Success(snapshot?.toObject<Post>())).isSuccess
+            if (e != null) {
+                Timber.w(e, "Error fetching post details for $postId")
+                trySend(Result.Error(e)); channel.close(); return@addSnapshotListener
+            }
+            try {
+                trySend(Result.Success(snapshot?.toObject<Post>())).isSuccess
+            } catch (serEx: Exception) {
+                Timber.e(serEx, "Error deserializing post details for $postId")
+                trySend(Result.Error(serEx))
+            }
         }
         awaitClose { listener.remove() }
     }
@@ -101,14 +125,54 @@ class FirebaseCommunityDataSource @Inject constructor(
     }
 
     override suspend fun likePost(postId: String, userId: String): Result<Unit> {
-        // TODO: Implement actual like logic (e.g., using a subcollection for likes or distributed counters)
-        // For now, this is a placeholder. A real implementation would update likeCount and store who liked.
-        return Result.Success(Unit) // Placeholder
+        val postRef = postsCollection.document(postId)
+        return try {
+            firestore.runTransaction { transaction ->
+                val snapshot = transaction.get(postRef)
+                val post = snapshot.toObject(Post::class.java)
+                    ?: throw FirebaseFirestoreException("Post not found", FirebaseFirestoreException.Code.NOT_FOUND)
+
+                if (post.likedBy.contains(userId)) {
+                    // User has already liked this post, do nothing or return specific status
+                    return@runTransaction // Or throw an exception if this should be an error
+                }
+
+                val newLikedBy = post.likedBy.toMutableList().apply { add(userId) }
+                val newLikeCount = post.likeCount + 1
+
+                transaction.update(postRef, "likeCount", newLikeCount)
+                transaction.update(postRef, "likedBy", newLikedBy)
+                // No return value needed for transaction's lambda if it completes
+            }.await() // await for the transaction to complete
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
     }
 
     override suspend fun unlikePost(postId: String, userId: String): Result<Unit> {
-        // TODO: Implement actual unlike logic
-        return Result.Success(Unit) // Placeholder
+        val postRef = postsCollection.document(postId)
+        return try {
+            firestore.runTransaction { transaction ->
+                val snapshot = transaction.get(postRef)
+                val post = snapshot.toObject(Post::class.java)
+                    ?: throw FirebaseFirestoreException("Post not found", FirebaseFirestoreException.Code.NOT_FOUND)
+
+                if (!post.likedBy.contains(userId)) {
+                    // User hasn't liked this post, or already unliked
+                    return@runTransaction // Or throw an exception
+                }
+
+                val newLikedBy = post.likedBy.toMutableList().apply { remove(userId) }
+                val newLikeCount = (post.likeCount - 1).coerceAtLeast(0)
+
+                transaction.update(postRef, "likeCount", newLikeCount)
+                transaction.update(postRef, "likedBy", newLikedBy)
+            }.await()
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
     }
 
     // --- Comments ---
@@ -119,8 +183,16 @@ class FirebaseCommunityDataSource @Inject constructor(
         // TODO: Add pagination
 
         val listener = query.addSnapshotListener { snapshots, e ->
-            if (e != null) { trySend(Result.Error(e)); channel.close(); return@addSnapshotListener }
-            trySend(Result.Success(snapshots?.toObjects<Comment>() ?: emptyList())).isSuccess
+            if (e != null) {
+                Timber.w(e, "Error fetching comments for post $postId")
+                trySend(Result.Error(e)); channel.close(); return@addSnapshotListener
+            }
+            try {
+                trySend(Result.Success(snapshots?.toObjects<Comment>() ?: emptyList())).isSuccess
+            } catch (serEx: Exception) {
+                Timber.e(serEx, "Error deserializing comments for post $postId")
+                trySend(Result.Error(serEx))
+            }
         }
         awaitClose { listener.remove() }
     }
@@ -131,8 +203,16 @@ class FirebaseCommunityDataSource @Inject constructor(
         // TODO: Add pagination
 
         val listener = query.addSnapshotListener { snapshots, e ->
-            if (e != null) { trySend(Result.Error(e)); channel.close(); return@addSnapshotListener }
-            trySend(Result.Success(snapshots?.toObjects<Comment>() ?: emptyList())).isSuccess
+            if (e != null) {
+                Timber.w(e, "Error fetching replies for comment $commentId")
+                trySend(Result.Error(e)); channel.close(); return@addSnapshotListener
+            }
+            try {
+                trySend(Result.Success(snapshots?.toObjects<Comment>() ?: emptyList())).isSuccess
+            } catch (serEx: Exception) {
+                Timber.e(serEx, "Error deserializing replies for comment $commentId")
+                trySend(Result.Error(serEx))
+            }
         }
         awaitClose { listener.remove() }
     }

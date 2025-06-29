@@ -12,6 +12,13 @@ interface PostRepository {
     suspend fun deletePost(postId: String, authorUserId: String): Result<Unit> // Ensure user can only delete their own
     suspend fun likePost(postId: String, userId: String): Result<Unit> // Or addReaction
     suspend fun unlikePost(postId: String, userId: String): Result<Unit> // Or removeReaction
+
+    // Methods for SyncWorker
+    suspend fun getUnsyncedPostEntities(): List<com.example.rooster.feature.community.data.local.model.PostEntity>
+    suspend fun syncPostRemote(post: Post): Result<Unit> // Returns ID of synced post from remote, or error
+    suspend fun updateLocalPostEntity(postEntity: com.example.rooster.feature.community.data.local.model.PostEntity)
+    fun mapPostEntityToDomain(postEntity: com.example.rooster.feature.community.data.local.model.PostEntity): Post
+
     // Add methods for reporting posts, getting user's own posts, etc.
 }
 

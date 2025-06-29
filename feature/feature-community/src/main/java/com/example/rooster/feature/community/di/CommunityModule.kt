@@ -3,6 +3,7 @@ package com.example.rooster.feature.community.di
 import android.content.Context
 import androidx.room.Room
 import com.example.rooster.feature.community.data.local.CommunityDatabase
+import com.example.rooster.feature.community.data.local.CommunityDatabaseMigrations // Import Migrations
 import com.example.rooster.feature.community.data.local.dao.CommentDao
 import com.example.rooster.feature.community.data.local.dao.CommunityUserProfileDao
 import com.example.rooster.feature.community.data.local.dao.PostDao
@@ -35,8 +36,9 @@ object CommunityProvidesModule {
             CommunityDatabase::class.java,
             "community_database.db"
         )
-        // TODO: Add proper migrations for production instead of fallbackToDestructiveMigration.
-        .fallbackToDestructiveMigration()
+        // TODO: Add proper migrations for production.
+        // .fallbackToDestructiveMigration() // Replaced with addMigrations
+        .addMigrations(CommunityDatabaseMigrations.MIGRATION_1_2) // Added migration
         .build()
     }
 

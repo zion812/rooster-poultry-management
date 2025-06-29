@@ -88,15 +88,28 @@ class ProductListingRepositoryImpl @Inject constructor(
                 ).firstOrNull() // Taking first emission for pagination
                 result ?: Result.Success(emptyList()) // If flow completes without emission
             },
-            saveRemoteResult = { listings ->
-                val entities = listings.map { mapDomainToEntity(it, needsSync = false) }
-                if (lastVisibleTimestamp == null && lastVisibleDocId == null) {
-                    // First page: clear existing and insert new.
-                    // TODO: More nuanced local cache handling for pagination (e.g. append, or smarter updates)
-                    // For now, this simple strategy might clear too much if local filters were different.
-                    // localDataSource.clearAllListings() // This is too aggressive if filters change
+            saveRemoteResult = { remoteListings -> // remoteListings is List<ProductListing>
+                val entitiesToSave = mutableListOf<ProductListingEntity>()
+                for (remoteListing in remoteListings) {
+                    val localUnsynced = localDataSource.getUnsyncedListingByIdSuspend(remoteListing.id)
+                    if (localUnsynced?.needsSync == true) {
+                        Timber.w("Marketplace: Local listing ID ${remoteListing.id} has unsynced changes during batch update. Skipping remote overwrite for this item.")
+                        // Optionally, could add the local unsynced entity to a list to ensure it's part of the emitted flow
+                        // but the localCall() in localBackedRemoteResourceList should already handle emitting it.
+                    } else {
+                        entitiesToSave.add(mapDomainToEntity(remoteListing, needsSync = false))
+                    }
                 }
-                localDataSource.insertListings(entities) // Appends or replaces based on ID
+                if (entitiesToSave.isNotEmpty()) {
+                    // Regarding pagination and clearing:
+                    // If it's the first page (lastVisibleTimestamp == null), and we are force-refreshing,
+                    // then clearing *synced* items before inserting new ones might be an option.
+                    // However, simply using insertListings (with REPLACE) will update existing synced items
+                    // and add new ones, which is generally fine and avoids deleting items not in the current page.
+                    // The TODO about nuanced cache handling remains valid for more advanced strategies.
+                    localDataSource.insertListings(entitiesToSave)
+                    Timber.d("Marketplace: Saved/Updated ${entitiesToSave.size} listings in cache from remote.")
+                }
             },
             shouldFetch = { localData ->
                 forceRefresh || localData.isNullOrEmpty() || (lastVisibleTimestamp != null) // Always fetch if paginating, or if first page is empty/forced
@@ -144,13 +157,24 @@ class ProductListingRepositoryImpl @Inject constructor(
         return filteredListings
     }
 
+import timber.log.Timber // Ensure Timber is imported
+
     override fun getProductListingDetails(listingId: String): Flow<Result<ProductListing?>> {
         return localBackedRemoteResource(
             localCall = { localDataSource.getListingById(listingId).map { it?.let { entity -> mapEntityToDomain(entity) } } },
             remoteCall = { remoteDataSource.getProductListingDetails(listingId) },
-            saveRemoteResult = { listing ->
-                if (listing != null) {
-                    localDataSource.insertListing(mapDomainToEntity(listing, needsSync = false))
+            saveRemoteResult = { remoteListingDomain -> // This is 'S', the remote type (ProductListing)
+                if (remoteListingDomain != null) {
+                    val localEntity = localDataSource.getUnsyncedListingByIdSuspend(listingId) // Check if an unsynced version exists
+                    if (localEntity?.needsSync == true) {
+                        Timber.w("Marketplace: Local listing ID $listingId has unsynced changes. Remote update from listener will be ignored for now.")
+                        // Potentially emit the local data again if the flow structure requires it,
+                        // but localBackedRemoteResource already emits localData first.
+                        // The key is to NOT overwrite the local unsynced data.
+                    } else {
+                        localDataSource.insertListing(mapDomainToEntity(remoteListingDomain, needsSync = false))
+                        Timber.d("Marketplace: Cache updated from remote for listing ID $listingId.")
+                    }
                 }
             },
             shouldFetch = { localData -> localData == null } // Fetch if not in cache
@@ -526,6 +550,42 @@ private inline fun <D, S> localBackedRemoteResourceList(
  main
  main
  main
+    override suspend fun getUnsyncedProductListingEntities(): List<ProductListingEntity> = withContext(Dispatchers.IO) {
+        localDataSource.getUnsyncedListingsSuspend()
+    }
+
+    override suspend fun syncListingRemote(productListing: ProductListing): Result<Unit> = withContext(Dispatchers.IO) {
+        // This method now ONLY attempts the remote synchronization.
+        // It does not interact with the local DAO for needsSync or syncAttempts flags.
+        // It assumes productListing.id is correctly populated for remote identification if it's an update.
+        // Firestore's set with document ID is an upsert.
+        try {
+            val remoteResult = remoteDataSource.createProductListing(productListing) // This effectively acts as an upsert if ID is consistent
+            if (remoteResult is Result.Success && remoteResult.data != null && remoteResult.data.isNotBlank()) {
+                Result.Success(Unit)
+            } else if (remoteResult is Result.Error) {
+                Timber.e(remoteResult.exception, "Failed to sync listing ${productListing.id} to remote.")
+                Result.Error(remoteResult.exception)
+            } else {
+                Timber.w("Remote sync for listing ${productListing.id} did not return a specific error but was not successful (e.g. null ID).")
+                Result.Error(Exception("Unknown error or unsuccessful remote sync for listing ${productListing.id}"))
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Exception during remote listing sync for ${productListing.id}")
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun updateLocalListing(listingEntity: ProductListingEntity) {
+        withContext(Dispatchers.IO) {
+            localDataSource.insertListing(listingEntity) // Uses REPLACE strategy
+        }
+    }
+
+    override fun mapListingEntityToDomain(listingEntity: ProductListingEntity): ProductListing {
+        return mapEntityToDomain(listingEntity) // Call the existing private mapper
+    }
+
     // --- Mappers ---
     // TODO: Extract mappers to a separate utility if they become complex or are shared.
 
@@ -552,7 +612,7 @@ private inline fun <D, S> localBackedRemoteResourceList(
             updatedDateTimestamp = entity.updatedDateTimestamp,
             status = entity.status,
             additionalProperties = entity.additionalProperties
-            // needsSync is a local concern, not part of domain model usually
+            // needsSync, syncAttempts, lastSyncAttemptTimestamp are local entity concerns, not part of domain model
         )
     }
 

@@ -5,8 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.rooster.core.common.Result
 import com.example.rooster.feature.community.domain.model.Post
 import com.example.rooster.feature.community.domain.repository.FeedType
-import com.example.rooster.feature.community.domain.repository.PostRepository
+// import com.example.rooster.feature.community.domain.repository.PostRepository // Now using use cases
+import com.example.rooster.feature.community.domain.usecase.LikePostUseCase
+import com.example.rooster.feature.community.domain.usecase.UnlikePostUseCase
+import com.example.rooster.feature.community.domain.usecase.GetPostsUseCase // Assuming a GetPostsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,13 +25,51 @@ sealed interface PostFeedUiState {
     data class Error(val message: String) : PostFeedUiState
 }
 
+// import com.example.rooster.feature.community.domain.repository.PostRepository // Now using use cases
+import com.example.rooster.feature.community.domain.usecase.LikePostUseCase
+import com.example.rooster.feature.community.domain.usecase.UnlikePostUseCase
+import com.example.rooster.feature.community.domain.repository.PostRepository // Keep for getPosts
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+sealed interface PostFeedUiState {
+    data object Loading : PostFeedUiState
+    data class Success(val posts: List<Post>) : PostFeedUiState
+    data class Error(val message: String) : PostFeedUiState
+}
+
+// For one-off events like error messages from like/unlike
+sealed interface PostFeedSingleEvent {
+    data class LikeUnlikeError(val message: String) : PostFeedSingleEvent
+}
+
+import com.example.rooster.core.common.user.UserIdProvider // Added
+
+import android.content.Context // Added
+import dagger.hilt.android.qualifiers.ApplicationContext // Added
+
 @HiltViewModel
 class PostFeedViewModel @Inject constructor(
-    private val postRepository: PostRepository
+    @ApplicationContext private val appContext: Context, // Added for error messages
+    private val postRepository: PostRepository,
+    private val likePostUseCase: LikePostUseCase,
+    private val unlikePostUseCase: UnlikePostUseCase,
+    private val userIdProvider: UserIdProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PostFeedUiState>(PostFeedUiState.Loading)
     val uiState: StateFlow<PostFeedUiState> = _uiState.asStateFlow()
+
+    val currentUserId: StateFlow<String?> = MutableStateFlow(userIdProvider.getCurrentUserId()).asStateFlow()
+
 
     // TODO: Allow changing feedType (e.g., Global, Following, UserSpecific, TagSpecific) via UI actions
     private var currentFeedType: FeedType = FeedType.GLOBAL_RECENT
@@ -50,7 +93,7 @@ class PostFeedViewModel @Inject constructor(
             _uiState.value = when (result) {
                 is Result.Loading -> PostFeedUiState.Loading
                 is Result.Success -> PostFeedUiState.Success(result.data)
-                is Result.Error -> PostFeedUiState.Error(result.exception.message ?: "Unknown error fetching posts")
+                is Result.Error -> PostFeedUiState.Error(result.exception.toUserFriendlyMessage(appContext))
             }
         }
         .launchIn(viewModelScope)
@@ -70,5 +113,37 @@ class PostFeedViewModel @Inject constructor(
     }
 
     // TODO: Add methods for pagination (loadMorePosts)
-    // TODO: Add methods for liking posts, which would call PostRepository and potentially refresh/update UI state
+
+    private val _singleEventFlow = MutableSharedFlow<PostFeedSingleEvent>()
+    val singleEventFlow: SharedFlow<PostFeedSingleEvent> = _singleEventFlow
+
+    fun onLikeClicked(postId: String) {
+        viewModelScope.launch {
+            when (val result = likePostUseCase(postId)) {
+                is Result.Success -> {
+                    // Data is updated locally by the repository, which should trigger recomposition
+                    // of the list via the _uiState flow.
+                    // No explicit state update needed here if PostRepository's Flow emits on change.
+                }
+                is Result.Error -> {
+                    _singleEventFlow.emit(PostFeedSingleEvent.LikeUnlikeError(result.exception.toUserFriendlyMessage(appContext)))
+                }
+                else -> { /* Loading state not typically handled for this kind of action directly in VM event */ }
+            }
+        }
+    }
+
+    fun onUnlikeClicked(postId: String) {
+        viewModelScope.launch {
+            when (val result = unlikePostUseCase(postId)) {
+                is Result.Success -> {
+                    // Similar to like, local data update in repo should refresh UI.
+                }
+                is Result.Error -> {
+                    _singleEventFlow.emit(PostFeedSingleEvent.LikeUnlikeError(result.exception.toUserFriendlyMessage(appContext)))
+                }
+                else -> {}
+            }
+        }
+    }
 }

@@ -31,6 +31,7 @@ class FarmDataSyncWorker @AssistedInject constructor(
 
     companion object {
         const val WORK_NAME = "FarmDataSyncWorker"
+        private const val MAX_SYNC_ATTEMPTS = 5
     }
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
@@ -47,26 +48,44 @@ class FarmDataSyncWorker @AssistedInject constructor(
             var allItemsSyncedSuccessfully = true
 
             for (entity in unsyncedFlocks) {
-                Timber.d("Attempting to sync flock ID: ${entity.id}")
-                try {
-                    val flockDomain = mapEntityToFlock(entity) // Mapper
-                    val remoteData = mapFlockToRemote(flockDomain) // Mapper
+                if (entity.syncAttempts >= MAX_SYNC_ATTEMPTS) {
+                    Timber.w("Flock ID ${entity.id} has reached max sync attempts (${entity.syncAttempts}). Skipping for this run.")
+                    // Optionally, mark as SYNC_FAILED here if that state is introduced.
+                    // For now, it will remain needsSync=true but won't be actively tried by this worker instance beyond MAX_SYNC_ATTEMPTS.
+                    // The overall work might still be retried by WorkManager later, which would re-evaluate this flock.
+                    // To truly stop it from being picked up by future worker runs, needsSync would need to be false or a SYNC_FAILED status used.
+                    // For this iteration, we just log and effectively skip, relying on overall job retry.
+                    // If even one skipped item exists that still needs sync, the job should ideally retry.
+                    allItemsSyncedSuccessfully = false // Ensure worker retries if skippable items still need sync.
+                    continue
+                }
 
-                    val saveResult = firebaseFarmDataSource.saveFlock(remoteData) // Firebase call
+                Timber.d("Attempting to sync flock ID: ${entity.id}, attempt: ${entity.syncAttempts + 1}")
+                val updatedEntity = entity.copy(
+                    syncAttempts = entity.syncAttempts + 1,
+                    lastSyncAttemptTimestamp = System.currentTimeMillis()
+                )
+                flockDao.update(updatedEntity) // Update attempts and timestamp before trying
+
+                try {
+                    val flockDomain = mapEntityToFlock(updatedEntity) // Use updated entity for mapping
+                    val remoteData = mapFlockToRemote(flockDomain)
+
+                    val saveResult = firebaseFarmDataSource.saveFlock(remoteData)
 
                     if (saveResult.isSuccess) {
-                        val syncedEntity = entity.copy(needsSync = false)
-                        flockDao.insert(syncedEntity) // Update local entity
+                        val syncedEntity = updatedEntity.copy(needsSync = false, syncAttempts = 0) // Reset attempts on success
+                        flockDao.update(syncedEntity)
                         Timber.d("Successfully synced flock ID: ${entity.id}")
                     } else {
                         allItemsSyncedSuccessfully = false
-                        Timber.e(saveResult.exceptionOrNull(), "Failed to sync flock ID: ${entity.id}")
-                        // Optionally, implement more sophisticated error handling here,
-                        // like incrementing a retry count on the entity.
+                        Timber.e(saveResult.exceptionOrNull(), "Failed to sync flock ID: ${entity.id}, attempt: ${updatedEntity.syncAttempts}")
+                        // Entity already updated with increased syncAttempts
                     }
                 } catch (e: Exception) {
                     allItemsSyncedSuccessfully = false
-                    Timber.e(e, "Exception while syncing flock ID: ${entity.id}")
+                    Timber.e(e, "Exception while syncing flock ID: ${entity.id}, attempt: ${updatedEntity.syncAttempts}")
+                    // Entity already updated with increased syncAttempts
                 }
             }
 
@@ -74,13 +93,13 @@ class FarmDataSyncWorker @AssistedInject constructor(
                 Timber.d("FarmDataSyncWorker completed successfully.")
                 Result.success()
             } else {
-                Timber.w("FarmDataSyncWorker completed with some failures. Retrying.")
-                Result.retry() // Retry if any item failed
+                Timber.w("FarmDataSyncWorker completed with errors or pending retries for some items. Requesting retry.")
+                Result.retry()
             }
 
         } catch (e: Exception) {
             Timber.e(e, "FarmDataSyncWorker failed")
-            Result.failure() // Or Result.retry() depending on the nature of the exception
+            Result.retry() // Prefer retry over failure for transient issues
         }
     }
 
@@ -94,7 +113,12 @@ class FarmDataSyncWorker @AssistedInject constructor(
             ownerId = entity.ownerId,
             fatherId = entity.fatherId,
             motherId = entity.motherId,
-            type = FlockType.valueOf(entity.type), // Potential crash if type is invalid
+            type = try {
+                FlockType.valueOf(entity.type.uppercase(java.util.Locale.ROOT))
+            } catch (e: Exception) {
+                Timber.w("Invalid flock type in entity for sync: ${entity.type}, defaulting to FOWL.")
+                FlockType.FOWL // Default fallback consistent with repository
+            },
             name = entity.name,
             breed = entity.breed,
             weight = entity.weight,

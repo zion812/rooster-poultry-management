@@ -18,7 +18,7 @@ import com.example.rooster.feature.marketplace.data.local.model.ProductListingEn
         OrderEntity::class,
         OrderItemEntity::class
     ],
-    version = 1, // Initial version for this database
+    version = 2, // Incremented for syncAttempts and lastSyncAttemptTimestamp
     exportSchema = true // Recommended to export schema for migrations
 )
 @TypeConverters(MarketplaceTypeConverters::class)
