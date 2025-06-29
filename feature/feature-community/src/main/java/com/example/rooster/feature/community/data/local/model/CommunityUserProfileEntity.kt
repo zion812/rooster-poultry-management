@@ -22,5 +22,7 @@ data class CommunityUserProfileEntity(
     val joinDateTimestamp: Long,
     val isVerifiedFarmer: Boolean = false,
     val isEnthusiast: Boolean = false,
-    var needsSync: Boolean = true // For offline created/updated profiles
+    var needsSync: Boolean = true, // For offline created/updated profiles
+    var syncAttempts: Int = 0,
+    var lastSyncAttemptTimestamp: Long = 0L
 )

@@ -22,6 +22,9 @@ interface CommentDao {
     @Query("SELECT * FROM community_comments WHERE commentId = :commentId")
     fun getCommentById(commentId: String): Flow<CommentEntity?>
 
+    @Query("SELECT * FROM community_comments WHERE commentId = :commentId") // Added for repository conflict check and comment count update
+    suspend fun getCommentByIdSuspend(commentId: String): CommentEntity?
+
     @Query("SELECT * FROM community_comments WHERE postId = :postId AND parentCommentId IS NULL ORDER BY createdTimestamp ASC")
     fun getCommentsForPost(postId: String): Flow<List<CommentEntity>> // Top-level comments
 

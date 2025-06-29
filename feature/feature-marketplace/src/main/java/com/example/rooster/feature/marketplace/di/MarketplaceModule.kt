@@ -3,6 +3,7 @@ package com.example.rooster.feature.marketplace.di
 import android.content.Context
 import androidx.room.Room
 import com.example.rooster.feature.marketplace.data.local.MarketplaceDatabase
+import com.example.rooster.feature.marketplace.data.local.MarketplaceDatabaseMigrations // Import Migrations
 import com.example.rooster.feature.marketplace.data.local.dao.CartDao
 import com.example.rooster.feature.marketplace.data.local.dao.OrderDao
 import com.example.rooster.feature.marketplace.data.local.dao.ProductListingDao
@@ -39,7 +40,11 @@ object MarketplaceProvidesModule {
         )
         // TODO: Add proper migrations for production.
         // .fallbackToDestructiveMigration() // Replaced with addMigrations
+ feature/phase1-foundations-community-likes
+        .addMigrations(MarketplaceDatabaseMigrations.MIGRATION_1_2) // Added migration
+=======
         .addMigrations() // Add actual Migration objects here when schema changes
+ main
         .build()
     }
 

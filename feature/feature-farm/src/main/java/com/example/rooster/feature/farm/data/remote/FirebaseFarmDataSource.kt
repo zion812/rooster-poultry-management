@@ -121,21 +121,21 @@ class FirebaseFarmDataSource @Inject constructor(
             }
         }
 
-    suspend fun saveFlock(flockData: Map<String, Any>): Result<Unit> {
+    suspend fun saveFlock(flockData: Map<String, Any>): com.example.rooster.core.common.Result<Unit> {
         return try {
             val id = flockData["id"] as? String ?: UUID.randomUUID().toString()
-            val dataWithTimestamp = flockData.toMutableMap().apply {
-                this["updatedAt"] = ServerValue.TIMESTAMP // Use this[] for map
-                this["id"] = id
-            }
+            // Ensure 'id' is part of the map being saved if it was generated.
+            val dataToSave = flockData.toMutableMap()
+            dataToSave["id"] = id // Ensure ID is in the map
+            dataToSave["updatedAt"] = ServerValue.TIMESTAMP
 
             // Save to both Firestore and Realtime Database
-            flocksCollection.document(id).set(dataWithTimestamp).await() // Use defined collection
-            realtimeDatabase.child("flocks_v2").child(id).setValue(dataWithTimestamp).await() // Use versioned RTDB path
+            flocksCollection.document(id).set(dataToSave).await()
+            realtimeDatabase.child("flocks_v2").child(id).setValue(dataToSave).await()
 
-            Result.success(Unit)
+            com.example.rooster.core.common.Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            com.example.rooster.core.common.Result.Error(e)
         }
     }
 

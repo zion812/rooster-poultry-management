@@ -16,7 +16,7 @@ import com.example.rooster.feature.community.data.local.model.PostEntity
         PostEntity::class,
         CommentEntity::class
     ],
-    version = 1, // Initial version for this database
+    version = 2, // Incremented for syncAttempts and lastSyncAttemptTimestamp
     exportSchema = true // Recommended
 )
 @TypeConverters(CommunityTypeConverters::class)

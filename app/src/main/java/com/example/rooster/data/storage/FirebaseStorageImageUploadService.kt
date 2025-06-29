@@ -25,7 +25,10 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
  feature/phase1-foundations-community-likes
 =======
+ feature/phase1-foundations-community-likes
+=======
 import java.util.Collections.emptyList
+ main
  main
 
 @Singleton
@@ -120,6 +123,64 @@ class FirebaseStorageImageUploadService @Inject constructor(
     //     // return ByteArrayInputStream(outputStream.toByteArray())
     //     return originalStream // Placeholder
     // }
+
+    private fun getCompressedInputStream(
+        contentResolver: ContentResolver,
+        uri: Uri,
+        options: ImageCompressionOptions?
+    ): InputStream {
+        val originalInputStream = contentResolver.openInputStream(uri)
+            ?: throw Exception("Failed to open input stream for URI for compression: $uri")
+
+        if (options == null) {
+            return originalInputStream
+        }
+
+        originalInputStream.use { inputStream ->
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+                ?: throw Exception("Failed to decode bitmap from URI: $uri")
+
+            // Calculate new dimensions
+            val originalWidth = bitmap.width
+            val originalHeight = bitmap.height
+            val scaleFactor = if (originalWidth > originalHeight && originalWidth > options.maxWidthOrHeight) {
+                options.maxWidthOrHeight.toFloat() / originalWidth
+            } else if (originalHeight > originalWidth && originalHeight > options.maxWidthOrHeight) {
+                options.maxWidthOrHeight.toFloat() / originalHeight
+            } else if (originalWidth == originalHeight && originalWidth > options.maxWidthOrHeight) { // Square or already smaller
+                 options.maxWidthOrHeight.toFloat() / originalWidth
+            }
+            else {
+                1.0f // No scaling needed
+            }
+
+            val targetWidth = (originalWidth * scaleFactor).toInt().coerceAtLeast(1)
+            val targetHeight = (originalHeight * scaleFactor).toInt().coerceAtLeast(1)
+
+            val scaledBitmap = if (scaleFactor != 1.0f) {
+                Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true)
+            } else {
+                bitmap
+            }
+
+            val outputStream = ByteArrayOutputStream()
+            val compressFormat = try {
+                Bitmap.CompressFormat.valueOf(options.format.uppercase())
+            } catch (e: IllegalArgumentException) {
+                Timber.w("Invalid compression format: ${options.format}. Defaulting to JPEG.")
+                Bitmap.CompressFormat.JPEG // Default to JPEG if format is unknown
+            }
+
+            scaledBitmap.compress(compressFormat, options.quality.coerceIn(0, 100), outputStream)
+
+            if (scaledBitmap != bitmap) { // Recycle scaledBitmap if it's a new instance
+                scaledBitmap.recycle()
+            }
+            bitmap.recycle() // Always recycle the original bitmap
+
+            return ByteArrayInputStream(outputStream.toByteArray())
+        }
+    }
 =======
  main
 

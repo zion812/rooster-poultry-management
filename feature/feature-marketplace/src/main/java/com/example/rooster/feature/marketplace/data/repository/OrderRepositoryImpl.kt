@@ -118,13 +118,20 @@ class OrderRepositoryImpl @Inject constructor(
             localCall = {
                 orderDao.getOrderWithItemsById(orderId).map { it?.let { owi -> mapOrderWithItemsToDomain(owi) } }
             },
+import timber.log.Timber // Ensure Timber is imported
+
             remoteCall = { remoteDataSource.getOrderDetailsStream(orderId).firstOrNull() ?: Result.Success(null) }, // Get first emission or null
-            saveRemoteResult = { orderDomain ->
-                if (orderDomain != null) {
-                    // This save needs to handle Order and OrderItems separately
-                    val orderEntity = mapDomainToEntity(orderDomain, needsSync = false)
-                    val orderItemEntities = orderDomain.items.map { mapDomainToOrderItemEntity(it, orderDomain.orderId) }
-                    orderDao.insertOrderWithItems(orderEntity, orderItemEntities)
+            saveRemoteResult = { remoteOrderDomain -> // This is 'S', the remote type (Order)
+                if (remoteOrderDomain != null) {
+                    val localEntityUnsynced = orderDao.getOrderByIdSuspend(remoteOrderDomain.orderId) // Check if an unsynced version exists
+                    if (localEntityUnsynced?.needsSync == true) {
+                        Timber.w("Marketplace: Local order ID ${remoteOrderDomain.orderId} has unsynced changes. Remote update from listener will be ignored.")
+                    } else {
+                        val orderEntity = mapDomainToEntity(remoteOrderDomain, needsSync = false)
+                        val orderItemEntities = remoteOrderDomain.items.map { mapDomainToOrderItemEntity(it, remoteOrderDomain.orderId) }
+                        orderDao.insertOrderWithItems(orderEntity, orderItemEntities)
+                        Timber.d("Marketplace: Cache updated from remote for order ID ${remoteOrderDomain.orderId}.")
+                    }
                 }
             },
             shouldFetch = { localData -> localData == null } // Fetch if not in cache
@@ -139,11 +146,31 @@ class OrderRepositoryImpl @Inject constructor(
                 }
             },
             remoteCall = { remoteDataSource.getOrdersForUserStream(userId).firstOrNull() ?: Result.Success(emptyList()) },
-            saveRemoteResult = { orders ->
-                orders.forEach { orderDomain ->
-                    val orderEntity = mapDomainToEntity(orderDomain, needsSync = false)
-                    val orderItemEntities = orderDomain.items.map { mapDomainToOrderItemEntity(it, orderDomain.orderId) }
-                    orderDao.insertOrderWithItems(orderEntity, orderItemEntities) // This might be inefficient for large lists
+            saveRemoteResult = { remoteOrders -> // remoteOrders is List<Order>
+                val ordersToSave = mutableListOf<Pair<OrderEntity, List<OrderItemEntity>>>()
+                var skippedCount = 0
+                for (remoteOrder in remoteOrders) {
+                    val localUnsyncedOrder = orderDao.getOrderByIdSuspend(remoteOrder.orderId)
+                    if (localUnsyncedOrder?.needsSync == true) {
+                        Timber.w("Marketplace: Local order ID ${remoteOrder.orderId} has unsynced changes during batch update. Skipping remote overwrite.")
+                        skippedCount++
+                    } else {
+                        val orderEntity = mapDomainToEntity(remoteOrder, needsSync = false)
+                        val orderItemEntities = remoteOrder.items.map { mapDomainToOrderItemEntity(it, remoteOrder.orderId) }
+                        ordersToSave.add(Pair(orderEntity, orderItemEntities))
+                    }
+                }
+                if (ordersToSave.isNotEmpty()) {
+                    // This loop for insertOrderWithItems is not ideal for batching.
+                    // A transaction in DAO to insert multiple orders with their items would be better.
+                    // For now, keeping it simple as per original structure.
+                    ordersToSave.forEach { pair ->
+                        orderDao.insertOrderWithItems(pair.first, pair.second)
+                    }
+                    Timber.d("Marketplace: Saved/Updated ${ordersToSave.size} orders in cache from remote for user $userId.")
+                }
+                if (skippedCount > 0) {
+                     Timber.d("Marketplace: Skipped $skippedCount unsynced local orders during remote update for user $userId.")
                 }
             },
             shouldFetch = { localData -> localData.isNullOrEmpty() } // Fetch if local is empty
@@ -372,6 +399,19 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
  main
  main
 
+ feature/phase1-foundations-community-likes
+    override suspend fun getUnsyncedOrderEntities(): List<OrderEntity> = withContext(Dispatchers.IO) {
+        orderDao.getUnsyncedOrdersSuspend()
+    }
+
+    override suspend fun syncOrderRemote(order: Order): Result<Unit> = withContext(Dispatchers.IO) {
+        // This method ONLY attempts the remote synchronization.
+        // It assumes order.orderId is correctly populated.
+        // Firestore's set with document ID is an upsert.
+        try {
+            val remoteResult = remoteDataSource.createOrder(order) // This acts as an upsert
+            if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
+=======
     override suspend fun getUnsyncedOrders(): List<Order> = withContext(Dispatchers.IO) {
         val unsyncedOrderEntities = orderDao.getUnsyncedOrdersSuspend()
         unsyncedOrderEntities.map { orderEntity ->
@@ -395,20 +435,51 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
                 // The insertOrderWithItems already handles this if we pass the full domain object.
                 val orderItemEntities = order.items.map { mapDomainToOrderItemEntity(it, order.orderId) }
                 orderDao.insertOrderWithItems(entity, orderItemEntities) // This will replace existing
+ main
                 Result.Success(Unit)
             } else if (remoteResult is Result.Error) {
                 Timber.e(remoteResult.exception, "Failed to sync order ${order.orderId} to remote.")
                 Result.Error(remoteResult.exception)
             } else {
+ feature/phase1-foundations-community-likes
+                Timber.w("Remote sync for order ${order.orderId} did not return a specific error but was not successful.")
+                Result.Error(Exception("Unknown error or unsuccessful remote sync for order ${order.orderId}"))
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Exception during remote order sync for ${order.orderId}")
+=======
                 Timber.e("Unknown error while syncing order ${order.orderId} to remote.")
                 Result.Error(Exception("Unknown error during order sync"))
             }
         } catch (e: Exception) {
             Timber.e(e, "Exception during order sync for ${order.orderId}")
+ main
             Result.Error(e)
         }
     }
 
+ feature/phase1-foundations-community-likes
+    override suspend fun updateLocalOrder(orderEntity: OrderEntity) {
+        withContext(Dispatchers.IO) {
+            // Note: If OrderEntity contained OrderItemEntities directly, this would be simpler.
+            // Since items are separate, this only updates the OrderEntity table.
+            // If order items can change and need syncing, the worker logic would be more complex.
+            // For now, assuming order items are fixed once order is created and sync focuses on OrderEntity status.
+            orderDao.updateOrder(orderEntity) // Assumes OrderDao has a simple update method for OrderEntity
+                                           // Or insertOrder if OnConflictStrategy.REPLACE handles it.
+                                           // insertOrderWithItems would be needed if items change too.
+                                           // Let's ensure OrderDao.updateOrder exists and is appropriate.
+                                           // It exists.
+        }
+    }
+
+    override suspend fun mapOrderEntityToDomain(orderEntity: OrderEntity): Order = withContext(Dispatchers.IO) {
+        val items = orderDao.getOrderItemsForOrderSuspend(orderEntity.orderId)
+        mapOrderWithItemsToDomain(OrderWithItems(orderEntity, items)) // Call the existing private mapper
+    }
+
+=======
+ main
     // --- Mappers ---
     private fun mapDomainToEntity(domain: Order, needsSync: Boolean): OrderEntity {
         return OrderEntity(
@@ -486,6 +557,7 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
             expectedDeliveryDate = orderEntity.expectedDeliveryDate,
             shipmentProvider = orderEntity.shipmentProvider,
             trackingNumber = orderEntity.trackingNumber
+            // syncAttempts and lastSyncAttemptTimestamp are local entity concerns
         )
     }
 

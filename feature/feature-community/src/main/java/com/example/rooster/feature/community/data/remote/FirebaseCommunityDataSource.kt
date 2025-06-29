@@ -14,6 +14,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOf // For placeholder returns
+import timber.log.Timber
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -31,9 +32,15 @@ class FirebaseCommunityDataSource @Inject constructor(
     override fun getCommunityUserProfileStream(userId: String): Flow<Result<CommunityUserProfile?>> = callbackFlow {
         val listener = profilesCollection.document(userId).addSnapshotListener { snapshot, e ->
             if (e != null) {
+                Timber.w(e, "Error fetching profile $userId")
                 trySend(Result.Error(e)); channel.close(); return@addSnapshotListener
             }
-            trySend(Result.Success(snapshot?.toObject<CommunityUserProfile>())).isSuccess
+            try {
+                trySend(Result.Success(snapshot?.toObject<CommunityUserProfile>())).isSuccess
+            } catch (serEx: Exception) {
+                Timber.e(serEx, "Error deserializing profile $userId")
+                trySend(Result.Error(serEx)) // Propagate deserialization error
+            }
         }
         awaitClose { listener.remove() }
     }
@@ -66,16 +73,32 @@ class FirebaseCommunityDataSource @Inject constructor(
         // TODO: Add pagination support (e.g., .limit(), .startAfter())
 
         val listener = query.addSnapshotListener { snapshots, e ->
-            if (e != null) { trySend(Result.Error(e)); channel.close(); return@addSnapshotListener }
-            trySend(Result.Success(snapshots?.toObjects<Post>() ?: emptyList())).isSuccess
+            if (e != null) {
+                Timber.w(e, "Error fetching posts for feedType: $feedType, userId: $userId, tag: $tag")
+                trySend(Result.Error(e)); channel.close(); return@addSnapshotListener
+            }
+            try {
+                trySend(Result.Success(snapshots?.toObjects<Post>() ?: emptyList())).isSuccess
+            } catch (serEx: Exception) {
+                Timber.e(serEx, "Error deserializing posts for feedType: $feedType, userId: $userId, tag: $tag")
+                trySend(Result.Error(serEx))
+            }
         }
         awaitClose { listener.remove() }
     }
 
     override fun getPostDetailsStream(postId: String): Flow<Result<Post?>> = callbackFlow {
         val listener = postsCollection.document(postId).addSnapshotListener { snapshot, e ->
-            if (e != null) { trySend(Result.Error(e)); channel.close(); return@addSnapshotListener }
-            trySend(Result.Success(snapshot?.toObject<Post>())).isSuccess
+            if (e != null) {
+                Timber.w(e, "Error fetching post details for $postId")
+                trySend(Result.Error(e)); channel.close(); return@addSnapshotListener
+            }
+            try {
+                trySend(Result.Success(snapshot?.toObject<Post>())).isSuccess
+            } catch (serEx: Exception) {
+                Timber.e(serEx, "Error deserializing post details for $postId")
+                trySend(Result.Error(serEx))
+            }
         }
         awaitClose { listener.remove() }
     }
@@ -160,8 +183,16 @@ class FirebaseCommunityDataSource @Inject constructor(
         // TODO: Add pagination
 
         val listener = query.addSnapshotListener { snapshots, e ->
-            if (e != null) { trySend(Result.Error(e)); channel.close(); return@addSnapshotListener }
-            trySend(Result.Success(snapshots?.toObjects<Comment>() ?: emptyList())).isSuccess
+            if (e != null) {
+                Timber.w(e, "Error fetching comments for post $postId")
+                trySend(Result.Error(e)); channel.close(); return@addSnapshotListener
+            }
+            try {
+                trySend(Result.Success(snapshots?.toObjects<Comment>() ?: emptyList())).isSuccess
+            } catch (serEx: Exception) {
+                Timber.e(serEx, "Error deserializing comments for post $postId")
+                trySend(Result.Error(serEx))
+            }
         }
         awaitClose { listener.remove() }
     }
@@ -172,8 +203,16 @@ class FirebaseCommunityDataSource @Inject constructor(
         // TODO: Add pagination
 
         val listener = query.addSnapshotListener { snapshots, e ->
-            if (e != null) { trySend(Result.Error(e)); channel.close(); return@addSnapshotListener }
-            trySend(Result.Success(snapshots?.toObjects<Comment>() ?: emptyList())).isSuccess
+            if (e != null) {
+                Timber.w(e, "Error fetching replies for comment $commentId")
+                trySend(Result.Error(e)); channel.close(); return@addSnapshotListener
+            }
+            try {
+                trySend(Result.Success(snapshots?.toObjects<Comment>() ?: emptyList())).isSuccess
+            } catch (serEx: Exception) {
+                Timber.e(serEx, "Error deserializing replies for comment $commentId")
+                trySend(Result.Error(serEx))
+            }
         }
         awaitClose { listener.remove() }
     }

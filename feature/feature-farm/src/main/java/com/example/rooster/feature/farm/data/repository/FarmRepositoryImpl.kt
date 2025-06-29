@@ -112,7 +112,7 @@ class FarmRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun registerFlock(data: FlockRegistrationData): Result<Unit> {
+    override suspend fun registerFlock(data: FlockRegistrationData): com.example.rooster.core.common.Result<Unit> {
         return try {
             val id = UUID.randomUUID().toString()
             val now = System.currentTimeMillis()
@@ -121,8 +121,13 @@ class FarmRepositoryImpl @Inject constructor(
                 ownerId = data.ownerId,
                 fatherId = data.fatherId,
                 motherId = data.motherId,
+ feature/phase1-foundations-community-likes
+                type = FlockType.valueOf(data.ageGroup.name.uppercase(Locale.ROOT)),
+                name = "New Flock",
+=======
                 type = FlockType.valueOf(data.ageGroup.name.uppercase(Locale.ROOT)), // Ensure uppercase for enum
                 name = "New Flock", // Consider making name part of registration data
+ main
                 breed = data.breed,
                 weight = data.weight?.toFloat(),
                 height = null,
@@ -155,6 +160,37 @@ class FarmRepositoryImpl @Inject constructor(
                 updatedAt = Date(now)
             )
 
+ feature/phase1-foundations-community-likes
+            val entity = mapFlockToEntity(flock, needsSync = true)
+            flockDao.insert(entity)
+
+            try {
+                val remoteData = mapFlockToRemote(flock)
+                // remoteDataSource.saveFlock now returns com.example.rooster.core.common.Result<Unit>
+                when (val remoteResult = remoteDataSource.saveFlock(remoteData)) {
+                    is com.example.rooster.core.common.Result.Success -> {
+                        flockDao.insert(mapFlockToEntity(flock, needsSync = false))
+                        Timber.d("Flock ID $id: Registered and immediately synced.")
+                    }
+                    is com.example.rooster.core.common.Result.Error -> {
+                        Timber.w(remoteResult.exception, "Flock ID $id: Registered locally, but immediate remote sync failed. Worker will retry.")
+                        // Do not return error here, local registration succeeded.
+                    }
+                    is com.example.rooster.core.common.Result.Loading -> {
+                        // This case should ideally not happen from a suspend fun like saveFlock
+                        Timber.w("Flock ID $id: Remote sync returned Loading state unexpectedly.")
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Flock ID $id: Exception during immediate remote sync attempt after registration.")
+                // Do not return error here, local registration succeeded.
+            }
+
+            com.example.rooster.core.common.Result.Success(Unit) // Local registration is the primary success criteria here
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to register flock locally.")
+            com.example.rooster.core.common.Result.Error(e)
+=======
             val entity = mapFlockToEntity(flock, needsSync = true) // New flocks always need sync
             flockDao.insert(entity)
 
@@ -176,6 +212,7 @@ class FarmRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e, "Failed to register flock locally.")
             Result.Error(e)
+ main
         }
     }
 

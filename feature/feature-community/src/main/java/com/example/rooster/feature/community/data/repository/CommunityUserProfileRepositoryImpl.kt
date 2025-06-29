@@ -26,9 +26,15 @@ class CommunityUserProfileRepositoryImpl @Inject constructor(
         return localBackedCommunityResource(
             localCall = { localDataSource.getProfileByUserId(userId).map { it?.let(::mapEntityToDomain) } },
             remoteCall = { remoteDataSource.getCommunityUserProfileStream(userId).firstOrNull() ?: Result.Success(null) },
-            saveRemoteResult = { profile ->
-                if (profile != null) {
-                    localDataSource.insertProfile(mapDomainToEntity(profile, needsSync = false))
+            saveRemoteResult = { remoteProfileDomain -> // S is CommunityUserProfile
+                if (remoteProfileDomain != null) {
+                    val localEntity = localDataSource.getProfileByUserIdSuspend(remoteProfileDomain.userId)
+                    if (localEntity?.needsSync == true) {
+                        Timber.w("Community: Local profile for user ID ${remoteProfileDomain.userId} has unsynced changes. Remote update from listener/fetch will be ignored for now.")
+                    } else {
+                        localDataSource.insertProfile(mapDomainToEntity(remoteProfileDomain, needsSync = false))
+                        Timber.d("Community: Cache updated from remote for user profile ID ${remoteProfileDomain.userId}.")
+                    }
                 }
             },
             shouldFetch = { localData -> forceRefresh || localData == null }
@@ -85,6 +91,43 @@ class CommunityUserProfileRepositoryImpl @Inject constructor(
         }
     }
 
+ feature/phase1-foundations-community-likes
+import timber.log.Timber // Ensure Timber is imported
+
+    // New methods for SyncWorker
+    override suspend fun getUnsyncedUserProfileEntities(): List<CommunityUserProfileEntity> = withContext(Dispatchers.IO) {
+        localDataSource.getUnsyncedProfilesSuspend()
+    }
+
+    override suspend fun syncUserProfileRemote(profile: CommunityUserProfile): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // This remote method should handle create or update (upsert) based on profile.userId
+            val remoteResult = remoteDataSource.updateCommunityUserProfile(profile) // update can often mean upsert
+            // Or if distinct create/update methods exist on remoteDataSource:
+            // val remoteResult = if (isNewProfile) remoteDataSource.createCommunityUserProfile(profile) else remoteDataSource.updateCommunityUserProfile(profile)
+
+            if (remoteResult is Result.Success) {
+                Result.Success(Unit)
+            } else {
+                Timber.e((remoteResult as? Result.Error)?.exception, "Failed to sync user profile ${profile.userId} to remote.")
+                Result.Error((remoteResult as Result.Error).exception)
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Exception during remote user profile sync for ${profile.userId}")
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun updateLocalUserProfileEntity(profileEntity: CommunityUserProfileEntity) {
+        withContext(Dispatchers.IO) {
+            localDataSource.insertProfile(profileEntity) // insert with OnConflictStrategy.REPLACE acts as update
+        }
+    }
+
+    override fun mapUserProfileEntityToDomain(profileEntity: CommunityUserProfileEntity): CommunityUserProfile {
+        return mapEntityToDomain(profileEntity) // Use existing private mapper
+    }
+=======
     // New methods for SyncWorker
     override suspend fun getUnsyncedUserProfiles(): List<CommunityUserProfile> = withContext(Dispatchers.IO) {
         localDataSource.getUnsyncedProfilesSuspend().map { mapEntityToDomain(it) }
@@ -106,6 +149,7 @@ class CommunityUserProfileRepositoryImpl @Inject constructor(
             Result.Error(e)
         }
     }
+ main
     // End of new methods for SyncWorker
 
     // --- Mappers ---

@@ -3,6 +3,7 @@ package com.example.rooster.feature.community.di
 import android.content.Context
 import androidx.room.Room
 import com.example.rooster.feature.community.data.local.CommunityDatabase
+import com.example.rooster.feature.community.data.local.CommunityDatabaseMigrations // Import Migrations
 import com.example.rooster.feature.community.data.local.dao.CommentDao
 import com.example.rooster.feature.community.data.local.dao.CommunityUserProfileDao
 import com.example.rooster.feature.community.data.local.dao.PostDao
@@ -37,7 +38,11 @@ object CommunityProvidesModule {
         )
         // TODO: Add proper migrations for production.
         // .fallbackToDestructiveMigration() // Replaced with addMigrations
+ feature/phase1-foundations-community-likes
+        .addMigrations(CommunityDatabaseMigrations.MIGRATION_1_2) // Added migration
+=======
         .addMigrations() // Add actual Migration objects here when schema changes
+ main
         .build()
     }
 

@@ -31,5 +31,7 @@ data class ProductListingEntity(
     val updatedDateTimestamp: Long,
     val status: ListingStatus = ListingStatus.ACTIVE, // Stored as String by TypeConverter
     val additionalProperties: Map<String, String>? = null, // Handled by TypeConverter
-    var needsSync: Boolean = true // For offline created/updated listings
+    var needsSync: Boolean = true, // For offline created/updated listings
+    var syncAttempts: Int = 0,
+    var lastSyncAttemptTimestamp: Long = 0L
 )
