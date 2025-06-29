@@ -23,7 +23,10 @@ import android.graphics.BitmapFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+ feature/phase1-foundations-community-likes
+=======
 import java.util.Collections.emptyList
+ main
 
 @Singleton
 class FirebaseStorageImageUploadService @Inject constructor(
@@ -101,6 +104,24 @@ class FirebaseStorageImageUploadService @Inject constructor(
             android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
         }
     }
+ feature/phase1-foundations-community-likes
+ jules/arch-assessment-1
+
+    // TODO: Placeholder for actual compression logic
+    // private suspend fun getPossiblyCompressedInputStream(uri: Uri, options: ImageCompressionOptions?): InputStream {
+    //     val originalStream = appContext.contentResolver.openInputStream(uri) ?: throw Exception("Cannot open stream")
+    //     if (options == null) return originalStream
+    //
+    //     // Decode, resize, compress bitmap
+    //     // val bitmap = BitmapFactory.decodeStream(originalStream)
+    //     // val scaledBitmap = ... scale bitmap using options.maxWidthOrHeight ...
+    //     // val outputStream = ByteArrayOutputStream()
+    //     // scaledBitmap.compress(Bitmap.CompressFormat.valueOf(options.format.uppercase()), options.quality, outputStream)
+    //     // return ByteArrayInputStream(outputStream.toByteArray())
+    //     return originalStream // Placeholder
+    // }
+=======
+ main
 
     private fun getCompressedInputStream(
         contentResolver: ContentResolver,
@@ -125,9 +146,16 @@ class FirebaseStorageImageUploadService @Inject constructor(
                 options.maxWidthOrHeight.toFloat() / originalWidth
             } else if (originalHeight > originalWidth && originalHeight > options.maxWidthOrHeight) {
                 options.maxWidthOrHeight.toFloat() / originalHeight
+ feature/phase1-foundations-community-likes
+            } else if (originalWidth == originalHeight && originalWidth > options.maxWidthOrHeight) { // Square or already smaller
+                 options.maxWidthOrHeight.toFloat() / originalWidth
+            }
+            else {
+=======
             } else if (originalWidth == originalHeight && originalWidth > options.maxWidthOrHeight) {
                 options.maxWidthOrHeight.toFloat() / originalWidth
             } else {
+ main
                 1.0f // No scaling needed
             }
 
@@ -145,17 +173,33 @@ class FirebaseStorageImageUploadService @Inject constructor(
                 Bitmap.CompressFormat.valueOf(options.format.uppercase())
             } catch (e: IllegalArgumentException) {
                 Timber.w("Invalid compression format: ${options.format}. Defaulting to JPEG.")
+ feature/phase1-foundations-community-likes
+                Bitmap.CompressFormat.JPEG // Default to JPEG if format is unknown
+=======
                 Bitmap.CompressFormat.JPEG
+ main
             }
 
             scaledBitmap.compress(compressFormat, options.quality.coerceIn(0, 100), outputStream)
 
+ feature/phase1-foundations-community-likes
+            if (scaledBitmap != bitmap) { // Recycle scaledBitmap if it's a new instance
+                scaledBitmap.recycle()
+            }
+            bitmap.recycle() // Always recycle the original bitmap
+=======
             if (scaledBitmap != bitmap) {
                 scaledBitmap.recycle()
             }
             bitmap.recycle()
+ main
 
             return ByteArrayInputStream(outputStream.toByteArray())
         }
     }
+ feature/phase1-foundations-community-likes
+=======
+ main
+=======
+ main
 }

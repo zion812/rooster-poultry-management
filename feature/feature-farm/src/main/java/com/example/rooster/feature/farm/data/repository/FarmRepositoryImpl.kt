@@ -1,8 +1,9 @@
 package com.example.rooster.feature.farm.data.repository
 
+import com.example.rooster.core.common.Result // Ensure this is the correct Result type
 import com.example.rooster.feature.farm.data.local.FlockDao
 import com.example.rooster.feature.farm.data.local.FlockEntity
-import com.example.rooster.feature.farm.data.remote.FirebaseFarmDataSource // Changed from FarmRemoteDataSource
+import com.example.rooster.feature.farm.data.remote.FirebaseFarmDataSource
 import com.example.rooster.feature.farm.domain.model.Flock
 import com.example.rooster.feature.farm.domain.model.FlockType
 import com.example.rooster.feature.farm.domain.model.FlockRegistrationData
@@ -16,8 +17,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.util.*
 import javax.inject.Inject
-import kotlin.Result
-import com.example.rooster.feature.farm.data.local.LineageDao // Added
+// Removed kotlin.Result import to avoid ambiguity if core.common.Result is used.
+import com.example.rooster.feature.farm.data.local.LineageDao
 import com.example.rooster.feature.farm.data.local.LineageLinkEntity
 import com.example.rooster.feature.farm.data.local.RelationshipType
 import com.example.rooster.feature.farm.domain.model.LineageInfo
@@ -26,65 +27,88 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flow
+import timber.log.Timber
 
 
 class FarmRepositoryImpl @Inject constructor(
-    private val flockDao: FlockDao, // Renamed dao to flockDao for clarity
-    private val lineageDao: LineageDao, // Added LineageDao
+    private val flockDao: FlockDao,
+    private val lineageDao: LineageDao,
     private val remoteDataSource: FirebaseFarmDataSource
 ) : FarmRepository {
 
-    override fun getFlockById(id: String): Flow<Result<Flock>> {
-        // Combine local and remote data for real-time updates
+    override fun getFlockById(id: String): Flow<Result<Flock?>> { // Return type includes nullable Flock
         return combine(
-            dao.getById(id),
-            remoteDataSource.getFlockRealTime(id)
-        ) { localEntity, remoteResult ->
-            when {
-                remoteResult.isSuccess -> {
-                    val remoteData = remoteResult.getOrNull()
-                    if (remoteData != null) {
-                        // Convert remote data to domain model
-                        val flock = mapRemoteToFlock(remoteData)
+            flockDao.getById(id), // Corrected: Use flockDao
+            remoteDataSource.getFlockRealTime(id) // Assuming this returns Flow<Result<Map<String, Any>>> from Firebase
+        ) { localEntity, remoteFirebaseResult -> // remoteFirebaseResult is Result<Map<String, Any>> from FirebaseFarmDataSource
 
-                        // Update local cache asynchronously, marking it as synced
- jules/arch-assessment-1
-                        val entity = mapFlockToEntity(flock, needsSync = false) // Corrected: needsSync = false
-=======
-                        val entity = mapFlockToEntity(flock)
- main
-                        try {
-                            flockDao.insert(entity) // Use flockDao
-                        } catch (e: Exception) {
-                            // Log but don't fail on cache update
+            // The remoteDataSource.getFlockRealTime(id) should ideally already return Flow<com.example.rooster.core.common.Result<Map<String, Any>?>>
+            // For this example, I'll assume remoteFirebaseResult is of type com.example.rooster.core.common.Result<Map<String, Any>?>
+            // If it's kotlin.Result, it needs conversion. Let's assume it's already the project's standard Result.
+
+            when (remoteFirebaseResult) {
+                is Result.Success -> {
+                    val remoteDataMap = remoteFirebaseResult.data
+                    if (remoteDataMap != null) {
+                        val remoteFlockDomain = mapRemoteToFlock(remoteDataMap)
+                        if (localEntity?.needsSync == true) {
+                            Timber.w("Flock ID $id: Local data has unsynced changes. Emitting local data and skipping remote cache update for this emission.")
+                            Result.Success(mapEntityToFlock(localEntity))
+                        } else {
+                            // Local is synced or doesn't exist; update cache with remote data.
+                            val entityToCache = mapFlockToEntity(remoteFlockDomain, needsSync = false)
+                            try {
+                                flockDao.insert(entityToCache)
+                                Timber.d("Flock ID $id: Cache updated from remote data for flock.")
+                            } catch (e: Exception) {
+                                Timber.e(e, "Flock ID $id: Error updating cache from remote data.")
+                            }
+                            Result.Success(remoteFlockDomain)
                         }
-
-                        Result.success(flock)
-                    } else {
-                        // Fall back to local data
-                        localEntity?.let { entity ->
-                            val flock = mapEntityToFlock(entity)
-                            Result.success(flock)
-                        } ?: Result.failure(Exception("Flock not found: $id")) // Added ID to message
+                    } else { // Remote success but remoteDataMap is null (document likely deleted remotely)
+                        if (localEntity != null) {
+                            if (localEntity.needsSync) { // Local unsynced and remote deleted
+                                Timber.w("Flock ID $id: Remote data is null (possibly deleted), but local unsynced data exists. Emitting local.")
+                                Result.Success(mapEntityToFlock(localEntity))
+                            } else { // Local synced and remote deleted
+                                Timber.d("Flock ID $id: Remote data is null (possibly deleted), local synced data exists. Deleting from local cache.")
+                                try {
+                                    flockDao.deleteById(id) // Remove from local cache
+                                } catch (e: Exception) {
+                                    Timber.e(e, "Flock ID $id: Error deleting from local cache after remote deletion confirmation.")
+                                }
+                                Result.Success(null) // Indicate not found
+                            }
+                        } else { // Not found locally or remotely
+                            Result.Success(null)
+                        }
                     }
                 }
-
-                localEntity != null -> {
-                    // Use local data when remote fails
-                    val flock = mapEntityToFlock(localEntity)
-                    Result.success(flock)
+                is Result.Error -> {
+                    if (localEntity != null) {
+                        Timber.w(remoteFirebaseResult.exception, "Flock ID $id: Remote fetch failed. Emitting local data.")
+                        Result.Success(mapEntityToFlock(localEntity))
+                    } else {
+                        Timber.e(remoteFirebaseResult.exception, "Flock ID $id: Remote fetch failed and no local data.")
+                        Result.Error(remoteFirebaseResult.exception)
+                    }
                 }
-
-                else -> Result.failure(Exception("Flock not found: $id")) // Added ID to message
+                is Result.Loading -> {
+                    if (localEntity != null) {
+                        // Emit local data as success (stale) while remote is loading
+                        Result.Success(mapEntityToFlock(localEntity))
+                    } else {
+                        Result.Loading // No local data, and remote is loading
+                    }
+                }
             }
         }
     }
 
     override fun getFlocksByType(type: String): Flow<Result<List<Flock>>> {
-        // For now, return local data - can be enhanced with remote filtering
-        return flockDao.getByType(type).map { entities -> // Use flockDao
+        return flockDao.getByType(type).map { entities ->
             val flocks = entities.map { entity -> mapEntityToFlock(entity) }
-            Result.success(flocks)
+            Result.Success(flocks)
         }
     }
 
@@ -92,28 +116,26 @@ class FarmRepositoryImpl @Inject constructor(
         return try {
             val id = UUID.randomUUID().toString()
             val now = System.currentTimeMillis()
-
-            // Create domain model
             val flock = Flock(
                 id = id,
                 ownerId = data.ownerId,
                 fatherId = data.fatherId,
                 motherId = data.motherId,
-                type = FlockType.valueOf(data.ageGroup.name),
-                name = "New Flock",
+                type = FlockType.valueOf(data.ageGroup.name.uppercase(Locale.ROOT)), // Ensure uppercase for enum
+                name = "New Flock", // Consider making name part of registration data
                 breed = data.breed,
                 weight = data.weight?.toFloat(),
                 height = null,
                 color = null,
-                gender = null,
+                gender = null, // Consider adding to registration data
                 certified = false,
                 verified = false,
                 verificationLevel = VerificationLevel.BASIC,
-                traceable = false,
+                traceable = false, // Depends on system capabilities
                 ageGroup = data.ageGroup,
-                dateOfBirth = null,
+                dateOfBirth = null, // Consider adding to registration data
                 placeOfBirth = null,
-                currentAge = null,
+                currentAge = null, // Usually calculated
                 vaccinationStatus = VaccinationStatus.NOT_STARTED,
                 lastVaccinationDate = null,
                 healthStatus = HealthStatus.GOOD,
@@ -133,73 +155,72 @@ class FarmRepositoryImpl @Inject constructor(
                 updatedAt = Date(now)
             )
 
-            // Save to local database
-            val entity = mapFlockToEntity(flock) // needsSync will default to true
-            flockDao.insert(entity) // Use flockDao
+            val entity = mapFlockToEntity(flock, needsSync = true) // New flocks always need sync
+            flockDao.insert(entity)
 
-            // Save to remote (async - don't block on failure)
-            // The worker will pick it up if this fails or if we choose not to sync immediately.
-            val remoteData = mapFlockToRemote(flock)
+            // Attempt immediate remote sync, but don't block/fail registration. Worker will handle it.
             try {
-                remoteDataSource.saveFlock(remoteData)
+                val remoteData = mapFlockToRemote(flock)
+                val remoteResult = remoteDataSource.saveFlock(remoteData) // Assuming saveFlock takes the Map
+                if (remoteResult is Result.Success) {
+                    flockDao.insert(mapFlockToEntity(flock, needsSync = false)) // Mark as synced
+                    Timber.d("Flock ID $id: Registered and immediately synced.")
+                } else if (remoteResult is Result.Error) {
+                    Timber.w(remoteResult.exception, "Flock ID $id: Registered locally, but immediate remote sync failed. Worker will retry.")
+                }
             } catch (e: Exception) {
-                // Log but don't fail registration on remote save failure
+                Timber.e(e, "Flock ID $id: Exception during immediate remote sync attempt after registration.")
             }
 
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Timber.e(e, "Failed to register flock locally.")
+            Result.Error(e)
         }
     }
 
-    // Helper mapping functions (incorporating robustness from NetworkAwareFarmRepository)
     private fun mapEntityToFlock(entity: FlockEntity): Flock {
         return Flock(
             id = entity.id,
             ownerId = entity.ownerId,
             fatherId = entity.fatherId,
             motherId = entity.motherId,
-            type = try {
-                FlockType.valueOf(entity.type)
-            } catch (e: Exception) {
-                FlockType.FOWL // Default fallback
-            },
+            type = try { FlockType.valueOf(entity.type.uppercase(Locale.ROOT)) } catch (e: Exception) { Timber.w("Invalid flock type in entity: ${entity.type}, defaulting to FOWL."); FlockType.FOWL },
             name = entity.name,
             breed = entity.breed,
             weight = entity.weight,
-            height = null,
-            color = null,
-            gender = null,
+            height = null, // Populate from entity if field exists
+            color = null, // Populate from entity if field exists
+            gender = null, // Populate from entity if field exists
             certified = entity.certified,
             verified = entity.verified,
-            verificationLevel = VerificationLevel.BASIC,
-            traceable = false,
-            ageGroup = AgeGroup.WEEKS_0_5,
-            dateOfBirth = null,
-            placeOfBirth = null,
+            verificationLevel = VerificationLevel.BASIC, // Populate from entity if field exists
+            traceable = false, // Populate from entity if field exists
+            ageGroup = AgeGroup.WEEKS_0_5, // Populate from entity if field exists or map from age
+            dateOfBirth = null, // Populate from entity if field exists
+            placeOfBirth = null, // Populate from entity if field exists
             currentAge = null,
-            vaccinationStatus = VaccinationStatus.NOT_STARTED,
-            lastVaccinationDate = null,
-            healthStatus = HealthStatus.GOOD,
-            lastHealthCheck = null,
-            identification = null,
-            registryNumber = null,
-            proofs = null,
-            specialty = null,
-            productivityScore = null,
-            growthRate = null,
-            feedConversionRatio = null,
-            status = FlockStatus.ACTIVE,
-            forSale = false,
-            price = null,
-            purpose = null,
+            vaccinationStatus = VaccinationStatus.NOT_STARTED, // Populate from entity
+            lastVaccinationDate = null, // Populate from entity
+            healthStatus = HealthStatus.GOOD, // Populate from entity
+            lastHealthCheck = null, // Populate from entity
+            identification = null, // Populate from entity
+            registryNumber = null, // Populate from entity
+            proofs = null, // Populate from entity
+            specialty = null, // Populate from entity
+            productivityScore = null, // Populate from entity
+            growthRate = null, // Populate from entity
+            feedConversionRatio = null, // Populate from entity
+            status = FlockStatus.ACTIVE, // Populate from entity
+            forSale = false, // Populate from entity
+            price = null, // Populate from entity
+            purpose = null, // Populate from entity
             createdAt = Date(entity.createdAt),
             updatedAt = Date(entity.updatedAt)
+            // needsSync is a local concern, not part of domain model
         )
     }
 
-    // Added needsSync parameter, defaulting to true for new entities.
-    // When data comes from remote and is being cached, needsSync should be set to false.
     private fun mapFlockToEntity(flock: Flock, needsSync: Boolean = true): FlockEntity {
         return FlockEntity(
             id = flock.id,
@@ -214,172 +235,155 @@ class FarmRepositoryImpl @Inject constructor(
             verified = flock.verified,
             createdAt = flock.createdAt.time,
             updatedAt = flock.updatedAt.time,
-            needsSync = needsSync // Use the passed or default value
+            needsSync = needsSync
+            // Ensure all fields from Flock model that exist in FlockEntity are mapped here
         )
     }
 
     private fun mapRemoteToFlock(remote: Map<String, Any>): Flock {
+         val flockTypeString = remote["type"] as? String ?: FlockType.FOWL.name
         return Flock(
-            id = remote["id"] as? String ?: UUID.randomUUID().toString(), // Provide a fallback ID if missing
-            ownerId = remote["ownerId"] as? String ?: "unknown_owner", // Fallback
+            id = remote["id"] as? String ?: UUID.randomUUID().toString(),
+            ownerId = remote["ownerId"] as? String ?: "unknown_owner",
             fatherId = remote["fatherId"] as? String,
             motherId = remote["motherId"] as? String,
-            type = try {
-                FlockType.valueOf(remote["type"] as? String ?: FlockType.FOWL.name)
-            } catch (e: Exception) {
-                FlockType.FOWL // Default fallback
-            },
-            name = remote["name"] as? String ?: "Unnamed Flock", // Fallback
+            type = try { FlockType.valueOf(flockTypeString.uppercase(Locale.ROOT)) } catch (e: Exception) { Timber.w("Invalid flock type from remote: $flockTypeString, defaulting to FOWL."); FlockType.FOWL },
+            name = remote["name"] as? String ?: "Unnamed Flock",
             breed = remote["breed"] as? String,
             weight = (remote["weight"] as? Number)?.toFloat(),
-            height = null, // Assuming these are not in remote or handled elsewhere
-            color = null,
-            gender = null,
+            height = (remote["height"] as? Number)?.toFloat(), // Assuming height might come from remote
+            color = remote["color"] as? String, // Assuming color might come from remote
+            gender = remote["gender"] as? String, // Assuming gender might come from remote
             certified = remote["certified"] as? Boolean ?: false,
             verified = remote["verified"] as? Boolean ?: false,
-            verificationLevel = VerificationLevel.BASIC, // Default, assuming not in this specific remote map
-            traceable = false, // Default
-            ageGroup = AgeGroup.WEEKS_0_5, // Default
-            dateOfBirth = (remote["dateOfBirth"] as? Long)?.let { Date(it) }, // Example if present
-            placeOfBirth = remote["placeOfBirth"] as? String, // Example if present
-            currentAge = null, // Usually calculated or from a different source
-            vaccinationStatus = VaccinationStatus.NOT_STARTED, // Default
-            lastVaccinationDate = (remote["lastVaccinationDate"] as? Long)?.let { Date(it) }, // Example
-            healthStatus = HealthStatus.GOOD, // Default
-            lastHealthCheck = (remote["lastHealthCheck"] as? Long)?.let { Date(it) }, // Example
-            identification = remote["identification"] as? String, // Example
-            registryNumber = remote["registryNumber"] as? String, // Example
-            proofs = null, // Assuming not in this specific remote map
-            specialty = null,
-            productivityScore = null,
-            growthRate = null,
-            feedConversionRatio = null,
-            status = FlockStatus.ACTIVE, // Default
-            forSale = remote["forSale"] as? Boolean ?: false, // Example
-            price = (remote["price"] as? Number)?.toDouble(), // Example
-            purpose = remote["purpose"] as? String, // Example
-            createdAt = Date((remote["createdAt"] as? Number)?.toLong() ?: System.currentTimeMillis()),
-            updatedAt = Date((remote["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis())
+            verificationLevel = (remote["verificationLevel"] as? String)?.let { try { VerificationLevel.valueOf(it.uppercase(Locale.ROOT)) } catch (e: Exception) { VerificationLevel.BASIC } } ?: VerificationLevel.BASIC,
+            traceable = remote["traceable"] as? Boolean ?: false,
+            ageGroup = (remote["ageGroup"] as? String)?.let { try { AgeGroup.valueOf(it.uppercase(Locale.ROOT)) } catch (e: Exception) { AgeGroup.UNKNOWN } } ?: AgeGroup.UNKNOWN, // Add UNKNOWN to AgeGroup or handle
+            dateOfBirth = (remote["dateOfBirth"] as? Long)?.let { Date(it) },
+            placeOfBirth = remote["placeOfBirth"] as? String,
+            currentAge = (remote["currentAge"] as? Number)?.toInt(), // Assuming currentAge might come from remote
+            vaccinationStatus = (remote["vaccinationStatus"] as? String)?.let { try { VaccinationStatus.valueOf(it.uppercase(Locale.ROOT)) } catch (e: Exception) { VaccinationStatus.UNKNOWN } } ?: VaccinationStatus.UNKNOWN, // Add UNKNOWN
+            lastVaccinationDate = (remote["lastVaccinationDate"] as? Long)?.let { Date(it) },
+            healthStatus = (remote["healthStatus"] as? String)?.let { try { HealthStatus.valueOf(it.uppercase(Locale.ROOT)) } catch (e: Exception) { HealthStatus.UNKNOWN } } ?: HealthStatus.UNKNOWN, // Add UNKNOWN
+            lastHealthCheck = (remote["lastHealthCheck"] as? Long)?.let { Date(it) },
+            identification = remote["identification"] as? String,
+            registryNumber = remote["registryNumber"] as? String,
+            proofs = remote["proofs"] as? List<String>, // Assuming proofs are list of strings (e.g. URLs)
+            specialty = remote["specialty"] as? String,
+            productivityScore = (remote["productivityScore"] as? Number)?.toDouble(),
+            growthRate = (remote["growthRate"] as? Number)?.toDouble(),
+            feedConversionRatio = (remote["feedConversionRatio"] as? Number)?.toDouble(),
+            status = (remote["status"] as? String)?.let { try { FlockStatus.valueOf(it.uppercase(Locale.ROOT)) } catch (e: Exception) { FlockStatus.UNKNOWN } } ?: FlockStatus.UNKNOWN, // Add UNKNOWN
+            forSale = remote["forSale"] as? Boolean ?: false,
+            price = (remote["price"] as? Number)?.toDouble(),
+            purpose = remote["purpose"] as? String,
+            createdAt = Date((remote["createdAt"] as? Long) ?: (remote["createdAt"] as? Timestamp)?.seconds?.times(1000) ?: System.currentTimeMillis()), // Handle Firebase Timestamp
+            updatedAt = Date((remote["updatedAt"] as? Long) ?: (remote["updatedAt"] as? Timestamp)?.seconds?.times(1000) ?: System.currentTimeMillis())  // Handle Firebase Timestamp
         )
     }
+     // Helper for Firebase Timestamp, assuming it might be used in remote map
+    private data class Timestamp(val seconds: Long = 0, val nanoseconds: Int = 0)
 
-    private fun mapFlockToRemote(flock: Flock): Map<String, Any> {
+
+    private fun mapFlockToRemote(flock: Flock): Map<String, Any?> { // Allow nulls for optional fields
         return mapOf(
             "id" to flock.id,
             "ownerId" to flock.ownerId,
-            "fatherId" to (flock.fatherId ?: ""),
-            "motherId" to (flock.motherId ?: ""),
+            "fatherId" to flock.fatherId,
+            "motherId" to flock.motherId,
             "type" to flock.type.name,
             "name" to flock.name,
-            "breed" to (flock.breed ?: ""),
-            "weight" to (flock.weight ?: 0.0),
+            "breed" to flock.breed,
+            "weight" to flock.weight,
+            "height" to flock.height,
+            "color" to flock.color,
+            "gender" to flock.gender,
             "certified" to flock.certified,
             "verified" to flock.verified,
-            "createdAt" to flock.createdAt.time,
-            "updatedAt" to flock.updatedAt.time
-        )
+            "verificationLevel" to flock.verificationLevel.name,
+            "traceable" to flock.traceable,
+            "ageGroup" to flock.ageGroup.name,
+            "dateOfBirth" to flock.dateOfBirth?.time,
+            "placeOfBirth" to flock.placeOfBirth,
+            "currentAge" to flock.currentAge,
+            "vaccinationStatus" to flock.vaccinationStatus.name,
+            "lastVaccinationDate" to flock.lastVaccinationDate?.time,
+            "healthStatus" to flock.healthStatus.name,
+            "lastHealthCheck" to flock.lastHealthCheck?.time,
+            "identification" to flock.identification,
+            "registryNumber" to flock.registryNumber,
+            "proofs" to flock.proofs,
+            "specialty" to flock.specialty,
+            "productivityScore" to flock.productivityScore,
+            "growthRate" to flock.growthRate,
+            "feedConversionRatio" to flock.feedConversionRatio,
+            "status" to flock.status.name,
+            "forSale" to flock.forSale,
+            "price" to flock.price,
+            "purpose" to flock.purpose,
+            "createdAt" to flock.createdAt.time, // Consider FieldValue.serverTimestamp() for new creates
+            "updatedAt" to flock.updatedAt.time // Consider FieldValue.serverTimestamp()
+        ).filterValues { it != null } // Remove null values before sending to Firebase if desired
     }
 
-    // --- Lineage Methods ---
-
     override fun getLineageInfo(flockId: String, depthUp: Int, depthDown: Int): Flow<Result<LineageInfo?>> = flow {
-        // Using core.common.Result for consistency if it's the project standard
-        emit(com.example.rooster.core.common.Result.Loading)
+        emit(Result.Loading)
         try {
-            val centralFlockEntity = flockDao.getById(flockId).firstOrNull() // Fetch once for central node
+            val centralFlockEntity = flockDao.getById(flockId).firstOrNull()
             if (centralFlockEntity == null) {
-                emit(com.example.rooster.core.common.Result.Success(null))
+                emit(Result.Success(null))
                 return@flow
             }
-            // Basic node for now, recursive tree building is complex and needs careful depth management
             val centralNode = mapEntityToLineageNode(centralFlockEntity)
 
-            // Placeholder: Actual recursive fetching of parents and children needs to be implemented
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
- main
- main
-            // Build the tree structure
             coroutineScope {
-                val fatherNodeDeferred = if (depthUp > 0) async { buildAncestorTree(flockId, RelationshipType.FATHER, 0, depthUp) } else async { null }
-                val motherNodeDeferred = if (depthUp > 0) async { buildAncestorTree(flockId, RelationshipType.MOTHER, 0, depthUp) } else async { null }
+                val fatherNodeDeferred = if (depthUp > 0) async { buildAncestorTree(centralFlockEntity.fatherId, RelationshipType.FATHER, 0, depthUp) } else async { null }
+                val motherNodeDeferred = if (depthUp > 0) async { buildAncestorTree(centralFlockEntity.motherId, RelationshipType.MOTHER, 0, depthUp) } else async { null }
                 val childrenNodesDeferred = if (depthDown > 0) async { buildDescendantList(flockId, 0, depthDown) } else async { emptyList<LineageNode>() }
 
                 centralNode.father = fatherNodeDeferred.await()
                 centralNode.mother = motherNodeDeferred.await()
-                // The LineageNode.children is for direct children of *that* node in a display tree.
-                // The LineageInfo might want a flat list of all descendants up to a certain depth, or a tree.
-                // For now, populating direct children of the central node.
                 centralNode.children = childrenNodesDeferred.await()
             }
 
-            // Actual depth achieved might be less than requested if lineage ends or maxDepth hit.
-            // This calculation would be more complex if returning the full tree structure within LineageInfo.
-            // For now, using requested depth as a simplification.
             val lineageInfo = LineageInfo(
                 centralFlockId = flockId,
                 centralFlockNode = centralNode,
-                generationDepthUp = depthUp,
-                generationDepthDown = depthDown
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
-=======
-            // For parents (depthUp):
-            // Call a recursive helper function: fetchAncestors(centralNode, depthUp)
-            // For children (depthDown):
-            // Call a recursive helper function: fetchDescendants(centralNode, depthDown)
-            // These helpers would use lineageDao and flockDao to build the tree structure.
-
-            val lineageInfo = LineageInfo(
-                centralFlockId = flockId,
-                centralFlockNode = centralNode, // This node will be populated by recursive helpers
-                generationDepthUp = 0, // Actual depth achieved by fetchAncestors
-                generationDepthDown = 0 // Actual depth achieved by fetchDescendants
- main
- main
- main
+                generationDepthUp = depthUp, // This should reflect actual depth found
+                generationDepthDown = depthDown // This should reflect actual depth found
             )
-            emit(com.example.rooster.core.common.Result.Success(lineageInfo))
+            emit(Result.Success(lineageInfo))
         } catch (e: Exception) {
-            emit(com.example.rooster.core.common.Result.Error(e))
+            Timber.e(e, "Error getting lineage info for flock $flockId")
+            emit(Result.Error(e))
         }
     }
 
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
- main
- main
     private suspend fun buildAncestorTree(
-        childFlockId: String,
-        relationshipType: RelationshipType,
+        flockId: String?, // Changed to nullable
+        relationshipType: RelationshipType, // Not strictly needed if we just get father/mother IDs
         currentDepth: Int,
         maxDepth: Int,
         visited: MutableSet<String> = mutableSetOf()
     ): LineageNode? {
-        if (currentDepth >= maxDepth || childFlockId in visited) {
+        if (flockId == null || currentDepth >= maxDepth || flockId in visited) {
+            if (flockId != null && flockId in visited) Timber.d("Cycle detected or already visited ancestor: $flockId")
             return null
         }
-        visited.add(childFlockId) // Add before fetching to break cycles early for this path
+        visited.add(flockId)
 
-        val parentLink = lineageDao.getSpecificParentOfType(childFlockId, relationshipType)
-        val parentFlockId = parentLink?.parentFlockId ?: return null
+        val flockEntity = flockDao.getById(flockId).firstOrNull()
+        if (flockEntity == null) {
+            Timber.w("Ancestor flock with ID $flockId not found (broken lineage link). Relationship type resolution for this path will terminate.")
+            return null // Broken link
+        }
+        val node = mapEntityToLineageNode(flockEntity)
 
-        val parentEntity = flockDao.getById(parentFlockId).firstOrNull() ?: return null
-        val parentNode = mapEntityToLineageNode(parentEntity)
+        node.father = buildAncestorTree(flockEntity.fatherId, RelationshipType.FATHER, currentDepth + 1, maxDepth, visited)
+        node.mother = buildAncestorTree(flockEntity.motherId, RelationshipType.MOTHER, currentDepth + 1, maxDepth, visited)
 
-        // Recursively find grandparents
-        parentNode.father = buildAncestorTree(parentFlockId, RelationshipType.FATHER, currentDepth + 1, maxDepth, visited.toMutableSet()) // Pass copy of visited
-        parentNode.mother = buildAncestorTree(parentFlockId, RelationshipType.MOTHER, currentDepth + 1, maxDepth, visited.toMutableSet()) // Pass copy of visited
-
-        return parentNode
+        visited.remove(flockId) // Remove from visited for this path to allow it in other branches
+        return node
     }
 
     private suspend fun buildDescendantList(
@@ -389,6 +393,7 @@ class FarmRepositoryImpl @Inject constructor(
         visited: MutableSet<String> = mutableSetOf()
     ): List<LineageNode> {
         if (currentDepth >= maxDepth || parentFlockId in visited) {
+            if (parentFlockId in visited) Timber.d("Cycle detected or already visited descendant: $parentFlockId")
             return emptyList()
         }
         visited.add(parentFlockId)
@@ -396,37 +401,34 @@ class FarmRepositoryImpl @Inject constructor(
         val childrenLinks = lineageDao.getChildren(parentFlockId).firstOrNull() ?: emptyList()
         val childrenNodes = mutableListOf<LineageNode>()
 
-        for (link in childrenLinks) {
-            val childEntity = flockDao.getById(link.childFlockId).firstOrNull()
-            if (childEntity != null) {
-                val childNode = mapEntityToLineageNode(childEntity)
-                // Recursively find grandchildren
-                childNode.children = buildDescendantList(link.childFlockId, currentDepth + 1, maxDepth, visited.toMutableSet()) // Pass copy
-                childrenNodes.add(childNode)
+        coroutineScope { // Use coroutineScope for concurrent fetching of children's details
+            val childJobs = childrenLinks.map { link ->
+                async {
+                    val childEntity = flockDao.getById(link.childFlockId).firstOrNull()
+                    if (childEntity != null) {
+                        val childNode = mapEntityToLineageNode(childEntity)
+                        childNode.children = buildDescendantList(link.childFlockId, currentDepth + 1, maxDepth, visited.toMutableSet()) // Pass copy of visited for parallel branches
+                        childNode
+                    } else {
+                        Timber.w("Child flock with ID ${link.childFlockId} not found (broken lineage link).")
+                        null
+                    }
+                }
             }
+            childrenNodes.addAll(childJobs.awaitAll().filterNotNull())
         }
+        visited.remove(parentFlockId) // Remove from visited for this path
         return childrenNodes
     }
 
-
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
-=======
- main
- main
- main
     private fun mapEntityToLineageNode(entity: FlockEntity): LineageNode {
-        // Ensure FlockType.valueOf is handled safely if entity.type could be invalid
-        val flockType = try { FlockType.valueOf(entity.type) } catch (e: IllegalArgumentException) { FlockType.UNKNOWN }
-
+        val flockType = try { FlockType.valueOf(entity.type.uppercase(Locale.ROOT)) } catch (e: IllegalArgumentException) { Timber.w("Invalid flock type in lineage node: ${entity.type}"); FlockType.UNKNOWN }
         return LineageNode(
             flockId = entity.id,
-            name = entity.name,
+            name = entity.name ?: "N/A",
             breed = entity.breed,
             type = flockType,
-            profileImageUrl = null // TODO: Link to actual image URL if available for a flock
+            profileImageUrl = null // TODO: Populate from FlockEntity if it has a primary image URL
         )
     }
 
@@ -436,37 +438,44 @@ class FarmRepositoryImpl @Inject constructor(
                 childFlockId = childFlockId,
                 parentFlockId = parentFlockId,
                 relationshipType = type,
-                needsSync = true // New link needs to be synced
+                needsSync = true
             )
             lineageDao.insertLink(link)
+            Timber.d("Local lineage link added: Child $childFlockId, Parent $parentFlockId, Type $type")
 
-            // Attempt to save to remote data source immediately
-            val remoteResult = remoteDataSource.saveLineageLink(link) // Assuming this method exists
-            if (remoteResult.isSuccess) {
-                lineageDao.insertLink(link.copy(needsSync = false)) // Update local to synced
+            val remoteResult = remoteDataSource.saveLineageLink(link)
+            if (remoteResult is Result.Success) {
+                lineageDao.insertLink(link.copy(needsSync = false))
+                Timber.d("Lineage link synced to remote: Child $childFlockId, Parent $parentFlockId")
+            } else if (remoteResult is Result.Error) {
+                 Timber.w(remoteResult.exception, "Failed to sync lineage link Child $childFlockId, Parent $parentFlockId to remote. Worker will retry.")
             }
-            // If remote save fails, needsSync remains true for the worker.
-
-            com.example.rooster.core.common.Result.Success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            com.example.rooster.core.common.Result.Error(e)
+            Timber.e(e, "Error adding parent-child link locally for Child $childFlockId, Parent $parentFlockId")
+            Result.Error(e)
         }
     }
 
     override suspend fun removeParentChildLink(childFlockId: String, parentFlockId: String, type: RelationshipType): Result<Unit> {
         return try {
-            // For removal, we might need a soft delete + sync approach or direct delete
-            // For now, direct local delete then attempt remote.
             lineageDao.deleteLink(childFlockId, parentFlockId, type)
+            Timber.d("Local lineage link removed: Child $childFlockId, Parent $parentFlockId, Type $type")
 
-            // Attempt to delete from remote data source
-            remoteDataSource.deleteLineageLink(childFlockId, parentFlockId, type.name) // Assuming this method exists
-            // If remote delete fails, there's no straightforward "needsSync" for deletion with current model.
-            // This might require a "deleted" flag on LineageLinkEntity or a separate "pendingDeletes" table for worker.
+            // TODO: Implement remote deletion for lineage links. This might involve setting a 'deleted' flag and syncing,
+            // or direct deletion if the remote source supports it and it's safe.
+            // For now, only local deletion is implemented. The link will remain on the server.
+            // Consider how to handle this for sync (e.g. a 'deleted_links' table or field).
+            val remoteDeleteResult = remoteDataSource.deleteLineageLink(childFlockId, parentFlockId, type.name)
+            if (remoteDeleteResult is Result.Error) {
+                Timber.w(remoteDeleteResult.exception, "Failed to delete lineage link from remote: Child $childFlockId, Parent $parentFlockId. Needs manual reconciliation or improved sync for deletes.")
+                // Not returning error from this as local delete was successful.
+            }
 
-            com.example.rooster.core.common.Result.Success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            com.example.rooster.core.common.Result.Error(e)
+            Timber.e(e, "Error removing parent-child link locally for Child $childFlockId, Parent $parentFlockId")
+            Result.Error(e)
         }
     }
 }
