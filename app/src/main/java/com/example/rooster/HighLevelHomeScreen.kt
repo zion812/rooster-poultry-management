@@ -1045,30 +1045,22 @@ private fun QuickActionsSection() {
                     listOf(
                         QuickAction(
                             title = "Send Notification",
-                            titleTe = "నోటిఫికేషన్ పంపండి",
                             icon = Icons.Default.Notifications,
-                            route = "notifications",
                             color = Color(0xFF2196F3),
                         ),
                         QuickAction(
                             title = "User Management",
-                            titleTe = "వినియోగదారు నిర్వహణ",
                             icon = Icons.Default.ManageAccounts,
-                            route = "user_management",
                             color = Color(0xFF4CAF50),
                         ),
                         QuickAction(
                             title = "Reports",
-                            titleTe = "నివేదికలు",
                             icon = Icons.Default.Assessment,
-                            route = "reports",
                             color = Color(0xFFFF9800),
                         ),
                         QuickAction(
                             title = "Settings",
-                            titleTe = "సెట్టింగులు",
                             icon = Icons.Default.Settings,
-                            route = "settings",
                             color = Color(0xFF9C27B0),
                         ),
                     ),

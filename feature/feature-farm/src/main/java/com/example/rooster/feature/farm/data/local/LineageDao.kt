@@ -30,5 +30,5 @@ interface LineageDao {
     suspend fun deleteLink(childFlockId: String, parentFlockId: String, type: RelationshipType)
 
     @Query("DELETE FROM lineage_links WHERE childFlockId = :childFlockId OR parentFlockId = :childFlockId")
-    suspend fundeleteAllLinksForFlock(childFlockId: String)
+    suspend fun deleteAllLinksForFlock(childFlockId: String)
 }

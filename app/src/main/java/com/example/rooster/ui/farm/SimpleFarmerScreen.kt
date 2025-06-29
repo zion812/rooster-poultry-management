@@ -70,21 +70,21 @@ fun SimpleFarmerScreen(
                         title = if (isTeluguMode) "పక్షులను జోడించండి" else "Add Birds",
                         description = if (isTeluguMode) "కొత్త పక్షులను నమోదు చేయండి" else "Register new birds to your flock",
                         color = MaterialTheme.colorScheme.primaryContainer,
-                        onClick = { navController.navigate(NavigationRoute.SimpleAddBirds.route) },
+                        onClick = { navController.navigate(NavigationRoute.SIMPLE_ADD_BIRDS.name) },
                     )
                     ActionCard(
                         icon = Icons.Default.List,
                         title = if (isTeluguMode) "పక్షులను వీక్షించండి" else "View Birds",
                         description = if (isTeluguMode) "మీ పక్షుల జాబితాను చూడండి" else "See details of your current birds",
                         color = MaterialTheme.colorScheme.secondaryContainer,
-                        onClick = { navController.navigate(NavigationRoute.SimpleViewBirds.route) },
+                        onClick = { navController.navigate(NavigationRoute.SIMPLE_VIEW_BIRDS.name) },
                     )
                     ActionCard(
                         icon = Icons.Default.Sell,
                         title = if (isTeluguMode) "పక్షులను అమ్మండి" else "Sell Birds",
                         description = if (isTeluguMode) "పక్షులను మార్కెట్లో అమ్మకానికి ఉంచండి" else "List birds for sale on the marketplace",
                         color = MaterialTheme.colorScheme.tertiaryContainer,
-                        onClick = { navController.navigate(NavigationRoute.SimpleSellBirds.route) },
+                        onClick = { navController.navigate(NavigationRoute.SIMPLE_SELL_BIRDS.name) },
                     )
                 }
             }
@@ -103,14 +103,14 @@ fun SimpleFarmerScreen(
                         title = if (isTeluguMode) "ఆరోగ్య నిర్వహణ" else "Health Management",
                         description = if (isTeluguMode) "పక్షుల ఆరోగ్య రికార్డులను ట్రాక్ చేయండి" else "Track and manage bird health records",
                         color = MaterialTheme.colorScheme.errorContainer,
-                        onClick = { navController.navigate(NavigationRoute.HealthManagement.route) },
+                        onClick = { navController.navigate(NavigationRoute.HEALTH_RECORDS.name) },
                     )
                     ActionCard(
                         icon = Icons.Default.Analytics,
                         title = if (isTeluguMode) "రోగనిర్ధారణ" else "Diagnostics",
                         description = if (isTeluguMode) "సాధారణ వ్యాధుల కోసం విశ్లేషించండి" else "Analyze for common poultry diseases",
                         color = MaterialTheme.colorScheme.primaryContainer,
-                        onClick = { navController.navigate(NavigationRoute.Diagnostics.route) },
+                        onClick = { navController.navigate(NavigationRoute.DIAGNOSIS_HELP.name) },
                     )
                 }
             }
@@ -129,14 +129,14 @@ fun SimpleFarmerScreen(
                         title = if (isTeluguMode) "మార్కెట్‌ప్లేస్" else "Marketplace",
                         description = if (isTeluguMode) "పక్షులను కొనండి లేదా అమ్మండి" else "Buy or sell poultry and related products",
                         color = MaterialTheme.colorScheme.secondaryContainer,
-                        onClick = { navController.navigate(NavigationRoute.Marketplace.route) },
+                        onClick = { navController.navigate(NavigationRoute.MARKETPLACE.name) },
                     )
                     ActionCard(
                         icon = Icons.Default.Group,
                         title = if (isTeluguMode) "కమ్యూనిటీ ఫోరమ్" else "Community Forum",
                         description = if (isTeluguMode) "ఇతర రైతులతో కనెక్ట్ అవ్వండి" else "Connect with other farmers and share insights",
                         color = MaterialTheme.colorScheme.tertiaryContainer,
-                        onClick = { navController.navigate(NavigationRoute.Community.route) },
+                        onClick = { navController.navigate(NavigationRoute.COMMUNITY.name) },
                     )
                 }
             }
@@ -145,7 +145,7 @@ fun SimpleFarmerScreen(
             item {
                 SimpleHelpCard(
                     isTeluguMode = isTeluguMode,
-                    onHelpClick = { navController.navigate(NavigationRoute.SimpleHelp.route) },
+                    onHelpClick = { navController.navigate(NavigationRoute.SIMPLE_HELP.name) },
                 )
             }
         }

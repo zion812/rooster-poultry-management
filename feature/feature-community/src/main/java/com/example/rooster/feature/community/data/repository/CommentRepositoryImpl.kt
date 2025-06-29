@@ -17,12 +17,13 @@ import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
-import com.example.rooster.feature.community.data.local.dao.PostDao // Added import
+import com.example.rooster.feature.community.data.local.dao.PostDao
+import timber.log.Timber
 
 @Singleton
 class CommentRepositoryImpl @Inject constructor(
     private val localDataSource: CommentDao,
-    private val postDao: PostDao, // Added PostDao
+    private val postDao: PostDao,
     private val remoteDataSource: CommunityRemoteDataSource
 ) : CommentRepository {
 
@@ -30,11 +31,10 @@ class CommentRepositoryImpl @Inject constructor(
         return localBackedCommunityResourceList(
             localCall = { localDataSource.getCommentsForPost(postId).map { entities -> entities.map { mapEntityToDomain(it) } } },
             remoteCall = { remoteDataSource.getCommentsStream(postId).firstOrNull() ?: Result.Success(emptyList()) },
-            saveRemoteResult = { remoteComments -> // List<Comment>
+            saveRemoteResult = { remoteComments -> 
                 val entitiesToSave = mutableListOf<CommentEntity>()
                 var skippedCount = 0
                 for (remoteComment in remoteComments) {
-                    // Need a suspend fun getCommentByIdSuspend(commentId: String): CommentEntity? in CommentDao
                     val localUnsyncedEntity = localDataSource.getCommentByIdSuspend(remoteComment.commentId)
                     if (localUnsyncedEntity?.needsSync == true) {
                         Timber.w("Community: Local comment ID ${remoteComment.commentId} has unsynced changes. Skipping remote overwrite.")
@@ -47,7 +47,7 @@ class CommentRepositoryImpl @Inject constructor(
                     localDataSource.insertComments(entitiesToSave)
                     Timber.d("Community: Saved/Updated ${entitiesToSave.size} comments for post $postId in cache.")
                 }
-                 if (skippedCount > 0) {
+                if (skippedCount > 0) {
                     Timber.d("Community: Skipped $skippedCount unsynced local comments for post $postId during remote update.")
                 }
             },
@@ -59,7 +59,7 @@ class CommentRepositoryImpl @Inject constructor(
         return localBackedCommunityResourceList(
             localCall = { localDataSource.getRepliesForComment(commentId).map { entities -> entities.map { mapEntityToDomain(it) } } },
             remoteCall = { remoteDataSource.getCommentRepliesStream(commentId).firstOrNull() ?: Result.Success(emptyList()) },
-            saveRemoteResult = { remoteReplies -> // List<Comment>
+            saveRemoteResult = { remoteReplies -> 
                 val entitiesToSave = mutableListOf<CommentEntity>()
                 var skippedCount = 0
                 for (remoteReply in remoteReplies) {
@@ -72,7 +72,7 @@ class CommentRepositoryImpl @Inject constructor(
                     }
                 }
                 if (entitiesToSave.isNotEmpty()) {
-                    localDataSource.insertComments(entitiesToSave) // saveRemoteResult takes List<S>
+                    localDataSource.insertComments(entitiesToSave)
                     Timber.d("Community: Saved/Updated ${entitiesToSave.size} replies for comment $commentId in cache.")
                 }
                 if (skippedCount > 0) {
@@ -89,23 +89,15 @@ class CommentRepositoryImpl @Inject constructor(
             val entity = mapDomainToEntity(commentWithId, needsSync = true)
             localDataSource.insertComment(entity)
 
-            // Increment commentCount on Post locally (optimistic)
-            try {
-                val postEntity = postDao.getPostByIdSuspend(comment.postId) // Need PostDao injected
-                if (postEntity != null) {
-                    postDao.updateCommentCount(comment.postId, postEntity.commentCount + 1)
-                    Timber.d("Incremented local comment count for post ${comment.postId}")
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to increment local comment count for post ${comment.postId}")
+            val postEntity = postDao.getPostByIdSuspend(comment.postId)
+            if (postEntity != null) {
+                postDao.updateCommentCount(comment.postId, postEntity.commentCount + 1)
+                Timber.d("Incremented local comment count for post ${comment.postId}")
             }
-            Timber.i("Remote increment for commentCount on post ${comment.postId} should be handled by a Cloud Function or transaction for atomicity.")
-
 
             val remoteResult = remoteDataSource.addComment(commentWithId)
             if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
                 localDataSource.insertComment(entity.copy(needsSync = false, commentId = remoteResult.data))
-                // Remote increment should ideally be confirmed or handled by backend trigger.
                 Result.Success(remoteResult.data)
             } else if (remoteResult is Result.Error) {
                 Result.Error(remoteResult.exception)
@@ -120,7 +112,7 @@ class CommentRepositoryImpl @Inject constructor(
     override suspend fun updateComment(comment: Comment): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val entity = mapDomainToEntity(comment, needsSync = true)
-            localDataSource.updateComment(entity) // or insertComment with REPLACE
+            localDataSource.updateComment(entity)
             val remoteResult = remoteDataSource.updateComment(comment)
             if (remoteResult is Result.Success) {
                 localDataSource.updateComment(entity.copy(needsSync = false))
@@ -132,28 +124,19 @@ class CommentRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteComment(commentId: String, authorUserId: String): Result<Unit> = withContext(Dispatchers.IO) {
-        // TODO: Local author check, server-side rules are primary.
         try {
-            // It's better to know the postId before deleting the comment to update the Post's commentCount
-            // This requires fetching the comment first, or the comment domain/entity should carry postId.
-            // CommentEntity and Comment domain model already have postId.
-            val commentEntity = localDataSource.getCommentByIdSuspend(commentId) // Assuming this method exists or is added.
+            val commentEntity = localDataSource.getCommentByIdSuspend(commentId)
 
             val remoteResult = remoteDataSource.deleteComment(commentId)
             if (remoteResult is Result.Success) {
                 localDataSource.deleteCommentById(commentId)
                 if (commentEntity != null) {
-                    try {
-                        val postEntity = postDao.getPostByIdSuspend(commentEntity.postId)
-                        if (postEntity != null) {
-                            postDao.updateCommentCount(commentEntity.postId, (postEntity.commentCount - 1).coerceAtLeast(0))
-                            Timber.d("Decremented local comment count for post ${commentEntity.postId}")
-                        }
-                    } catch (e: Exception) {
-                        Timber.e(e, "Failed to decrement local comment count for post ${commentEntity.postId}")
+                    val postEntity = postDao.getPostByIdSuspend(commentEntity.postId)
+                    if (postEntity != null) {
+                        postDao.updateCommentCount(commentEntity.postId, (postEntity.commentCount - 1).coerceAtLeast(0))
+                        Timber.d("Decremented local comment count for post ${commentEntity.postId}")
                     }
                 }
-                Timber.i("Remote decrement for commentCount on post ${commentEntity?.postId} should be handled by a Cloud Function or transaction for atomicity.")
             }
             remoteResult
         } catch (e: Exception) {
@@ -162,35 +145,25 @@ class CommentRepositoryImpl @Inject constructor(
     }
 
     override suspend fun likeComment(commentId: String, userId: String): Result<Unit> = withContext(Dispatchers.IO) {
-        // Simplified: pass-through. Needs optimistic update + robust offline handling.
         val remoteResult = remoteDataSource.likeComment(commentId, userId)
         if (remoteResult is Result.Success) {
-            // localDataSource.updateLikeCount(commentId, newCount) // Needs method to get current comment and update
+            // localDataSource.updateLikeCount(commentId, newCount)
         }
         return@withContext remoteResult
     }
 
     override suspend fun unlikeComment(commentId: String, userId: String): Result<Unit> = withContext(Dispatchers.IO) {
-        // Simplified: pass-through.
         return@withContext remoteDataSource.unlikeComment(commentId, userId)
     }
-
- feature/phase1-foundations-community-likes
-import timber.log.Timber // Ensure Timber is imported
 
     override suspend fun getUnsyncedCommentEntities(): List<CommentEntity> = withContext(Dispatchers.IO) {
         localDataSource.getUnsyncedCommentsSuspend()
     }
 
     override suspend fun syncCommentRemote(comment: Comment): Result<Unit> = withContext(Dispatchers.IO) {
-        // This method ONLY attempts the remote synchronization.
         try {
-            // remoteDataSource.addComment is expected to handle ID generation if comment.commentId is blank
-            // and use it if provided (for upsert-like behavior if comment already exists).
             val remoteResult = remoteDataSource.addComment(comment)
-
             if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
-                 // Worker will use remoteResult.data (the ID) to update local entity.
                 Result.Success(Unit)
             } else if (remoteResult is Result.Error) {
                 Timber.e(remoteResult.exception, "Failed to sync comment ${comment.commentId} to remote.")
@@ -201,38 +174,13 @@ import timber.log.Timber // Ensure Timber is imported
             }
         } catch (e: Exception) {
             Timber.e(e, "Exception during remote comment sync for ${comment.commentId}")
-=======
-    override suspend fun getUnsyncedComments(): List<Comment> = withContext(Dispatchers.IO) {
-        localDataSource.getUnsyncedCommentsSuspend().map { mapEntityToDomain(it) }
-    }
-
-    override suspend fun syncComment(comment: Comment): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            // Assuming remoteDataSource.addComment can handle if comment already exists
-            // or a specific remoteDataSource.updateComment exists.
-            // Using addComment for new unsynced items.
-            val remoteResult = remoteDataSource.addComment(comment) // Or updateComment(comment)
-
-            if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
-                // Update local entity to set needsSync = false and use remote ID
-                val entity = mapDomainToEntity(comment.copy(commentId = remoteResult.data), needsSync = false)
-                localDataSource.insertComment(entity) // REPLACE will update it
-                Result.Success(Unit)
-            } else if (remoteResult is Result.Error) {
-                Result.Error(remoteResult.exception)
-            } else {
-                Result.Error(Exception("Remote data source returned invalid ID or unknown error during comment sync"))
-            }
-        } catch (e: Exception) {
- main
             Result.Error(e)
         }
     }
 
- feature/phase1-foundations-community-likes
     override suspend fun updateLocalCommentEntity(commentEntity: CommentEntity) {
         withContext(Dispatchers.IO) {
-            localDataSource.insertComment(commentEntity) // OnConflictStrategy.REPLACE
+            localDataSource.insertComment(commentEntity)
         }
     }
 
@@ -240,14 +188,11 @@ import timber.log.Timber // Ensure Timber is imported
         return mapEntityToDomain(commentEntity)
     }
 
-=======
- main
-    // --- Mappers ---
     private fun mapEntityToDomain(entity: CommentEntity): Comment {
         return Comment(
             commentId = entity.commentId,
             postId = entity.postId,
-            authorUserId = entity.authorUserId ?: "unknown_author", // Handle nullable author if user deleted
+            authorUserId = entity.authorUserId ?: "unknown_author",
             authorDisplayName = entity.authorDisplayName,
             authorProfilePictureUrl = entity.authorProfilePictureUrl,
             contentText = entity.contentText,
@@ -281,7 +226,6 @@ import timber.log.Timber // Ensure Timber is imported
     }
 }
 
-// Re-define or import generic helper for network-bound resource pattern
 private inline fun <D, S> localBackedCommunityResourceList(
     crossinline localCall: () -> Flow<List<D>>,
     crossinline remoteCall: suspend () -> Result<List<S>>,

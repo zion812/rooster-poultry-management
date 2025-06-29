@@ -11,9 +11,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
+import android.content.Context 
+import com.example.rooster.core.common.toUserFriendlyMessage 
+import dagger.hilt.android.qualifiers.ApplicationContext 
 
 @HiltViewModel
 class FlockRegistryViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context, 
     private val registerFlockUseCase: RegisterFlockUseCase
 ) : ViewModel() {
 
@@ -33,62 +37,111 @@ class FlockRegistryViewModel @Inject constructor(
 
     fun updateField(fieldName: String, value: String) {
         val currentState = _uiState.value
-        _uiState.value = when (fieldName) {
-            "breed" -> currentState.copy(breed = value)
-            "colors" -> currentState.copy(colorsText = value)
-            "weight" -> currentState.copy(weightText = value)
-            "height" -> currentState.copy(heightText = value)
-            "fatherId" -> currentState.copy(fatherId = value)
-            "motherId" -> currentState.copy(motherId = value)
-            "placeOfBirth" -> currentState.copy(placeOfBirth = value)
-            "identification" -> currentState.copy(identification = value)
-            "specialty" -> currentState.copy(specialty = value)
-            else -> currentState
-        }
+        val currentErrors = _uiState.value.fieldErrors.toMutableMap()
+        currentErrors.remove(fieldName) // Clear error for this field upon modification
 
-        updateCanSubmit()
+        _uiState.value = when (fieldName) {
+            "breed" -> currentState.copy(breed = value, fieldErrors = currentErrors)
+            "colors" -> currentState.copy(colorsText = value, fieldErrors = currentErrors)
+            "weight" -> currentState.copy(weightText = value, fieldErrors = currentErrors)
+            "height" -> currentState.copy(heightText = value, fieldErrors = currentErrors)
+            "fatherId" -> currentState.copy(fatherId = value, fieldErrors = currentErrors)
+            "motherId" -> currentState.copy(motherId = value, fieldErrors = currentErrors)
+            "placeOfBirth" -> currentState.copy(placeOfBirth = value, fieldErrors = currentErrors)
+            "identification" -> currentState.copy(identification = value, fieldErrors = currentErrors)
+            "specialty" -> currentState.copy(specialty = value, fieldErrors = currentErrors)
+            else -> currentState.copy(fieldErrors = currentErrors)
+        }
+        validateFormAndSetCanSubmit()
     }
 
     fun updateDateField(fieldName: String, date: Date) {
+        val currentErrors = _uiState.value.fieldErrors.toMutableMap()
+        currentErrors.remove(fieldName)
+
         when (fieldName) {
-            "dateOfBirth" -> _uiState.value = _uiState.value.copy(dateOfBirth = date)
+            "dateOfBirth" -> _uiState.value = _uiState.value.copy(dateOfBirth = date, fieldErrors = currentErrors)
         }
-        updateCanSubmit()
+        validateFormAndSetCanSubmit()
     }
 
     fun addProofPhoto(photoUrl: String) {
         val currentPhotos = _uiState.value.proofPhotos
-        _uiState.value = _uiState.value.copy(proofPhotos = currentPhotos + photoUrl)
-        updateCanSubmit()
+        // Assuming "proofPhotos" is a field name for potential validation
+        val currentErrors = _uiState.value.fieldErrors.toMutableMap()
+        currentErrors.remove("proofPhotos")
+
+        _uiState.value = _uiState.value.copy(
+            proofPhotos = currentPhotos + photoUrl,
+            fieldErrors = currentErrors
+        )
+        validateFormAndSetCanSubmit()
+    }
+
+    private fun validateFormAndSetCanSubmit(): Boolean {
+        val state = _uiState.value
+        val errors = mutableMapOf<String, String>()
+
+        if (state.registryType == null) {
+            errors["registryType"] = "Registry type is required."
+        }
+        if (state.ageGroup == null) {
+            errors["ageGroup"] = "Age group is required."
+        }
+        if (state.breed.isNullOrBlank()) {
+            errors["breed"] = "Breed is required."
+        }
+        // Basic validation for weight (must be a number if not blank)
+        if (!state.weightText.isNullOrBlank() && state.weightText.toDoubleOrNull() == null) {
+            errors["weight"] = "Invalid weight format."
+        } else if (!state.weightText.isNullOrBlank() && (state.weightText.toDoubleOrNull() ?: 0.0) <= 0) {
+            errors["weight"] = "Weight must be positive."
+        }
+        // Basic validation for height
+        if (!state.heightText.isNullOrBlank() && state.heightText.toDoubleOrNull() == null) {
+            errors["height"] = "Invalid height format."
+        } else if (!state.heightText.isNullOrBlank() && (state.heightText.toDoubleOrNull() ?: 0.0) <= 0) {
+            errors["height"] = "Height must be positive."
+        }
+
+        // Add more validations as needed for other fields:
+        // e.g., fatherId/motherId format if they are supposed to be existing flock IDs
+        // dateOfBirth not in future, etc.
+
+        val canSubmit = errors.isEmpty() && state.registryType != null && state.ageGroup != null && !state.breed.isNullOrBlank()
+
+        _uiState.value = state.copy(fieldErrors = errors, canSubmit = canSubmit)
+        return canSubmit
     }
 
     fun submitRegistration(farmId: String) {
-        val state = _uiState.value
-        if (!state.canSubmit) return
-
-        _uiState.value = state.copy(isLoading = true, error = null)
+        if (!validateFormAndSetCanSubmit()) { // Validate before submission
+            return
+        }
+        // val state = _uiState.value // state is already captured by validateFormAndSetCanSubmit
+        _uiState.value = _uiState.value.copy(isLoading = true, error = null) // Clear general error
 
         viewModelScope.launch {
             try {
                 val registrationData = FlockRegistrationData(
                     ownerId = farmId,
-                    registryType = state.registryType!!,
-                    ageGroup = state.ageGroup!!,
-                    breed = state.breed,
-                    weight = state.weightText?.toDoubleOrNull(),
-                    colors = state.colorsText?.split(",")?.map { it.trim() },
+                    registryType = _uiState.value.registryType!!,
+                    ageGroup = _uiState.value.ageGroup!!,
+                    breed = _uiState.value.breed,
+                    weight = _uiState.value.weightText?.toDoubleOrNull(),
+                    colors = _uiState.value.colorsText?.split(",")?.map { it.trim() },
                     gender = null, // Can be added later
-                    identification = state.identification,
+                    identification = _uiState.value.identification,
                     size = null, // Can be added later
-                    specialty = state.specialty,
-                    proofs = state.proofPhotos,
-                    fatherId = state.fatherId,
-                    motherId = state.motherId,
-                    placeOfBirth = state.placeOfBirth,
-                    dateOfBirth = state.dateOfBirth,
+                    specialty = _uiState.value.specialty,
+                    proofs = _uiState.value.proofPhotos,
+                    fatherId = _uiState.value.fatherId,
+                    motherId = _uiState.value.motherId,
+                    placeOfBirth = _uiState.value.placeOfBirth,
+                    dateOfBirth = _uiState.value.dateOfBirth,
                     vaccinationRecords = null, // Can be added later
-                    height = state.heightText?.toDoubleOrNull(),
-                    requiresVerification = state.requiresVerification,
+                    height = _uiState.value.heightText?.toDoubleOrNull(),
+                    requiresVerification = _uiState.value.requiresVerification,
                     verificationNotes = null
                 )
 
@@ -104,7 +157,7 @@ class FlockRegistryViewModel @Inject constructor(
                     is com.example.rooster.core.common.Result.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            error = result.exception.localizedMessage ?: "Registration failed"
+                            error = result.exception.toUserFriendlyMessage(appContext)
                         )
                     }
                     is com.example.rooster.core.common.Result.Loading -> {
@@ -118,7 +171,7 @@ class FlockRegistryViewModel @Inject constructor(
             } catch (e: Exception) { // Catch any unexpected exceptions from the launch block
                 _uiState.value = _uiState.value.copy( // Use _uiState.value
                     isLoading = false,
-                    error = e.localizedMessage ?: "An unexpected error occurred"
+                    error = e.toUserFriendlyMessage(appContext)
                 )
             }
         }
@@ -155,5 +208,6 @@ data class FlockRegistryUiState(
     val canSubmit: Boolean = false,
     val isLoading: Boolean = false,
     val isSubmitted: Boolean = false,
-    val error: String? = null
+    val error: String? = null, // For general submission errors
+    val fieldErrors: Map<String, String> = emptyMap() // For field-specific validation errors
 )

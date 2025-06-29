@@ -196,7 +196,7 @@ dependencies {
     implementation(libs.room.ktx)
 
     // WorkManager
-    implementation(libs.work.runtime.ktx)
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Permissions
     implementation(libs.accompanist.permissions)

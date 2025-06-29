@@ -43,7 +43,11 @@ object MarketplaceProvidesModule {
  feature/phase1-foundations-community-likes
         .addMigrations(MarketplaceDatabaseMigrations.MIGRATION_1_2) // Added migration
 =======
+ feature/phase1-foundations-community-likes
+        .addMigrations(MarketplaceDatabaseMigrations.MIGRATION_1_2) // Added migration
+=======
         .addMigrations() // Add actual Migration objects here when schema changes
+ main
  main
         .build()
     }

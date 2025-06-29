@@ -121,13 +121,8 @@ class FarmRepositoryImpl @Inject constructor(
                 ownerId = data.ownerId,
                 fatherId = data.fatherId,
                 motherId = data.motherId,
- feature/phase1-foundations-community-likes
                 type = FlockType.valueOf(data.ageGroup.name.uppercase(Locale.ROOT)),
                 name = "New Flock",
-=======
-                type = FlockType.valueOf(data.ageGroup.name.uppercase(Locale.ROOT)), // Ensure uppercase for enum
-                name = "New Flock", // Consider making name part of registration data
- main
                 breed = data.breed,
                 weight = data.weight?.toFloat(),
                 height = null,
@@ -160,41 +155,9 @@ class FarmRepositoryImpl @Inject constructor(
                 updatedAt = Date(now)
             )
 
- feature/phase1-foundations-community-likes
             val entity = mapFlockToEntity(flock, needsSync = true)
             flockDao.insert(entity)
 
-            try {
-                val remoteData = mapFlockToRemote(flock)
-                // remoteDataSource.saveFlock now returns com.example.rooster.core.common.Result<Unit>
-                when (val remoteResult = remoteDataSource.saveFlock(remoteData)) {
-                    is com.example.rooster.core.common.Result.Success -> {
-                        flockDao.insert(mapFlockToEntity(flock, needsSync = false))
-                        Timber.d("Flock ID $id: Registered and immediately synced.")
-                    }
-                    is com.example.rooster.core.common.Result.Error -> {
-                        Timber.w(remoteResult.exception, "Flock ID $id: Registered locally, but immediate remote sync failed. Worker will retry.")
-                        // Do not return error here, local registration succeeded.
-                    }
-                    is com.example.rooster.core.common.Result.Loading -> {
-                        // This case should ideally not happen from a suspend fun like saveFlock
-                        Timber.w("Flock ID $id: Remote sync returned Loading state unexpectedly.")
-                    }
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "Flock ID $id: Exception during immediate remote sync attempt after registration.")
-                // Do not return error here, local registration succeeded.
-            }
-
-            com.example.rooster.core.common.Result.Success(Unit) // Local registration is the primary success criteria here
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to register flock locally.")
-            com.example.rooster.core.common.Result.Error(e)
-=======
-            val entity = mapFlockToEntity(flock, needsSync = true) // New flocks always need sync
-            flockDao.insert(entity)
-
-            // Attempt immediate remote sync, but don't block/fail registration. Worker will handle it.
             try {
                 val remoteData = mapFlockToRemote(flock)
                 val remoteResult = remoteDataSource.saveFlock(remoteData) // Assuming saveFlock takes the Map
@@ -212,7 +175,6 @@ class FarmRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e, "Failed to register flock locally.")
             Result.Error(e)
- main
         }
     }
 
@@ -278,7 +240,7 @@ class FarmRepositoryImpl @Inject constructor(
     }
 
     private fun mapRemoteToFlock(remote: Map<String, Any>): Flock {
-         val flockTypeString = remote["type"] as? String ?: FlockType.FOWL.name
+        val flockTypeString = remote["type"] as? String ?: FlockType.FOWL.name
         return Flock(
             id = remote["id"] as? String ?: UUID.randomUUID().toString(),
             ownerId = remote["ownerId"] as? String ?: "unknown_owner",
@@ -318,7 +280,7 @@ class FarmRepositoryImpl @Inject constructor(
             updatedAt = Date((remote["updatedAt"] as? Long) ?: (remote["updatedAt"] as? Timestamp)?.seconds?.times(1000) ?: System.currentTimeMillis())  // Handle Firebase Timestamp
         )
     }
-     // Helper for Firebase Timestamp, assuming it might be used in remote map
+    // Helper for Firebase Timestamp, assuming it might be used in remote map
     private data class Timestamp(val seconds: Long = 0, val nanoseconds: Int = 0)
 
 
@@ -485,7 +447,7 @@ class FarmRepositoryImpl @Inject constructor(
                 lineageDao.insertLink(link.copy(needsSync = false))
                 Timber.d("Lineage link synced to remote: Child $childFlockId, Parent $parentFlockId")
             } else if (remoteResult is Result.Error) {
-                 Timber.w(remoteResult.exception, "Failed to sync lineage link Child $childFlockId, Parent $parentFlockId to remote. Worker will retry.")
+                Timber.w(remoteResult.exception, "Failed to sync lineage link Child $childFlockId, Parent $parentFlockId to remote. Worker will retry.")
             }
             Result.Success(Unit)
         } catch (e: Exception) {
@@ -513,6 +475,13 @@ class FarmRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e, "Error removing parent-child link locally for Child $childFlockId, Parent $parentFlockId")
             Result.Error(e)
+        }
+    }
+
+    // Add a method to expose permanently failed syncs
+    fun getSyncFailedFlocks(): Flow<List<Flock>> {
+        return flockDao.getFlocksBySyncStatus("SYNC_FAILED").map { list ->
+            list.map { mapEntityToFlock(it) }
         }
     }
 }

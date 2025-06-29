@@ -26,9 +26,10 @@ fun AuctionListScreen(
     val auctions by viewModel.auctions.collectAsState()
     val loading by viewModel.loading.collectAsState()
     val error by viewModel.error.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.loadAuctions()
+        viewModel.loadAuctions(context)
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -36,25 +37,20 @@ fun AuctionListScreen(
             loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-
             error != null -> {
                 Text(
-                    text = error ?: "Unknown error", // TODO: Localize
+                    text = error ?: "Unknown error",
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.Center),
+                    modifier = Modifier.align(Alignment.Center).padding(32.dp),
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
-
             else -> {
                 LazyColumn(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
                 ) {
                     items(auctions) { auction ->
                         AuctionItem(auction = auction) {
-                            // TODO: Update navigation route if necessary, e.g. use a route from AuctionNavigation.kt
                             navController.navigate("auction/${auction.auctionId}")
                         }
                     }

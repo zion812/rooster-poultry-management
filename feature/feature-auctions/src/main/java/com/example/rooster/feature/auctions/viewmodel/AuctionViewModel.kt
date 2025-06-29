@@ -29,6 +29,8 @@ import com.example.rooster.core.common.domain.repository.TokenRepository
 import com.example.rooster.core.common.domain.repository.PaymentRepository
 import com.example.rooster.core.common.event.AppEventBus
 import com.example.rooster.core.common.event.PaymentEvent
+import com.example.rooster.core.common.toUserFriendlyMessage
+import android.content.Context
 
 @HiltViewModel
 class AuctionViewModel @Inject constructor(
@@ -189,24 +191,34 @@ class AuctionViewModel @Inject constructor(
         return depositPercentage?.let { bidAmount * (it / 100.0) }
     }
 
-    fun loadAuctions() =
+    fun loadAuctions(context: Context? = null) =
         viewModelScope.launch {
-            auctionRepository.getActiveAuctions().collect { result ->
-                when (result) {
-                    is com.example.rooster.core.common.Result.Success -> {
-                        _auctions.value = result.data
-                        _error.value = null
-                        _loading.value = false
-                    }
-                    is com.example.rooster.core.common.Result.Error -> {
-                        _error.value = result.exception.message ?: "Failed to load auctions" // TODO: Localize
-                        _loading.value = false
-                    }
-                    is com.example.rooster.core.common.Result.Loading -> {
-                        _loading.value = true
-                        _error.value = null
+            _loading.value = true
+            _error.value = null
+            try {
+                val result = auctionRepository.getActiveAuctions().collect { result ->
+                    when (result) {
+                        is com.example.rooster.core.common.Result.Success -> {
+                            _auctions.value = result.data
+                            _error.value = null
+                            _loading.value = false
+                        }
+                        is com.example.rooster.core.common.Result.Error -> {
+                            val msg = context?.let { toUserFriendlyMessage(result.exception, it) } ?: result.exception.localizedMessage ?: "Unknown error"
+                            _error.value = msg
+                            _loading.value = false
+                        }
+                        is com.example.rooster.core.common.Result.Loading -> {
+                            _loading.value = true
+                            _error.value = null
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                val msg = context?.let { toUserFriendlyMessage(e, it) } ?: e.localizedMessage ?: "Unknown error"
+                _error.value = msg
+            } finally {
+                _loading.value = false
             }
         }
 

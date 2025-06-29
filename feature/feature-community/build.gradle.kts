@@ -69,10 +69,8 @@ dependencies {
     implementation(libs.room.ktx)
 
     // WorkManager (if this feature needs its own background sync)
-    // implementation(libs.androidx.work.runtime.ktx)
-    // implementation(libs.androidx.hilt.work)
-    // ksp(libs.androidx.hilt.compiler)
-
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.hilt.work) 
 
     // Compose (if UI is in this module)
     implementation(platform(libs.androidx.compose.bom))
@@ -93,9 +91,6 @@ dependencies {
 
     // Kotlinx Serialization
     implementation(libs.kotlinx.serialization.json)
-
-    // Background work
-    implementation(libs.work.runtime.ktx)
 
     // Logging
     implementation(libs.timber.logger)

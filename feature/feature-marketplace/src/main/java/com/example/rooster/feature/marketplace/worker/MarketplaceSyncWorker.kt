@@ -21,99 +21,69 @@ class MarketplaceSyncWorker @AssistedInject constructor(
 
     companion object {
         const val WORK_NAME = "MarketplaceSyncWorker"
- feature/phase1-foundations-community-likes
         private const val MAX_SYNC_ATTEMPTS = 5
-=======
- main
+        private const val SYNC_FAILED_STATUS = "SYNC_FAILED"
     }
 
     override suspend fun doWork(): Result {
         Timber.d("MarketplaceSyncWorker started")
- feature/phase1-foundations-community-likes
         var overallSuccess = true // Tracks if all items were synced or skipped correctly
 
         // Sync Product Listings
         try {
-            // Fetch entities directly to manage their syncAttempts and lastSyncAttemptTimestamp
             val unsyncedListingEntities = productListingRepository.getUnsyncedProductListingEntities()
             if (unsyncedListingEntities.isNotEmpty()) {
                 Timber.d("Found ${unsyncedListingEntities.size} unsynced product listings.")
                 for (entity in unsyncedListingEntities) {
                     if (entity.syncAttempts >= MAX_SYNC_ATTEMPTS) {
-                        Timber.w("ProductListing ID ${entity.id} has reached max sync attempts (${entity.syncAttempts}). Skipping.")
-                        overallSuccess = false // Ensure worker retries if skippable items still need sync eventually
+                        Timber.w("ProductListing ID ${entity.id} has reached max sync attempts (${entity.syncAttempts}). Marking as SYNC_FAILED.")
+                        productListingRepository.updateSyncStatus(entity.id, SYNC_FAILED_STATUS)
+                        overallSuccess = false
                         continue
                     }
-
                     Timber.d("Attempting to sync product listing ID: ${entity.id}, attempt: ${entity.syncAttempts + 1}")
                     val entityToAttempt = entity.copy(
                         syncAttempts = entity.syncAttempts + 1,
                         lastSyncAttemptTimestamp = System.currentTimeMillis()
                     )
-                    productListingRepository.updateLocalListing(entityToAttempt) // Persist attempt details
-
-                    // Map to domain model for the remote call
-                    val listingDomain = productListingRepository.mapListingEntityToDomain(entityToAttempt) // Requires this mapper in repo
-
-                    val syncResult = productListingRepository.syncListingRemote(listingDomain)
-
-                    if (syncResult is com.example.rooster.core.common.Result.Success) {
-                        val syncedEntity = entityToAttempt.copy(needsSync = false, syncAttempts = 0)
-                        productListingRepository.updateLocalListing(syncedEntity)
-                        Timber.d("Successfully synced product listing: ${entity.id}")
-                    } else {
-                        val error = (syncResult as? com.example.rooster.core.common.Result.Error)?.exception
-                        Timber.e(error, "Failed to sync product listing: ${entity.id}, attempt: ${entityToAttempt.syncAttempts}")
+                    productListingRepository.updateLocalListing(entityToAttempt)
+                    val listingDomain = productListingRepository.mapListingEntityToDomain(entityToAttempt)
+                    var attempt = 0
+                    var success = false
+                    var lastError: Exception? = null
+                    while (attempt < MAX_SYNC_ATTEMPTS && !success) {
+                        try {
+                            val syncResult = productListingRepository.syncListingRemote(listingDomain)
+                            if (syncResult is com.example.rooster.core.common.Result.Success) {
+                                val syncedEntity = entityToAttempt.copy(needsSync = false, syncAttempts = 0)
+                                productListingRepository.updateLocalListing(syncedEntity)
+                                Timber.d("Successfully synced product listing: ${entity.id}")
+                                success = true
+                            } else if (syncResult is com.example.rooster.core.common.Result.Error) {
+                                throw syncResult.exception
+                            }
+                        } catch (e: Exception) {
+                            lastError = e
+                            attempt++
+                            val backoff = Math.pow(2.0, attempt.toDouble()).toLong() * 500L
+                            Timber.w(e, "Sync attempt $attempt failed for product listing ${entity.id}, backing off $backoff ms")
+                            kotlinx.coroutines.delay(backoff)
+                        }
+                    }
+                    if (!success) {
+                        Timber.e(lastError, "All sync attempts failed for product listing ${entity.id}; marking as SYNC_FAILED.")
+                        productListingRepository.updateSyncStatus(entity.id, SYNC_FAILED_STATUS)
                         overallSuccess = false
-=======
-
-        var success = true
-
-        // Sync Product Listings
-        try {
-            val unsyncedListings = productListingRepository.getUnsyncedProductListings() // Needs to be added to repo
-            if (unsyncedListings.isNotEmpty()) {
-                Timber.d("Found ${unsyncedListings.size} unsynced product listings.")
-                // In a real scenario, we might want to upload them one by one or in batches
-                // and handle individual failures.
-                // For simplicity, let's assume a bulk sync attempt or iterate.
-                for (listing in unsyncedListings) {
-                    // The repository's save method should handle setting needsSync = false on successful remote save.
-                    // Or we might need a specific sync method in the repository.
-                    // For now, assuming createOrUpdateProductListing handles this by re-fetching or updating local.
-                    // This part needs careful implementation in the repository.
-                    // A more robust approach would be a dedicated sync method in the repository.
-                    // Let's assume a simple re-save for now if createOrUpdate handles local update post-sync.
-                    // This is a placeholder for more robust repository interaction.
-                    // productListingRepository.createOrUpdateProductListing(listing) // This might not be ideal.
-                    // A better approach:
-                    val syncResult = productListingRepository.syncListing(listing) // Requires syncListing in Repository
-                    if (syncResult is com.example.rooster.core.common.Result.Error) {
-                        Timber.e(syncResult.exception, "Failed to sync product listing: ${listing.id}")
-                        success = false
-                        // Decide if we should continue or retry this specific item later.
-                        // For now, we'll mark the overall work as failed if any item fails.
-                    } else {
-                        Timber.d("Successfully synced product listing: ${listing.id}")
- main
                     }
                 }
-            } else {
-                Timber.d("No unsynced product listings to sync.")
             }
         } catch (e: Exception) {
- feature/phase1-foundations-community-likes
-            Timber.e(e, "Error processing product listings for sync")
+            Timber.e(e, "MarketplaceSyncWorker failed during product listing sync")
             overallSuccess = false
-=======
-            Timber.e(e, "Error syncing product listings")
-            success = false
- main
         }
 
         // Sync Orders
         try {
- feature/phase1-foundations-community-likes
             val unsyncedOrderEntities = orderRepository.getUnsyncedOrderEntities()
             if (unsyncedOrderEntities.isNotEmpty()) {
                 Timber.d("Found ${unsyncedOrderEntities.size} unsynced orders.")
@@ -144,47 +114,22 @@ class MarketplaceSyncWorker @AssistedInject constructor(
                         val error = (syncResult as? com.example.rooster.core.common.Result.Error)?.exception
                         Timber.e(error, "Failed to sync order: ${entity.orderId}, attempt: ${entityToAttempt.syncAttempts}")
                         overallSuccess = false
-=======
-            val unsyncedOrders = orderRepository.getUnsyncedOrders() // Needs to be added to repo
-            if (unsyncedOrders.isNotEmpty()) {
-                Timber.d("Found ${unsyncedOrders.size} unsynced orders.")
-                for (order in unsyncedOrders) {
-                    val syncResult = orderRepository.syncOrder(order) // Requires syncOrder in Repository
-                    if (syncResult is com.example.rooster.core.common.Result.Error) {
-                        Timber.e(syncResult.exception, "Failed to sync order: ${order.id}")
-                        success = false
-                    } else {
-                        Timber.d("Successfully synced order: ${order.id}")
- main
                     }
                 }
             } else {
                 Timber.d("No unsynced orders to sync.")
             }
         } catch (e: Exception) {
- feature/phase1-foundations-community-likes
             Timber.e(e, "Error processing orders for sync")
             overallSuccess = false
         }
 
-        return if (overallSuccess) {
+        if (overallSuccess) {
             Timber.d("MarketplaceSyncWorker completed successfully")
-            Result.success()
+            return Result.success()
         } else {
             Timber.w("MarketplaceSyncWorker completed with errors or items still needing sync. Retrying.")
-            Result.retry()
-=======
-            Timber.e(e, "Error syncing orders")
-            success = false
-        }
-
-        return if (success) {
-            Timber.d("MarketplaceSyncWorker completed successfully")
-            Result.success()
-        } else {
-            Timber.w("MarketplaceSyncWorker completed with errors, retrying.")
-            Result.retry() // Retry if any part failed
- main
+            return Result.retry()
         }
     }
 }

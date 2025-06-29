@@ -64,6 +64,11 @@ dependencies {
     // Logging
     implementation(libs.timber.logger)
 
+    // Firebase
+    implementation("com.google.firebase:firebase-auth:22.3.0")
+    implementation("com.google.firebase:firebase-firestore:24.10.0")
+    implementation("com.google.firebase:firebase-common:20.4.0")
+
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

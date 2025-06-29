@@ -69,7 +69,7 @@ dependencies {
     implementation(libs.hilt.navigation.compose) // If feature has its own navigation graphs
 
     // Work Manager for background sync
-    implementation(libs.work.runtime.ktx)
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Room Database
     implementation(libs.room.runtime)

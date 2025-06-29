@@ -45,7 +45,7 @@ fun MarketplaceScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { navController.navigate("auctions") },
+            onClick = { navController.navigate(NavigationRoute.Auctions.route) },
         ) {
             Text(if (isTeluguMode) "వేలాలు చూడండి" else "View Auctions")
         }

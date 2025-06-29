@@ -122,23 +122,22 @@ fun TokenPurchaseScreen(
                         isProcessing = true
                         // TODO: Here you would initiate actual payment flow for pkg.price via PaymentRepository
                         // For now, using TokenRepository.addTokens as placeholder for successful purchase of pkg.tokenAmount
-                        scope.launch { // Use coroutine scope
-                            tokenRepository.addTokens(pkg.tokenAmount) { success ->
-                                isProcessing = false
-                                if (success) {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            if (isTeluguMode) "${pkg.tokenAmount} టోకెన్లు విజయవంతంగా చేర్చబడ్డాయి" else "${pkg.tokenAmount} Tokens added successfully", // TODO: Localize
-                                            duration = SnackbarDuration.Short
-                                        )
-                                    }
-                                    // Re-load balance after adding tokens
-                                    scope.launch { tokenRepository.loadTokenBalance { newBalance -> balance = newBalance } }
-                                    selectedPackage = null
-                                } else {
-                                    scope.launch {
+                        tokenRepository.addTokens(pkg.tokenAmount) { success ->
+                            isProcessing = false
+                            if (success) {
+                                scope.launch {
                                     snackbarHostState.showSnackbar(
-                                        if (isTeluguMode) "కొనుగోలు విఫలమైంది" else "Purchase failed", // TODO: Localize
+                                        message = if (isTeluguMode) "${pkg.tokenAmount} టోకెన్లు విజయవంతంగా చేర్చబడ్డాయి" else "${pkg.tokenAmount} Tokens added successfully",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                                // Re-load balance after adding tokens
+                                scope.launch { tokenRepository.loadTokenBalance { newBalance -> balance = newBalance } }
+                                selectedPackage = null
+                            } else {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = if (isTeluguMode) "కొనుగోలు విఫలమైంది" else "Purchase failed",
                                         duration = SnackbarDuration.Short
                                     )
                                 }
@@ -149,8 +148,10 @@ fun TokenPurchaseScreen(
                 enabled = !isProcessing && selectedPackage != null,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                if (isProcessing) CircularProgressIndicator(modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(8.dp))
+                if (isProcessing) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
                 Text(if (isTeluguMode) "కొనుగోలు చేయండి" else "Purchase Selected Package") // TODO: Localize
             }
         }

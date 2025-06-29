@@ -400,6 +400,9 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
  main
 
  feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
     override suspend fun getUnsyncedOrderEntities(): List<OrderEntity> = withContext(Dispatchers.IO) {
         orderDao.getUnsyncedOrdersSuspend()
     }
@@ -411,6 +414,8 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
         try {
             val remoteResult = remoteDataSource.createOrder(order) // This acts as an upsert
             if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
+ feature/phase1-foundations-community-likes
+=======
 =======
     override suspend fun getUnsyncedOrders(): List<Order> = withContext(Dispatchers.IO) {
         val unsyncedOrderEntities = orderDao.getUnsyncedOrdersSuspend()
@@ -436,17 +441,23 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
                 val orderItemEntities = order.items.map { mapDomainToOrderItemEntity(it, order.orderId) }
                 orderDao.insertOrderWithItems(entity, orderItemEntities) // This will replace existing
  main
+ main
                 Result.Success(Unit)
             } else if (remoteResult is Result.Error) {
                 Timber.e(remoteResult.exception, "Failed to sync order ${order.orderId} to remote.")
                 Result.Error(remoteResult.exception)
             } else {
  feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
                 Timber.w("Remote sync for order ${order.orderId} did not return a specific error but was not successful.")
                 Result.Error(Exception("Unknown error or unsuccessful remote sync for order ${order.orderId}"))
             }
         } catch (e: Exception) {
             Timber.e(e, "Exception during remote order sync for ${order.orderId}")
+ feature/phase1-foundations-community-likes
+=======
 =======
                 Timber.e("Unknown error while syncing order ${order.orderId} to remote.")
                 Result.Error(Exception("Unknown error during order sync"))
@@ -454,11 +465,15 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
         } catch (e: Exception) {
             Timber.e(e, "Exception during order sync for ${order.orderId}")
  main
+ main
             Result.Error(e)
         }
     }
 
  feature/phase1-foundations-community-likes
+=======
+ feature/phase1-foundations-community-likes
+ main
     override suspend fun updateLocalOrder(orderEntity: OrderEntity) {
         withContext(Dispatchers.IO) {
             // Note: If OrderEntity contained OrderItemEntities directly, this would be simpler.
@@ -478,7 +493,10 @@ private inline fun <D, S> localBackedRemoteResourceOrderList(
         mapOrderWithItemsToDomain(OrderWithItems(orderEntity, items)) // Call the existing private mapper
     }
 
+ feature/phase1-foundations-community-likes
 =======
+=======
+ main
  main
     // --- Mappers ---
     private fun mapDomainToEntity(domain: Order, needsSync: Boolean): OrderEntity {

@@ -13,13 +13,14 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocalHospital
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.Transform
-import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -135,93 +136,60 @@ private fun getNavigationItems(currentUserRole: String): List<NavigationItem> {
     return when (currentUserRole.lowercase()) {
         "general" ->
             listOf(
-                NavigationItem(NavigationRoute.Home, "Home", Icons.Filled.Home),
-                NavigationItem(NavigationRoute.FarmerHome, "Farm", Icons.Filled.Dashboard),
-                NavigationItem(NavigationRoute.Marketplace, "Market", Icons.Filled.Store),
-                NavigationItem(
-                    NavigationRoute.ActivityVerification,
-                    "Verify",
-                    Icons.Filled.VerifiedUser,
-                ),
-                NavigationItem(NavigationRoute.Community, "Community", Icons.Filled.Group),
-                NavigationItem(NavigationRoute.Profile, "Profile", Icons.Filled.Person),
-                NavigationItem(NavigationRoute.Transfers, "Transfers", Icons.Filled.Transform),
-                NavigationItem(NavigationRoute.Settings, "Settings", Icons.Filled.Settings),
-                NavigationItem(NavigationRoute.Help, "Help", Icons.Filled.MedicalServices),
-                NavigationItem(
-                    NavigationRoute.VetConsultation,
-                    "Vet",
-                    Icons.Filled.MedicalServices,
-                ),
-                NavigationItem(NavigationRoute.IoTDashboard, "IoT", Icons.Filled.DeviceHub),
-                NavigationItem(NavigationRoute.Auctions, "Auctions", Icons.Filled.Gavel),
-                NavigationItem(
-                    NavigationRoute.HighLevelHome,
-                    "Manager",
-                    Icons.Filled.AdminPanelSettings,
-                ),
-                NavigationItem(NavigationRoute.Auth, "Auth", Icons.Filled.Person),
-                NavigationItem(NavigationRoute.Cart, "Cart", Icons.Filled.Receipt),
-                NavigationItem(NavigationRoute.Feedback, "Feedback", Icons.Filled.Receipt),
-                NavigationItem(NavigationRoute.OrderHistory, "Orders", Icons.Filled.Receipt),
-                NavigationItem(NavigationRoute.Payment, "Payment", Icons.Filled.Receipt),
-                NavigationItem(NavigationRoute.ProfileEdit, "Edit Profile", Icons.Filled.Person),
-                NavigationItem(
-                    NavigationRoute.HelpSupport,
-                    "Help & Support",
-                    Icons.Filled.MedicalServices,
-                ),
-                NavigationItem(
-                    NavigationRoute.ComprehensiveMessaging,
-                    "Messages",
-                    Icons.Filled.Receipt,
-                ),
-                NavigationItem(NavigationRoute.Fowl, "Fowl", Icons.Filled.Receipt),
-                NavigationItem(NavigationRoute.Diagnostics, "Diagnostics", Icons.Filled.Receipt),
-                NavigationItem(NavigationRoute.HealthManagement, "Health", Icons.Filled.Receipt),
-                NavigationItem(
-                    NavigationRoute.MarketplaceListingCreate,
-                    "Create Listing",
-                    Icons.Filled.Add,
-                ),
+                NavigationItem(NavigationRoute.HOME, "Home", Icons.Filled.Home),
+                NavigationItem(NavigationRoute.FARMER_HOME, "Farm", Icons.Filled.Dashboard),
+                NavigationItem(NavigationRoute.MARKETPLACE, "Market", Icons.Filled.Store),
+                NavigationItem(NavigationRoute.ACTIVITY_VERIFICATION, "Verify", Icons.Filled.Verified),
+                NavigationItem(NavigationRoute.COMMUNITY, "Community", Icons.Filled.Group),
+                NavigationItem(NavigationRoute.PROFILE, "Profile", Icons.Filled.Person),
+                NavigationItem(NavigationRoute.TRANSFERS, "Transfers", Icons.Filled.Transform),
+                NavigationItem(NavigationRoute.SETTINGS, "Settings", Icons.Filled.Settings),
+                NavigationItem(NavigationRoute.HELP, "Help", Icons.Filled.MedicalServices),
+                NavigationItem(NavigationRoute.VET_CONSULTATION, "Vet", Icons.Filled.LocalHospital),
+                NavigationItem(NavigationRoute.IOT_DASHBOARD, "IoT", Icons.Filled.DeviceHub),
+                NavigationItem(NavigationRoute.AUCTIONS, "Auctions", Icons.Filled.Gavel),
+                NavigationItem(NavigationRoute.HIGH_LEVEL_HOME, "Manager", Icons.Filled.AdminPanelSettings),
+                NavigationItem(NavigationRoute.AUTH, "Auth", Icons.Filled.Person),
+                NavigationItem(NavigationRoute.CART, "Cart", Icons.Filled.Receipt),
+                NavigationItem(NavigationRoute.ORDER_HISTORY, "Orders", Icons.Filled.Receipt),
+                NavigationItem(NavigationRoute.PAYMENT, "Payment", Icons.Filled.Receipt),
+                NavigationItem(NavigationRoute.PROFILE_EDIT, "Edit Profile", Icons.Filled.Person),
+                NavigationItem(NavigationRoute.HELP_SUPPORT, "Help & Support", Icons.Filled.MedicalServices),
+                NavigationItem(NavigationRoute.COMPREHENSIVE_MESSAGING, "Messages", Icons.Filled.Receipt),
+                NavigationItem(NavigationRoute.FOWL_TRACEABILITY, "Fowl", Icons.Filled.Receipt),
+                NavigationItem(NavigationRoute.DIAGNOSIS_HELP, "Diagnostics", Icons.Filled.Receipt),
+                NavigationItem(NavigationRoute.HEALTH_RECORDS, "Health", Icons.Filled.Receipt),
+                NavigationItem(NavigationRoute.MARKETPLACE_LISTING_CREATE, "Create Listing", Icons.Filled.Add),
             )
 
         "farmer" ->
             listOf(
-                NavigationItem(NavigationRoute.FarmerHome, "Farm", Icons.Filled.Home),
-                NavigationItem(NavigationRoute.Marketplace, "Market", Icons.Filled.Store),
-                NavigationItem(NavigationRoute.Transfers, "Transfers", Icons.Filled.Transform),
-                NavigationItem(NavigationRoute.Settings, "Settings", Icons.Filled.Settings),
-                NavigationItem(NavigationRoute.Help, "Help", Icons.Filled.MedicalServices),
-                NavigationItem(
-                    NavigationRoute.VetConsultation,
-                    "Vet",
-                    Icons.Filled.MedicalServices,
-                ),
-                NavigationItem(NavigationRoute.IoTDashboard, "IoT", Icons.Filled.DeviceHub),
-                NavigationItem(NavigationRoute.Auctions, "Auctions", Icons.Filled.Gavel),
-                NavigationItem(NavigationRoute.Community, "Community", Icons.Filled.Group),
-                NavigationItem(NavigationRoute.Profile, "Profile", Icons.Filled.Person),
+                NavigationItem(NavigationRoute.FARMER_HOME, "Farm", Icons.Filled.Home),
+                NavigationItem(NavigationRoute.MARKETPLACE, "Market", Icons.Filled.Store),
+                NavigationItem(NavigationRoute.TRANSFERS, "Transfers", Icons.Filled.Transform),
+                NavigationItem(NavigationRoute.SETTINGS, "Settings", Icons.Filled.Settings),
+                NavigationItem(NavigationRoute.HELP, "Help", Icons.Filled.MedicalServices),
+                NavigationItem(NavigationRoute.VET_CONSULTATION, "Vet", Icons.Filled.LocalHospital),
+                NavigationItem(NavigationRoute.IOT_DASHBOARD, "IoT", Icons.Filled.DeviceHub),
+                NavigationItem(NavigationRoute.AUCTIONS, "Auctions", Icons.Filled.Gavel),
+                NavigationItem(NavigationRoute.COMMUNITY, "Community", Icons.Filled.Group),
+                NavigationItem(NavigationRoute.PROFILE, "Profile", Icons.Filled.Person),
             )
 
         "highlevel", "high_level" ->
             listOf(
-                NavigationItem(NavigationRoute.HighLevelHome, "Dashboard", Icons.Filled.Dashboard),
-                NavigationItem(NavigationRoute.Marketplace, "Market", Icons.Filled.Store),
-                NavigationItem(
-                    NavigationRoute.ActivityVerification,
-                    "Verify",
-                    Icons.Filled.VerifiedUser,
-                ),
-                NavigationItem(NavigationRoute.Community, "Community", Icons.Filled.Group),
-                NavigationItem(NavigationRoute.Profile, "Profile", Icons.Filled.Person),
+                NavigationItem(NavigationRoute.HIGH_LEVEL_HOME, "Dashboard", Icons.Filled.Dashboard),
+                NavigationItem(NavigationRoute.MARKETPLACE, "Market", Icons.Filled.Store),
+                NavigationItem(NavigationRoute.ACTIVITY_VERIFICATION, "Verify", Icons.Filled.Verified),
+                NavigationItem(NavigationRoute.COMMUNITY, "Community", Icons.Filled.Group),
+                NavigationItem(NavigationRoute.PROFILE, "Profile", Icons.Filled.Person),
             )
 
         else ->
             listOf(
-                NavigationItem(NavigationRoute.Marketplace, "Market", Icons.Filled.Store),
-                NavigationItem(NavigationRoute.Community, "Community", Icons.Filled.Group),
-                NavigationItem(NavigationRoute.Profile, "Profile", Icons.Filled.Person),
+                NavigationItem(NavigationRoute.MARKETPLACE, "Market", Icons.Filled.Store),
+                NavigationItem(NavigationRoute.COMMUNITY, "Community", Icons.Filled.Group),
+                NavigationItem(NavigationRoute.PROFILE, "Profile", Icons.Filled.Person),
             )
     }
 }

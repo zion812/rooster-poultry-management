@@ -20,27 +20,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-// import androidx.navigation.compose.NavHost // Will be replaced by AppNavHost
-import androidx.navigation.compose.composable // Still needed for AppNavHost's builder
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.rooster.models.UserRole
 import com.example.rooster.ui.theme.RoosterTheme
 import com.example.rooster.viewmodel.AuthViewModel
-import com.example.rooster.core.navigation.AppNavHost // Import AppNavHost
-import com.example.rooster.core.navigation.AppScreens // Import AppScreens for startDestination
-import com.example.rooster.feature.farm.navigation.FarmScreens // Import Farm specific routes
-import com.example.rooster.feature.farm.navigation.farmFeatureGraph // Import farm graph builder
-import com.example.rooster.feature.auctions.navigation.auctionsFeatureGraph // Import auctions graph builder
+import com.example.rooster.core.navigation.AppNavHost
+import com.example.rooster.core.navigation.AppScreens
+import com.example.rooster.feature.farm.navigation.farmFeatureGraph
+import com.example.rooster.feature.auctions.navigation.auctionsFeatureGraph
+import com.example.rooster.feature.marketplace.navigation.marketplaceFeatureGraph
+import com.razorpay.Checkout
 import com.razorpay.PaymentResultListener
+import com.razorpay.PaymentData
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import com.example.rooster.core.common.event.AppEventBus
 import com.example.rooster.core.common.event.PaymentEvent
-import kotlinx.coroutines.GlobalScope // Use a proper scope if this needs to be tied to lifecycle
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import com.razorpay.PaymentData // For accessing orderId and signature
-
-// Import the screens we are about to use
+import com.rooster.app.navigation.NavigationRoute
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(), PaymentResultListener {
@@ -48,42 +47,40 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
     @Inject
     lateinit var eventBus: AppEventBus
 
-    // Remove old callback mechanism
-    // private var onPaymentResult: ((Boolean, String?, String?) -> Unit)? = null
-    // fun setPaymentResultCallback(callback: (Boolean, String?, String?) -> Unit) {
-    //     onPaymentResult = callback
-    // }
-
-    override fun onPaymentSuccess(razorpayPaymentId: String?, paymentData: PaymentData?) { // Updated signature
-        Log.d("MainActivity", "Payment successful: $razorpayPaymentId, Data: ${paymentData?.data}")
-        GlobalScope.launch { // Use a ViewModel scope or lifecycleScope in real app
+    override fun onPaymentSuccess(razorpayPaymentId: String?) {
+        Log.d("MainActivity", "Payment successful: $razorpayPaymentId")
+        GlobalScope.launch {
             if (razorpayPaymentId != null) {
                 eventBus.publishPaymentEvent(
                     PaymentEvent.Success(
                         paymentId = razorpayPaymentId,
-                        orderId = paymentData?.orderId,
-                        signature = paymentData?.signature
+                        orderId = null,
+                        signature = null
                     )
                 )
             } else {
-                 // This case should ideally not happen if Razorpay calls onPaymentSuccess
-                eventBus.publishPaymentEvent(PaymentEvent.Failure(-1, "Payment ID null in onPaymentSuccess", paymentData?.orderId))
+                eventBus.publishPaymentEvent(
+                    PaymentEvent.Failure(
+                        -1,
+                        "Payment ID null in onPaymentSuccess",
+                        null
+                    )
+                )
             }
         }
     }
 
-    override fun onPaymentError(code: Int, description: String?, paymentData: PaymentData?) { // Updated signature
-        Log.e("MainActivity", "Payment failed: Code $code, Response $description, Data: ${paymentData?.data}")
+    override fun onPaymentError(code: Int, description: String?) {
+        Log.e("MainActivity", "Payment failed: Code $code, Response $description")
         val errorMessage = description ?: when (code) {
             Checkout.NETWORK_ERROR -> "Network error - Please check your connection"
             Checkout.INVALID_OPTIONS -> "Invalid payment options"
             Checkout.PAYMENT_CANCELED -> "Payment cancelled by user"
             Checkout.TLS_ERROR -> "TLS error during payment"
-            // Add more specific Razorpay error codes if needed
             else -> "Payment failed: $description"
         }
-        GlobalScope.launch { // Use a ViewModel scope or lifecycleScope in real app
-            eventBus.publishPaymentEvent(PaymentEvent.Failure(code, errorMessage, paymentData?.orderId))
+        GlobalScope.launch {
+            eventBus.publishPaymentEvent(PaymentEvent.Failure(code, errorMessage, null))
         }
     }
 
@@ -110,7 +107,6 @@ fun RoosterApp() {
     val authState by authViewModel.uiState.collectAsState()
     var isTeluguMode by remember { mutableStateOf(true) }
 
-    // Check authentication state on app start
     LaunchedEffect(Unit) {
         authViewModel.checkAuthState()
     }
@@ -118,101 +114,92 @@ fun RoosterApp() {
     val startDestination =
         if (authState.isAuthenticated) {
             when (authViewModel.normalizedUserRole) {
-                UserRole.FARMER -> NavigationRoute.FarmerHome.route
-                UserRole.HIGH_LEVEL -> NavigationRoute.HighLevelHome.route
-                else -> NavigationRoute.Marketplace.route
+                UserRole.FARMER -> NavigationRoute.FARMER_HOME.name
+                UserRole.HIGH_LEVEL -> NavigationRoute.HIGH_LEVEL_HOME.name
+                else -> NavigationRoute.MARKETPLACE.name
             }
         } else {
-            AppScreens.Login.route // Use AppScreens for start destination consistency
+            NavigationRoute.AUTH.name
         }
 
-    // Use AppNavHost from :core:navigation
     AppNavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        // This 'this' is a NavGraphBuilder instance provided by AppNavHost
-
-        // Define app-level composable routes that are not part of a specific feature graph yet
-        // or are entry points.
-        composable(NavigationRoute.Auth.route) { // Assuming NavigationRoute.Auth.route is "login" or similar
-            com.example.rooster.ui.screens.AuthScreen(authViewModel)
-        }
-
-        composable(NavigationRoute.Marketplace.route) { // Assuming this is AppScreens.Home.route or similar
-            MarketplaceScreen( // This might become the main "Home" screen or part of a main tabbed layout
+        composable(NavigationRoute.AUTH.name) {
+            AuthScreen(
                 navController = navController,
                 isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode },
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
             )
         }
-        composable(NavigationRoute.FarmerHome.route) { // This could be an entry to FarmFeature or a distinct home
+
+        composable(NavigationRoute.MARKETPLACE.name) {
+            MarketplaceScreen(
+                navController = navController,
+                isTeluguMode = isTeluguMode,
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
+            )
+        }
+
+        composable(NavigationRoute.FARMER_HOME.name) {
             FarmerHomeScreen(navController = navController)
         }
-        composable(NavigationRoute.HighLevelHome.route) {
-             HighLevelHomeScreen(
+
+        composable(NavigationRoute.HIGH_LEVEL_HOME.name) {
+            HighLevelHomeScreen(
                 navController = navController,
                 isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode },
+                onLanguageToggle = { isTeluguMode = !isTeluguMode }
             )
         }
 
-        // Integrate the farm feature graph
         farmFeatureGraph(navController)
-
-        // Integrate the auctions feature graph
         auctionsFeatureGraph(navController, isTeluguMode)
+        marketplaceFeatureGraph(navController)
 
-
-        // TODO: Integrate other feature graphs here as they are developed
-        // e.g., marketplaceFeatureGraph(navController)
-
-
-
-        // Keep other existing placeholder routes for now, they might be refactored into features
-        // or specific graphs later.
-        composable(NavigationRoute.SimpleViewBirds.route) {
+        composable(NavigationRoute.SIMPLE_VIEW_BIRDS.name) {
             Text("Simple View Birds Screen - Coming Soon")
         }
-        composable(NavigationRoute.SimpleSellBirds.route) {
+        composable(NavigationRoute.SIMPLE_SELL_BIRDS.name) {
             Text("Simple Sell Birds Screen - Coming Soon")
         }
         composable("payment/{listingId}/{amount}") { backStackEntry ->
             val listingId = backStackEntry.arguments?.getString("listingId") ?: ""
             val amount = backStackEntry.arguments?.getString("amount") ?: "0"
-            Text("Dummy Payment Screen - Coming Soon")
+            Text("Payment Screen - Coming Soon")
         }
         composable("payment") {
-            Text("Dummy Payment Screen - Coming Soon")
+            Text("Payment Screen - Coming Soon")
         }
-        composable(NavigationRoute.Auctions.route) {
+        composable(NavigationRoute.AUCTIONS.name) {
             Text("Auctions Screen - Coming Soon")
         }
-        composable(NavigationRoute.Cart.route) {
+        composable(NavigationRoute.CART.name) {
             Text("Cart Screen - Coming Soon")
         }
-        composable(NavigationRoute.OrderHistory.route) {
+        composable(NavigationRoute.ORDER_HISTORY.name) {
             Text("Order History Screen - Coming Soon")
         }
-        composable(NavigationRoute.Profile.route) {
+        composable(NavigationRoute.PROFILE.name) {
             Text("Profile Screen - Coming Soon")
         }
-        composable(NavigationRoute.Help.route) {
+        composable(NavigationRoute.HELP.name) {
             Text("Help Screen - Coming Soon")
         }
-        composable(NavigationRoute.ComplianceScreen.route) {
+        composable(NavigationRoute.COMPLIANCE_SCREEN.name) {
             Text("Compliance Screen - Coming Soon")
         }
-        composable(NavigationRoute.FowlTraceability.route) {
+        composable(NavigationRoute.FOWL_TRACEABILITY.name) {
             Text("Fowl Management Screen - Coming Soon")
         }
-        composable(NavigationRoute.DiagnosisHelp.route) {
+        composable(NavigationRoute.DIAGNOSIS_HELP.name) {
             Text("Diagnostics Screen - Coming Soon")
         }
-        composable(NavigationRoute.HealthRecords.route) {
+        composable(NavigationRoute.HEALTH_RECORDS.name) {
             Text("Health Management Screen - Coming Soon")
         }
-        composable(NavigationRoute.MarketplaceListingCreate.route) {
+        composable(NavigationRoute.MARKETPLACE_LISTING_CREATE.name) {
             Text("Marketplace Listing Create Screen - Coming Soon")
         }
         composable("edit_listing/{listingId}") { backStackEntry ->
@@ -223,11 +210,24 @@ fun RoosterApp() {
             val listingId = backStackEntry.arguments?.getString("listingId") ?: ""
             Text("Marketplace Listing Detail Screen - Coming Soon")
         }
-        composable(NavigationRoute.Community.route) {
+        composable(NavigationRoute.COMMUNITY.name) {
             Text("Community Screen - Coming Soon")
         }
-        composable(NavigationRoute.FlockMonitoring.route) {
+        composable(NavigationRoute.FLOCK_MONITORING.name) {
             Text("Flock Monitoring Screen - Coming Soon")
         }
+    }
+}
+
+@Composable
+fun MarketplaceScreen(
+    navController: androidx.navigation.NavController,
+    isTeluguMode: Boolean,
+    onLanguageToggle: () -> Unit
+) {
+    Button(
+        onClick = { navController.navigate(NavigationRoute.AUCTIONS.name) },
+    ) {
+        Text(if (isTeluguMode) "వేలాలు చూడండి" else "View Auctions")
     }
 }

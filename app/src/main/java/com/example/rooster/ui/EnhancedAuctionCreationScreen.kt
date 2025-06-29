@@ -243,9 +243,9 @@ fun EnhancedAuctionCreationScreen(
         AlertDialog(
             onDismissRequest = {
                 // Navigate to marketplace to show newly listed product
-                navController.navigate(NavigationRoute.Marketplace.route) {
-                    popUpTo(NavigationRoute.Marketplace.route) {
-                        inclusive = false
+                navController.navigate(NavigationRoute.MARKETPLACE.name) {
+                    popUpTo(NavigationRoute.MARKETPLACE.name) {
+                        inclusive = true
                     }
                 }
             },
@@ -258,9 +258,9 @@ fun EnhancedAuctionCreationScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        navController.navigate(NavigationRoute.Marketplace.route) {
-                            popUpTo(NavigationRoute.Marketplace.route) {
-                                inclusive = false
+                        navController.navigate(NavigationRoute.MARKETPLACE.name) {
+                            popUpTo(NavigationRoute.MARKETPLACE.name) {
+                                inclusive = true
                             }
                         }
                     },

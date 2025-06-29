@@ -1016,31 +1016,31 @@ fun SideNavigationPanel(
                 items =
                     listOf(
                         SideNavItem("New Batch", Icons.Default.Add) {
-                            navController.navigate(NavigationRoute.FarmNewBatch.route)
+                            navController.navigate(NavigationRoute.FARM_NEW_BATCH.name)
                             onDismiss()
                         },
                         SideNavItem("New Bird", Icons.Default.Egg) {
-                            navController.navigate(NavigationRoute.FarmNewBird.route)
+                            navController.navigate(NavigationRoute.FARM_NEW_BIRD.name)
                             onDismiss()
                         },
                         SideNavItem("New Eggs", Icons.Default.EggAlt) {
-                            navController.navigate(NavigationRoute.FarmNewEggs.route)
+                            navController.navigate(NavigationRoute.FARM_NEW_EGGS.name)
                             onDismiss()
                         },
                         SideNavItem("New Breeding", Icons.Default.Favorite) {
-                            navController.navigate(NavigationRoute.FarmNewBreeding.route)
+                            navController.navigate(NavigationRoute.FARM_NEW_BREEDING.name)
                             onDismiss()
                         },
                         SideNavItem("New Chicks", Icons.Default.Pets) {
-                            navController.navigate(NavigationRoute.FarmNewChicks.route)
+                            navController.navigate(NavigationRoute.FARM_NEW_CHICKS.name)
                             onDismiss()
                         },
                         SideNavItem("New Flock", Icons.Default.BugReport) {
-                            navController.navigate(NavigationRoute.FarmNewFowl.route)
+                            navController.navigate(NavigationRoute.FARM_NEW_FOWL.name)
                             onDismiss()
                         },
                         SideNavItem("New Incubation", Icons.Default.Thermostat) {
-                            navController.navigate(NavigationRoute.FarmNewIncubation.route)
+                            navController.navigate(NavigationRoute.FARM_NEW_INCUBATION.name)
                             onDismiss()
                         },
                     ),
@@ -1054,11 +1054,11 @@ fun SideNavigationPanel(
                 items =
                     listOf(
                         SideNavItem("Report Mortality", Icons.Default.Warning) {
-                            navController.navigate(NavigationRoute.FarmReportMortality.route)
+                            navController.navigate(NavigationRoute.FARM_REPORT_MORTALITY.name)
                             onDismiss()
                         },
                         SideNavItem("Mortality Records", Icons.Default.List) {
-                            navController.navigate(NavigationRoute.FarmMortalityRecords.route)
+                            navController.navigate(NavigationRoute.FARM_MORTALITY_RECORDS.name)
                             onDismiss()
                         },
                     ),
@@ -1072,27 +1072,27 @@ fun SideNavigationPanel(
                 items =
                     listOf(
                         SideNavItem("Update Chicks", Icons.Default.Update) {
-                            navController.navigate(NavigationRoute.FarmUpdateChicks.route)
+                            navController.navigate(NavigationRoute.FARM_UPDATE_CHICKS.name)
                             onDismiss()
                         },
                         SideNavItem("Update Adults", Icons.Default.Update) {
-                            navController.navigate(NavigationRoute.FarmUpdateAdults.route)
+                            navController.navigate(NavigationRoute.FARM_UPDATE_ADULTS.name)
                             onDismiss()
                         },
                         SideNavItem("Update Breeding", Icons.Default.Update) {
-                            navController.navigate(NavigationRoute.FarmUpdateBreeding.route)
+                            navController.navigate(NavigationRoute.FARM_UPDATE_BREEDING.name)
                             onDismiss()
                         },
                         SideNavItem("Update Incubation", Icons.Default.Update) {
-                            navController.navigate(NavigationRoute.FarmUpdateIncubation.route)
+                            navController.navigate(NavigationRoute.FARM_UPDATE_INCUBATION.name)
                             onDismiss()
                         },
                         SideNavItem("Update Breeders", Icons.Default.Update) {
-                            navController.navigate(NavigationRoute.FarmUpdateBreeders.route)
+                            navController.navigate(NavigationRoute.FARM_UPDATE_BREEDERS.name)
                             onDismiss()
                         },
                         SideNavItem("Update Eggs", Icons.Default.Update) {
-                            navController.navigate(NavigationRoute.FarmUpdateEggs.route)
+                            navController.navigate(NavigationRoute.FARM_UPDATE_EGGS.name)
                             onDismiss()
                         },
                     ),

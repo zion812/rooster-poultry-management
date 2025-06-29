@@ -27,7 +27,8 @@ data class FlockEntity(
     val updatedAt: Long,
     val needsSync: Boolean = true,
     val syncAttempts: Int = 0,
-    val lastSyncAttemptTimestamp: Long = 0L
+    val lastSyncAttemptTimestamp: Long = 0L,
+    val syncStatus: String? = null // null, "SYNC_FAILED", or other status
 )
 
 @Entity(
@@ -153,6 +154,12 @@ interface FlockDao {
 
     @Query("SELECT * FROM flocks WHERE needsSync = 1") // 1 for true in SQLite
     suspend fun getUnsyncedFlocksSuspend(): List<FlockEntity>
+
+    @Query("SELECT * FROM flocks WHERE syncStatus = :status")
+    fun getFlocksBySyncStatus(status: String): Flow<List<FlockEntity>>
+
+    @Query("UPDATE flocks SET syncStatus = :status WHERE id = :id")
+    suspend fun updateSyncStatus(id: String, status: String)
 }
 
 @Dao

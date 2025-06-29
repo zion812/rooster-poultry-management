@@ -79,7 +79,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     // Background work (for sync workers)
-    implementation(libs.work.runtime.ktx)
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Logging
     implementation(libs.timber.logger)

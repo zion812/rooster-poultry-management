@@ -7,20 +7,15 @@ import kotlinx.coroutines.flow.Flow
 interface CommentRepository {
     fun getCommentsForPost(postId: String, forceRefresh: Boolean = false): Flow<Result<List<Comment>>>
     fun getRepliesForComment(commentId: String, forceRefresh: Boolean = false): Flow<Result<List<Comment>>>
-    suspend fun addComment(comment: Comment): Result<String> // Returns ID of created comment
+    suspend fun createComment(comment: Comment): Result<String>
     suspend fun updateComment(comment: Comment): Result<Unit>
     suspend fun deleteComment(commentId: String, authorUserId: String): Result<Unit> // Ensure user can only delete own
     suspend fun likeComment(commentId: String, userId: String): Result<Unit>
     suspend fun unlikeComment(commentId: String, userId: String): Result<Unit>
 
     // Methods for SyncWorker
- feature/phase1-foundations-community-likes
     suspend fun getUnsyncedCommentEntities(): List<com.example.rooster.feature.community.data.local.model.CommentEntity>
     suspend fun syncCommentRemote(comment: Comment): Result<Unit> // Returns ID of synced comment from remote, or error
     suspend fun updateLocalCommentEntity(commentEntity: com.example.rooster.feature.community.data.local.model.CommentEntity)
     fun mapCommentEntityToDomain(commentEntity: com.example.rooster.feature.community.data.local.model.CommentEntity): Comment
-=======
-    suspend fun getUnsyncedComments(): List<Comment>
-    suspend fun syncComment(comment: Comment): Result<Unit>
- main
 }

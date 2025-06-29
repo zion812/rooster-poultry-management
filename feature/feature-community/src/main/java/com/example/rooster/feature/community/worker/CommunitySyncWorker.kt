@@ -10,7 +10,9 @@ import com.example.rooster.feature.community.domain.repository.CommunityUserProf
 import com.example.rooster.feature.community.domain.repository.PostRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.worker.HiltWorker
 import timber.log.Timber
+import kotlinx.coroutines.delay
 
 @HiltWorker
 class CommunitySyncWorker @AssistedInject constructor(
@@ -23,193 +25,161 @@ class CommunitySyncWorker @AssistedInject constructor(
 
     companion object {
         const val WORK_NAME = "CommunitySyncWorker"
- feature/phase1-foundations-community-likes
         private const val MAX_SYNC_ATTEMPTS = 5
-=======
- main
+        private const val SYNC_FAILED_STATUS = "SYNC_FAILED"
     }
 
     override suspend fun doWork(): Result {
         Timber.d("CommunitySyncWorker started")
- feature/phase1-foundations-community-likes
-        var overallSuccess = true // True if all items synced or correctly skipped (max attempts)
-
-        // Sync User Profiles
-        try {
-            val unsyncedProfileEntities = userProfileRepository.getUnsyncedUserProfileEntities()
-            if (unsyncedProfileEntities.isNotEmpty()) {
-                Timber.d("Found ${unsyncedProfileEntities.size} unsynced user profiles.")
-                for (entity in unsyncedProfileEntities) {
-                    if (entity.syncAttempts >= MAX_SYNC_ATTEMPTS) {
-                        Timber.w("User profile ${entity.userId} reached max sync attempts (${entity.syncAttempts}). Skipping.")
-                        overallSuccess = false // Still needs sync eventually
-                        continue
-                    }
-                    val entityToAttempt = entity.copy(
-                        syncAttempts = entity.syncAttempts + 1,
-                        lastSyncAttemptTimestamp = System.currentTimeMillis()
-                    )
-                    userProfileRepository.updateLocalUserProfileEntity(entityToAttempt)
-                    val domainProfile = userProfileRepository.mapUserProfileEntityToDomain(entityToAttempt)
-                    val syncResult = userProfileRepository.syncUserProfileRemote(domainProfile)
-
-                    if (syncResult is CoreResult.Success) {
-                        userProfileRepository.updateLocalUserProfileEntity(entityToAttempt.copy(needsSync = false, syncAttempts = 0))
-                        Timber.d("Successfully synced user profile: ${entity.userId}")
-                    } else {
-                        Timber.e((syncResult as CoreResult.Error).exception, "Failed to sync user profile: ${entity.userId}, attempt: ${entityToAttempt.syncAttempts}")
-                        overallSuccess = false
-=======
         var overallSuccess = true
 
         // Sync User Profiles
         try {
-            val unsyncedProfiles = userProfileRepository.getUnsyncedUserProfiles() // Add to repo
+            val unsyncedProfiles = userProfileRepository.getUnsyncedUserProfiles()
             if (unsyncedProfiles.isNotEmpty()) {
                 Timber.d("Found ${unsyncedProfiles.size} unsynced user profiles.")
                 for (profile in unsyncedProfiles) {
-                    val syncResult = userProfileRepository.syncUserProfile(profile) // Add to repo
-                    if (syncResult is CoreResult.Error) {
-                        Timber.e(syncResult.exception, "Failed to sync user profile: ${profile.userId}")
+                    if (profile.syncAttempts >= MAX_SYNC_ATTEMPTS) {
+                        Timber.w("UserProfile ${profile.userId} reached max sync attempts. Marking as SYNC_FAILED.")
+                        userProfileRepository.updateSyncStatus(profile.userId, SYNC_FAILED_STATUS)
                         overallSuccess = false
-                    } else {
-                        Timber.d("Successfully synced user profile: ${profile.userId}")
- main
+                        continue
+                    }
+                    var attempt = 0
+                    var success = false
+                    var lastError: Exception? = null
+                    while (attempt < MAX_SYNC_ATTEMPTS && !success) {
+                        try {
+                            val syncResult = userProfileRepository.syncUserProfile(profile)
+                            if (syncResult is CoreResult.Success) {
+                                userProfileRepository.markAsSynced(profile.userId)
+                                Timber.d("Successfully synced user profile: ${profile.userId}")
+                                success = true
+                            } else if (syncResult is CoreResult.Error) {
+                                throw syncResult.exception
+                            }
+                        } catch (e: Exception) {
+                            lastError = e
+                            attempt++
+                            val backoff = Math.pow(2.0, attempt.toDouble()).toLong() * 500L
+                            Timber.w(e, "Sync attempt $attempt failed for user profile ${profile.userId}, backing off $backoff ms")
+                            delay(backoff)
+                        }
+                    }
+                    if (!success) {
+                        Timber.e(lastError, "All sync attempts failed for user profile ${profile.userId}; marking as SYNC_FAILED.")
+                        userProfileRepository.updateSyncStatus(profile.userId, SYNC_FAILED_STATUS)
+                        overallSuccess = false
                     }
                 }
             } else {
                 Timber.d("No unsynced user profiles to sync.")
             }
         } catch (e: Exception) {
- feature/phase1-foundations-community-likes
-            Timber.e(e, "Error processing user profiles for sync")
-=======
             Timber.e(e, "Error syncing user profiles")
- main
             overallSuccess = false
         }
 
         // Sync Posts
         try {
- feature/phase1-foundations-community-likes
-            val unsyncedPostEntities = postRepository.getUnsyncedPostEntities()
-            if (unsyncedPostEntities.isNotEmpty()) {
-                Timber.d("Found ${unsyncedPostEntities.size} unsynced posts.")
-                for (entity in unsyncedPostEntities) {
-                    if (entity.syncAttempts >= MAX_SYNC_ATTEMPTS) {
-                        Timber.w("Post ${entity.postId} reached max sync attempts (${entity.syncAttempts}). Skipping.")
-                        overallSuccess = false
-                        continue
-                    }
-                    val entityToAttempt = entity.copy(
-                        syncAttempts = entity.syncAttempts + 1,
-                        lastSyncAttemptTimestamp = System.currentTimeMillis()
-                    )
-                    postRepository.updateLocalPostEntity(entityToAttempt)
-                    val domainPost = postRepository.mapPostEntityToDomain(entityToAttempt)
-                    val syncResult = postRepository.syncPostRemote(domainPost)
-
-                    if (syncResult is CoreResult.Success) {
-                        // The remote sync for post might return a new ID if it was a new post
-                        // The current syncPostRemote just returns Result<Unit>, assuming ID is handled by client or embedded.
-                        // For robustness, if remote create returns an ID, it should be used to update the local entity.
-                        // Assuming remote uses the ID from domainPost if provided, or generates one if blank.
-                        // And FirebaseCommunityDataSource.createPost now returns the ID.
-                        // The repository's syncPostRemote should ideally return Result<String> (the ID)
-                        // For now, we assume the ID in entityToAttempt is correct or becomes correct post-sync.
-                        postRepository.updateLocalPostEntity(entityToAttempt.copy(needsSync = false, syncAttempts = 0))
-                        Timber.d("Successfully synced post: ${entity.postId}")
-                    } else {
-                        Timber.e((syncResult as CoreResult.Error).exception, "Failed to sync post: ${entity.postId}, attempt: ${entityToAttempt.syncAttempts}")
-                        overallSuccess = false
-=======
-            val unsyncedPosts = postRepository.getUnsyncedPosts() // Add to repo
+            val unsyncedPosts = postRepository.getUnsyncedPosts()
             if (unsyncedPosts.isNotEmpty()) {
                 Timber.d("Found ${unsyncedPosts.size} unsynced posts.")
                 for (post in unsyncedPosts) {
-                    val syncResult = postRepository.syncPost(post) // Add to repo
-                    if (syncResult is CoreResult.Error) {
-                        Timber.e(syncResult.exception, "Failed to sync post: ${post.postId}")
+                    if (post.syncAttempts >= MAX_SYNC_ATTEMPTS) {
+                        Timber.w("Post ${post.id} reached max sync attempts. Marking as SYNC_FAILED.")
+                        postRepository.updateSyncStatus(post.id, SYNC_FAILED_STATUS)
                         overallSuccess = false
-                    } else {
-                        Timber.d("Successfully synced post: ${post.postId}")
- main
+                        continue
+                    }
+                    var attempt = 0
+                    var success = false
+                    var lastError: Exception? = null
+                    while (attempt < MAX_SYNC_ATTEMPTS && !success) {
+                        try {
+                            val syncResult = postRepository.syncPost(post)
+                            if (syncResult is CoreResult.Success) {
+                                postRepository.markAsSynced(post.id)
+                                Timber.d("Successfully synced post: ${post.id}")
+                                success = true
+                            } else if (syncResult is CoreResult.Error) {
+                                throw syncResult.exception
+                            }
+                        } catch (e: Exception) {
+                            lastError = e
+                            attempt++
+                            val backoff = Math.pow(2.0, attempt.toDouble()).toLong() * 500L
+                            Timber.w(e, "Sync attempt $attempt failed for post ${post.id}, backing off $backoff ms")
+                            delay(backoff)
+                        }
+                    }
+                    if (!success) {
+                        Timber.e(lastError, "All sync attempts failed for post ${post.id}; marking as SYNC_FAILED.")
+                        postRepository.updateSyncStatus(post.id, SYNC_FAILED_STATUS)
+                        overallSuccess = false
                     }
                 }
             } else {
                 Timber.d("No unsynced posts to sync.")
             }
         } catch (e: Exception) {
- feature/phase1-foundations-community-likes
-            Timber.e(e, "Error processing posts for sync")
-=======
             Timber.e(e, "Error syncing posts")
- main
             overallSuccess = false
         }
 
         // Sync Comments
         try {
- feature/phase1-foundations-community-likes
-            val unsyncedCommentEntities = commentRepository.getUnsyncedCommentEntities()
-            if (unsyncedCommentEntities.isNotEmpty()) {
-                Timber.d("Found ${unsyncedCommentEntities.size} unsynced comments.")
-                for (entity in unsyncedCommentEntities) {
-                    if (entity.syncAttempts >= MAX_SYNC_ATTEMPTS) {
-                        Timber.w("Comment ${entity.commentId} reached max sync attempts (${entity.syncAttempts}). Skipping.")
-                        overallSuccess = false
-                        continue
-                    }
-                    val entityToAttempt = entity.copy(
-                        syncAttempts = entity.syncAttempts + 1,
-                        lastSyncAttemptTimestamp = System.currentTimeMillis()
-                    )
-                    commentRepository.updateLocalCommentEntity(entityToAttempt)
-                    val domainComment = commentRepository.mapCommentEntityToDomain(entityToAttempt)
-                    val syncResult = commentRepository.syncCommentRemote(domainComment)
-
-                    if (syncResult is CoreResult.Success) {
-                        commentRepository.updateLocalCommentEntity(entityToAttempt.copy(needsSync = false, syncAttempts = 0))
-                        Timber.d("Successfully synced comment: ${entity.commentId}")
-                    } else {
-                        Timber.e((syncResult as CoreResult.Error).exception, "Failed to sync comment: ${entity.commentId}, attempt: ${entityToAttempt.syncAttempts}")
-                        overallSuccess = false
-=======
-            val unsyncedComments = commentRepository.getUnsyncedComments() // Add to repo
+            val unsyncedComments = commentRepository.getUnsyncedComments()
             if (unsyncedComments.isNotEmpty()) {
                 Timber.d("Found ${unsyncedComments.size} unsynced comments.")
                 for (comment in unsyncedComments) {
-                    val syncResult = commentRepository.syncComment(comment) // Add to repo
-                    if (syncResult is CoreResult.Error) {
-                        Timber.e(syncResult.exception, "Failed to sync comment: ${comment.commentId}")
+                    if (comment.syncAttempts >= MAX_SYNC_ATTEMPTS) {
+                        Timber.w("Comment ${comment.commentId} reached max sync attempts. Marking as SYNC_FAILED.")
+                        commentRepository.updateSyncStatus(comment.commentId, SYNC_FAILED_STATUS)
                         overallSuccess = false
-                    } else {
-                        Timber.d("Successfully synced comment: ${comment.commentId}")
- main
+                        continue
+                    }
+                    var attempt = 0
+                    var success = false
+                    var lastError: Exception? = null
+                    while (attempt < MAX_SYNC_ATTEMPTS && !success) {
+                        try {
+                            val syncResult = commentRepository.syncComment(comment)
+                            if (syncResult is CoreResult.Success) {
+                                commentRepository.markAsSynced(comment.commentId)
+                                Timber.d("Successfully synced comment: ${comment.commentId}")
+                                success = true
+                            } else if (syncResult is CoreResult.Error) {
+                                throw syncResult.exception
+                            }
+                        } catch (e: Exception) {
+                            lastError = e
+                            attempt++
+                            val backoff = Math.pow(2.0, attempt.toDouble()).toLong() * 500L
+                            Timber.w(e, "Sync attempt $attempt failed for comment ${comment.commentId}, backing off $backoff ms")
+                            delay(backoff)
+                        }
+                    }
+                    if (!success) {
+                        Timber.e(lastError, "All sync attempts failed for comment ${comment.commentId}; marking as SYNC_FAILED.")
+                        commentRepository.updateSyncStatus(comment.commentId, SYNC_FAILED_STATUS)
+                        overallSuccess = false
                     }
                 }
             } else {
                 Timber.d("No unsynced comments to sync.")
             }
         } catch (e: Exception) {
- feature/phase1-foundations-community-likes
-            Timber.e(e, "Error processing comments for sync")
-=======
             Timber.e(e, "Error syncing comments")
- main
             overallSuccess = false
         }
 
-        return if (overallSuccess) {
+        if (overallSuccess) {
             Timber.d("CommunitySyncWorker completed successfully")
-            Result.success()
+            return Result.success()
         } else {
- feature/phase1-foundations-community-likes
             Timber.w("CommunitySyncWorker completed with errors or items still needing sync. Retrying.")
-=======
-            Timber.w("CommunitySyncWorker completed with errors, retrying.")
- main
-            Result.retry()
+            return Result.retry()
         }
     }
 }

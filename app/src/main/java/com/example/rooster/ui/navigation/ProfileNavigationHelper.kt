@@ -44,7 +44,7 @@ object ProfileNavigationHelper {
         )
 
         object FarmerDashboard : ProfileAction(
-            NavigationRoute.FarmDashboard.route,
+            NavigationRoute.FARM_DASHBOARD.name,
             Icons.Default.Dashboard,
             "Farmer Dashboard",
             "రైతు డాష్‌బోర్డ్",
@@ -52,7 +52,7 @@ object ProfileNavigationHelper {
         )
 
         object VetDashboard : ProfileAction(
-            NavigationRoute.VetConsultation.route,
+            NavigationRoute.VET_CONSULTATION.name,
             Icons.Default.MedicalServices,
             "Veterinary Dashboard",
             "పశువైద్య డాష్‌బోర్డ్",
@@ -60,7 +60,7 @@ object ProfileNavigationHelper {
         )
 
         object Settings : ProfileAction(
-            NavigationRoute.Settings.route,
+            NavigationRoute.SETTINGS.name,
             Icons.Default.Settings,
             "Settings",
             "సెట్టింగులు",
@@ -76,7 +76,7 @@ object ProfileNavigationHelper {
         )
 
         object TransferHistory : ProfileAction(
-            NavigationRoute.Transfers.route,
+            NavigationRoute.TRANSFERS.name,
             Icons.Default.SwapHoriz,
             "Transfer History",
             "బదిలీ చరితం",

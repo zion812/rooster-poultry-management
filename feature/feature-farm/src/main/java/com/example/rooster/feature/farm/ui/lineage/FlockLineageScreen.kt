@@ -19,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.rooster.feature.farm.domain.model.LineageNode
 import com.example.rooster.feature.farm.domain.model.FlockType
 import com.example.rooster.feature.farm.domain.model.LineageInfo
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

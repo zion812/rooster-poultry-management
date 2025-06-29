@@ -61,16 +61,7 @@ fun PostFeedScreen(
                                 showFeedTypeMenu = false
                             }
                         )
-                        // TODO: Add options for USER_SPECIFIC (needs input), TAG_SPECIFIC (needs input), FOLLOWING
-                        // Example for USER_SPECIFIC (would need a dialog to get userId)
-                        // DropdownMenuItem(
-                        //     text = { Text("User's Posts") },
-                        //     onClick = {
-                        //         // TODO: Show dialog to get userId, then:
-                        //         // viewModel.setFeedType(FeedType.USER_SPECIFIC, "some_user_id")
-                        //         showFeedTypeMenu = false
-                        //     }
-                        // )
+                        // Add more feed types as needed
                     }
                 }
             )
@@ -82,24 +73,33 @@ fun PostFeedScreen(
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
-            when (val state = uiState) {
+            when (uiState) {
                 is PostFeedUiState.Loading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
+                is PostFeedUiState.Error -> {
+                    val message = (uiState as PostFeedUiState.Error).message
+                    Text(
+                        text = message,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.align(Alignment.Center).padding(32.dp)
+                    )
+                }
                 is PostFeedUiState.Success -> {
-                    if (state.posts.isEmpty()) {
+                    val posts = (uiState as PostFeedUiState.Success).posts
+                    if (posts.isEmpty()) {
                         Text(
-                            text = "No posts yet. Be the first to share!",
-                            modifier = Modifier.align(Alignment.Center).padding(16.dp),
-                            style = MaterialTheme.typography.headlineSmall
+                            text = "No posts available.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.align(Alignment.Center)
                         )
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(vertical = 8.dp),
-                           // verticalArrangement = Arrangement.spacedBy(8.dp) // Spacing handled by PostItem padding
                         ) {
-                            items(state.posts, key = { it.postId }) { post ->
+                            items(posts, key = { it.postId }) { post ->
                                 PostItem(
                                     post = post,
                                     currentUserId = currentUserId,
@@ -112,23 +112,6 @@ fun PostFeedScreen(
                                 )
                                 Divider(thickness = 0.5.dp, modifier = Modifier.padding(top=4.dp, bottom = 4.dp))
                             }
-                            // TODO: Add item for loading more / pagination
-                        }
-                    }
-                }
-                is PostFeedUiState.Error -> {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center).padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Error: ${state.message}",
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(onClick = { viewModel.fetchPosts(forceRefresh = true) }) {
-                            Text("Retry")
                         }
                     }
                 }

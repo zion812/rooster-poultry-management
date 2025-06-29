@@ -31,56 +31,18 @@ class PostRepositoryImpl @Inject constructor(
         return localBackedCommunityResourceList(
             localCall = {
                 val localPostsFlow = when (feedType) {
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
- main
- main
                     FeedType.GLOBAL_RECENT -> localDataSource.getAllPosts()
                     FeedType.USER_SPECIFIC -> if (userId != null) localDataSource.getPostsByAuthor(userId) else flowOf(emptyList())
                     FeedType.TAG_SPECIFIC -> if (userId != null) localDataSource.getPostsByTag(userId) else flowOf(emptyList()) // Assuming 'userId' here was meant to be 'tag' from interface
                     // FeedType.FOLLOWING would need more complex local querying or rely more on remote
                     else -> localDataSource.getAllPosts() // Fallback for e.g. FOLLOWING
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
-=======
-                    FeedType.GLOBAL_RECENT -> localDataSource.getAllPosts() // TODO: Add pagination to DAO
-                    FeedType.USER_SPECIFIC -> if (userId != null) localDataSource.getPostsByAuthor(userId) else flowOf(emptyList())
-                    // FeedType.FOLLOWING and FeedType.TAG_SPECIFIC would need more complex local querying or rely more on remote
-                    else -> localDataSource.getAllPosts() // Fallback
- main
- main
- main
                 }
                 localPostsFlow.map { entities -> entities.map { mapEntityToDomain(it) } }
             },
             remoteCall = {
- jules/arch-assessment-1
                 val tagForRemote = if (feedType == FeedType.TAG_SPECIFIC) userId else null // Assuming userId variable here holds the tag for TAG_SPECIFIC
                 remoteDataSource.getPostsStream(feedType, if (feedType == FeedType.USER_SPECIFIC) userId else null, tagForRemote).firstOrNull()
                     ?: Result.Success(emptyList())
-=======
- jules/arch-assessment-1
-                val tagForRemote = if (feedType == FeedType.TAG_SPECIFIC) userId else null // Assuming userId variable here holds the tag for TAG_SPECIFIC
-                remoteDataSource.getPostsStream(feedType, if (feedType == FeedType.USER_SPECIFIC) userId else null, tagForRemote).firstOrNull()
-                    ?: Result.Success(emptyList())
-=======
- jules/arch-assessment-1
-                val tagForRemote = if (feedType == FeedType.TAG_SPECIFIC) userId else null // Assuming userId variable here holds the tag for TAG_SPECIFIC
-                remoteDataSource.getPostsStream(feedType, if (feedType == FeedType.USER_SPECIFIC) userId else null, tagForRemote).firstOrNull()
-                    ?: Result.Success(emptyList())
-=======
-                // Assuming remote can handle these, or it fetches a general list and client filters.
-                // The remoteDataSource.getPostsStream is a Flow, so take first for this pattern.
-                remoteDataSource.getPostsStream(feedType, userId, null /* TODO: tag for TAG_SPECIFIC */).firstOrNull()
-                    ?: Result.Success(emptyList()) // Provide default if stream is empty or ends fast
- main
- main
- main
             },
             saveRemoteResult = { remotePosts -> // List<Post>
                 val entitiesToSave = mutableListOf<PostEntity>()
@@ -107,7 +69,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override fun getPostDetails(postId: String): Flow<Result<Post?>> {
-         return localBackedCommunityResource(
+        return localBackedCommunityResource(
             localCall = { localDataSource.getPostById(postId).map { it?.let(::mapEntityToDomain) } },
             remoteCall = { remoteDataSource.getPostDetailsStream(postId).firstOrNull() ?: Result.Success(null) },
             saveRemoteResult = { remotePostDomain -> // S is Post
@@ -213,9 +175,6 @@ class PostRepositoryImpl @Inject constructor(
         return@withContext remoteResult
     }
 
- feature/phase1-foundations-community-likes
-import timber.log.Timber // Ensure Timber is imported
-
     override suspend fun getUnsyncedPostEntities(): List<PostEntity> = withContext(Dispatchers.IO) {
         localDataSource.getUnsyncedPostsSuspend()
     }
@@ -228,13 +187,13 @@ import timber.log.Timber // Ensure Timber is imported
             // If post.postId is blank, it's a new post. If not blank, it's an update of an existing one.
             // remoteDataSource.createPost is expected to handle this "upsert" logic or use post.postId.
             val remoteResult = if (post.postId.isNotEmpty() && localDataSource.getPostByIdSuspend(post.postId)?.needsSync == true) {
-                 // This implies it was an existing local post that was modified and needs re-syncing (update)
-                 // However, createPost in Firebase might just overwrite. For true "update" semantics,
-                 // remoteDataSource.updatePost(post) would be better if the post definitely exists remotely.
-                 // For now, createPost will serve as upsert.
-                 remoteDataSource.createPost(post) // effectively an update if ID exists
+                // This implies it was an existing local post that was modified and needs re-syncing (update)
+                // However, createPost in Firebase might just overwrite. For true "update" semantics,
+                // remoteDataSource.updatePost(post) would be better if the post definitely exists remotely.
+                // For now, createPost will serve as upsert.
+                remoteDataSource.createPost(post) // effectively an update if ID exists
             } else {
-                 remoteDataSource.createPost(post) // new post
+                remoteDataSource.createPost(post) // new post
             }
 
             if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
@@ -262,7 +221,8 @@ import timber.log.Timber // Ensure Timber is imported
 
     override fun mapPostEntityToDomain(postEntity: PostEntity): Post {
         return mapEntityToDomain(postEntity)
-=======
+    }
+
     override suspend fun getUnsyncedPosts(): List<Post> = withContext(Dispatchers.IO) {
         localDataSource.getUnsyncedPostsSuspend().map { mapEntityToDomain(it) }
     }
@@ -283,12 +243,11 @@ import timber.log.Timber // Ensure Timber is imported
             } else if (remoteResult is Result.Error) {
                 Result.Error(remoteResult.exception)
             } else {
-                 Result.Error(Exception("Remote data source returned invalid ID or unknown error during post sync"))
+                Result.Error(Exception("Remote data source returned invalid ID or unknown error during post sync"))
             }
         } catch (e: Exception) {
             Result.Error(e)
         }
- main
     }
 
     // --- Mappers ---
