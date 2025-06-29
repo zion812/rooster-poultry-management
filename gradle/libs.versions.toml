@@ -12,6 +12,9 @@ lifecycle-runtime-ktx = "2.8.2"
 activity-compose = "1.10.1"
 activity-ktx = "1.10.1"
 
+# Logging
+timber = "5.0.1"
+
 # UI & Compose
 material3 = "1.2.1"
 ui = "1.6.8"
@@ -130,6 +133,9 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 
 # JSON
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+
+# Logging
+timber-logger = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 
 # Database & Storage
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }

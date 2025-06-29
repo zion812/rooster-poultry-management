@@ -28,6 +28,9 @@ android {
         debug {
             isMinifyEnabled = false
         }
+        create("staging") {
+            initWith(getByName("release"))
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
