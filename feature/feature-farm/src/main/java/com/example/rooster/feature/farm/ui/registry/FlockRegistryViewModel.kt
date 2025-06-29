@@ -92,22 +92,33 @@ class FlockRegistryViewModel @Inject constructor(
                     verificationNotes = null
                 )
 
-                val result = registerFlockUseCase(registrationData)
-                if (result.isSuccess) {
-                    _uiState.value = state.copy(
-                        isLoading = false,
-                        isSubmitted = true
-                    )
-                } else {
-                    _uiState.value = state.copy(
-                        isLoading = false,
-                        error = result.exceptionOrNull()?.localizedMessage ?: "Registration failed"
-                    )
+                // Now registerFlockUseCase returns com.example.rooster.core.common.Result
+                when (val result = registerFlockUseCase(registrationData)) {
+                    is com.example.rooster.core.common.Result.Success -> {
+                        _uiState.value = _uiState.value.copy( // Use _uiState.value to get latest state
+                            isLoading = false,
+                            isSubmitted = true,
+                            error = null
+                        )
+                    }
+                    is com.example.rooster.core.common.Result.Error -> {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            error = result.exception.localizedMessage ?: "Registration failed"
+                        )
+                    }
+                    is com.example.rooster.core.common.Result.Loading -> {
+                        // This state is handled by isLoading = true at the start of submitRegistration
+                        // If use case were a Flow emitting Loading, this would be more relevant here.
+                        // For a suspend fun that implies loading before it returns, this branch might not be hit
+                        // if the use case itself doesn't emit Result.Loading.
+                        // The outer isLoading flag is the primary indicator here.
+                    }
                 }
-            } catch (e: Exception) {
-                _uiState.value = state.copy(
+            } catch (e: Exception) { // Catch any unexpected exceptions from the launch block
+                _uiState.value = _uiState.value.copy( // Use _uiState.value
                     isLoading = false,
-                    error = e.localizedMessage ?: "An error occurred"
+                    error = e.localizedMessage ?: "An unexpected error occurred"
                 )
             }
         }

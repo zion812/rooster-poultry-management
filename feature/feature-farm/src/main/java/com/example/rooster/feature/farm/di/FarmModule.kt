@@ -193,7 +193,11 @@ object FarmProvidesModule {
             FarmDatabase::class.java,
             "farm_database"
         )
-        .addMigrations(FarmDatabaseMigrations.MIGRATION_1_2, FarmDatabaseMigrations.MIGRATION_2_3)
+        .addMigrations(
+            FarmDatabaseMigrations.MIGRATION_1_2,
+            FarmDatabaseMigrations.MIGRATION_2_3,
+            FarmDatabaseMigrations.MIGRATION_3_4
+        )
         // .fallbackToDestructiveMigration() // Removed for production readiness
         .build()
     }

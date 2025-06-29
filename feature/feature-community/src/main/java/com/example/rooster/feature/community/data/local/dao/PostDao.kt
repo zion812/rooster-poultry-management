@@ -25,6 +25,9 @@ interface PostDao {
     @Query("SELECT * FROM community_posts WHERE postId = :postId AND needsSync = 1")
     suspend fun getUnsyncedPostByIdSuspend(postId: String): PostEntity?
 
+    @Query("SELECT * FROM community_posts WHERE postId = :postId") // Added for repository like/unlike
+    suspend fun getPostByIdSuspend(postId: String): PostEntity?
+
     @Query("SELECT * FROM community_posts ORDER BY createdTimestamp DESC")
     fun getAllPosts(): Flow<List<PostEntity>> // Could be paginated
 

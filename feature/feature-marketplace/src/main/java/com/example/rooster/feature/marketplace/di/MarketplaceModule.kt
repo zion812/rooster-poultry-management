@@ -3,6 +3,7 @@ package com.example.rooster.feature.marketplace.di
 import android.content.Context
 import androidx.room.Room
 import com.example.rooster.feature.marketplace.data.local.MarketplaceDatabase
+import com.example.rooster.feature.marketplace.data.local.MarketplaceDatabaseMigrations // Import Migrations
 import com.example.rooster.feature.marketplace.data.local.dao.CartDao
 import com.example.rooster.feature.marketplace.data.local.dao.OrderDao
 import com.example.rooster.feature.marketplace.data.local.dao.ProductListingDao
@@ -37,8 +38,9 @@ object MarketplaceProvidesModule {
             MarketplaceDatabase::class.java,
             "marketplace_database.db"
         )
-        // TODO: Add proper migrations for production instead of fallbackToDestructiveMigration.
-        .fallbackToDestructiveMigration()
+        // TODO: Add proper migrations for production.
+        // .fallbackToDestructiveMigration() // Replaced with addMigrations
+        .addMigrations(MarketplaceDatabaseMigrations.MIGRATION_1_2) // Added migration
         .build()
     }
 

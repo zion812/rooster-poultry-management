@@ -5,6 +5,7 @@ import com.example.rooster.feature.marketplace.domain.model.ProductCategory
 import com.example.rooster.feature.marketplace.domain.model.ListingStatus
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import timber.log.Timber
 
 class MarketplaceTypeConverters {
     private val gson = Gson()
@@ -39,7 +40,14 @@ class MarketplaceTypeConverters {
 
     @TypeConverter
     fun toProductCategory(name: String?): ProductCategory? {
-        return name?.let { ProductCategory.valueOf(it) }
+        return name?.let {
+            try {
+                ProductCategory.valueOf(it.uppercase())
+            } catch (e: IllegalArgumentException) {
+                Timber.w(e, "Invalid ProductCategory name: $it from database. Returning null.")
+                null
+            }
+        }
     }
 
     // ListingStatus enum converters
@@ -50,7 +58,14 @@ class MarketplaceTypeConverters {
 
     @TypeConverter
     fun toListingStatus(name: String?): ListingStatus? {
-        return name?.let { ListingStatus.valueOf(it) }
+        return name?.let {
+            try {
+                ListingStatus.valueOf(it.uppercase())
+            } catch (e: IllegalArgumentException) {
+                Timber.w(e, "Invalid ListingStatus name: $it from database. Returning null.")
+                null
+            }
+        }
     }
 
     // OrderStatus enum converters
@@ -61,7 +76,14 @@ class MarketplaceTypeConverters {
 
     @TypeConverter
     fun toOrderStatus(name: String?): com.example.rooster.feature.marketplace.domain.model.OrderStatus? {
-        return name?.let { com.example.rooster.feature.marketplace.domain.model.OrderStatus.valueOf(it) }
+        return name?.let {
+            try {
+                com.example.rooster.feature.marketplace.domain.model.OrderStatus.valueOf(it.uppercase())
+            } catch (e: IllegalArgumentException) {
+                Timber.w(e, "Invalid OrderStatus name: $it from database. Returning null.")
+                null
+            }
+        }
     }
 
     // PaymentDetails converters (domain model to JSON String)

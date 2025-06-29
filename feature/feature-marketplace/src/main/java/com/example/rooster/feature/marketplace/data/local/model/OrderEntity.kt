@@ -38,5 +38,7 @@ data class OrderEntity(
     val expectedDeliveryDate: Long? = null,
     val shipmentProvider: String? = null,
     val trackingNumber: String? = null,
-    var needsSync: Boolean = true // For offline created/updated orders
+    var needsSync: Boolean = true, // For offline created/updated orders
+    var syncAttempts: Int = 0,
+    var lastSyncAttemptTimestamp: Long = 0L
 )

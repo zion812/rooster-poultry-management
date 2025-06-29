@@ -40,4 +40,11 @@ object FarmDatabaseMigrations {
     }
 
     // Add more migrations here as needed, e.g., MIGRATION_3_4, etc.
+
+    val MIGRATION_3_4: Migration = object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE flocks ADD COLUMN syncAttempts INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE flocks ADD COLUMN lastSyncAttemptTimestamp INTEGER NOT NULL DEFAULT 0")
+        }
+    }
 }

@@ -25,7 +25,9 @@ data class FlockEntity(
     val verified: Boolean,
     val createdAt: Long,
     val updatedAt: Long,
-    val needsSync: Boolean = true
+    val needsSync: Boolean = true,
+    val syncAttempts: Int = 0,
+    val lastSyncAttemptTimestamp: Long = 0L
 )
 
 @Entity(
@@ -234,7 +236,7 @@ interface UpdateDao {
         UpdateEntity::class,
         LineageLinkEntity::class // Added LineageLinkEntity
     ],
-    version = 3, // Incremented version due to adding LineageLinkEntity
+    version = 4, // Incremented version for syncAttempts and lastSyncAttemptTimestamp
     exportSchema = false // Set to true for production and provide schema location
 )
 @TypeConverters(Converters::class)

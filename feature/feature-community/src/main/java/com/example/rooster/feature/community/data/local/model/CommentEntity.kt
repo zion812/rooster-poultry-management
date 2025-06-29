@@ -51,5 +51,7 @@ data class CommentEntity(
     val replyCount: Int = 0,
     val isEdited: Boolean = false,
     val mentionsUserIds: List<String>? = null, // Handled by TypeConverter
-    var needsSync: Boolean = true // For offline created/updated comments
+    var needsSync: Boolean = true, // For offline created/updated comments
+    var syncAttempts: Int = 0,
+    var lastSyncAttemptTimestamp: Long = 0L
 )

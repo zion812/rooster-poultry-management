@@ -82,9 +82,25 @@ class PostRepositoryImpl @Inject constructor(
  main
  main
             },
-            saveRemoteResult = { posts ->
-                val entities = posts.map { mapDomainToEntity(it, needsSync = false) }
-                localDataSource.insertPosts(entities) // Assumes OnConflictStrategy.REPLACE
+            saveRemoteResult = { remotePosts -> // List<Post>
+                val entitiesToSave = mutableListOf<PostEntity>()
+                var skippedCount = 0
+                for (remotePost in remotePosts) {
+                    val localUnsyncedEntity = localDataSource.getPostByIdSuspend(remotePost.postId)
+                    if (localUnsyncedEntity?.needsSync == true) {
+                        Timber.w("Community: Local post ID ${remotePost.postId} has unsynced changes during batch update. Skipping remote overwrite.")
+                        skippedCount++
+                    } else {
+                        entitiesToSave.add(mapDomainToEntity(remotePost, needsSync = false))
+                    }
+                }
+                if (entitiesToSave.isNotEmpty()) {
+                    localDataSource.insertPosts(entitiesToSave)
+                    Timber.d("Community: Saved/Updated ${entitiesToSave.size} posts in cache from remote.")
+                }
+                if (skippedCount > 0) {
+                    Timber.d("Community: Skipped $skippedCount unsynced local posts during remote update for feed.")
+                }
             },
             shouldFetch = { localData -> forceRefresh || localData.isNullOrEmpty() }
         ).flowOn(Dispatchers.IO)
@@ -94,9 +110,15 @@ class PostRepositoryImpl @Inject constructor(
          return localBackedCommunityResource(
             localCall = { localDataSource.getPostById(postId).map { it?.let(::mapEntityToDomain) } },
             remoteCall = { remoteDataSource.getPostDetailsStream(postId).firstOrNull() ?: Result.Success(null) },
-            saveRemoteResult = { post ->
-                if (post != null) {
-                    localDataSource.insertPost(mapDomainToEntity(post, needsSync = false))
+            saveRemoteResult = { remotePostDomain -> // S is Post
+                if (remotePostDomain != null) {
+                    val localEntity = localDataSource.getPostByIdSuspend(remotePostDomain.postId) // Using the already existing suspend fun
+                    if (localEntity?.needsSync == true) {
+                        Timber.w("Community: Local post ID ${remotePostDomain.postId} has unsynced changes. Remote update from listener/fetch will be ignored.")
+                    } else {
+                        localDataSource.insertPost(mapDomainToEntity(remotePostDomain, needsSync = false))
+                        Timber.d("Community: Cache updated from remote for post ID ${remotePostDomain.postId}.")
+                    }
                 }
             },
             shouldFetch = { localData -> localData == null } // Fetch if not in cache
@@ -160,16 +182,85 @@ class PostRepositoryImpl @Inject constructor(
         // For now, just pass through to remote.
         val remoteResult = remoteDataSource.likePost(postId, userId)
         if (remoteResult is Result.Success) {
-            // Optionally update local PostEntity's likeCount here for immediate UI feedback
-            // val post = localDataSource.getPostById(postId) ... (this is a Flow, need suspend fun)
-            // localDataSource.updateLikeCount(postId, newCount)
+            // Update local data after successful remote operation
+            val currentPostEntity = localDataSource.getPostByIdSuspend(postId)
+            if (currentPostEntity != null) {
+                val newLikedBy = currentPostEntity.likedBy.toMutableList().apply { add(userId) }.distinct()
+                val updatedEntity = currentPostEntity.copy(
+                    likeCount = newLikedBy.size, // Recalculate based on distinct list size
+                    likedBy = newLikedBy
+                )
+                localDataSource.updatePost(updatedEntity)
+            }
         }
         return@withContext remoteResult
     }
 
     override suspend fun unlikePost(postId: String, userId: String): Result<Unit> = withContext(Dispatchers.IO) {
-        // Similar to likePost, needs more robust implementation.
-        return@withContext remoteDataSource.unlikePost(postId, userId)
+        val remoteResult = remoteDataSource.unlikePost(postId, userId)
+        if (remoteResult is Result.Success) {
+            // Update local data after successful remote operation
+            val currentPostEntity = localDataSource.getPostByIdSuspend(postId)
+            if (currentPostEntity != null) {
+                val newLikedBy = currentPostEntity.likedBy.toMutableList().apply { remove(userId) }
+                val updatedEntity = currentPostEntity.copy(
+                    likeCount = newLikedBy.size, // Recalculate
+                    likedBy = newLikedBy
+                )
+                localDataSource.updatePost(updatedEntity)
+            }
+        }
+        return@withContext remoteResult
+    }
+
+import timber.log.Timber // Ensure Timber is imported
+
+    override suspend fun getUnsyncedPostEntities(): List<PostEntity> = withContext(Dispatchers.IO) {
+        localDataSource.getUnsyncedPostsSuspend()
+    }
+
+    override suspend fun syncPostRemote(post: Post): Result<Unit> = withContext(Dispatchers.IO) {
+        // This method ONLY attempts the remote synchronization.
+        // Assumes post.postId is correctly populated if it's an update,
+        // or remoteDataSource.createPost handles ID generation and returns it for new posts.
+        try {
+            // If post.postId is blank, it's a new post. If not blank, it's an update of an existing one.
+            // remoteDataSource.createPost is expected to handle this "upsert" logic or use post.postId.
+            val remoteResult = if (post.postId.isNotEmpty() && localDataSource.getPostByIdSuspend(post.postId)?.needsSync == true) {
+                 // This implies it was an existing local post that was modified and needs re-syncing (update)
+                 // However, createPost in Firebase might just overwrite. For true "update" semantics,
+                 // remoteDataSource.updatePost(post) would be better if the post definitely exists remotely.
+                 // For now, createPost will serve as upsert.
+                 remoteDataSource.createPost(post) // effectively an update if ID exists
+            } else {
+                 remoteDataSource.createPost(post) // new post
+            }
+
+            if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
+                // The actual remote Post ID is in remoteResult.data, which might be new or same.
+                // Worker will use this to update the local entity.
+                Result.Success(Unit) // Signal success, worker handles local update with correct ID
+            } else if (remoteResult is Result.Error) {
+                Timber.e(remoteResult.exception, "Failed to sync post ${post.postId} to remote.")
+                Result.Error(remoteResult.exception)
+            } else {
+                Timber.w("Remote sync for post ${post.postId} did not return a specific error/ID but was not successful.")
+                Result.Error(Exception("Unknown error or unsuccessful remote sync for post ${post.postId}"))
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Exception during remote post sync for ${post.postId}")
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun updateLocalPostEntity(postEntity: PostEntity) {
+        withContext(Dispatchers.IO) {
+            localDataSource.insertPost(postEntity) // OnConflictStrategy.REPLACE
+        }
+    }
+
+    override fun mapPostEntityToDomain(postEntity: PostEntity): Post {
+        return mapEntityToDomain(postEntity)
     }
 
     // --- Mappers ---
@@ -191,6 +282,7 @@ class PostRepositoryImpl @Inject constructor(
             location = entity.location,
             mentionsUserIds = entity.mentionsUserIds,
             isEdited = entity.isEdited,
+            likedBy = entity.likedBy,
             relatedFlockId = entity.relatedFlockId
         )
     }
@@ -214,6 +306,7 @@ class PostRepositoryImpl @Inject constructor(
             mentionsUserIds = domain.mentionsUserIds,
             isEdited = domain.isEdited,
             relatedFlockId = domain.relatedFlockId,
+            likedBy = domain.likedBy,
             needsSync = needsSync
         )
     }

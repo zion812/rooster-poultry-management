@@ -38,5 +38,8 @@ data class PostEntity(
     val mentionsUserIds: List<String>? = null, // Handled by TypeConverter
     val isEdited: Boolean = false,
     val relatedFlockId: String? = null,
-    var needsSync: Boolean = true // For offline created/updated posts
+    val likedBy: List<String> = emptyList(), // Handled by TypeConverter
+    var needsSync: Boolean = true, // For offline created/updated posts
+    var syncAttempts: Int = 0,
+    var lastSyncAttemptTimestamp: Long = 0L
 )

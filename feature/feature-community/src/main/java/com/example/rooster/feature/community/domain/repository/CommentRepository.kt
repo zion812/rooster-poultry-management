@@ -12,4 +12,10 @@ interface CommentRepository {
     suspend fun deleteComment(commentId: String, authorUserId: String): Result<Unit> // Ensure user can only delete own
     suspend fun likeComment(commentId: String, userId: String): Result<Unit>
     suspend fun unlikeComment(commentId: String, userId: String): Result<Unit>
+
+    // Methods for SyncWorker
+    suspend fun getUnsyncedCommentEntities(): List<com.example.rooster.feature.community.data.local.model.CommentEntity>
+    suspend fun syncCommentRemote(comment: Comment): Result<Unit> // Returns ID of synced comment from remote, or error
+    suspend fun updateLocalCommentEntity(commentEntity: com.example.rooster.feature.community.data.local.model.CommentEntity)
+    fun mapCommentEntityToDomain(commentEntity: com.example.rooster.feature.community.data.local.model.CommentEntity): Comment
 }
