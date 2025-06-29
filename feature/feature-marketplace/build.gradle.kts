@@ -28,6 +28,9 @@ android {
         debug {
             isMinifyEnabled = false
         }
+        create("staging") {
+            initWith(getByName("release"))
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -75,6 +78,11 @@ dependencies {
     implementation(libs.androidx.compose.material.icons)
     implementation("androidx.compose.material:material-icons-extended")
 
+    // Background work (for sync workers)
+    implementation(libs.work.runtime.ktx)
+
+    // Logging
+    implementation(libs.timber.logger)
 
     // Lifecycle for ViewModels
     implementation(libs.lifecycle.viewmodel.compose)

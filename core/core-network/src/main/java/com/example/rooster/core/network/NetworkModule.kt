@@ -1,10 +1,9 @@
 package com.example.rooster.core.network
 
 import android.content.Context
-import android.content.Context
-import android.content.Context
 import com.example.rooster.core.common.Constants
 import com.example.rooster.core.network.qualifiers.PaymentApiBaseUrl
+import com.example.rooster.core.network.retrofit.PaymentApiService
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
@@ -16,10 +15,9 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-// Removed: import retrofit2.converter.gson.GsonConverterFactory
-import kotlinx.serialization.json.Json // For Kotlinx Serialization
-import okhttp3.MediaType.Companion.toMediaType // For Kotlinx Serialization
-import retrofit2.converter.kotlinx.serialization.asConverterFactory // For Kotlinx Serialization
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
@@ -53,7 +51,7 @@ annotation class NetworkInterceptor
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class PaymentApiRetrofit // New qualifier for Payment API
+annotation class PaymentApiRetrofit
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -63,11 +61,7 @@ object NetworkModule {
     @Singleton
     fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) {
-                HttpLoggingInterceptor.Level.BODY
-            } else {
-                HttpLoggingInterceptor.Level.NONE
-            }
+            level = HttpLoggingInterceptor.Level.BODY
         }
     }
 
@@ -80,19 +74,15 @@ object NetworkModule {
     @Provides
     @Singleton
     @AuthInterceptor
-    fun provideAuthInterceptor(tokenProvider: TokenProvider): Interceptor { // Inject TokenProvider interface
+    fun provideAuthInterceptor(tokenProvider: TokenProvider): Interceptor {
         return Interceptor { chain ->
             val originalRequest = chain.request()
             val requestBuilder = originalRequest.newBuilder()
                 .addHeader("Content-Type", "application/json")
                 .addHeader("User-Agent", "Rooster-Android/${Constants.APP_VERSION}")
 
-            // Attempt to add Firebase Auth token without forcing refresh.
-            // runBlocking is still used here for simplicity to get the current token if available.
-            // Ideally, this interceptor should also be async or token managed reactively.
-            // However, the primary goal was to move forceful refresh out of the interceptor.
-            // This part could be further optimized by having a non-blocking way to get a cached token.
-            val token = kotlinx.coroutines.runBlocking { tokenProvider.getToken(forceRefresh = false) }
+            val token =
+                kotlinx.coroutines.runBlocking { tokenProvider.getToken(forceRefresh = false) }
             token?.let {
                 requestBuilder.addHeader("Authorization", "Bearer $it")
             }
@@ -109,7 +99,6 @@ object NetworkModule {
             val request = chain.request()
             val response = chain.proceed(request)
 
-            // Add cache headers for rural optimization
             response.newBuilder()
                 .header("Cache-Control", "public, max-age=${Constants.CACHE_MAX_AGE}")
                 .build()
@@ -129,11 +118,11 @@ object NetworkModule {
         loggingInterceptor: HttpLoggingInterceptor,
         @AuthInterceptor authInterceptor: Interceptor,
         @NetworkInterceptor networkInterceptor: Interceptor,
-        tokenAuthenticator: TokenAuthenticator, // Add TokenAuthenticator
+        tokenAuthenticator: TokenAuthenticator,
         cache: Cache
     ): OkHttpClient {
         return OkHttpClient.Builder()
-            .authenticator(tokenAuthenticator) // Add authenticator
+            .authenticator(tokenAuthenticator)
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
             .addNetworkInterceptor(networkInterceptor)
@@ -148,7 +137,7 @@ object NetworkModule {
     @Provides
     @Singleton
     @ParseRetrofit
-    fun provideParseRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit { // Inject Json
+    fun provideParseRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit {
         return Retrofit.Builder()
             .baseUrl(Constants.PARSE_SERVER_URL)
             .client(okHttpClient)
@@ -159,9 +148,9 @@ object NetworkModule {
     @Provides
     @Singleton
     @GeneralRetrofit
-    fun provideGeneralRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit { // Inject Json
+    fun provideGeneralRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.rooster.com/v1/") // Replace with actual API base URL
+            .baseUrl("https://api.rooster.com/v1/")
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
@@ -169,28 +158,28 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideJson(): Json { // Provide Json instance
+    fun provideJson(): Json {
         return Json {
             ignoreUnknownKeys = true
             isLenient = true
-            coerceInputValues = true // Good for handling potential minor schema mismatches
+            coerceInputValues = true
         }
     }
 
     @Provides
     @Singleton
-    @PaymentApiRetrofit // Use the new qualifier
+    @PaymentApiRetrofit
     fun providePaymentApiRetrofit(
         okHttpClient: OkHttpClient,
-        @PaymentApiBaseUrl baseUrl: String, // Inject the base URL
-        json: Json // Inject Json
+        @PaymentApiBaseUrl baseUrl: String,
+        json: Json
     ): Retrofit {
         if (baseUrl.isBlank()) {
             throw IllegalStateException("Payment API Base URL is not configured or blank.")
         }
         return Retrofit.Builder()
             .baseUrl(baseUrl)
-            .client(okHttpClient) // Uses the same OkHttpClient with Auth interceptor
+            .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }

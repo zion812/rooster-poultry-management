@@ -6,22 +6,29 @@ import androidx.lifecycle.viewModelScope
 import com.example.rooster.core.common.models.auction.AuctionListing // Updated import
 import com.example.rooster.core.common.models.auction.AuctionWinner // Updated import
 import com.example.rooster.core.common.models.auction.EnhancedAuctionBid // Updated import
-import com.example.rooster.fetchActiveAuctions // TODO: Refactor to repository pattern
-import com.example.rooster.fetchAuctionWinner // TODO: Refactor to repository pattern
-import com.example.rooster.fetchEnhancedAuctionBids // May need path update
-import com.example.rooster.services.TokenService // This service will likely need to be refactored or made available via DI
+import com.example.rooster.core.common.models.ValidationResult // Import from new location
+import com.example.rooster.core.common.models.BidStatistics // Import from new location
+import com.example.rooster.core.common.models.payment.CreateOrderRequest
+import com.example.rooster.core.common.models.payment.RazorpayOrderResponse
+import com.example.rooster.core.common.models.payment.VerifyPaymentRequest
+import com.example.rooster.core.common.Result
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.parse.ParseObject
 import com.parse.ParseQuery
-import dagger.hilt.android.lifecycle.HiltViewModel // Added for Hilt
+import com.parse.ParseUser
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject // Added for Hilt
-import com.example.rooster.core.common.models.ValidationResult // Import from new location
-import com.example.rooster.core.common.models.BidStatistics // Import from new location
+import java.util.Date
+import javax.inject.Inject
+import com.example.rooster.feature.auctions.domain.repository.AuctionRepository
+import com.example.rooster.core.common.domain.repository.TokenRepository
+import com.example.rooster.core.common.domain.repository.PaymentRepository
+import com.example.rooster.core.common.event.AppEventBus
+import com.example.rooster.core.common.event.PaymentEvent
 
 @HiltViewModel
 class AuctionViewModel @Inject constructor(
@@ -206,7 +213,7 @@ class AuctionViewModel @Inject constructor(
     fun loadBids(auctionId: String) =
         viewModelScope.launch {
             auctionRepository.getEnhancedAuctionBids(auctionId).collect { result ->
-                 when (result) {
+                when (result) {
                     is com.example.rooster.core.common.Result.Success -> {
                         _bids.value = result.data
                         categorizeBids()
@@ -304,14 +311,19 @@ class AuctionViewModel @Inject constructor(
     fun verifyAuctionDepositPayment(
         razorpayOrderId: String,
         razorpayPaymentId: String,
-        razorpaySignature: String, // This needs to come from Razorpay SDK callback
+        razorpaySignature: String,
         auctionId: String,
-        bidAmount: Double,
-        depositAmount: Double, // The actual calculated deposit amount
-        onResult: (isSuccess: Boolean, message: String?) -> Unit
+        bidAmount: Double = 0.0,
+        depositAmount: Double = 0.0,
+        onResult: ((isSuccess: Boolean, message: String?) -> Unit)? = null
     ) = viewModelScope.launch {
         _loading.value = true
-        _error.value = null
+        // Use pending bid details if parameters are not provided
+        val pendingBid = _pendingBidDetails.value
+        val actualBidAmount = if (bidAmount > 0.0) bidAmount else (pendingBid?.bidAmount ?: 0.0)
+        val actualDepositAmount =
+            if (depositAmount > 0.0) depositAmount else (pendingBid?.depositAmount ?: 0.0)
+
         val verifyRequest = VerifyPaymentRequest(
             razorpayOrderId = razorpayOrderId,
             razorpayPaymentId = razorpayPaymentId,
@@ -321,32 +333,40 @@ class AuctionViewModel @Inject constructor(
         when (val result = paymentRepository.verifyRazorpayPayment(verifyRequest)) {
             is com.example.rooster.core.common.Result.Success -> {
                 if (result.data.success) {
-                    // Payment verified, now submit the bid with deposit information to Parse
-                    // TODO: Refactor submitBidWithDeposit to a repository method
-                    val bidSubmissionSuccess = submitBidWithDepositToParse(auctionId, bidAmount, depositAmount, razorpayPaymentId)
+                    val bidSubmissionSuccess = submitBidWithDepositToParse(
+                        auctionId,
+                        actualBidAmount,
+                        actualDepositAmount,
+                        razorpayPaymentId
+                    )
                     if (bidSubmissionSuccess) {
-                        loadBids(auctionId) // Refresh bids
-                        onResult(true, "Bid placed successfully!") // TODO: Localize
+                        loadBids(auctionId)
+                        _error.value = null // Explicitly ensure error is null on full success
+                        onResult?.invoke(true, "Bid placed successfully!") // TODO: Localize
                     } else {
                         _error.value = "Failed to record bid after payment." // TODO: Localize
-                        // CRITICAL: Payment was made but bid failed. Needs reconciliation logic or alert.
                         FirebaseCrashlytics.getInstance().log("CRITICAL: Payment ${razorpayPaymentId} verified but bid submission failed for auction ${auctionId}.")
-                        onResult(false, _error.value)
+                        onResult?.invoke(false, _error.value)
                     }
                 } else {
                     _error.value = result.data.message // Message from backend
                     FirebaseCrashlytics.getInstance().log("Payment verification failed by backend: ${result.data.message} for order ${razorpayOrderId}")
-                    onResult(false, _error.value)
+                    onResult?.invoke(false, _error.value)
                 }
             }
             is com.example.rooster.core.common.Result.Error -> {
                 _error.value = "Error verifying payment: ${result.exception.message}" // TODO: Localize
                 FirebaseCrashlytics.getInstance().recordException(result.exception)
-                onResult(false, _error.value)
+                onResult?.invoke(false, _error.value)
             }
-             is com.example.rooster.core.common.Result.Loading -> { /* Handled by _loading.value */ }
+            is com.example.rooster.core.common.Result.Loading -> {
+                // Handled by _loading.value at start of method
+            }
         }
         _loading.value = false
+        // Clear pending bid details after processing
+        _pendingBidDetails.value = null
+        currentRazorpayOrderId.value = null
     }
 
     // TODO: Move this Parse interaction to an AuctionRepository
@@ -410,26 +430,28 @@ class AuctionViewModel @Inject constructor(
                             // Payment successful via Razorpay, now verify with backend
                             // This assumes verifyAuctionDepositPayment is the method that needs this event
                             // It might need parameters like bidAmount, depositAmount if they were stored in VM
-                            // For simplicity, let's assume they are available or passed differently for this specific call
-                            // The actual bid/deposit amounts are needed for `submitBidWithDepositToParse`
-                            // This part needs careful state management of what bid was being processed.
-                            // Let's assume we have stored the pending bid details.
+                            // For simplicity, let's assume we have stored the pending bid details.
                             val pendingBid = _pendingBidDetails.value
-                            if (pendingBid != null && (event.orderId == initiatedOrderId || initiatedOrderId.isNotBlank() /* if orderId from event is null */) ) {
+                            if (pendingBid != null && (event.orderId == initiatedOrderId || initiatedOrderId.isNotBlank())) {
+                                verifyAuctionDepositPayment(
+                                    razorpayOrderId = initiatedOrderId,
                                     razorpayPaymentId = event.paymentId,
+                                    razorpaySignature = event.signature,
                                     auctionId = pendingBid.auctionId,
                                     bidAmount = pendingBid.bidAmount,
                                     depositAmount = pendingBid.depositAmount
-                                    } else {
+                                )
                             }
                         }
                     }
                     is PaymentEvent.Failure -> {
-                            FirebaseCrashlytics.getInstance().log("Razorpay payment failed event: ${event.description} for order ${initiatedOrderId}")
-                            // Potentially trigger UI update to show failure more explicitly if not covered by _error
-                            _pendingBidDetails.value = null // Clear pending bid
-                            currentRazorpayOrderId.value = null // Clear order ID
-                        }
+                        _error.value =
+                            "Razorpay payment failed: ${event.description}" // TODO: Localize
+                        FirebaseCrashlytics.getInstance()
+                            .log("Razorpay payment failed event: ${event.description} for order ${initiatedOrderId}")
+                        // Potentially trigger UI update to show failure more explicitly if not covered by _error
+                        _pendingBidDetails.value = null // Clear pending bid
+                        currentRazorpayOrderId.value = null // Clear order ID
                     }
                 }
             }
@@ -440,93 +462,13 @@ class AuctionViewModel @Inject constructor(
     private val _pendingBidDetails = MutableStateFlow<PendingBidInfo?>(null)
     // Public getter if needed, though typically not for this pattern
     // val pendingBidDetails: StateFlow<PendingBidInfo?> = _pendingBidDetails
-    data class PendingBidInfo(val auctionId: String, val bidAmount: Double, val depositAmount: Double)
+    data class PendingBidInfo(
+        val auctionId: String,
+        val bidAmount: Double,
+        val depositAmount: Double
+    )
 
     fun setPendingBidDetails(auctionId: String, bidAmount: Double, depositAmount: Double) {
         _pendingBidDetails.value = PendingBidInfo(auctionId, bidAmount, depositAmount)
-    }
-
-    fun createAuctionDepositOrder(
-        auctionId: String,
-        depositAmount: Double,
-        isTeluguMode: Boolean,
-        onResult: (RazorpayOrderResponse?) -> Unit
-    ) = viewModelScope.launch {
-        _loading.value = true
-        _error.value = null
-        // Store details for when payment callback arrives
-        _pendingBidDetails.value = PendingBidInfo(auctionId, 0.0, depositAmount) // bidAmount is not known yet, or not needed for order creation itself
-
-        val orderRequest = CreateOrderRequest(
-            amount = (depositAmount * 100).toInt(),
-            currency = "INR",
-            receiptId = "receipt_auction_${auctionId}_${System.currentTimeMillis()}",
-            notes = mapOf(
-                "auctionId" to auctionId,
-                "userId" to (ParseUser.getCurrentUser()?.objectId ?: "unknown"),
-                "type" to "auction_deposit"
-            )
-        )
-        when (val result = paymentRepository.createRazorpayOrder(orderRequest)) {
-            is com.example.rooster.core.common.Result.Success -> {
-                currentRazorpayOrderId.value = result.data.id
-                _pendingBidDetails.value = PendingBidInfo(auctionId, (_pendingBidDetails.value?.bidAmount ?: 0.0) , depositAmount) // Update with actual bid amount if it was part of initial call
-                onResult(result.data)
-            }
-            is com.example.rooster.core.common.Result.Error -> {
-                _error.value = "Error creating payment order: ${result.exception.message}"
-                FirebaseCrashlytics.getInstance().recordException(result.exception)
-                onResult(null)
-                _pendingBidDetails.value = null
-                currentRazorpayOrderId.value = null
-            }
-            is com.example.rooster.core.common.Result.Loading -> {
-            }
-        }
-        _loading.value = false
-    }
-
-    // verifyAuctionDepositPayment signature needs to be consistent if called from event bus
-    // The onResult callback in verifyAuctionDepositPayment is for the UI, not for the event bus consumer
-    // The event bus consumer (this init block) will update _error or other states directly.
-    fun verifyAuctionDepositPayment(
-        razorpayOrderId: String,
-        razorpayPaymentId: String,
-        razorpaySignature: String,
-        auctionId: String,
-    ) = viewModelScope.launch {
-        _loading.value = true
-        _error.value = null
-        val verifyRequest = VerifyPaymentRequest(
-            razorpayOrderId = razorpayOrderId,
-            razorpayPaymentId = razorpayPaymentId,
-            razorpaySignature = razorpaySignature,
-            auctionId = auctionId
-        )
-        when (val result = paymentRepository.verifyRazorpayPayment(verifyRequest)) {
-            is com.example.rooster.core.common.Result.Success -> {
-                if (result.data.success) {
-                    val bidSubmissionSuccess = submitBidWithDepositToParse(auctionId, bidAmount, depositAmount, razorpayPaymentId)
-                    if (bidSubmissionSuccess) {
-                        loadBids(auctionId)
-                        // TODO: Expose a specific success event/state for UI to show detailed success message
-                        // For now, UI might show a generic "bid placed" if _error is null and bids list updates.
-                         _error.value = null // Explicitly ensure error is null on full success
-                    } else {
-                        _error.value = "Failed to record bid after payment."
-                        FirebaseCrashlytics.getInstance().log("CRITICAL: Payment ${razorpayPaymentId} verified but bid submission failed for auction ${auctionId}.")
-                    }
-                } else {
-                    _error.value = result.data.message
-                    FirebaseCrashlytics.getInstance().log("Payment verification failed by backend: ${result.data.message} for order ${razorpayOrderId}")
-                }
-            }
-            is com.example.rooster.core.common.Result.Error -> {
-                _error.value = "Error verifying payment: ${result.exception.message}"
-                FirebaseCrashlytics.getInstance().recordException(result.exception)
-            }
-             is com.example.rooster.core.common.Result.Loading -> { /* Handled by _loading.value */ }
-        }
-        _loading.value = false
     }
 }
