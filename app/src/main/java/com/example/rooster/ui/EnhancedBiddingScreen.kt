@@ -9,75 +9,82 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.rooster.*
+import com.example.rooster.MainActivity // To call setPaymentResultCallback
+import com.example.rooster.data.PaymentRepository // Hypothetical
+import com.example.rooster.data.RazorpayOrderResponse // Hypothetical
 import com.example.rooster.viewmodel.AuctionViewModel
 import com.example.rooster.viewmodel.BidStatistics
 import com.example.rooster.viewmodel.ValidationResult
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.parse.ParseObject
 import com.parse.ParseUser
+import com.razorpay.Checkout // Razorpay SDK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Date
-import android.app.Activity
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.SnackbarHostState
-import com.example.rooster.MainActivity // To call setPaymentResultCallback
-import com.example.rooster.data.PaymentRepository // Hypothetical
-import com.example.rooster.data.RazorpayOrderResponse // Hypothetical
-import com.razorpay.Checkout // Razorpay SDK
 import org.json.JSONObject
+import java.util.Date
 
 // Hypothetical data classes and repository for network calls
 // These would typically be in a data layer
 // --- Hypothetical Payment Repository and Models ---
 interface PaymentRepository {
     suspend fun createRazorpayOrder(orderRequest: CreateOrderRequest): com.example.rooster.core.common.Result<RazorpayOrderResponse>
+
     suspend fun verifyRazorpayPayment(verifyRequest: VerifyPaymentRequest): com.example.rooster.core.common.Result<VerifyPaymentResponse>
 
     // Companion object to provide a dummy factory for ViewModel
     companion object Factory {
-         fun create(): PaymentRepository = object : PaymentRepository {
-            override suspend fun createRazorpayOrder(orderRequest: CreateOrderRequest): com.example.rooster.core.common.Result<RazorpayOrderResponse> {
-                // Mock success, in real app this calls backend via Retrofit/Ktor
-                return com.example.rooster.core.common.Result.Success(
-                    RazorpayOrderResponse(
-                        id = "order_${System.currentTimeMillis()}", // Mock order ID
-                        amount = orderRequest.amount,
-                        currency = orderRequest.currency,
-                        notes = orderRequest.notes,
-                        key = "rzp_test_YOUR_KEY_ID" // Replace with actual test key from BuildConfig
+        fun create(): PaymentRepository =
+            object : PaymentRepository {
+                override suspend fun createRazorpayOrder(
+                    orderRequest: CreateOrderRequest,
+                ): com.example.rooster.core.common.Result<RazorpayOrderResponse> {
+                    // Mock success, in real app this calls backend via Retrofit/Ktor
+                    return com.example.rooster.core.common.Result.Success(
+                        RazorpayOrderResponse(
+                            id = "order_${System.currentTimeMillis()}", // Mock order ID
+                            amount = orderRequest.amount,
+                            currency = orderRequest.currency,
+                            notes = orderRequest.notes,
+                            key = "rzp_test_YOUR_KEY_ID", // Replace with actual test key from BuildConfig
+                        ),
                     )
-                )
-            }
-            override suspend fun verifyRazorpayPayment(verifyRequest: VerifyPaymentRequest): com.example.rooster.core.common.Result<VerifyPaymentResponse> {
-                 // Mock success
-                return com.example.rooster.core.common.Result.Success(
-                    VerifyPaymentResponse(
-                        success = true,
-                        message = "Payment verified successfully (mock)",
-                        data = PaymentVerificationData(
-                            orderId = verifyRequest.razorpay_order_id,
-                            paymentId = verifyRequest.razorpay_payment_id,
-                            status = "VERIFIED"
-                        )
+                }
+
+                override suspend fun verifyRazorpayPayment(
+                    verifyRequest: VerifyPaymentRequest,
+                ): com.example.rooster.core.common.Result<VerifyPaymentResponse> {
+                    // Mock success
+                    return com.example.rooster.core.common.Result.Success(
+                        VerifyPaymentResponse(
+                            success = true,
+                            message = "Payment verified successfully (mock)",
+                            data =
+                                PaymentVerificationData(
+                                    orderId = verifyRequest.razorpay_order_id,
+                                    paymentId = verifyRequest.razorpay_payment_id,
+                                    status = "VERIFIED",
+                                ),
+                        ),
                     )
-                )
+                }
             }
-        }
     }
 }
+
 data class RazorpayOrderResponse( // More complete response
     val id: String, // Razorpay Order ID
     val entity: String? = "order",
@@ -90,20 +97,21 @@ data class RazorpayOrderResponse( // More complete response
     val attempts: Int? = 0,
     val notes: Map<String, String?>?,
     val created_at: Long? = System.currentTimeMillis() / 1000,
-    val key: String? = null // To pass Razorpay Key ID to client
+    val key: String? = null, // To pass Razorpay Key ID to client
 )
 
-
 data class CreateOrderRequest(val amount: Int, val currency: String, val receiptId: String, val notes: Map<String, String?>)
+
 data class VerifyPaymentRequest(
     val razorpay_order_id: String,
     val razorpay_payment_id: String,
     val razorpay_signature: String,
-    val auctionId: String?
+    val auctionId: String?,
 )
-data class VerifyPaymentResponse(val success: Boolean, val message: String, val data: PaymentVerificationData?)
-data class PaymentVerificationData(val orderId: String, val paymentId: String, val status: String)
 
+data class VerifyPaymentResponse(val success: Boolean, val message: String, val data: PaymentVerificationData?)
+
+data class PaymentVerificationData(val orderId: String, val paymentId: String, val status: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,7 +127,6 @@ fun EnhancedBiddingScreen(
     val activity = context as? MainActivity // For Razorpay callback
 
     val snackbarHostState = remember { SnackbarHostState() }
-
 
     // UI State
     var bidAmount by remember { mutableStateOf("") }
@@ -238,7 +245,7 @@ fun EnhancedBiddingScreen(
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
                                             message = if (isTeluguMode) "తగినన్ని టోకెన్లు లేవు" else "Insufficient tokens",
-                                            duration = SnackbarDuration.Short
+                                            duration = SnackbarDuration.Short,
                                         )
                                     }
                                 }
@@ -317,44 +324,67 @@ fun EnhancedBiddingScreen(
                         scope.launch {
                             if (success && paymentId != null) {
                                 // Payment successful via Razorpay, now verify with backend
-                                val verifyRequest = VerifyPaymentRequest(
-                                    razorpay_order_id = viewModel.currentRazorpayOrderId.value ?: "", // ViewModel needs to store this
-                                    razorpay_payment_id = paymentId,
-                                    razorpay_signature = "signature_from_razorpay_sdk", // This needs to be correctly obtained from Razorpay SDK result
-                                    auctionId = auctionId
-                                )
+                                val verifyRequest =
+                                    VerifyPaymentRequest(
+                                        razorpay_order_id = viewModel.currentRazorpayOrderId.value ?: "", // ViewModel needs to store this
+                                        razorpay_payment_id = paymentId,
+                                        razorpay_signature = "signature_from_razorpay_sdk", // This needs to be correctly obtained from Razorpay SDK result
+                                        auctionId = auctionId,
+                                    )
                                 when (val verificationResult = paymentRepository.verifyRazorpayPayment(verifyRequest)) {
                                     is com.example.rooster.core.common.Result.Success -> {
                                         if (verificationResult.data.success) {
-                                            val submitResult = submitBidWithDeposit(
-                                                auctionId,
-                                                currentBidAmountDouble,
-                                                calculatedDepositAmount
-                                            )
+                                            val submitResult =
+                                                submitBidWithDeposit(
+                                                    auctionId,
+                                                    currentBidAmountDouble,
+                                                    calculatedDepositAmount,
+                                                )
                                             if (submitResult) {
-                                                FirebaseCrashlytics.getInstance().log("Bid with deposit submitted: $currentBidAmountDouble for auction $auctionId")
+                                                FirebaseCrashlytics.getInstance().log(
+                                                    "Bid with deposit submitted: $currentBidAmountDouble for auction $auctionId",
+                                                )
                                                 viewModel.loadBids(auctionId)
                                                 this@EnhancedBiddingScreen.bidAmount = "" // Clear bid amount
-                                                snackbarHostState.showSnackbar(if (isTeluguMode) "వేలం విజయవంతంగా వేయబడింది!" else "Bid placed successfully!", duration = SnackbarDuration.Short)
+                                                snackbarHostState.showSnackbar(
+                                                    if (isTeluguMode) "వేలం విజయవంతంగా వేయబడింది!" else "Bid placed successfully!",
+                                                    duration = SnackbarDuration.Short,
+                                                )
                                             } else {
-                                                FirebaseCrashlytics.getInstance().log("Bid submission failed after deposit payment verification")
-                                                snackbarHostState.showSnackbar(if (isTeluguMode) "వేలం వేయడంలో లోపం" else "Error placing bid after payment.", duration = SnackbarDuration.Short)
+                                                FirebaseCrashlytics.getInstance().log(
+                                                    "Bid submission failed after deposit payment verification",
+                                                )
+                                                snackbarHostState.showSnackbar(
+                                                    if (isTeluguMode) "వేలం వేయడంలో లోపం" else "Error placing bid after payment.",
+                                                    duration = SnackbarDuration.Short,
+                                                )
                                             }
                                         } else {
-                                             FirebaseCrashlytics.getInstance().log("Backend payment verification failed: ${verificationResult.data.message}")
-                                             snackbarHostState.showSnackbar(if (isTeluguMode) "చెల్లింపు ధృవీకరణ విఫలమైంది" else "Payment verification failed.", duration = SnackbarDuration.Short)
+                                            FirebaseCrashlytics.getInstance().log(
+                                                "Backend payment verification failed: ${verificationResult.data.message}",
+                                            )
+                                            snackbarHostState.showSnackbar(
+                                                if (isTeluguMode) "చెల్లింపు ధృవీకరణ విఫలమైంది" else "Payment verification failed.",
+                                                duration = SnackbarDuration.Short,
+                                            )
                                         }
                                     }
                                     is com.example.rooster.core.common.Result.Error -> {
                                         FirebaseCrashlytics.getInstance().recordException(verificationResult.exception)
-                                        snackbarHostState.showSnackbar(if (isTeluguMode) "చెల్లింపు ధృవీకరణలో లోపం" else "Error verifying payment.", duration = SnackbarDuration.Short)
+                                        snackbarHostState.showSnackbar(
+                                            if (isTeluguMode) "చెల్లింపు ధృవీకరణలో లోపం" else "Error verifying payment.",
+                                            duration = SnackbarDuration.Short,
+                                        )
                                     }
                                     is com.example.rooster.core.common.Result.Loading -> { /* Potentially show loading for verification */ }
                                 }
                             } else {
                                 // Payment failed or cancelled
                                 FirebaseCrashlytics.getInstance().log("Razorpay payment failed or cancelled: $errorMessage")
-                                snackbarHostState.showSnackbar(errorMessage ?: (if (isTeluguMode) "చెల్లింపు విఫలమైంది" else "Payment failed"), duration = SnackbarDuration.Long)
+                                snackbarHostState.showSnackbar(
+                                    errorMessage ?: (if (isTeluguMode) "చెల్లింపు విఫలమైంది" else "Payment failed"),
+                                    duration = SnackbarDuration.Long,
+                                )
                             }
                             isSubmittingBid = false
                         }
@@ -363,23 +393,33 @@ fun EnhancedBiddingScreen(
                     // Start the payment process
                     scope.launch {
                         try {
-                            val orderRequest = CreateOrderRequest(
-                                amount = (calculatedDepositAmount * 100).toInt(), // Amount in paise
-                                currency = "INR",
-                                receiptId = "receipt_auction_${auctionId}_${System.currentTimeMillis()}",
-                                notes = mapOf("auctionId" to auctionId, "userId" to (ParseUser.getCurrentUser()?.objectId ?: "unknown"))
-                            )
+                            val orderRequest =
+                                CreateOrderRequest(
+                                    amount = (calculatedDepositAmount * 100).toInt(), // Amount in paise
+                                    currency = "INR",
+                                    receiptId = "receipt_auction_${auctionId}_${System.currentTimeMillis()}",
+                                    notes =
+                                        mapOf(
+                                            "auctionId" to auctionId,
+                                            "userId" to (ParseUser.getCurrentUser()?.objectId ?: "unknown"),
+                                        ),
+                                )
                             when (val orderResult = paymentRepository.createRazorpayOrder(orderRequest)) {
                                 is com.example.rooster.core.common.Result.Success -> {
                                     val razorpayOrder = orderResult.data
                                     viewModel.currentRazorpayOrderId.value = razorpayOrder.id // Store order_id in ViewModel
 
                                     val checkout = Checkout()
-                                    checkout.setKeyID(razorpayOrder.key ?: BuildConfig.RAZORPAY_KEY) // Use key from order response or BuildConfig
+                                    checkout.setKeyID(
+                                        razorpayOrder.key ?: BuildConfig.RAZORPAY_KEY,
+                                    ) // Use key from order response or BuildConfig
 
                                     val options = JSONObject()
                                     options.put("name", if (isTeluguMode) "రూస్టర్ - డిపాజిట్" else "Rooster - Deposit")
-                                    options.put("description", if (isTeluguMode) "వేలం కోసం డిపాజిట్: $auctionId" else "Deposit for Auction: $auctionId")
+                                    options.put(
+                                        "description",
+                                        if (isTeluguMode) "వేలం కోసం డిపాజిట్: $auctionId" else "Deposit for Auction: $auctionId",
+                                    )
                                     options.put("order_id", razorpayOrder.id)
                                     options.put("amount", razorpayOrder.amount) // Amount from order response
                                     options.put("currency", razorpayOrder.currency)
@@ -397,14 +437,20 @@ fun EnhancedBiddingScreen(
                                 }
                                 is com.example.rooster.core.common.Result.Error -> {
                                     FirebaseCrashlytics.getInstance().recordException(orderResult.exception)
-                                    snackbarHostState.showSnackbar(if (isTeluguMode) "చెల్లింపు ఆర్డర్ సృష్టించడంలో లోపం" else "Error creating payment order.", duration = SnackbarDuration.Short)
+                                    snackbarHostState.showSnackbar(
+                                        if (isTeluguMode) "చెల్లింపు ఆర్డర్ సృష్టించడంలో లోపం" else "Error creating payment order.",
+                                        duration = SnackbarDuration.Short,
+                                    )
                                     isSubmittingBid = false
                                 }
                                 is com.example.rooster.core.common.Result.Loading -> { /* Handled by isSubmittingBid */ }
                             }
                         } catch (e: Exception) {
                             FirebaseCrashlytics.getInstance().recordException(e)
-                            snackbarHostState.showSnackbar(if (isTeluguMode) "చెల్లింపు ప్రారంభించడంలో లోపం" else "Error initiating payment.", duration = SnackbarDuration.Short)
+                            snackbarHostState.showSnackbar(
+                                if (isTeluguMode) "చెల్లింపు ప్రారంభించడంలో లోపం" else "Error initiating payment.",
+                                duration = SnackbarDuration.Short,
+                            )
                             isSubmittingBid = false
                         }
                         // isSubmittingBid will be set to false in the callback

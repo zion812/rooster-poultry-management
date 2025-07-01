@@ -64,6 +64,14 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose) // For Hilt ViewModels in navigated Composables
 
+    // Parse SDK - Required for auction functionality
+    implementation("com.github.parse-community.Parse-SDK-Android:parse:4.2.0")
+    implementation("com.github.parse-community.Parse-SDK-Android:coroutines:4.2.0")
+
+    // Firebase - Required for Crashlytics logging
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation("com.google.firebase:firebase-crashlytics")
+
     // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -80,6 +88,9 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // Logging
+    implementation(libs.timber.logger)
 
     // Testing
     testImplementation(libs.junit)

@@ -660,12 +660,12 @@ private fun FraudAlertItem(alert: FraudAlert) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Alert: ${alert.alertType} - Entity: ${alert.relatedEntity}",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
                     text = "Status: ${alert.status}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = Color.Gray,
                 )
             }
 
@@ -735,7 +735,7 @@ private fun FarmVerificationItem(verification: FarmVerification) {
                 )
                 Text(
                     text = "Owner: ${verification.ownerName}",
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
                 )
             }
             Text(
@@ -802,7 +802,7 @@ private fun UserVerificationItem(verification: UserVerification) {
                 )
                 Text(
                     text = "ID: ${verification.verificationId}",
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
                 )
             }
             Text(
@@ -1115,7 +1115,7 @@ fun generateTopFarmers(): List<TopFarmer> {
             location = "Hyderabad, Telangana",
             fowlCount = 45,
             score = 95.0,
-            rank = 1
+            rank = 1,
         ),
         TopFarmer(
             id = "2",
@@ -1123,7 +1123,7 @@ fun generateTopFarmers(): List<TopFarmer> {
             location = "Vijayawada, AP",
             fowlCount = 38,
             score = 92.0,
-            rank = 2
+            rank = 2,
         ),
         TopFarmer(
             id = "3",
@@ -1131,7 +1131,7 @@ fun generateTopFarmers(): List<TopFarmer> {
             location = "Mysore, Karnataka",
             fowlCount = 52,
             score = 90.0,
-            rank = 3
+            rank = 3,
         ),
         TopFarmer(
             id = "4",
@@ -1139,7 +1139,7 @@ fun generateTopFarmers(): List<TopFarmer> {
             location = "Chennai, Tamil Nadu",
             fowlCount = 41,
             score = 87.0,
-            rank = 4
+            rank = 4,
         ),
         TopFarmer(
             id = "5",
@@ -1147,7 +1147,7 @@ fun generateTopFarmers(): List<TopFarmer> {
             location = "Warangal, Telangana",
             fowlCount = 35,
             score = 85.0,
-            rank = 5
+            rank = 5,
         ),
     )
 }

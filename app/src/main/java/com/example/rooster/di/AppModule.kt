@@ -1,18 +1,18 @@
 package com.example.rooster.di
 
+import com.example.rooster.core.common.storage.ImageUploadService
+import com.example.rooster.core.common.user.UserIdProvider
+import com.example.rooster.data.authprovider.FirebaseUserIdProvider
 import com.example.rooster.data.repositories.AuthRepositoryImpl
 import com.example.rooster.data.repositories.ChatRepositoryImpl
 import com.example.rooster.data.repositories.PaymentRepository
 import com.example.rooster.data.repositories.UserRepositoryImpl
+import com.example.rooster.data.storage.FirebaseStorageImageUploadService
 import com.example.rooster.domain.repository.AuthRepository
 import com.example.rooster.domain.repository.ChatRepository
 import com.example.rooster.domain.repository.PostRepository
 import com.example.rooster.domain.repository.UserRepository
 import com.example.rooster.util.ShoppingCartManager
-import com.example.rooster.core.common.user.UserIdProvider
-import com.example.rooster.core.common.storage.ImageUploadService
-import com.example.rooster.data.authprovider.FirebaseUserIdProvider
-import com.example.rooster.data.storage.FirebaseStorageImageUploadService
 import com.google.firebase.storage.FirebaseStorage
 import dagger.Binds
 import dagger.Module

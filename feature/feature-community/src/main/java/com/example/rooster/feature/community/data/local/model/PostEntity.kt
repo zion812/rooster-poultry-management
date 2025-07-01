@@ -23,23 +23,30 @@ import com.example.rooster.feature.community.data.local.CommunityTypeConverters
 data class PostEntity(
     @PrimaryKey val postId: String,
     val authorUserId: String,
-    val authorDisplayName: String, // Denormalized
-    val authorProfilePictureUrl: String? = null, // Denormalized
+    // Denormalized
+    val authorDisplayName: String,
+    // Denormalized
+    val authorProfilePictureUrl: String? = null,
     val contentText: String?,
-    val imageUrls: List<String>? = null, // Handled by TypeConverter
+    // Handled by TypeConverter
+    val imageUrls: List<String>? = null,
     val videoUrl: String? = null,
     val createdTimestamp: Long,
     var updatedTimestamp: Long?,
     val likeCount: Int = 0,
     val commentCount: Int = 0,
     val shareCount: Int = 0,
-    val tags: List<String>? = null, // Handled by TypeConverter
+    // Handled by TypeConverter
+    val tags: List<String>? = null,
     val location: String? = null,
-    val mentionsUserIds: List<String>? = null, // Handled by TypeConverter
+    // Handled by TypeConverter
+    val mentionsUserIds: List<String>? = null,
     val isEdited: Boolean = false,
     val relatedFlockId: String? = null,
-    val likedBy: List<String> = emptyList(), // Handled by TypeConverter
-    var needsSync: Boolean = true, // For offline created/updated posts
+    // Handled by TypeConverter
+    val likedBy: List<String> = emptyList(),
+    // For offline created/updated posts
+    var needsSync: Boolean = true,
     var syncAttempts: Int = 0,
     var lastSyncAttemptTimestamp: Long = 0L
 )

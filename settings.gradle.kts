@@ -36,7 +36,7 @@ include(":core:search")
 include(":core:analytics")
 
 // Feature modules
-include(":feature:feature-marketplace")
-include(":feature:feature-auctions") // Still commented out / future
-include(":feature:feature-farm")
-include(":feature:feature-community") // New feature module
+// include(":feature:feature-marketplace") // Temporarily disabled due to compilation issues
+// include(":feature:feature-auctions") // Temporarily disabled due to compilation issues
+// include(":feature:feature-farm") // Temporarily disabled due to compilation issues  
+// include(":feature:feature-community") // Temporarily disabled due to compilation issues

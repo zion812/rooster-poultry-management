@@ -308,7 +308,9 @@ class VerificationViewModel(
                         _uiState.value.copy(
                             isLoading = false,
                             lastVerificationId = maintenanceRecordId,
-                            success = "Annual maintenance processed for ${fowlIds.size} fowl. Your $totalCost coins will be deducted shortly.",
+                            success =
+                                "Annual maintenance processed for ${fowlIds.size} fowl. " +
+                                    "Your $totalCost coins will be deducted shortly.",
                             pendingCoinDeduction = true,
                         )
 

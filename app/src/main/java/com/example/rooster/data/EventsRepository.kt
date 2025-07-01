@@ -8,7 +8,6 @@ import com.parse.ParseQuery
 import com.parse.ParseUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.Date
 
 /**
  * Repository for community events and elections, integrated with Parse backend.

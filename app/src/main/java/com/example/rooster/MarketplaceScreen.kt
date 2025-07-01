@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.rooster.ui.components.StandardScreenLayout
+import com.rooster.app.navigation.NavigationRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +46,7 @@ fun MarketplaceScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { navController.navigate(NavigationRoute.Auctions.route) },
+            onClick = { navController.navigate(NavigationRoute.AUCTIONS.name) },
         ) {
             Text(if (isTeluguMode) "వేలాలు చూడండి" else "View Auctions")
         }

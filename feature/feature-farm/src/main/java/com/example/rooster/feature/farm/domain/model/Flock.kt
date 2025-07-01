@@ -70,7 +70,8 @@ enum class AgeGroup {
     CHICKS,           // 0-2 weeks
     WEEKS_0_5,        // 0-5 weeks
     WEEKS_5_5MONTHS,  // 5 weeks - 5 months
-    MONTHS_5_12PLUS   // 5-12+ months
+    MONTHS_5_12PLUS,  // 5-12+ months
+    UNKNOWN
 }
 
 enum class Gender {
@@ -83,7 +84,8 @@ enum class VaccinationStatus {
     UP_TO_DATE,
     OVERDUE,
     PARTIAL,
-    NOT_STARTED
+    NOT_STARTED,
+    UNKNOWN
 }
 
 enum class HealthStatus {
@@ -92,7 +94,8 @@ enum class HealthStatus {
     FAIR,
     POOR,
     SICK,
-    QUARANTINED
+    QUARANTINED,
+    UNKNOWN
 }
 
 enum class FlockStatus {
@@ -101,7 +104,16 @@ enum class FlockStatus {
     DECEASED,
     TRANSFERRED,
     BREEDING,
-    INCUBATING
+    INCUBATING,
+    UNKNOWN
+}
+
+enum class VerificationLevel {
+    UNVERIFIED,
+    BASIC,
+    STANDARD,
+    PREMIUM,
+    ENTERPRISE
 }
 
 enum class Purpose {

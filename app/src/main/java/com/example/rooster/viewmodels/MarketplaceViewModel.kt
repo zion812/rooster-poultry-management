@@ -3,10 +3,7 @@ package com.example.rooster.viewmodels
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rooster.GrowthUpdate
-import com.example.rooster.NetworkQualityLevel
 import com.example.rooster.SafeListing
-import com.example.rooster.data.MarketplaceListing
 import com.example.rooster.models.MarketplaceListingParse
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.parse.ParseQuery
@@ -368,11 +365,15 @@ class MarketplaceViewModel : ViewModel() {
     private fun applyFilters(listings: List<SafeListing>): List<SafeListing> {
         val currentFilters = _filters.value
         return listings.filter {
-            (currentFilters.searchQuery.isBlank() ||
-                it.breed.contains(currentFilters.searchQuery, ignoreCase = true) ||
-                it.owner.contains(currentFilters.searchQuery, ignoreCase = true)) &&
-                (currentFilters.selectedBreed.isBlank() ||
-                    it.breed.equals(currentFilters.selectedBreed, ignoreCase = true)) &&
+            (
+                currentFilters.searchQuery.isBlank() ||
+                    it.breed.contains(currentFilters.searchQuery, ignoreCase = true) ||
+                    it.owner.contains(currentFilters.searchQuery, ignoreCase = true)
+            ) &&
+                (
+                    currentFilters.selectedBreed.isBlank() ||
+                        it.breed.equals(currentFilters.selectedBreed, ignoreCase = true)
+                ) &&
                 (it.price >= currentFilters.minPrice && it.price <= currentFilters.maxPrice) &&
                 (!currentFilters.verifiedOnly || it.isBloodlineVerified) &&
                 (!currentFilters.bloodlineOnly || it.isBloodlineVerified)

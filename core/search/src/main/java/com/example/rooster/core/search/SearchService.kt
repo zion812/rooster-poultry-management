@@ -20,14 +20,20 @@ interface SearchRepository {
      * @param filters Optional filters to apply to the search.
      * @return A Flow emitting a list of search results.
      */
-    fun performSearch(query: String, filters: Map<String, String> = emptyMap()): Flow<com.example.rooster.core.common.Result<List<SearchResultItem>>>
+    suspend fun performSearch(
+        query: String,
+        filters: Map<String, String> = emptyMap()
+    ): Flow<com.example.rooster.core.common.Result<List<SearchResultItem>>>
 }
 
 // A Hilt injectable placeholder implementation
 // In a real app, this would query local databases (Room), network APIs (Parse, custom backend)
 // and potentially Firebase.
 class PlaceholderSearchRepository @javax.inject.Inject constructor() : SearchRepository {
-    override fun performSearch(query: String, filters: Map<String, String>): Flow<com.example.rooster.core.common.Result<List<SearchResultItem>>> {
+    override suspend fun performSearch(
+        query: String,
+        filters: Map<String, String>
+    ): Flow<com.example.rooster.core.common.Result<List<SearchResultItem>>> {
         if (query.isBlank()) {
             return flowOf(com.example.rooster.core.common.Result.Success(emptyList()))
         }

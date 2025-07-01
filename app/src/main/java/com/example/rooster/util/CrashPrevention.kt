@@ -112,13 +112,14 @@ object CrashPrevention {
         defaultValue: T,
     ): T {
         return safeExecuteWithResult("Parse get $key", defaultValue) {
-            val value: Any? = when (defaultValue) {
-                is String -> parseObject?.getString(key)
-                is Int -> parseObject?.getInt(key)
-                is Double -> parseObject?.getDouble(key)
-                is Boolean -> parseObject?.getBoolean(key)
-                else -> parseObject?.get(key)
-            }
+            val value: Any? =
+                when (defaultValue) {
+                    is String -> parseObject?.getString(key)
+                    is Int -> parseObject?.getInt(key)
+                    is Double -> parseObject?.getDouble(key)
+                    is Boolean -> parseObject?.getBoolean(key)
+                    else -> parseObject?.get(key)
+                }
             // This cast is unchecked because of type erasure.
             // The 'when' block above helps by using the specific typed getters from ParseObject,
             // which reduces the risk, but the final cast to the generic T cannot be fully

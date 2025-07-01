@@ -194,12 +194,13 @@ class AuthViewModel
             _uiState.value = _uiState.value.copy(loading = true, errorMessage = null, successMessage = null)
             viewModelScope.launch {
                 // Use phoneNumber as username and email, and set role as "farmer"
-                val result = authRepository.register(
-                    username = phoneNumber,
-                    email = "$phoneNumber@autogen.local", // synthetic email
-                    password = password,
-                    role = "farmer"
-                )
+                val result =
+                    authRepository.register(
+                        username = phoneNumber,
+                        email = "$phoneNumber@autogen.local", // synthetic email
+                        password = password,
+                        role = "farmer",
+                    )
                 when (result) {
                     is Result.Success -> {
                         _uiState.value =

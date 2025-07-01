@@ -3,14 +3,8 @@ package com.example.rooster
 import android.util.Log
 import com.example.rooster.models.* // Keep for other models like ParseEvent, SearchResult, etc.
 // Import relocated auction models and enums
-import com.example.rooster.core.common.models.auction.AuctionListing
-import com.example.rooster.core.common.models.auction.EnhancedAuctionBid
 import com.example.rooster.core.common.models.auction.AuctionWinner
 import com.example.rooster.core.common.models.auction.BackupBidder
-import com.example.rooster.core.common.enums.AuctionStatus
-import com.example.rooster.core.common.enums.BidMonitoringCategory
-import com.example.rooster.core.common.enums.DepositStatus
-import com.example.rooster.core.common.enums.BidStatus
 import com.example.rooster.core.common.enums.OfferResponse
 import com.example.rooster.core.common.enums.AuctionPaymentStatus
 
@@ -2240,7 +2234,7 @@ fun fetchCommunityGroups(
                             Log.d("CommunityFetcher", "Processing object: ${obj.objectId}")
                             Log.d(
                                 "CommunityFetcher",
-                                "Object data: name=${obj.name}, memberCount=${obj.memberCount}, type=${obj.type}"
+                                "Object data: name=${obj.name}, memberCount=${obj.memberCount}, type=${obj.type}",
                             )
 
                             obj.toCommunityGroup()

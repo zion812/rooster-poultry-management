@@ -1,10 +1,10 @@
 package com.example.rooster.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
-import androidx.compose.foundation.clickable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -17,7 +17,7 @@ const val FLOCK_DETAIL_ROUTE_PREFIX = "flock_detail"
 @Composable
 fun FlockDashboardScreen(
     navController: NavController,
-    vm: EnthusiastViewModel = viewModel() // TODO: Replace with a Hilt injected ViewModel from feature-farm if available
+    vm: EnthusiastViewModel = viewModel(), // TODO: Replace with a Hilt injected ViewModel from feature-farm if available
 ) {
     val flock by vm.flock.collectAsState() // This data source will need to be updated for real farm data
 
@@ -30,7 +30,7 @@ fun FlockDashboardScreen(
             Modifier
                 .padding(padding)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // Placeholder for Growth Stats
             Card(modifier = Modifier.fillMaxWidth()) {
@@ -48,10 +48,12 @@ fun FlockDashboardScreen(
                 Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Growth Chart / Health Trends (Placeholder)", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(8.dp))
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .padding(8.dp)
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .padding(8.dp),
                     ) {
                         Text("Chart Area - MPAndroidChart to be integrated here", Modifier.align(Alignment.Center))
                     }
@@ -69,9 +71,10 @@ fun FlockDashboardScreen(
                     ListItem(
                         headlineContent = { Text(entry.name) },
                         supportingContent = { Text("Count: ${entry.count}") }, // TODO: Localize "Count"
-                        modifier = Modifier.clickable {
-                            navController.navigate("$FLOCK_DETAIL_ROUTE_PREFIX/$flockId")
-                        }
+                        modifier =
+                            Modifier.clickable {
+                                navController.navigate("$FLOCK_DETAIL_ROUTE_PREFIX/$flockId")
+                            },
                     )
                     HorizontalDivider()
                 }

@@ -8,8 +8,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.SubcomposeAsyncImage
+import com.example.rooster.feature.farm.ui.FowlDetailViewModel
 import com.parse.ParseObject
 import com.parse.ParseUser
 import kotlinx.coroutines.launch
@@ -20,7 +24,6 @@ fun OptimizedFowlScreen() {
     val scope = rememberCoroutineScope()
 
     // Performance optimization managers
-    val imageManager = remember { OptimizedImageManager(context) }
     val queryManager = remember { OptimizedParseQueryManager(context) }
     val progressiveLoader = remember { ProgressiveLoadingManager() }
     val offlineManager = remember { OfflineModeManager(context) }
@@ -87,7 +90,6 @@ fun OptimizedFowlScreen() {
                 // Fowl List with Progressive Loading
                 OptimizedFowlList(
                     fowls = fowls,
-                    imageManager = imageManager,
                     networkQuality = networkQuality,
                     onFowlSelected = { selectedFowl = it },
                     progressiveLoader = progressiveLoader,
@@ -97,12 +99,12 @@ fun OptimizedFowlScreen() {
                 // Fowl Detail with Lineage Tree
                 OptimizedFowlDetail(
                     fowl = selectedFowl!!,
-                    imageManager = imageManager,
                     queryManager = queryManager,
                     progressiveLoader = progressiveLoader,
                     networkQuality = networkQuality,
                     onBack = { selectedFowl = null },
                     onProgressUpdate = { progressiveLoadingState = it },
+                    viewModel = hiltViewModel()
                 )
             }
 
@@ -122,7 +124,6 @@ fun OptimizedFowlScreen() {
                 Button(
                     onClick = {
                         scope.launch {
-                            imageManager.clearCache()
                             offlineManager.clearOfflineCache()
                             PerformanceMonitor.clearMetrics()
                             performanceMetrics = emptyMap()
@@ -220,7 +221,6 @@ fun OptimizedLoadingIndicator(loadingState: ProgressiveLoadingManager.LoadingSta
 @Composable
 fun OptimizedFowlList(
     fowls: List<ParseObject>,
-    imageManager: OptimizedImageManager,
     networkQuality: NetworkQualityLevel,
     onFowlSelected: (ParseObject) -> Unit,
     progressiveLoader: ProgressiveLoadingManager,
@@ -246,8 +246,6 @@ fun OptimizedFowlList(
         items(displayedFowls) { fowl ->
             OptimizedFowlCard(
                 fowl = fowl,
-                imageManager = imageManager,
-                networkQuality = networkQuality,
                 onClick = { onFowlSelected(fowl) },
             )
         }
@@ -257,27 +255,8 @@ fun OptimizedFowlList(
 @Composable
 fun OptimizedFowlCard(
     fowl: ParseObject,
-    imageManager: OptimizedImageManager,
-    networkQuality: NetworkQualityLevel,
     onClick: () -> Unit,
 ) {
-    var imageBitmap by remember { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(fowl.objectId) {
-        fowl.getParseFile("image")?.url?.let { url ->
-            val compressionLevel =
-                when (networkQuality) {
-                    NetworkQualityLevel.POOR, NetworkQualityLevel.OFFLINE -> ImageCompressionLevel.ULTRA
-                    NetworkQualityLevel.FAIR -> ImageCompressionLevel.HIGH
-                    NetworkQualityLevel.GOOD -> ImageCompressionLevel.MEDIUM
-                    NetworkQualityLevel.EXCELLENT -> ImageCompressionLevel.LOW
-                }
-
-            imageBitmap = imageManager.loadOptimizedImage(url, compressionLevel)
-        }
-    }
-
     Card(
         modifier =
             Modifier
@@ -285,22 +264,32 @@ fun OptimizedFowlCard(
                 .padding(vertical = 4.dp),
         onClick = onClick,
     ) {
-        Row(modifier = Modifier.padding(16.dp)) {
-            // Optimized Image Loading
-            if (imageBitmap != null) {
-                androidx.compose.foundation.Image(
-                    bitmap = imageBitmap!!,
-                    contentDescription = "Fowl image",
-                    modifier = Modifier.size(64.dp),
-                )
-            } else {
-                Box(
-                    modifier = Modifier.size(64.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                }
-            }
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            // Optimized Image Loading with Coil
+            SubcomposeAsyncImage(
+                model = fowl.getParseFile("image")?.url,
+                contentDescription = "Fowl image",
+                modifier = Modifier.size(64.dp),
+                contentScale = ContentScale.Crop,
+                loading = {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    }
+                },
+                error = {
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        // Placeholder for error state
+                    }
+                },
+            )
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -325,15 +314,55 @@ fun OptimizedFowlCard(
 @Composable
 fun OptimizedFowlDetail(
     fowl: ParseObject,
-    imageManager: OptimizedImageManager,
     queryManager: OptimizedParseQueryManager,
     progressiveLoader: ProgressiveLoadingManager,
     networkQuality: NetworkQualityLevel,
     onBack: () -> Unit,
     onProgressUpdate: (ProgressiveLoadingManager.LoadingState) -> Unit,
+    viewModel: FowlDetailViewModel = hiltViewModel()
 ) {
     var lineageData by remember { mutableStateOf(listOf<ParseObject>()) }
     var lineageLoading by remember { mutableStateOf(false) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+    val deletionState by viewModel.deletionState.collectAsState()
+
+    // Handle deletion state changes
+    LaunchedEffect(deletionState) {
+        if (deletionState is DeletionState.Success) {
+            onBack() // Navigate back on successful deletion
+            viewModel.resetDeletionState()
+        }
+    }
+
+    if (showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmation = false },
+            title = { Text("Confirm Deletion") },
+            text = { Text("Are you sure you want to delete this fowl? This action cannot be undone.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deleteFlock(fowl.objectId)
+                        showDeleteConfirmation = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showDeleteConfirmation = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (deletionState is DeletionState.Loading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    }
 
     LaunchedEffect(fowl.objectId) {
         loadLineageDataOptimized(
@@ -351,21 +380,27 @@ fun OptimizedFowlDetail(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(onClick = onBack) {
                     Text("← Back")
                 }
-                Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     fowl.getString("name") ?: "Unknown",
                     style = MaterialTheme.typography.headlineSmall,
                 )
+                Button(
+                    onClick = { showDeleteConfirmation = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+                ) {
+                    Text("Delete")
+                }
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
 
         item {
-            OptimizedFowlBasicInfo(fowl, imageManager, networkQuality)
+            OptimizedFowlBasicInfo(fowl, networkQuality)
             Spacer(modifier = Modifier.height(16.dp))
         }
 
@@ -390,7 +425,6 @@ fun OptimizedFowlDetail(
             item {
                 OptimizedLineageTree(
                     lineageData = lineageData,
-                    imageManager = imageManager,
                     networkQuality = networkQuality,
                 )
             }
@@ -401,34 +435,36 @@ fun OptimizedFowlDetail(
 @Composable
 fun OptimizedFowlBasicInfo(
     fowl: ParseObject,
-    imageManager: OptimizedImageManager,
     networkQuality: NetworkQualityLevel,
 ) {
-    var imageBitmap by remember { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
-
-    LaunchedEffect(fowl.objectId) {
-        fowl.getParseFile("image")?.url?.let { url ->
-            imageBitmap = imageManager.loadOptimizedImage(url)
-        }
-    }
-
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row {
-                if (imageBitmap != null) {
-                    androidx.compose.foundation.Image(
-                        bitmap = imageBitmap!!,
-                        contentDescription = "Fowl image",
-                        modifier = Modifier.size(120.dp),
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier.size(120.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
+                // Optimized Image Loading with Coil
+                SubcomposeAsyncImage(
+                    model = fowl.getParseFile("image")?.url,
+                    contentDescription = "Fowl image",
+                    modifier = Modifier.size(120.dp),
+                    contentScale = ContentScale.Crop,
+                    loading = {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        }
+                    },
+                    error = {
+                        Box(
+                            modifier = Modifier
+                                .size(120.dp)
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            // Placeholder for error state
+                        }
+                    },
+                )
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -448,7 +484,6 @@ fun OptimizedFowlBasicInfo(
 @Composable
 fun OptimizedLineageTree(
     lineageData: List<ParseObject>,
-    imageManager: OptimizedImageManager,
     networkQuality: NetworkQualityLevel,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -465,7 +500,6 @@ fun OptimizedLineageTree(
                     items(lineageData) { relative ->
                         OptimizedLineageCard(
                             fowl = relative,
-                            imageManager = imageManager,
                             networkQuality = networkQuality,
                         )
                     }
@@ -478,37 +512,38 @@ fun OptimizedLineageTree(
 @Composable
 fun OptimizedLineageCard(
     fowl: ParseObject,
-    imageManager: OptimizedImageManager,
     networkQuality: NetworkQualityLevel,
 ) {
-    var imageBitmap by remember { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
-
-    LaunchedEffect(fowl.objectId) {
-        fowl.getParseFile("image")?.url?.let { url ->
-            val compressionLevel = ImageCompressionLevel.ULTRA // Always use smallest for lineage
-            imageBitmap = imageManager.loadOptimizedImage(url, compressionLevel)
-        }
-    }
-
     Card(modifier = Modifier.width(100.dp)) {
         Column(
             modifier = Modifier.padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (imageBitmap != null) {
-                androidx.compose.foundation.Image(
-                    bitmap = imageBitmap!!,
-                    contentDescription = "Relative image",
-                    modifier = Modifier.size(60.dp),
-                )
-            } else {
-                Box(
-                    modifier = Modifier.size(60.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp))
-                }
-            }
+            // Optimized Image Loading with Coil
+            SubcomposeAsyncImage(
+                model = fowl.getParseFile("image")?.url,
+                contentDescription = "Relative image",
+                modifier = Modifier.size(60.dp),
+                contentScale = ContentScale.Crop,
+                loading = {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                    }
+                },
+                error = {
+                    Box(
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        // Placeholder for error state
+                    }
+                },
+            )
 
             Spacer(modifier = Modifier.height(4.dp))
 

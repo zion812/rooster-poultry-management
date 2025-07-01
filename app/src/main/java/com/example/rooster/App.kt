@@ -3,19 +3,21 @@ package com.example.rooster
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.util.Log
+import androidx.hilt.work.HiltWorkerFactory // Import HiltWorkerFactory
 import androidx.room.Room
 import androidx.work.BackoffPolicy
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.rooster.config.Constants
 import com.example.rooster.data.sync.DataSyncWorker
+import com.example.rooster.feature.community.worker.CommunitySyncWorker // Import Community worker
 import com.example.rooster.feature.farm.worker.FarmDataSyncWorker
 import com.example.rooster.feature.marketplace.worker.MarketplaceSyncWorker // Import Marketplace worker
-import com.example.rooster.feature.community.worker.CommunitySyncWorker // Import Community worker
 import com.example.rooster.models.BroadcastEventParse
 import com.example.rooster.models.CertificationRequestParse
 import com.example.rooster.models.ChatParse
@@ -35,8 +37,6 @@ import com.parse.ParseACL
 import com.parse.ParseInstallation
 import com.parse.ParseObject
 import dagger.hilt.android.HiltAndroidApp
-import androidx.hilt.work.HiltWorkerFactory // Import HiltWorkerFactory
-import androidx.work.PeriodicWorkRequest
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject // Import Inject
@@ -84,15 +84,22 @@ class App : Application(), Configuration.Provider { // Implement Configuration.P
         } else {
             // For release builds, you might want to plant a different tree
             // that doesn't log sensitive information
-            Timber.plant(object : Timber.Tree() {
-                override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-                    if (priority >= Log.WARN) {
-                        // Only log warnings and errors in release builds
-                        FirebaseCrashlytics.getInstance().log("$tag: $message")
-                        t?.let { FirebaseCrashlytics.getInstance().recordException(it) }
+            Timber.plant(
+                object : Timber.Tree() {
+                    override fun log(
+                        priority: Int,
+                        tag: String?,
+                        message: String,
+                        t: Throwable?,
+                    ) {
+                        if (priority >= Log.WARN) {
+                            // Only log warnings and errors in release builds
+                            FirebaseCrashlytics.getInstance().log("$tag: $message")
+                            t?.let { FirebaseCrashlytics.getInstance().recordException(it) }
+                        }
                     }
-                }
-            })
+                },
+            )
         }
 
         Log.d("RoosterApp", "=== APP INITIALIZATION STARTED ===")
@@ -204,9 +211,10 @@ class App : Application(), Configuration.Provider { // Implement Configuration.P
             Log.d("App", "Background data sync worker scheduled")
 
             // Schedule FarmDataSyncWorker
-            val farmSyncConstraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
+            val farmSyncConstraints =
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
 
             val farmSyncRequest =
                 PeriodicWorkRequestBuilder<FarmDataSyncWorker>(6, TimeUnit.HOURS) // Every 6 hours
@@ -216,8 +224,8 @@ class App : Application(), Configuration.Provider { // Implement Configuration.P
 
             WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                 FarmDataSyncWorker.WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
-                farmSyncRequest
+                ExistingPeriodicWorkPolicy.REPLACE, // REPLACE ensures the worker is updated with new constraints/configurations
+                farmSyncRequest,
             )
             Log.d("App", "Farm data sync worker scheduled (periodic, network connected)")
 
@@ -230,7 +238,7 @@ class App : Application(), Configuration.Provider { // Implement Configuration.P
             WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                 MarketplaceSyncWorker.WORK_NAME,
                 ExistingPeriodicWorkPolicy.KEEP,
-                marketplaceSyncRequest
+                marketplaceSyncRequest,
             )
             Log.d("App", "Marketplace data sync worker scheduled (periodic, network connected)")
 
@@ -243,10 +251,9 @@ class App : Application(), Configuration.Provider { // Implement Configuration.P
             WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                 CommunitySyncWorker.WORK_NAME,
                 ExistingPeriodicWorkPolicy.KEEP,
-                communitySyncRequest
+                communitySyncRequest,
             )
             Log.d("App", "Community data sync worker scheduled (periodic, network connected)")
-
         }
 
         Log.d("RoosterApp", "=== APP INITIALIZATION COMPLETED SUCCESSFULLY ===")

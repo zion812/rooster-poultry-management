@@ -45,18 +45,19 @@ import com.example.rooster.core.search.SearchResultItem
 import com.example.rooster.core.search.PlaceholderSearchRepository // For placeholder injection
 import kotlinx.coroutines.flow.collectLatest
 
-
 // TODO: Define these enums in :core:search or a common module accessible by both :core:search and :app
-enum class AppSearchResultType(val displayName: String) { // Renamed to avoid conflict if SearchResultType is also in core:search for other reasons
+enum class AppSearchResultType(val displayName: String) {
+    // Renamed to avoid conflict if SearchResultType is also in core:search for other reasons
     FOWL("Fowl"),
     MARKETPLACE("Marketplace"),
     FARMER("Farmer"),
     COMMUNITY("Community"),
     EVENT("Event"),
-    UNKNOWN("Unknown");
+    UNKNOWN("Unknown"),
+    ;
 
     companion object {
-        funfromTypeString(typeString: String): AppSearchResultType {
+        fun fromTypeString(typeString: String): AppSearchResultType {
             return values().find { it.name.equals(typeString, ignoreCase = true) } ?: UNKNOWN
         }
     }
@@ -68,7 +69,7 @@ enum class AppSearchCategory(val displayName: String) {
     MARKETPLACE("Marketplace"),
     FARMERS("Farmers"),
     COMMUNITY("Community"),
-    EVENTS("Events")
+    EVENTS("Events"),
 }
 
 enum class AppSortOption(val displayName: String) {
@@ -78,7 +79,7 @@ enum class AppSortOption(val displayName: String) {
     PRICE_LOW("Price: Low to High"),
     PRICE_HIGH("Price: High to Low"),
     DISTANCE("Distance"),
-    RATING("Rating")
+    RATING("Rating"),
 }
 
 /**
@@ -90,7 +91,7 @@ enum class AppSortOption(val displayName: String) {
 fun EnhancedSearchScreen(
     // TODO: Inject via Hilt ViewModel
     searchRepository: SearchRepository = remember { PlaceholderSearchRepository() },
-    onNavigateToDetails: (String, AppSearchResultType) -> Unit = { _, _ -> }
+    onNavigateToDetails: (String, AppSearchResultType) -> Unit = { _, _ -> },
 ) {
     val context = LocalContext.current.applicationContext as Application
     // val searchService = remember { EnhancedSearchService(context) } // Replaced by searchRepository
@@ -127,9 +128,9 @@ fun EnhancedSearchScreen(
             // Example:
             // searchRepository.getRecentSearches().collectLatest { result -> ... }
             // For now, keeping existing placeholder logic for these, will need repository methods
-             recentSearches = listOf("Kadaknath rooster", "Asil hens", "Traditional market")
-             popularSearches = listOf("Country chicken", "Broiler chicks", "Egg layers")
-             recommendations = emptyList() // Placeholder
+            recentSearches = listOf("Kadaknath rooster", "Asil hens", "Traditional market")
+            popularSearches = listOf("Country chicken", "Broiler chicks", "Egg layers")
+            recommendations = emptyList() // Placeholder
         }
     }
 
@@ -161,10 +162,9 @@ fun EnhancedSearchScreen(
             }
             filters["sort_by"] = sortBy.name
 
-
             searchRepository.performSearch(searchQuery, filters).collectLatest { result ->
                 isLoading = false
-                when(result) {
+                when (result) {
                     is com.example.rooster.core.common.Result.Success -> {
                         searchResults = result.data
                         error = null

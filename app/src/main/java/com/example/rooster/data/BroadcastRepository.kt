@@ -16,7 +16,10 @@ object BroadcastRepository {
     // No longer needed: private val liveBroadcasts = ConcurrentHashMap<String, BroadcastEvent>()
 
     /** Initiates a new live broadcast. */
-    suspend fun initiateBroadcast(userId: String, type: String): BroadcastEvent {
+    suspend fun initiateBroadcast(
+        userId: String,
+        type: String,
+    ): BroadcastEvent {
         // STUB: Replace with actual implementation
         return BroadcastEvent(id = "stub_id", userId = userId, type = type, startTime = System.currentTimeMillis(), isLive = true)
     }

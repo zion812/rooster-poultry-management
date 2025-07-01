@@ -63,7 +63,7 @@ class AuthRepositoryImpl
             username: String,
             email: String,
             password: String,
-            role: String
+            role: String,
         ): Result<ParseUser> {
             val result = concreteAuthRepository.register(username, email, password, role)
             if (result.isSuccess) {

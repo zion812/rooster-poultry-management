@@ -18,10 +18,14 @@ import kotlin.math.roundToInt
 
 // Data Usage Tracking Models
 data class DataUsageInfo(
-    val estimated2GCost: String, // "~15MB"
-    val estimated2GCostTelugu: String, // "సుమారు 15MB"
-    val estimatedTime2G: String, // "~30 seconds"
-    val estimatedTime2GTelugu: String, // "సుమారు 30 సెకన్లు"
+    // "~15MB"
+    val estimated2GCost: String,
+    // "సుమారు 15MB"
+    val estimated2GCostTelugu: String,
+    // "~30 seconds"
+    val estimatedTime2G: String,
+    // "సుమారు 30 సెకన్లు"
+    val estimatedTime2GTelugu: String,
     val contentType: DataContentType,
     val priority: DataPriority,
     val userFriendlyDescription: String,
@@ -32,7 +36,8 @@ enum class DataContentType(
     val displayName: String,
     val displayNameTelugu: String,
     val icon: ImageVector,
-    val baseDataSize: Float, // in MB
+    // in MB
+    val baseDataSize: Float,
 ) {
     TEXT_ONLY("Text Only", "కేవలం వచనం", Icons.AutoMirrored.Filled.TextSnippet, 0.1f),
     IMAGES_LOW("Images (Low Quality)", "చిత్రాలు (తక్కువ నాణ్యత)", Icons.Default.Image, 0.5f),

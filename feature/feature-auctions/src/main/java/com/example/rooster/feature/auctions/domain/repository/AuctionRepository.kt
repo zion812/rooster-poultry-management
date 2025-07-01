@@ -27,10 +27,35 @@ interface AuctionRepository {
      */
     fun getAuctionWinner(auctionId: String): Flow<Result<AuctionWinner?>> // Winner might be null
 
-    // TODO: Add methods for submitting bids (which would interact with ParseObjects or Cloud Functions)
-    // e.g., suspend fun submitBid(auctionId: String, bidAmount: Double, /* ... other params ... */): Result<Boolean>
-    // e.g., suspend fun submitBidWithDeposit(auctionId: String, bidAmount: Double, depositAmount: Double, paymentId: String): Result<Boolean>
-    // TODO: Add method for updating auction current bid (likely via Cloud Function)
-    // e.g., suspend fun updateAuctionCurrentBid(auctionId: String, newBidAmount: Double): Result<Unit>
+    /**
+     * Submits a bid with deposit payment for an auction.
+     * Uses atomic Cloud Function for data consistency.
+     */
+    suspend fun submitBidWithDeposit(
+        auctionId: String,
+        bidAmount: Double,
+        depositAmount: Double,
+        paymentId: String,
+        bidderId: String,
+        bidderName: String
+    ): Result<Boolean>
 
+    /**
+     * Submits a regular bid without deposit.
+     */
+    suspend fun submitBid(
+        auctionId: String,
+        bidAmount: Double,
+        bidderId: String,
+        bidderName: String
+    ): Result<Boolean>
+
+    /**
+     * Updates auction current bid amount.
+     * Should be called via Cloud Function for atomicity.
+     */
+    suspend fun updateAuctionCurrentBid(
+        auctionId: String,
+        newBidAmount: Double
+    ): Result<Unit>
 }

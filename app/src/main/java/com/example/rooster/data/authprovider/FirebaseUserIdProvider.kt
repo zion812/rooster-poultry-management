@@ -9,22 +9,25 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FirebaseUserIdProvider @Inject constructor(
-    private val firebaseAuth: FirebaseAuth
-) : UserIdProvider {
-
-    override fun getCurrentUserId(): String? {
-        return firebaseAuth.currentUser?.uid
-    }
-
-    override val currentUserIdFlow: Flow<String?> = callbackFlow {
-        val authStateListener = FirebaseAuth.AuthStateListener { auth ->
-            trySend(auth.currentUser?.uid)
+class FirebaseUserIdProvider
+    @Inject
+    constructor(
+        private val firebaseAuth: FirebaseAuth,
+    ) : UserIdProvider {
+        override fun getCurrentUserId(): String? {
+            return firebaseAuth.currentUser?.uid
         }
-        firebaseAuth.addAuthStateListener(authStateListener)
-        // Emit the initial state
-        trySend(firebaseAuth.currentUser?.uid)
 
-        awaitClose { firebaseAuth.removeAuthStateListener(authStateListener) }
+        override val currentUserIdFlow: Flow<String?> =
+            callbackFlow {
+                val authStateListener =
+                    FirebaseAuth.AuthStateListener { auth ->
+                        trySend(auth.currentUser?.uid)
+                    }
+                firebaseAuth.addAuthStateListener(authStateListener)
+                // Emit the initial state
+                trySend(firebaseAuth.currentUser?.uid)
+
+                awaitClose { firebaseAuth.removeAuthStateListener(authStateListener) }
+            }
     }
-}

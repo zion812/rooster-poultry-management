@@ -52,6 +52,7 @@ dependencies {
     // Firebase dependencies with BOM
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.crashlytics)
 
     // Parse SDK for backend integration
     implementation(libs.parse)

@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import com.example.rooster.data.TraceabilityRepository
 import com.example.rooster.ui.components.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Fowl Traceability Screen - Demonstrates TraceabilityTimelineItem usage
@@ -33,7 +32,7 @@ fun FowlTraceabilityScreen(
     onVerificationClick: (String) -> Unit,
     isTeluguMode: Boolean = false,
     modifier: Modifier = Modifier,
-    traceabilityRepository: TraceabilityRepository = TraceabilityRepository
+    traceabilityRepository: TraceabilityRepository = TraceabilityRepository,
 ) {
     val scope = rememberCoroutineScope()
     var traceabilityEvents by remember { mutableStateOf<List<TraceabilityEvent>>(emptyList()) }
