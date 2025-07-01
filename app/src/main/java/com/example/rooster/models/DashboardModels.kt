@@ -126,5 +126,5 @@ enum class NetworkQualityLevel {
     GOOD,
     FAIR,
     POOR,
-    VERY_POOR
+    VERY_POOR,
 }

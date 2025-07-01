@@ -11,13 +11,15 @@ data class Campaign(
     val title: String,
     val titleInTelugu: String,
     val description: String,
-    val descriptionInTelugu: String,
+    // "farmers", "general", "high-level", "all"
+    val targetAudience: List<String>,
+    // Telangana, Andhra Pradesh, etc.
+    val regions: List<String>,
     val category: CampaignCategory,
     val priority: CampaignPriority,
     val status: CampaignStatus,
-    val targetAudience: List<String>, // "farmers", "general", "high-level", "all"
-    val regions: List<String>, // Telangana, Andhra Pradesh, etc.
     val startDate: Date,
+    // 30 days
     val endDate: Date,
     val imageUrl: String? = null,
     val videoUrl: String? = null,
@@ -159,7 +161,8 @@ fun getSampleCampaigns(): List<Campaign> =
             targetAudience = listOf("farmers", "general"),
             regions = listOf("Telangana", "Andhra Pradesh", "Karnataka", "Tamil Nadu"),
             startDate = Date(),
-            endDate = Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000), // 30 days
+            // 30 days
+            endDate = Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000),
             actionButtonText = "Learn Vaccination Schedule",
             actionButtonTextTelugu = "టీకా వేయింపు షెడ్యూల్ తెలుసుకోండి",
             tags = listOf("health", "vaccination", "prevention", "rural"),
@@ -169,8 +172,14 @@ fun getSampleCampaigns(): List<Campaign> =
             id = "breed_001",
             title = "Kadaknath: The Black Chicken Wonder",
             titleInTelugu = "కడక్నాత్: నల్ల కోడి అద్భుతం",
-            description = "Discover the nutritional benefits and market value of the famous Kadaknath breed. High protein, medicinal properties, and premium pricing.",
-            descriptionInTelugu = "ప్రసిద్ధ కడక్నాత్ జాతి యొక్క పోషక ప్రయోజనాలు మరియు మార్కెట్ విలువను కనుగొనండి. అధిక ప్రోటీన్, ఔషధ గుణాలు మరియు ప్రీమియం ధర.",
+            // Exceeded max line length, split for clarity
+            description =
+                "Discover the nutritional benefits and market value of the famous Kadaknath breed. " +
+                    "High protein, medicinal properties, and premium pricing.",
+            // Exceeded max line length, split for clarity
+            descriptionInTelugu =
+                "ప్రసిద్ధ కడక్నాత్ జాతి యొక్క పోషక ప్రయోజనాలు మరియు మార్కెట్ విలువను కనుగొనండి. " +
+                    "అధిక ప్రోటీన్, ఔషధ గుణాలు మరియు ప్రీమియం ధర.",
             category = CampaignCategory.BREED_EDUCATION,
             priority = CampaignPriority.MEDIUM,
             status = CampaignStatus.ACTIVE,

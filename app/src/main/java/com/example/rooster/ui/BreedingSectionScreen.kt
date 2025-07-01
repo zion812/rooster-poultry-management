@@ -15,13 +15,10 @@ import com.example.rooster.data.model.BreedingCycle
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BreedingSectionScreen(
-    breedingRepository: BreedingRepository = BreedingRepository()
-) {
+fun BreedingSectionScreen(breedingRepository: BreedingRepository = BreedingRepository()) {
     val scope = rememberCoroutineScope()
     var breedingCycles by remember { mutableStateOf<List<BreedingCycle>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }

@@ -21,7 +21,10 @@ object SuggestionRepository {
         return emptyList()
     }
 
-    suspend fun generateSuggestion(birdId: String, message: String): SuggestionItem {
+    suspend fun generateSuggestion(
+        birdId: String,
+        message: String,
+    ): SuggestionItem {
         return withContext(Dispatchers.IO) {
             try {
                 val parseSuggestion = SuggestionItemParse()

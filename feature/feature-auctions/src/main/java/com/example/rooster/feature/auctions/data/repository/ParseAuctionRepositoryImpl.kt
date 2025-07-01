@@ -182,6 +182,76 @@ class ParseAuctionRepositoryImpl @Inject constructor() : AuctionRepository {
         awaitClose { }
     }.flowOn(Dispatchers.IO)
 
+    override suspend fun submitBidWithDeposit(
+        auctionId: String,
+        bidAmount: Double,
+        depositAmount: Double,
+        paymentId: String,
+        bidderId: String, // No longer needed, but kept for signature compatibility
+        bidderName: String // No longer needed
+    ): Result<Boolean> = withContext(Dispatchers.IO) {
+        // Validate input
+        if (auctionId.isBlank() || bidAmount <= 0.0) {
+            val err = IllegalArgumentException("Invalid bid submission: missing auctionId or invalid bidAmount.")
+            FirebaseCrashlytics.getInstance().recordException(err)
+            return@withContext Result.Error(err)
+        }
+        // Deposit validation
+        if (depositAmount > 0 && paymentId.isBlank()) {
+            val err = IllegalArgumentException("Invalid bid submission: missing paymentId for deposit.")
+            FirebaseCrashlytics.getInstance().recordException(err)
+            return@withContext Result.Error(err)
+        }
+
+        val maxAttempts = 3 // Reduced retry attempts for cloud functions
+        var attempt = 0
+        var lastError: Exception? = null
+
+        while (attempt < maxAttempts) {
+            try {
+                val params = hashMapOf<String, Any>(
+                    "auctionId" to auctionId,
+                    "bidAmount" to bidAmount
+                )
+                if (depositAmount > 0) {
+                    params["depositAmount"] = depositAmount
+                    params["paymentId"] = paymentId
+                }
+
+                // Call the new, atomic Cloud Function
+                com.parse.ParseCloud.callFunction<Map<String, Any>>("submitAuctionBid", params)
+                
+                // If the cloud function executes without throwing an exception, it was successful.
+                return@withContext Result.Success(true)
+
+            } catch (e: Exception) {
+                lastError = e
+                if (isTransientError(e)) {
+                    attempt++
+                    if (attempt < maxAttempts) {
+                        val backoff = (2.0.pow(attempt.toDouble()) * 500L).toLong()
+                        FirebaseCrashlytics.getInstance().recordException(e) // Log transient errors too
+                        kotlinx.coroutines.delay(backoff)
+                    }
+                } else {
+                    // This is a permanent error (e.g., bid too low, auction closed)
+                    FirebaseCrashlytics.getInstance().recordException(e)
+                    return@withContext Result.Error(e)
+                }
+            }
+        }
+        // If all retries fail
+        Result.Error(lastError ?: Exception("Unknown error submitting bid after $maxAttempts attempts"))
+    }
+
+    private fun isTransientError(e: Exception?): Boolean {
+        if (e == null) return false
+        return e is java.io.IOException || (e is com.parse.ParseException &&
+            (e.code == com.parse.ParseException.CONNECTION_FAILED ||
+             e.code == com.parse.ParseException.TIMEOUT)) ||
+            e.message?.contains("timeout", true) == true
+    }
+
     // TODO: Implement submitBid, submitBidWithDeposit, updateAuctionCurrentBid using Parse SDK
     // These would likely call Parse Cloud functions for atomicity and server-side validation.
     // Example:

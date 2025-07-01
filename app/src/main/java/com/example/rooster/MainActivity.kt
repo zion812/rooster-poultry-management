@@ -16,34 +16,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.rooster.core.common.event.AppEventBus
+import com.example.rooster.core.common.event.PaymentEvent
+import com.example.rooster.core.navigation.AppNavHost
+import com.example.rooster.feature.auctions.navigation.auctionsFeatureGraph
+import com.example.rooster.feature.farm.navigation.farmFeatureGraph
+import com.example.rooster.feature.marketplace.navigation.marketplaceFeatureGraph
 import com.example.rooster.models.UserRole
 import com.example.rooster.ui.theme.RoosterTheme
 import com.example.rooster.viewmodel.AuthViewModel
-import com.example.rooster.core.navigation.AppNavHost
-import com.example.rooster.core.navigation.AppScreens
-import com.example.rooster.feature.farm.navigation.farmFeatureGraph
-import com.example.rooster.feature.auctions.navigation.auctionsFeatureGraph
-import com.example.rooster.feature.marketplace.navigation.marketplaceFeatureGraph
 import com.razorpay.Checkout
 import com.razorpay.PaymentResultListener
-import com.razorpay.PaymentData
+import com.rooster.app.navigation.NavigationRoute
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import com.example.rooster.core.common.event.AppEventBus
-import com.example.rooster.core.common.event.PaymentEvent
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import com.rooster.app.navigation.NavigationRoute
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(), PaymentResultListener {
-
     @Inject
     lateinit var eventBus: AppEventBus
 
@@ -55,30 +50,34 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
                     PaymentEvent.Success(
                         paymentId = razorpayPaymentId,
                         orderId = null,
-                        signature = null
-                    )
+                        signature = null,
+                    ),
                 )
             } else {
                 eventBus.publishPaymentEvent(
                     PaymentEvent.Failure(
                         -1,
                         "Payment ID null in onPaymentSuccess",
-                        null
-                    )
+                        null,
+                    ),
                 )
             }
         }
     }
 
-    override fun onPaymentError(code: Int, description: String?) {
+    override fun onPaymentError(
+        code: Int,
+        description: String?,
+    ) {
         Log.e("MainActivity", "Payment failed: Code $code, Response $description")
-        val errorMessage = description ?: when (code) {
-            Checkout.NETWORK_ERROR -> "Network error - Please check your connection"
-            Checkout.INVALID_OPTIONS -> "Invalid payment options"
-            Checkout.PAYMENT_CANCELED -> "Payment cancelled by user"
-            Checkout.TLS_ERROR -> "TLS error during payment"
-            else -> "Payment failed: $description"
-        }
+        val errorMessage =
+            description ?: when (code) {
+                Checkout.NETWORK_ERROR -> "Network error - Please check your connection"
+                Checkout.INVALID_OPTIONS -> "Invalid payment options"
+                Checkout.PAYMENT_CANCELED -> "Payment cancelled by user"
+                Checkout.TLS_ERROR -> "TLS error during payment"
+                else -> "Payment failed: $description"
+            }
         GlobalScope.launch {
             eventBus.publishPaymentEvent(PaymentEvent.Failure(code, errorMessage, null))
         }
@@ -124,13 +123,13 @@ fun RoosterApp() {
 
     AppNavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = startDestination,
     ) {
         composable(NavigationRoute.AUTH.name) {
             AuthScreen(
                 navController = navController,
                 isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
+                onLanguageToggle = { isTeluguMode = !isTeluguMode },
             )
         }
 
@@ -138,7 +137,7 @@ fun RoosterApp() {
             MarketplaceScreen(
                 navController = navController,
                 isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
+                onLanguageToggle = { isTeluguMode = !isTeluguMode },
             )
         }
 
@@ -150,7 +149,7 @@ fun RoosterApp() {
             HighLevelHomeScreen(
                 navController = navController,
                 isTeluguMode = isTeluguMode,
-                onLanguageToggle = { isTeluguMode = !isTeluguMode }
+                onLanguageToggle = { isTeluguMode = !isTeluguMode },
             )
         }
 
@@ -223,7 +222,7 @@ fun RoosterApp() {
 fun MarketplaceScreen(
     navController: androidx.navigation.NavController,
     isTeluguMode: Boolean,
-    onLanguageToggle: () -> Unit
+    onLanguageToggle: () -> Unit,
 ) {
     Button(
         onClick = { navController.navigate(NavigationRoute.AUCTIONS.name) },

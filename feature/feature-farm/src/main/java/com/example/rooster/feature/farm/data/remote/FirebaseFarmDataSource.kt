@@ -124,16 +124,39 @@ class FirebaseFarmDataSource @Inject constructor(
     suspend fun saveFlock(flockData: Map<String, Any>): com.example.rooster.core.common.Result<Unit> {
         return try {
             val id = flockData["id"] as? String ?: UUID.randomUUID().toString()
+            val ownerId = flockData["ownerId"] as? String
+                ?: return com.example.rooster.core.common.Result.Error(
+                    IllegalArgumentException("ownerId is required for flock sync")
+                )
+
             // Ensure 'id' is part of the map being saved if it was generated.
             val dataToSave = flockData.toMutableMap()
-            dataToSave["id"] = id // Ensure ID is in the map
-            dataToSave["updatedAt"] = ServerValue.TIMESTAMP
+            dataToSave["id"] = id
+            dataToSave["updatedAt"] = System.currentTimeMillis()
 
-            // Save to both Firestore and Realtime Database
-            flocksCollection.document(id).set(dataToSave).await()
-            realtimeDatabase.child("flocks_v2").child(id).setValue(dataToSave).await()
+            // Use consistent paths that match security rules
+            val firestoreResult = kotlin.runCatching {
+                flocksCollection.document(id).set(dataToSave).await()
+            }
 
-            com.example.rooster.core.common.Result.Success(Unit)
+            val rtdbResult = kotlin.runCatching {
+                realtimeDatabase.child("farmDetails").child(ownerId).child("flocks").child(id)
+                    .setValue(dataToSave).await()
+            }
+
+            // Check if both operations succeeded
+            if (firestoreResult.isSuccess && rtdbResult.isSuccess) {
+                com.example.rooster.core.common.Result.Success(Unit)
+            } else {
+                val errors = listOfNotNull(
+                    firestoreResult.exceptionOrNull(),
+                    rtdbResult.exceptionOrNull()
+                )
+                com.example.rooster.core.common.Result.Error(
+                    Exception("Dual-write failed: ${errors.joinToString { it.message ?: "Unknown error" }}")
+                )
+            }
+
         } catch (e: Exception) {
             com.example.rooster.core.common.Result.Error(e)
         }
@@ -198,9 +221,9 @@ class FirebaseFarmDataSource @Inject constructor(
                 "timestamp" to FieldValue.serverTimestamp() // Add a timestamp for auditing
             )
             lineageLinksCollection.document(documentId).set(remoteLinkData).await()
-            Result.Success(Unit)
+            Result.success(Unit)
         } catch (e: Exception) {
-            Result.Error(e)
+            Result.failure(e)
         }
     }
 
@@ -208,10 +231,10 @@ class FirebaseFarmDataSource @Inject constructor(
         return try {
             val documentId = "${childFlockId}_${parentFlockId}_${relationshipTypeName}"
             lineageLinksCollection.document(documentId).delete().await()
-            Result.Success(Unit)
+            Result.success(Unit)
         } catch (e: Exception)
         {
-            Result.Error(e)
+            Result.failure(e)
         }
     }
 }

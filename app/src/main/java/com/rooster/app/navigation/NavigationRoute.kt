@@ -37,5 +37,5 @@ enum class NavigationRoute {
     DIAGNOSIS_HELP,
     COMPLIANCE_SCREEN,
     HEALTH_RECORDS,
-    LIVE_BROADCAST
+    LIVE_BROADCAST,
 }

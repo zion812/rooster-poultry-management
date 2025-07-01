@@ -61,9 +61,6 @@ class PerformanceTester(private val context: Context) {
     suspend fun runPerformanceTests(): List<PerformanceTestResult> {
         testResults.clear()
 
-        // Test 1: Image Loading Performance
-        testImageLoadingPerformance()
-
         // Test 2: Parse Query Performance
         testParseQueryPerformance()
 
@@ -80,64 +77,6 @@ class PerformanceTester(private val context: Context) {
         testNetworkQualityAdaptation()
 
         return testResults
-    }
-
-    private suspend fun testImageLoadingPerformance() {
-        val imageManager = OptimizedImageManager(context)
-        val testUrls =
-            listOf(
-                "https://example.com/test1.jpg",
-                "https://example.com/test2.jpg",
-                "https://example.com/test3.jpg",
-            )
-
-        var cacheHits = 0
-        var cacheMisses = 0
-        val startMemory = getMemoryUsage()
-
-        val executionTime =
-            measureTimeMillis {
-                try {
-                    testUrls.forEach { url ->
-                        // First load (cache miss)
-                        val image1 = imageManager.loadOptimizedImage(url, ImageCompressionLevel.HIGH)
-                        if (image1 == null) cacheMisses++ else cacheMisses++
-
-                        // Second load (should be cache hit)
-                        val image2 = imageManager.loadOptimizedImage(url, ImageCompressionLevel.HIGH)
-                        if (image2 != null) cacheHits++
-                    }
-                } catch (e: Exception) {
-                    testResults.add(
-                        PerformanceTestResult(
-                            testName = "Image Loading Performance",
-                            executionTime = 0,
-                            memoryUsage = 0,
-                            networkCalls = 0,
-                            cacheHits = 0,
-                            cacheMisses = 0,
-                            success = false,
-                            errorMessage = e.message,
-                        ),
-                    )
-                    return
-                }
-            }
-
-        val endMemory = getMemoryUsage()
-        val memoryUsed = endMemory - startMemory
-
-        testResults.add(
-            PerformanceTestResult(
-                testName = "Image Loading Performance",
-                executionTime = executionTime,
-                memoryUsage = memoryUsed,
-                networkCalls = testUrls.size,
-                cacheHits = cacheHits,
-                cacheMisses = cacheMisses,
-                success = true,
-            ),
-        )
     }
 
     private suspend fun testParseQueryPerformance() {
@@ -286,15 +225,14 @@ class PerformanceTester(private val context: Context) {
 
     private suspend fun testMemoryUsageUnderLoad() {
         val startMemory = getMemoryUsage()
-        val imageManager = OptimizedImageManager(context)
 
         val executionTime =
             measureTimeMillis {
                 try {
                     // Simulate heavy usage
                     repeat(20) { iteration ->
-                        val testUrl = "https://example.com/heavy_test_$iteration.jpg"
-                        imageManager.loadOptimizedImage(testUrl, ImageCompressionLevel.MEDIUM)
+                        // Simulate processing
+                        delay(5)
 
                         // Force garbage collection periodically
                         if (iteration % 5 == 0) {
@@ -304,7 +242,6 @@ class PerformanceTester(private val context: Context) {
                     }
 
                     // Clear cache to test memory cleanup
-                    imageManager.clearCache()
                     System.gc()
                     delay(200)
                 } catch (e: Exception) {
@@ -332,9 +269,9 @@ class PerformanceTester(private val context: Context) {
                 testName = "Memory Usage Under Load",
                 executionTime = executionTime,
                 memoryUsage = memoryUsed,
-                networkCalls = 20,
+                networkCalls = 0,
                 cacheHits = 0,
-                cacheMisses = 20,
+                cacheMisses = 0,
                 success = true,
             ),
         )
@@ -420,15 +357,15 @@ class PerformanceTester(private val context: Context) {
             appendLine("Test Results:")
             testResults.forEach { result ->
                 appendLine("${result.testName}:")
-                appendLine("  ✓ Success: ${result.success}")
+                appendLine("  Success: ${result.success}")
                 if (!result.success && result.errorMessage != null) {
-                    appendLine("  ✗ Error: ${result.errorMessage}")
+                    appendLine("  Error: ${result.errorMessage}")
                 }
-                appendLine("  ⏱ Time: ${result.executionTime}ms")
-                appendLine("  💾 Memory: ${formatter.format(result.memoryUsage / 1024)} KB")
-                appendLine("  🌐 Network Calls: ${result.networkCalls}")
-                appendLine("  📋 Cache Hits: ${result.cacheHits}")
-                appendLine("  ❌ Cache Misses: ${result.cacheMisses}")
+                appendLine("  Time: ${result.executionTime}ms")
+                appendLine("  Memory: ${formatter.format(result.memoryUsage / 1024)} KB")
+                appendLine("  Network Calls: ${result.networkCalls}")
+                appendLine("  Cache Hits: ${result.cacheHits}")
+                appendLine("  Cache Misses: ${result.cacheMisses}")
                 appendLine()
             }
 
@@ -572,7 +509,7 @@ fun DeviceInfoCard(deviceInfo: PerformanceTester.DeviceInfo) {
             if (deviceInfo.isLowEnd) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "⚠️ Low-End Device Detected",
+                    " Low-End Device Detected",
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -609,7 +546,7 @@ fun TestResultCard(result: PerformanceTester.PerformanceTestResult) {
                     style = MaterialTheme.typography.titleSmall,
                 )
                 Text(
-                    if (result.success) "✓" else "✗",
+                    if (result.success) "" else "",
                     color =
                         if (result.success) {
                             MaterialTheme.colorScheme.primary

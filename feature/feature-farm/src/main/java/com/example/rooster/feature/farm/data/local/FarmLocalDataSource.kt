@@ -160,6 +160,15 @@ interface FlockDao {
 
     @Query("UPDATE flocks SET syncStatus = :status WHERE id = :id")
     suspend fun updateSyncStatus(id: String, status: String)
+
+    @Query("SELECT * FROM flocks WHERE id IN (:ids)")
+    fun getByIds(ids: List<String>): Flow<List<FlockEntity>>
+
+    @Query("UPDATE flocks SET syncAttempts = :attempts, lastSyncAttemptTimestamp = :timestamp WHERE id = :id")
+    suspend fun updateSyncAttempts(id: String, attempts: Int, timestamp: Long)
+
+    @Query("UPDATE flocks SET syncStatus = :status, needsSync = 0, syncAttempts = 0, lastSyncAttemptTimestamp = 0 WHERE id = :id")
+    suspend fun updateSyncStatusAndReset(id: String, status: String)
 }
 
 @Dao

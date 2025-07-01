@@ -330,12 +330,11 @@ class AuctionViewModel @Inject constructor(
         onResult: ((isSuccess: Boolean, message: String?) -> Unit)? = null
     ) = viewModelScope.launch {
         _loading.value = true
-        // Use pending bid details if parameters are not provided
         val pendingBid = _pendingBidDetails.value
         val actualBidAmount = if (bidAmount > 0.0) bidAmount else (pendingBid?.bidAmount ?: 0.0)
-        val actualDepositAmount =
-            if (depositAmount > 0.0) depositAmount else (pendingBid?.depositAmount ?: 0.0)
-
+        val actualDepositAmount = if (depositAmount > 0.0) depositAmount else (pendingBid?.depositAmount ?: 0.0)
+        val bidderId = tokenRepository.getCurrentUserId() ?: ""
+        val bidderName = tokenRepository.getCurrentUsername() ?: "Anonymous"
         val verifyRequest = VerifyPaymentRequest(
             razorpayOrderId = razorpayOrderId,
             razorpayPaymentId = razorpayPaymentId,
@@ -345,88 +344,39 @@ class AuctionViewModel @Inject constructor(
         when (val result = paymentRepository.verifyRazorpayPayment(verifyRequest)) {
             is com.example.rooster.core.common.Result.Success -> {
                 if (result.data.success) {
-                    val bidSubmissionSuccess = submitBidWithDepositToParse(
+                    val bidResult = auctionRepository.submitBidWithDeposit(
                         auctionId,
                         actualBidAmount,
                         actualDepositAmount,
-                        razorpayPaymentId
+                        razorpayPaymentId,
+                        bidderId,
+                        bidderName
                     )
-                    if (bidSubmissionSuccess) {
+                    if (bidResult is com.example.rooster.core.common.Result.Success && bidResult.data == true) {
                         loadBids(auctionId)
-                        _error.value = null // Explicitly ensure error is null on full success
-                        onResult?.invoke(true, "Bid placed successfully!") // TODO: Localize
+                        _error.value = null
+                        onResult?.invoke(true, "Bid placed successfully!")
                     } else {
-                        _error.value = "Failed to record bid after payment." // TODO: Localize
-                        FirebaseCrashlytics.getInstance().log("CRITICAL: Payment ${razorpayPaymentId} verified but bid submission failed for auction ${auctionId}.")
+                        _error.value = bidResult.let { (it as? com.example.rooster.core.common.Result.Error)?.exception?.message } ?: "Failed to record bid after payment."
+                        FirebaseCrashlytics.getInstance().log("CRITICAL: Payment $razorpayPaymentId verified but bid submission failed for auction $auctionId.")
                         onResult?.invoke(false, _error.value)
                     }
                 } else {
-                    _error.value = result.data.message // Message from backend
-                    FirebaseCrashlytics.getInstance().log("Payment verification failed by backend: ${result.data.message} for order ${razorpayOrderId}")
+                    _error.value = result.data.message
+                    FirebaseCrashlytics.getInstance().log("Payment verification failed by backend: ${result.data.message} for order $razorpayOrderId")
                     onResult?.invoke(false, _error.value)
                 }
             }
             is com.example.rooster.core.common.Result.Error -> {
-                _error.value = "Error verifying payment: ${result.exception.message}" // TODO: Localize
+                _error.value = "Error verifying payment: ${result.exception.message}"
                 FirebaseCrashlytics.getInstance().recordException(result.exception)
                 onResult?.invoke(false, _error.value)
             }
-            is com.example.rooster.core.common.Result.Loading -> {
-                // Handled by _loading.value at start of method
-            }
+            is com.example.rooster.core.common.Result.Loading -> { }
         }
         _loading.value = false
-        // Clear pending bid details after processing
         _pendingBidDetails.value = null
         currentRazorpayOrderId.value = null
-    }
-
-    // TODO: Move this Parse interaction to an AuctionRepository
-    private suspend fun submitBidWithDepositToParse(auctionId: String, bidAmount: Double, depositAmount: Double, paymentId: String): Boolean {
-        return withContext(Dispatchers.IO) {
-            try {
-                val currentUser = ParseUser.getCurrentUser() ?: return@withContext false
-                val bid = ParseObject("EnhancedAuctionBid") // Use constants for class names
-                bid.put("auctionId", auctionId)
-                bid.put("bidderId", currentUser.objectId)
-                bid.put("bidderName", currentUser.username ?: "Anonymous")
-                bid.put("bidAmount", bidAmount)
-                bid.put("bidTime", Date())
-                bid.put("isWinning", false) // Server should determine this
-                bid.put("isProxyBid", false) // Assuming not a proxy bid for this flow
-                bid.put("bidStatus", "ACTIVE") // Use enum/constant
-                bid.put("depositAmount", depositAmount)
-                bid.put("depositStatus", "PAID") // Use enum/constant
-                bid.put("paymentId", paymentId) // Store payment ID for reference
-                bid.save() // Use saveEventually for offline resilience if needed
-
-                // TODO: Call a cloud function to update auction's current highest bid atomically
-                // For now, direct update is placeholder from old code, less ideal.
-                updateAuctionCurrentBidInParse(auctionId, bidAmount)
-                true
-            } catch (e: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(e)
-                false
-            }
-        }
-    }
-
-    // TODO: Move this to an AuctionRepository / Cloud Function
-    private suspend fun updateAuctionCurrentBidInParse(auctionId: String, newBidAmount: Double) {
-        withContext(Dispatchers.IO) {
-            try {
-                val auctionQuery = ParseQuery.getQuery<ParseObject>("AuctionListing")
-                val auction = auctionQuery.get(auctionId)
-                val currentBid = auction.getDouble("currentBid")
-                if (newBidAmount > currentBid) {
-                    auction.put("currentBid", newBidAmount)
-                    auction.increment("bidCount")
-                    auction.save()
-                }
-            } catch (e: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(e)
-            }
-        }
     }
 
     // Collect payment events

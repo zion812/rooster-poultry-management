@@ -25,6 +25,7 @@ data class VetConsultation(
     val farmerId: String,
     val vetId: String,
     val vetName: String,
+    // Consultation type (AI_CHAT, VOICE_CALL, VIDEO_CALL, TEXT_CHAT)
     val type: ConsultationType,
     val status: ConsultationStatus,
     val symptoms: String,
@@ -33,6 +34,7 @@ data class VetConsultation(
     val scheduledTime: Date?,
     val completedTime: Date?,
     val cost: Double,
+    // Rating given by the farmer (1.0 to 5.0)
     val rating: Double,
     val createdAt: Date,
 )
@@ -351,7 +353,8 @@ data class CommunityGroup(
     val id: String,
     val name: String,
     val memberCount: Int,
-    val type: String, // "public" or "private"
+    // "public" or "private"
+    val type: String,
 )
 
 // Cart item model representing items in the user's cart
@@ -431,7 +434,8 @@ data class ConsultationRating(
     val consultationId: String,
     val farmerId: String,
     val vetId: String,
-    val rating: Int, // 1-5 stars
+    // Rating given by the farmer (1-5 stars)
+    val rating: Int,
     val review: String?,
     val createdAt: Date,
 )
@@ -452,8 +456,10 @@ data class EducationalCategory(
 data class LearningProgress(
     val userId: String,
     val resourceId: String,
-    val progress: Double, // 0.0 to 1.0
-    val lastWatchedTime: Long, // in seconds
+    // Progress percentage (0.0 to 1.0)
+    val progress: Double,
+    // Time in seconds
+    val lastWatchedTime: Long,
     val isCompleted: Boolean,
     val startedAt: Date,
     val completedAt: Date?,

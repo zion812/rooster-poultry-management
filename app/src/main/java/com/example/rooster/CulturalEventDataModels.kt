@@ -8,9 +8,11 @@ import java.util.Date
 data class Festival(
     val id: String = "",
     val name: String = "",
-    val nameTranslations: Map<String, String> = emptyMap(), // Multi-language support
+    // Multi-language support
+    val nameTranslations: Map<String, String> = emptyMap(),
     val date: Date = Date(),
-    val duration: Int = 1, // Duration in days
+    // Duration in days
+    val duration: Int = 1,
     val significance: String = "",
     val significanceTranslations: Map<String, String> = emptyMap(),
     val traditions: List<String> = emptyList(),

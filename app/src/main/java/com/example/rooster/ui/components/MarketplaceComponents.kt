@@ -230,7 +230,7 @@ fun RuralOptimizedBiddingSection(
                                 Icons.Filled.Error,
                                 contentDescription = "Error",
                                 tint = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(16.dp),
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(

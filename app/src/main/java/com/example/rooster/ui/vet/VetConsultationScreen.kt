@@ -41,14 +41,13 @@ fun VetConsultationScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-
     // Show error message in Snackbar
     LaunchedEffect(error) {
         error?.let {
             scope.launch {
                 snackbarHostState.showSnackbar(
                     message = it,
-                    duration = SnackbarDuration.Long
+                    duration = SnackbarDuration.Long,
                 )
                 vm.clearError() // Clear error after showing
             }
@@ -243,7 +242,7 @@ fun VetConsultationScreen(
                         // Pass the actual text input for now. ViewModel/Repository should parse/validate.
                         // TODO: Replace preferredDate text field with a DatePickerDialog for better UX.
                         preferredDateString = preferredDate.text, // New field in model, or handle parsing here/VM
-                        preferredDate = 0L // Or handle parsing preferredDate.text to Long/Date
+                        preferredDate = 0L, // Or handle parsing preferredDate.text to Long/Date
                     )
                 vm.submitRequest(req) { reqId ->
                     if (reqId != null) {

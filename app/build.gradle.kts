@@ -170,7 +170,9 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     // Navigation
-    implementation(libs.androidx.navigation.compose) // This is for app-level navigation if core:navigation doesn't replace all NavHost usage
+    implementation(
+        libs.androidx.navigation.compose,
+    ) // This is for app-level navigation if core:navigation doesn't replace all NavHost usage
 
     // Hilt
     implementation(libs.hilt.android)

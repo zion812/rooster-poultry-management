@@ -448,7 +448,8 @@ private fun performShareTest(
             testName = "Share: ${content.title}",
             testNameTelugu = "షేర్: ${content.title}",
             isSupported = isSupported,
-            executionTime = 0, // Will be set by caller
+            // Will be set by caller
+            executionTime = 0,
             dataSize = content.estimatedSize,
             deviceCompatibility = if (isSupported) DeviceCompatibility.GOOD else DeviceCompatibility.POOR,
         )

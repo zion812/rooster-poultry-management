@@ -853,7 +853,7 @@ async function processHighestBidder(auction, bids) {
   existingWinnerQuery.equalTo("auctionId", auction.id);
   existingWinnerQuery.equalTo("winnerId", highestBid.get("bidderId"));
   winner = await existingWinnerQuery.first({ useMasterKey: true });
-  
+
   if (!winner) {
     winner = new Parse.Object("AuctionWinner");
     winner.set("auctionId", auction.id);
@@ -930,7 +930,7 @@ async function refundLosingBiddersDeposits(auctionId, winnerId) {
         refundRecord.set("amount", deposit.get("amount"));
         refundRecord.set("reason", "AUCTION_LOST_OR_NOT_WINNER");
         refundRecord.set("status", "PROCESSED"); // Assuming refund is processed immediately
-        await refundRecord.save(null, { useMasterKey: true });
+        await refundRecord.save(null, { useMasterKey: true }); // Log with master key
 
         // Update the original deposit status
         deposit.set("status", "REFUNDED");
@@ -1454,7 +1454,6 @@ async function checkBidderDepositStatus(bidderId, auctionId, expectedDepositAmou
     const depositQuery = new Parse.Query("BidderDeposit");
     depositQuery.equalTo("bidderId", bidderId);
     depositQuery.equalTo("auctionId", auctionId); // Important to scope deposit to the auction
-    depositQuery.equalTo("status", "PAID");
     // Optionally, verify the amount if it's critical for this specific bid context
     // depositQuery.equalTo("amount", expectedDepositAmount);
     
@@ -1857,3 +1856,115 @@ Parse.Cloud.define("approveActivityVerification", async (request) => {
   return { success: true, userId };
 });
 // --------------------------------- END ACTIVITY-BASED VERIFICATION ---------------------------------
+
+// --------------------------------------------------------------------------
+// Auction Bidding Cloud Function
+// --------------------------------------------------------------------------
+
+/**
+ * Atomically submits a bid for an auction, ensuring data consistency.
+ * This function performs sequential server-side operations to reduce race conditions
+ * and validate bids securely.
+ *
+ * @param {string} auctionId - The ID of the auction listing.
+ * @param {number} bidAmount - The amount of the bid.
+ * @param {number} [depositAmount] - Optional deposit amount.
+ * @param {string} [paymentId] - Optional payment ID for the deposit.
+ */
+Parse.Cloud.define("submitAuctionBid", async (request) => {
+  const { auctionId, bidAmount, depositAmount, paymentId } = request.params;
+  const user = request.user;
+
+  if (!user) {
+    throw new Parse.Error(Parse.Error.SESSION_MISSING, "You must be logged in to bid.");
+  }
+
+  if (!auctionId || !bidAmount || bidAmount <= 0) {
+    throw new Parse.Error(Parse.Error.INVALID_PARAMETER, "Missing or invalid auctionId or bidAmount.");
+  }
+
+  try {
+    const AuctionListing = Parse.Object.extend("AuctionListing");
+    const auctionQuery = new Parse.Query(AuctionListing);
+    const auction = await auctionQuery.get(auctionId, { useMasterKey: true });
+
+    // 1. Validate Auction and Bid State
+    if (auction.get("status") !== "ACTIVE") {
+      throw new Parse.Error(142, `Auction is not active. Current status: ${auction.get("status")}`);
+    }
+
+    if (new Date() >= auction.get("endTime")) {
+      throw new Parse.Error(143, "This auction has already ended.");
+    }
+
+    const currentBid = auction.get("currentBid") || 0;
+    const minimumIncrement = auction.get("minimumIncrement") || 1;
+    if (bidAmount < currentBid + minimumIncrement) {
+      throw new Parse.Error(144, `Your bid of ${bidAmount} is not high enough. Minimum next bid is ${currentBid + minimumIncrement}.`);
+    }
+    
+    if (auction.get("seller") && auction.get("seller").id === user.id) {
+      throw new Parse.Error(145, "Sellers cannot bid on their own auctions.");
+    }
+
+    // 2. Find and update the current winning bid to not winning
+    const Bid = Parse.Object.extend("Bid");
+    const bidQuery = new Parse.Query(Bid);
+    bidQuery.equalTo("auction", auction);
+    bidQuery.equalTo("isWinning", true);
+    const currentWinningBid = await bidQuery.first({ useMasterKey: true });
+    
+    if (currentWinningBid) {
+      if (currentWinningBid.get("bidder").id === user.id) {
+          throw new Parse.Error(146, "You are already the highest bidder.");
+      }
+      currentWinningBid.set("isWinning", false);
+      await currentWinningBid.save(null, { useMasterKey: true });
+    }
+
+    // 3. Create the new Bid object
+    const newBid = new Bid();
+    newBid.set("auction", auction);
+    newBid.set("bidder", user);
+    newBid.set("bidAmount", bidAmount);
+    newBid.set("isWinning", true);
+
+    if (depositAmount && depositAmount > 0 && paymentId) {
+      newBid.set("depositAmount", depositAmount);
+      newBid.set("depositStatus", "PAID");
+      newBid.set("paymentId", paymentId);
+    }
+    
+    // 4. Update auction and save new bid
+    await newBid.save(null, { useMasterKey: true });
+
+    auction.set("currentBid", bidAmount);
+    auction.increment("bidCount");
+    await auction.save(null, { useMasterKey: true });
+
+    return {
+      success: true,
+      message: "Bid submitted successfully."
+    };
+
+  } catch (error) {
+    console.error(`Bid submission failed for auction ${auctionId}: ${error.message}`);
+    throw error; // Re-throw the error for the client
+  }
+});
+
+// Add a beforeSave trigger to ensure data consistency on the AuctionListing
+Parse.Cloud.beforeSave("AuctionListing", async (request) => {
+  const auction = request.object;
+
+  // Ensure bidCount is never negative
+  if (auction.get("bidCount") < 0) {
+    auction.set("bidCount", 0);
+  }
+
+  // If the auction is ending, set its status to COMPLETED
+  const endTime = auction.get("endTime");
+  if (endTime && new Date() > endTime && auction.get("status") === "ACTIVE") {
+    auction.set("status", "COMPLETED");
+  }
+});
