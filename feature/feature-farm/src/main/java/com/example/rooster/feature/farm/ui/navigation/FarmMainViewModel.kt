@@ -6,6 +6,7 @@ import com.example.rooster.feature.farm.domain.model.BadgeType
 import com.example.rooster.feature.farm.domain.model.FarmBadge
 import com.example.rooster.feature.farm.domain.model.FarmDetails
 import com.example.rooster.feature.farm.domain.model.VerificationLevel
+import com.example.rooster.core.common.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -82,8 +83,9 @@ class FarmMainViewModel @Inject constructor(
             _farmState.value = _farmState.value.copy(isLoading = true)
             getFarmDetailsUseCase(farmId)
                 .onEach { result ->
-                    result.fold(
-                        onSuccess = { flock ->
+                    when (result) {
+                        is Result.Success -> {
+                            val flock = result.data
                             // Map Flock to FarmDetails domain model
                             val details = FarmDetails(
                                 id = flock.id,
@@ -135,10 +137,15 @@ class FarmMainViewModel @Inject constructor(
                                 totalChicks = 0,
                                 activeFlocks = 1
                             )
-                        }, onFailure = {
+                        }
+
+                        is Result.Error -> {
                             _farmState.value = _farmState.value.copy(isLoading = false)
                         }
-                    )
+                        is Result.Loading -> {
+                            // Already handled above
+                        }
+                    }
                     _isRefreshing.value = false
                 }
                 .launchIn(viewModelScope)

@@ -8,7 +8,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.example.rooster.feature.marketplace.data.local.model.OrderEntity
 import com.example.rooster.feature.marketplace.data.local.model.OrderItemEntity
-import com.example.rooster.feature.marketplace.data.local.model.OrderWithItems // To be created
+import com.example.rooster.feature.marketplace.data.local.model.OrderWithItems
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -30,7 +30,7 @@ interface OrderDao {
 
     @Transaction
     @Query("SELECT * FROM orders WHERE orderId = :orderId")
-    fun getOrderWithItemsById(orderId: String): Flow<OrderWithItems?> // OrderWithItems is a @Relation class
+    fun getOrderWithItemsById(orderId: String): Flow<OrderWithItems?>
 
     @Transaction
     @Query("SELECT * FROM orders WHERE buyerId = :buyerId ORDER BY orderTimestamp DESC")
@@ -42,31 +42,9 @@ interface OrderDao {
     @Query("SELECT * FROM order_items WHERE parentOrderId = :orderId")
     suspend fun getOrderItemsForOrderSuspend(orderId: String): List<OrderItemEntity>
 
- jules/arch-assessment-1
     @Query("SELECT * FROM orders WHERE orderId = :orderId")
     suspend fun getOrderByIdSuspend(orderId: String): OrderEntity?
 
-=======
- jules/arch-assessment-1
-    @Query("SELECT * FROM orders WHERE orderId = :orderId")
-    suspend fun getOrderByIdSuspend(orderId: String): OrderEntity?
-
-=======
- jules/arch-assessment-1
-    @Query("SELECT * FROM orders WHERE orderId = :orderId")
-    suspend fun getOrderByIdSuspend(orderId: String): OrderEntity?
-
-=======
-<< jules/arch-assessment-1
-    @Query("SELECT * FROM orders WHERE orderId = :orderId")
-    suspend fun getOrderByIdSuspend(orderId: String): OrderEntity?
-
-=======
-> main
- main
- main
- main
-    // Add other queries as needed, e.g., to update order status, delete orders etc.
     @Query("UPDATE orders SET status = :newStatus, lastUpdatedTimestamp = :timestamp WHERE orderId = :orderId")
     suspend fun updateOrderStatus(orderId: String, newStatus: String, timestamp: Long)
 }

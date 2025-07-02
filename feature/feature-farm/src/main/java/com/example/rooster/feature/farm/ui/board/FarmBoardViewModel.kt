@@ -55,11 +55,30 @@ class FarmBoardViewModel @Inject constructor(
         _uiState.value = FarmBoardUiState.Loading
         viewModelScope.launch {
             try {
-                // Parallel loading for all types is better handled with async/await, but for simplicity, sequential is fine for now.
-                val fowls = getFlocksByType(FlockType.FOWL.name).firstOrNull() ?: emptyList<Flock>()
-                val hens = getFlocksByType(FlockType.HEN.name).firstOrNull() ?: emptyList<Flock>()
-                val breeders = getFlocksByType(FlockType.BREEDER.name).firstOrNull() ?: emptyList<Flock>()
-                val chicks = getFlocksByType(FlockType.CHICK.name).firstOrNull() ?: emptyList<Flock>()
+                // Get results from each type
+                val fowlsResult = getFlocksByType(FlockType.FOWL.name).firstOrNull()
+                val hensResult = getFlocksByType(FlockType.HEN.name).firstOrNull()
+                val breedersResult = getFlocksByType(FlockType.BREEDER.name).firstOrNull()
+                val chicksResult = getFlocksByType(FlockType.CHICK.name).firstOrNull()
+
+                // Extract data from results, defaulting to empty list on error
+                val fowls = when (fowlsResult) {
+                    is com.example.rooster.core.common.Result.Success -> fowlsResult.data
+                    else -> emptyList()
+                }
+                val hens = when (hensResult) {
+                    is com.example.rooster.core.common.Result.Success -> hensResult.data
+                    else -> emptyList()
+                }
+                val breeders = when (breedersResult) {
+                    is com.example.rooster.core.common.Result.Success -> breedersResult.data
+                    else -> emptyList()
+                }
+                val chicks = when (chicksResult) {
+                    is com.example.rooster.core.common.Result.Success -> chicksResult.data
+                    else -> emptyList()
+                }
+
                 _uiState.value = FarmBoardUiState.Success(fowls, hens, breeders, chicks)
             } catch (e: Exception) {
                 val msg = e.toUserFriendlyMessage(context)

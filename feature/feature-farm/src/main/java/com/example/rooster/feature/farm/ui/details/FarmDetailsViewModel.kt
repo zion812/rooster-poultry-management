@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rooster.feature.farm.domain.model.Flock
 import com.example.rooster.feature.farm.domain.usecase.GetFarmDetailsUseCase
+import com.example.rooster.core.common.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,18 +23,16 @@ class FarmDetailsViewModel @Inject constructor(
     fun loadDetails(farmId: String) {
         getFarmDetails(farmId)
             .onEach { result ->
-                _uiState.value = when {
-                    result.isSuccess -> {
-                        FarmDetailsUiState.Success(result.getOrThrow())
+                _uiState.value = when (result) {
+                    is Result.Success -> {
+                        FarmDetailsUiState.Success(result.data)
                     }
-
-                    result.isFailure -> {
+                    is Result.Error -> {
                         FarmDetailsUiState.Error(
-                            result.exceptionOrNull()?.message ?: "Unknown Error"
+                            result.exception.message ?: "Unknown Error"
                         )
                     }
-
-                    else -> FarmDetailsUiState.Loading
+                    is Result.Loading -> FarmDetailsUiState.Loading
                 }
             }
             .launchIn(viewModelScope)

@@ -204,7 +204,8 @@ class AuctionViewModel @Inject constructor(
                             _loading.value = false
                         }
                         is com.example.rooster.core.common.Result.Error -> {
-                            val msg = context?.let { toUserFriendlyMessage(result.exception, it) } ?: result.exception.localizedMessage ?: "Unknown error"
+                            val msg = context?.let { result.exception.toUserFriendlyMessage(it) }
+                                ?: result.exception.localizedMessage ?: "Unknown error"
                             _error.value = msg
                             _loading.value = false
                         }
@@ -215,7 +216,8 @@ class AuctionViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                val msg = context?.let { toUserFriendlyMessage(e, it) } ?: e.localizedMessage ?: "Unknown error"
+                val msg = context?.let { e.toUserFriendlyMessage(it) } ?: e.localizedMessage
+                ?: "Unknown error"
                 _error.value = msg
             } finally {
                 _loading.value = false

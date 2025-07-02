@@ -75,6 +75,8 @@ object RegistryRequirements {
                 "weight", "height", "gender", "identification",
                 "size", "specialty"
             )
+
+            AgeGroup.UNKNOWN -> baseFields
         }
     }
 

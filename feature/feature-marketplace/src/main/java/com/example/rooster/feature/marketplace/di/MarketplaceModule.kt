@@ -3,21 +3,18 @@ package com.example.rooster.feature.marketplace.di
 import android.content.Context
 import androidx.room.Room
 import com.example.rooster.feature.marketplace.data.local.MarketplaceDatabase
-import com.example.rooster.feature.marketplace.data.local.MarketplaceDatabaseMigrations // Import Migrations
 import com.example.rooster.feature.marketplace.data.local.dao.CartDao
 import com.example.rooster.feature.marketplace.data.local.dao.OrderDao
 import com.example.rooster.feature.marketplace.data.local.dao.ProductListingDao
 import com.example.rooster.feature.marketplace.data.remote.FirebaseMarketplaceDataSource
 import com.example.rooster.feature.marketplace.data.remote.MarketplaceRemoteDataSource
-import com.example.rooster.feature.marketplace.data.repository.CartRepositoryImpl // To be created
+import com.example.rooster.feature.marketplace.data.repository.CartRepositoryImpl
 import com.example.rooster.feature.marketplace.data.repository.OrderRepositoryImpl
 import com.example.rooster.feature.marketplace.data.repository.ProductListingRepositoryImpl
 import com.example.rooster.feature.marketplace.domain.repository.CartRepository
 import com.example.rooster.feature.marketplace.domain.repository.OrderRepository
 import com.example.rooster.feature.marketplace.domain.repository.ProductListingRepository
-// Assuming FirebaseFirestore is provided by another module (e.g., app or core-firebase)
-// import com.google.firebase.firestore.FirebaseFirestore
-import com.google.gson.Gson // Added for Gson provider
+import com.google.gson.Gson
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -38,17 +35,7 @@ object MarketplaceProvidesModule {
             MarketplaceDatabase::class.java,
             "marketplace_database.db"
         )
-        // TODO: Add proper migrations for production.
-        // .fallbackToDestructiveMigration() // Replaced with addMigrations
- feature/phase1-foundations-community-likes
-        .addMigrations(MarketplaceDatabaseMigrations.MIGRATION_1_2) // Added migration
-=======
- feature/phase1-foundations-community-likes
-        .addMigrations(MarketplaceDatabaseMigrations.MIGRATION_1_2) // Added migration
-=======
-        .addMigrations() // Add actual Migration objects here when schema changes
- main
- main
+            .fallbackToDestructiveMigration() // TODO: Add proper migrations for production
         .build()
     }
 
@@ -70,15 +57,9 @@ object MarketplaceProvidesModule {
         return database.orderDao()
     }
 
-    // FirebaseFirestore is assumed to be provided by a higher-level module (e.g., AppModule or a core Firebase module)
-    // If not, it would need to be provided here:
-    // @Provides
-    // @Singleton
-    // fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
-
     @Provides
     @Singleton
-    fun provideGson(): Gson { // Provider for Gson
+    fun provideGson(): Gson {
         return Gson()
     }
 }
@@ -111,5 +92,3 @@ abstract class MarketplaceBindsModule {
         impl: OrderRepositoryImpl
     ): OrderRepository
 }
-=======
- main

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rooster.feature.farm.domain.model.Flock
 import com.example.rooster.feature.farm.domain.usecase.GetFamilyTreeUseCase
+import com.example.rooster.core.common.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +22,11 @@ class FamilyTreeViewModel @Inject constructor(
 
     fun loadFamilyTree(fowlId: String) {
         getFamilyTree(fowlId)
-            .onEach { result -> if (result.isSuccess) _ancestors.value = result.getOrThrow() }
+            .onEach { result ->
+                if (result is Result.Success) {
+                    _ancestors.value = result.data
+                }
+            }
             .launchIn(viewModelScope)
     }
 }

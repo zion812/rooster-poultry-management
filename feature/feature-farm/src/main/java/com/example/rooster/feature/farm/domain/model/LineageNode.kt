@@ -1,8 +1,5 @@
 package com.example.rooster.feature.farm.domain.model
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class LineageNode(
     val flockId: String,
     val name: String, // Denormalized for display
@@ -16,7 +13,6 @@ data class LineageNode(
 )
 
 // Represents the full lineage, possibly centered around a specific flock
-@Serializable
 data class LineageInfo(
     val centralFlockId: String,
     val centralFlockNode: LineageNode, // The main subject of the lineage view

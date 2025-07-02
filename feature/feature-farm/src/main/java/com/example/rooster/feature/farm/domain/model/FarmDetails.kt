@@ -54,14 +54,6 @@ data class FarmDetails(
     val updatedAt: Date
 )
 
-enum class VerificationLevel {
-    UNVERIFIED,
-    BASIC,
-    STANDARD,
-    PREMIUM,
-    ENTERPRISE
-}
-
 data class FarmBadge(
     val type: BadgeType,
     val level: String,

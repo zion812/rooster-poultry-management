@@ -1,5 +1,6 @@
 package com.example.rooster.feature.farm.data.remote
 
+import com.example.rooster.core.common.Result
 import com.google.firebase.database.*
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.channels.awaitClose
@@ -24,11 +25,11 @@ class FirebaseFarmDataSource @Inject constructor(
             override fun onDataChange(snapshot: DataSnapshot) {
                 @Suppress("UNCHECKED_CAST")
                 val data = snapshot.getValue() as? Map<String, Any>
-                trySend(Result.success(data))
+                trySend(Result.Success(data))
             }
 
             override fun onCancelled(error: DatabaseError) {
-                trySend(Result.failure(error.toException()))
+                trySend(Result.Error(error.toException()))
             }
         }
 
@@ -48,11 +49,11 @@ class FirebaseFarmDataSource @Inject constructor(
                         val value = child.getValue() as? Map<String, Any> ?: continue
                         flocks.add(value)
                     }
-                    trySend(Result.success(flocks))
+                    trySend(Result.Success(flocks))
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    trySend(Result.failure(error.toException()))
+                    trySend(Result.Error(error.toException()))
                 }
             }
 
@@ -75,11 +76,11 @@ class FirebaseFarmDataSource @Inject constructor(
                         val value = child.getValue() as? Map<String, Any> ?: continue
                         records.add(value)
                     }
-                    trySend(Result.success(records))
+                    trySend(Result.Success(records))
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    trySend(Result.failure(error.toException()))
+                    trySend(Result.Error(error.toException()))
                 }
             }
 
@@ -102,11 +103,11 @@ class FirebaseFarmDataSource @Inject constructor(
                         val value = child.getValue() as? Map<String, Any> ?: continue
                         readings.add(value)
                     }
-                    trySend(Result.success(readings))
+                    trySend(Result.Success(readings))
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    trySend(Result.failure(error.toException()))
+                    trySend(Result.Error(error.toException()))
                 }
             }
 
@@ -121,7 +122,7 @@ class FirebaseFarmDataSource @Inject constructor(
             }
         }
 
-    suspend fun saveFlock(flockData: Map<String, Any>): com.example.rooster.core.common.Result<Unit> {
+    suspend fun saveFlock(flockData: Map<String, Any>): Result<Unit> {
         return try {
             val id = flockData["id"] as? String ?: UUID.randomUUID().toString()
             // Ensure 'id' is part of the map being saved if it was generated.
@@ -133,9 +134,9 @@ class FirebaseFarmDataSource @Inject constructor(
             flocksCollection.document(id).set(dataToSave).await()
             realtimeDatabase.child("flocks_v2").child(id).setValue(dataToSave).await()
 
-            com.example.rooster.core.common.Result.Success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            com.example.rooster.core.common.Result.Error(e)
+            Result.Error(e)
         }
     }
 
@@ -152,9 +153,9 @@ class FirebaseFarmDataSource @Inject constructor(
             realtimeDatabase.child("mortality_records_v2").child(id).setValue(dataWithTimestamp)
                 .await()
 
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 
@@ -169,9 +170,9 @@ class FirebaseFarmDataSource @Inject constructor(
             // Only save to Realtime Database for sensor data (for performance)
             realtimeDatabase.child("sensor_data_v2").child(id).setValue(dataWithTimestamp).await() // Use versioned RTDB path
 
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 
@@ -179,9 +180,9 @@ class FirebaseFarmDataSource @Inject constructor(
         return try {
             flocksCollection.document(flockId).delete().await() // Use defined collection
             realtimeDatabase.child("flocks_v2").child(flockId).removeValue().await() // Use versioned RTDB path
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 

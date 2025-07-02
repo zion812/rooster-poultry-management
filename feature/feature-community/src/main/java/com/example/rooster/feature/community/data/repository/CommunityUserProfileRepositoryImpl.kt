@@ -8,11 +8,13 @@ import com.example.rooster.feature.community.domain.model.CommunityUserProfile
 import com.example.rooster.feature.community.domain.repository.CommunityUserProfileRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,35 +28,74 @@ class CommunityUserProfileRepositoryImpl @Inject constructor(
         return localBackedCommunityResource(
             localCall = { localDataSource.getProfileByUserId(userId).map { it?.let(::mapEntityToDomain) } },
             remoteCall = { remoteDataSource.getCommunityUserProfileStream(userId).firstOrNull() ?: Result.Success(null) },
-            saveRemoteResult = { remoteProfileDomain -> // S is CommunityUserProfile
+            saveRemoteResult = { remoteProfileDomain ->
                 if (remoteProfileDomain != null) {
                     val localEntity = localDataSource.getProfileByUserIdSuspend(remoteProfileDomain.userId)
                     if (localEntity?.needsSync == true) {
-                        Timber.w("Community: Local profile for user ID ${remoteProfileDomain.userId} has unsynced changes. Remote update from listener/fetch will be ignored for now.")
+                        Timber.w("Community: Local profile for user ID ${remoteProfileDomain.userId} has unsynced changes. Remote update will be ignored for now.")
                     } else {
                         localDataSource.insertProfile(mapDomainToEntity(remoteProfileDomain, needsSync = false))
                         Timber.d("Community: Cache updated from remote for user profile ID ${remoteProfileDomain.userId}.")
                     }
                 }
             },
-            shouldFetch = { localData -> forceRefresh || localData == null }
+            shouldFetch = { forceRefresh || it == null }
         ).flowOn(Dispatchers.IO)
     }
 
-    override suspend fun createCommunityUserProfile(profile: CommunityUserProfile): Result<Unit> = withContext(Dispatchers.IO) {
+    override suspend fun createCommunityUserProfile(profile: CommunityUserProfile): Result<String> =
+        withContext(Dispatchers.IO) {
         try {
             val entity = mapDomainToEntity(profile, needsSync = true)
             localDataSource.insertProfile(entity)
             val remoteResult = remoteDataSource.createCommunityUserProfile(profile)
-            if (remoteResult is Result.Success) {
-                localDataSource.insertProfile(entity.copy(needsSync = false))
+            when (remoteResult) {
+                is Result.Success -> {
+                    localDataSource.insertProfile(entity.copy(needsSync = false))
+                    Result.Success(profile.userId) // Return the user ID as the created resource ID
+                }
+
+                is Result.Error -> {
+                    Timber.w(
+                        remoteResult.exception,
+                        "Failed to sync user profile to remote, will retry later"
+                    )
+                    Result.Success(profile.userId) // Return local ID, will sync later
+                }
+
+                Result.Loading -> Result.Success(profile.userId)
             }
-            // Return remote result (Unit or Error)
-            remoteResult
         } catch (e: Exception) {
             Result.Error(e)
         }
     }
+
+    override suspend fun updateCommunityUserProfile(profile: CommunityUserProfile): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val entity = mapDomainToEntity(profile, needsSync = true)
+                localDataSource.insertProfile(entity)
+                val remoteResult = remoteDataSource.updateCommunityUserProfile(profile)
+                when (remoteResult) {
+                    is Result.Success -> {
+                        localDataSource.insertProfile(entity.copy(needsSync = false))
+                        Result.Success(Unit)
+                    }
+
+                    is Result.Error -> {
+                        Timber.w(
+                            remoteResult.exception,
+                            "Failed to sync user profile update to remote"
+                        )
+                        Result.Success(Unit) // Local update succeeded, will sync later
+                    }
+
+                    Result.Loading -> Result.Success(Unit)
+                }
+            } catch (e: Exception) {
+                Result.Error(e)
+            }
+        }
 
     override suspend fun getUnsyncedUserProfileEntities(): List<CommunityUserProfileEntity> = withContext(Dispatchers.IO) {
         localDataSource.getUnsyncedProfilesSuspend()
@@ -62,16 +103,21 @@ class CommunityUserProfileRepositoryImpl @Inject constructor(
 
     override suspend fun syncUserProfileRemote(profile: CommunityUserProfile): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            // This remote method should handle create or update (upsert) based on profile.userId
-            val remoteResult = remoteDataSource.updateCommunityUserProfile(profile) // update can often mean upsert
-            // Or if distinct create/update methods exist on remoteDataSource:
-            // val remoteResult = if (isNewProfile) remoteDataSource.createCommunityUserProfile(profile) else remoteDataSource.updateCommunityUserProfile(profile)
+            val remoteResult = remoteDataSource.updateCommunityUserProfile(profile)
+            when (remoteResult) {
+                is Result.Success -> {
+                    Result.Success(Unit)
+                }
 
-            if (remoteResult is Result.Success) {
-                Result.Success(Unit)
-            } else {
-                Timber.e((remoteResult as? Result.Error)?.exception, "Failed to sync user profile ${profile.userId} to remote.")
-                Result.Error((remoteResult as Result.Error).exception)
+                is Result.Error -> {
+                    Timber.e(
+                        remoteResult.exception,
+                        "Failed to sync user profile ${profile.userId} to remote."
+                    )
+                    Result.Error(remoteResult.exception)
+                }
+
+                Result.Loading -> Result.Success(Unit) // Treat loading as success for now
             }
         } catch (e: Exception) {
             Timber.e(e, "Exception during remote user profile sync for ${profile.userId}")
@@ -81,15 +127,14 @@ class CommunityUserProfileRepositoryImpl @Inject constructor(
 
     override suspend fun updateLocalUserProfileEntity(profileEntity: CommunityUserProfileEntity) {
         withContext(Dispatchers.IO) {
-            localDataSource.insertProfile(profileEntity) // insert with OnConflictStrategy.REPLACE acts as update
+            localDataSource.insertProfile(profileEntity)
         }
     }
 
     override fun mapUserProfileEntityToDomain(profileEntity: CommunityUserProfileEntity): CommunityUserProfile {
-        return mapEntityToDomain(profileEntity) // Use existing private mapper
+        return mapEntityToDomain(profileEntity)
     }
 
-    // --- Mappers ---
     private fun mapEntityToDomain(entity: CommunityUserProfileEntity): CommunityUserProfile {
         return CommunityUserProfile(
             userId = entity.userId,
@@ -128,36 +173,37 @@ class CommunityUserProfileRepositoryImpl @Inject constructor(
             needsSync = needsSync
         )
     }
-}
 
-// Generic helper for network-bound resource pattern (similar to one in Marketplace)
-// D: Domain model type, S: Remote source type
-private inline fun <D, S> localBackedCommunityResource(
-    crossinline localCall: () -> Flow<D?>,
-    crossinline remoteCall: suspend () -> Result<S?>,
-    crossinline saveRemoteResult: suspend (S) -> Unit,
-    crossinline shouldFetch: (D?) -> Boolean = { true }
-): Flow<Result<D?>> = flow<Result<D?>> {
-    emit(Result.Loading)
-    val localData = localCall().firstOrNull()
-    if (localData != null) {
-        emit(Result.Success(localData))
-    }
-
-    if (shouldFetch(localData)) {
-        when (val remoteResult = remoteCall()) {
-            is Result.Success -> {
-                if (remoteResult.data != null) {
-                    saveRemoteResult(remoteResult.data)
-                    localCall().collect { updatedLocalData -> emit(Result.Success(updatedLocalData)) }
-                } else {
-                    if (localData == null) emit(Result.Success(null))
-                }
-            }
-            is Result.Error -> emit(Result.Error(remoteResult.exception, localData))
-            Result.Loading -> {}
+    private inline fun <D, S> localBackedCommunityResource(
+        crossinline localCall: () -> Flow<D?>,
+        crossinline remoteCall: suspend () -> Result<S?>,
+        crossinline saveRemoteResult: suspend (S) -> Unit,
+        crossinline shouldFetch: (D?) -> Boolean = { true }
+    ): Flow<Result<D?>> = flow {
+        emit(Result.Loading)
+        val localData = localCall().firstOrNull()
+        if (localData != null) {
+            emit(Result.Success(localData))
         }
-    } else if (localData == null) {
-        emit(Result.Success(null))
-    }
-}.catch { e -> emit(Result.Error(e)) }
+
+        if (shouldFetch(localData)) {
+            when (val remoteResult = remoteCall()) {
+                is Result.Success -> {
+                    val data = remoteResult.data
+                    if (data != null) {
+                        saveRemoteResult(data)
+                        localCall().collect { updatedLocalData ->
+                            emit(Result.Success(updatedLocalData))
+                        }
+                    } else {
+                        if (localData == null) emit(Result.Success(null))
+                    }
+                }
+                is Result.Error -> emit(Result.Error(remoteResult.exception))
+                Result.Loading -> {}
+            }
+        } else if (localData == null) {
+            emit(Result.Success(null))
+        }
+    }.catch { e -> emit(Result.Error(e as Throwable)) }
+}

@@ -15,8 +15,22 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 // import com.example.rooster.services.TokenService // Will be replaced by TokenRepository
 import com.example.rooster.core.common.domain.repository.TokenRepository // Import interface
-import com.example.rooster.core.network.repository.ParseTokenRepositoryImpl // Placeholder for injection, ideally via ViewModel
 import kotlinx.coroutines.launch
+
+// Simple placeholder implementation
+private class SimpleTokenRepository : TokenRepository {
+    override suspend fun loadTokenBalance(onResult: (Int) -> Unit) {
+        onResult(100) // Placeholder balance
+    }
+
+    override suspend fun addTokens(count: Int, onResult: (Boolean) -> Unit) {
+        onResult(true) // Placeholder success
+    }
+
+    override suspend fun deductTokens(count: Int, onResult: (Boolean) -> Unit) {
+        onResult(true) // Placeholder success
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,7 +38,7 @@ fun TokenPurchaseScreen(
     navController: NavController,
     isTeluguMode: Boolean,
     // TODO: Inject via Hilt ViewModel which holds the repository
-    tokenRepository: TokenRepository = remember { ParseTokenRepositoryImpl() } // Placeholder DI
+    tokenRepository: TokenRepository = remember { SimpleTokenRepository() } // Placeholder DI
 ) {
     data class TokenPackage(val id: String, val name: String, val tokenAmount: Int, val price: Double, val currency: String = "INR")
     val availablePackages by remember {
@@ -120,26 +134,30 @@ fun TokenPurchaseScreen(
                 onClick = {
                     selectedPackage?.let { pkg ->
                         isProcessing = true
-                        // TODO: Here you would initiate actual payment flow for pkg.price via PaymentRepository
-                        // For now, using TokenRepository.addTokens as placeholder for successful purchase of pkg.tokenAmount
-                        tokenRepository.addTokens(pkg.tokenAmount) { success ->
-                            isProcessing = false
-                            if (success) {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = if (isTeluguMode) "${pkg.tokenAmount} టోకెన్లు విజయవంతంగా చేర్చబడ్డాయి" else "${pkg.tokenAmount} Tokens added successfully",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                                // Re-load balance after adding tokens
-                                scope.launch { tokenRepository.loadTokenBalance { newBalance -> balance = newBalance } }
-                                selectedPackage = null
-                            } else {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = if (isTeluguMode) "కొనుగోలు విఫలమైంది" else "Purchase failed",
-                                        duration = SnackbarDuration.Short
-                                    )
+                        scope.launch {
+                            tokenRepository.addTokens(pkg.tokenAmount) { success ->
+                                isProcessing = false
+                                if (success) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = if (isTeluguMode) "${pkg.tokenAmount} టోకెన్లు విజయవంతంగా చేర్చబడ్డాయి" else "${pkg.tokenAmount} Tokens added successfully",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
+                                    // Re-load balance after adding tokens
+                                    scope.launch {
+                                        tokenRepository.loadTokenBalance { newBalance ->
+                                            balance = newBalance
+                                        }
+                                    }
+                                    selectedPackage = null
+                                } else {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = if (isTeluguMode) "కొనుగోలు విఫలమైంది" else "Purchase failed",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
                                 }
                             }
                         }

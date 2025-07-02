@@ -2,6 +2,7 @@ package com.example.rooster.feature.farm.domain.usecase
 
 import com.example.rooster.feature.farm.domain.model.Flock
 import com.example.rooster.feature.farm.data.repository.FarmRepository
+import com.example.rooster.core.common.Result
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -18,7 +19,14 @@ class GetFamilyTreeUseCaseImpl(
     override fun invoke(fowlId: String, generations: Int): Flow<Result<List<Flock>>> {
         // TODO: recursively fetch parents up to 'generations'
         return repository.getFlockById(fowlId).map { result ->
-            result.map { flock -> flock?.let { listOf(it) } ?: emptyList() }
+            when (result) {
+                is Result.Success -> {
+                    val flock = result.data
+                    Result.Success(if (flock != null) listOf(flock) else emptyList())
+                }
+                is Result.Error -> Result.Error(result.exception)
+                is Result.Loading -> Result.Loading
+            }
         }
     }
 }

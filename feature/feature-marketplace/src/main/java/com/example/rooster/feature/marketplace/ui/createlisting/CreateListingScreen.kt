@@ -6,64 +6,28 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
- main
- main
- main
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.filled.AddPhotoAlternate
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
-=======
- main
- main
- main
- main
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
- jules/arch-assessment-1
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
-=======
- jules/arch-assessment-1
-import coil.compose.AsyncImage
-=======
- jules/arch-assessment-1
-import coil.compose.AsyncImage
-=======
- jules/arch-assessment-1
-import coil.compose.AsyncImage
-=======
- main
- main
- main
- main
 import com.example.rooster.feature.marketplace.domain.model.ProductCategory
 import kotlinx.coroutines.flow.collectLatest
 
@@ -81,7 +45,7 @@ fun CreateListingScreen(
         viewModel.formState.collectLatest { state ->
             if (state.submissionSuccess) {
                 snackbarHostState.showSnackbar("Listing created successfully!")
-                onListingCreatedSuccessfully() // Navigate away or reset form
+                onListingCreatedSuccessfully()
             } else if (state.submissionError != null) {
                 snackbarHostState.showSnackbar("Error: ${state.submissionError}")
             }
@@ -126,7 +90,9 @@ fun CreateListingScreen(
                 value = formState.description,
                 onValueChange = viewModel::onDescriptionChange,
                 label = { Text("Description") },
-                modifier = Modifier.fillMaxWidth().height(120.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -137,7 +103,6 @@ fun CreateListingScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Fields specific to poultry, could be shown conditionally based on category
             OutlinedTextField(
                 value = formState.breed,
                 onValueChange = viewModel::onBreedChange,
@@ -205,34 +170,11 @@ fun CreateListingScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
- main
- main
- main
             ImageSelectionSection(
                 selectedImageUris = formState.imageUris,
                 onImagesSelected = viewModel::onImagesSelected,
                 onRemoveImage = viewModel::removeImage
             )
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
-=======
-            // TODO: Image selection UI (e.g., button to open gallery, display selected image thumbnails)
-            Text("Image Upload: (TODO)", style = MaterialTheme.typography.labelLarge)
- main
- main
- main
- main
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
@@ -247,7 +189,7 @@ fun CreateListingScreen(
                 }
             }
             if (formState.submissionError != null && !formState.isSubmitting) {
-                 Text(
+                Text(
                     text = formState.submissionError!!,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
@@ -275,11 +217,13 @@ fun CategorySelector(
     ) {
         OutlinedTextField(
             value = selectedCategory.name.replace("_", " ").capitalizeWords(),
-            onValueChange = {}, // Not directly editable
+            onValueChange = {},
             readOnly = true,
             label = { Text("Category*") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.menuAnchor().fillMaxWidth()
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -297,30 +241,6 @@ fun CategorySelector(
         }
     }
 }
-
-// Helper to capitalize words in a string for display
-fun String.capitalizeWords(): String = split(" ").joinToString(" ") { word ->
-    word.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-}
-
-
-@Preview(showBackground = true, widthDp = 380, heightDp = 1000)
-@Composable
-fun PreviewCreateListingScreen() {
-    MaterialTheme {
-        CreateListingScreen(onNavigateBack = {}, onListingCreatedSuccessfully = {})
-    }
-}
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
- main
- main
- main
 
 @Composable
 fun ImageSelectionSection(
@@ -342,7 +262,7 @@ fun ImageSelectionSection(
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(onClick = { imagePickerLauncher.launch("image/*") }) {
-            Icon(Icons.Filled.AddPhotoAlternate, contentDescription = "Add Images")
+            Icon(Icons.Filled.Add, contentDescription = "Add Images")
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Text("Choose Images")
         }
@@ -355,7 +275,9 @@ fun ImageSelectionSection(
                         AsyncImage(
                             model = uri,
                             contentDescription = "Selected image",
-                            modifier = Modifier.fillMaxSize().clip(MaterialTheme.shapes.small),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(MaterialTheme.shapes.small),
                             contentScale = ContentScale.Crop
                         )
                         IconButton(
@@ -380,14 +302,15 @@ fun ImageSelectionSection(
         }
     }
 }
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
- jules/arch-assessment-1
-=======
-=======
- main
- main
- main
- main
+
+fun String.capitalizeWords(): String = split(" ").joinToString(" ") { word ->
+    word.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+}
+
+@Preview(showBackground = true, widthDp = 380, heightDp = 1000)
+@Composable
+fun PreviewCreateListingScreen() {
+    MaterialTheme {
+        CreateListingScreen(onNavigateBack = {}, onListingCreatedSuccessfully = {})
+    }
+}

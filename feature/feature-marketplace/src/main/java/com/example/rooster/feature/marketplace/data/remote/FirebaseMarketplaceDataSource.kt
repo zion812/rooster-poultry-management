@@ -5,6 +5,7 @@ import com.example.rooster.feature.marketplace.domain.model.Order
 import com.example.rooster.feature.marketplace.domain.model.ProductListing
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
 import kotlinx.coroutines.channels.awaitClose
@@ -22,7 +23,6 @@ class FirebaseMarketplaceDataSource @Inject constructor(
     private val listingsCollection = firestore.collection("marketplace_listings")
     private val ordersCollection = firestore.collection("marketplace_orders")
 
- jules/arch-assessment-1
     companion object {
         const val DEFAULT_PAGE_SIZE = 10
     }
@@ -37,17 +37,7 @@ class FirebaseMarketplaceDataSource @Inject constructor(
     ): Flow<Result<List<ProductListing>>> = callbackFlow {
         var query: Query = listingsCollection
             .orderBy("postedDateTimestamp", Query.Direction.DESCENDING)
-            // Add secondary sort key for stable pagination if timestamps can be identical
             .orderBy(FieldPath.documentId(), Query.Direction.DESCENDING)
-=======
-    override fun getProductListingsStream(
-        category: String?,
-        sellerId: String?,
-        searchTerm: String? // Basic search on title, more advanced search would need dedicated solution (e.g. Algolia)
-    ): Flow<Result<List<ProductListing>>> = callbackFlow {
-        var query: Query = listingsCollection
-            .orderBy("postedDateTimestamp", Query.Direction.DESCENDING)
- main
 
         if (category != null) {
             query = query.whereEqualTo("category", category)
@@ -55,79 +45,54 @@ class FirebaseMarketplaceDataSource @Inject constructor(
         if (sellerId != null) {
             query = query.whereEqualTo("sellerId", sellerId)
         }
- jules/arch-assessment-1
-        // TODO: Server-side searchTerm filtering (e.g., using array-contains on keywords field, or Algolia)
-        // For now, searchTerm is handled client-side after this fetch.
 
         query = query.limit(pageSize.toLong())
 
+        var listener: com.google.firebase.firestore.ListenerRegistration? = null
+
         if (lastVisibleTimestamp != null && lastVisibleDocId != null) {
-            // Fetch the actual DocumentSnapshot for startAfter
-            // This requires an extra read but is the most reliable way for non-trivial sorting/filtering.
-            // A simpler but potentially less robust way is to use startAfter(lastVisibleTimestamp, lastVisibleDocId)
-            // if the fields used in orderBy are exactly what you pass to startAfter.
-            firestore.collection("marketplace_listings").document(lastVisibleDocId).get()
+            // Get the last document snapshot first
+            firestore.collection("marketplace_listings")
+                .document(lastVisibleDocId).get()
                 .addOnSuccessListener { lastDocSnapshot ->
-                    if (lastDocSnapshot.exists()) {
-                        val paginatedQuery = query.startAfter(lastDocSnapshot)
-                        val listener = paginatedQuery.addSnapshotListener { snapshots, e ->
-                            if (e != null) {
-                                trySend(Result.Error(e)).isFailure
-                                return@addSnapshotListener
-                            }
-                            if (snapshots != null) {
-                                val listings = snapshots.toObjects<ProductListing>()
-                                trySend(Result.Success(listings)).isSuccess
-                            } else {
-                                trySend(Result.Success(emptyList())).isSuccess
-                            }
-                        }
-                        awaitClose { listener.remove() }
+                    val finalQuery = if (lastDocSnapshot.exists()) {
+                        query.startAfter(lastDocSnapshot)
                     } else {
-                        // Last visible doc not found, maybe it was deleted? Start from beginning of next logical page (hard without it)
-                        // Or simply emit empty or error. For simplicity, emit empty.
-                         trySend(Result.Success(emptyList())).isSuccess
+                        query
+                    }
+
+                    listener = finalQuery.addSnapshotListener { snapshots, e ->
+                        if (e != null) {
+                            trySend(Result.Error(e))
+                            return@addSnapshotListener
+                        }
+                        if (snapshots != null) {
+                            val listings = snapshots.toObjects<ProductListing>()
+                            trySend(Result.Success(listings))
+                        } else {
+                            trySend(Result.Success(emptyList()))
+                        }
                     }
                 }
                 .addOnFailureListener { e ->
-                     trySend(Result.Error(e)).isFailure
+                    trySend(Result.Error(e))
                 }
         } else {
-            // First page
-            val listener = query.addSnapshotListener { snapshots, e ->
+            listener = query.addSnapshotListener { snapshots, e ->
                 if (e != null) {
-                    trySend(Result.Error(e)).isFailure
+                    trySend(Result.Error(e))
                     return@addSnapshotListener
                 }
                 if (snapshots != null) {
                     val listings = snapshots.toObjects<ProductListing>()
-                    trySend(Result.Success(listings)).isSuccess
+                    trySend(Result.Success(listings))
                 } else {
-                    trySend(Result.Success(emptyList())).isSuccess
+                    trySend(Result.Success(emptyList()))
                 }
             }
-            awaitClose { listener.remove() }
         }
-    }
-=======
-        // Firestore basic search is limited. For robust search, use a dedicated search service.
-        // This basic version might filter client-side or require specific indexing for searchTerm on title.
-        // For now, not implementing searchTerm directly in query to avoid complexity.
 
-        val listener = query.addSnapshotListener { snapshots, e ->
-            if (e != null) {
-                trySend(Result.Error(e)).isFailure
- main
-                return@addSnapshotListener
-            }
-            if (snapshots != null) {
-                val listings = snapshots.toObjects<ProductListing>() // Assumes ProductListing is directly mappable
-                trySend(Result.Success(listings)).isSuccess
-            } else {
-                trySend(Result.Success(emptyList())).isSuccess // Or an error if null snapshots are unexpected
-            }
-        }
-        awaitClose { listener.remove() }
+        awaitClose { listener?.remove() }
     }
 
     override suspend fun getProductListingDetails(listingId: String): Result<ProductListing?> {
@@ -141,7 +106,7 @@ class FirebaseMarketplaceDataSource @Inject constructor(
 
     override suspend fun createProductListing(listingData: ProductListing): Result<String> {
         return try {
-            val docRef = listingsCollection.document(listingData.id) // Use provided ID or generate if not
+            val docRef = listingsCollection.document(listingData.id)
             docRef.set(listingData).await()
             Result.Success(docRef.id)
         } catch (e: Exception) {
@@ -151,7 +116,7 @@ class FirebaseMarketplaceDataSource @Inject constructor(
 
     override suspend fun updateProductListing(listingData: ProductListing): Result<Unit> {
         return try {
-            listingsCollection.document(listingData.id).set(listingData).await() // Or .update for specific fields
+            listingsCollection.document(listingData.id).set(listingData).await()
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(e)
@@ -169,7 +134,7 @@ class FirebaseMarketplaceDataSource @Inject constructor(
 
     override suspend fun createOrder(orderData: Order): Result<String> {
         return try {
-            val docRef = ordersCollection.document(orderData.orderId) // Use provided ID
+            val docRef = ordersCollection.document(orderData.orderId)
             docRef.set(orderData).await()
             Result.Success(docRef.id)
         } catch (e: Exception) {
@@ -186,7 +151,7 @@ class FirebaseMarketplaceDataSource @Inject constructor(
             if (snapshot != null && snapshot.exists()) {
                 trySend(Result.Success(snapshot.toObject<Order>())).isSuccess
             } else {
-                trySend(Result.Success(null)).isSuccess // Or error if order must exist
+                trySend(Result.Success(null)).isSuccess
             }
         }
         awaitClose { listener.remove() }
@@ -212,8 +177,10 @@ class FirebaseMarketplaceDataSource @Inject constructor(
 
     override suspend fun updateOrderStatus(orderId: String, newStatus: String): Result<Unit> {
         return try {
-            // This is a simplified update. A real scenario might involve more checks.
-            ordersCollection.document(orderId).update("status", newStatus, "lastUpdatedTimestamp", System.currentTimeMillis()).await()
+            ordersCollection.document(orderId).update(
+                "status", newStatus,
+                "lastUpdatedTimestamp", System.currentTimeMillis()
+            ).await()
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(e)
@@ -221,12 +188,9 @@ class FirebaseMarketplaceDataSource @Inject constructor(
     }
 
     override suspend fun cancelOrder(orderId: String): Result<Unit> {
-        // In a real app, this would involve business logic: checking if order can be cancelled,
-        // refund processes, updating stock, etc. Here, it's a simple status update.
         return try {
-            // For simplicity, just updating status. Could use a specific "CANCELLED_BY_USER" status from enum.
             ordersCollection.document(orderId).update(
-                "status", "CANCELLED_BY_USER", // Assuming OrderStatus.CANCELLED_BY_USER.name
+                "status", "CANCELLED_BY_USER",
                 "lastUpdatedTimestamp", System.currentTimeMillis()
             ).await()
             Result.Success(Unit)

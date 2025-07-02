@@ -9,7 +9,6 @@ import com.example.rooster.feature.community.domain.repository.FeedType
 import com.example.rooster.feature.community.domain.repository.PostRepository
 import com.example.rooster.feature.community.domain.usecase.LikePostUseCase
 import com.example.rooster.feature.community.domain.usecase.UnlikePostUseCase
-import com.example.rooster.feature.community.domain.usecase.GetPostsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -59,20 +58,26 @@ class PostFeedViewModel @Inject constructor(
 
     fun fetchPosts(forceRefresh: Boolean = false) {
         _uiState.value = PostFeedUiState.Loading
-        viewModelScope.launch {
-            try {
-                val posts = postRepository.getPosts(
-                    feedType = currentFeedType,
-                    userId = currentUserIdForFeed,
-                    tag = currentTagForFeed,
-                    forceRefresh = forceRefresh
-                ).getOrThrow()
-                _uiState.value = PostFeedUiState.Success(posts)
-            } catch (e: Exception) {
-                val msg = toUserFriendlyMessage(e, appContext)
-                _uiState.value = PostFeedUiState.Error(msg)
+        postRepository.getPosts(
+            feedType = currentFeedType,
+            userId = currentUserIdForFeed,
+            forceRefresh = forceRefresh
+        ).onEach { result ->
+            when (result) {
+                is Result.Success -> {
+                    _uiState.value = PostFeedUiState.Success(result.data)
+                }
+
+                is Result.Error -> {
+                    val msg = result.exception.toUserFriendlyMessage(appContext)
+                    _uiState.value = PostFeedUiState.Error(msg)
+                }
+
+                is Result.Loading -> {
+                    _uiState.value = PostFeedUiState.Loading
+                }
             }
-        }
+        }.launchIn(viewModelScope)
     }
 
     fun setFeedType(feedType: FeedType) {
@@ -98,7 +103,11 @@ class PostFeedViewModel @Inject constructor(
                     // No explicit state update needed here if PostRepository's Flow emits on change.
                 }
                 is Result.Error -> {
-                    _singleEventFlow.emit(PostFeedSingleEvent.LikeUnlikeError(result.exception.toUserFriendlyMessage(appContext)))
+                    _singleEventFlow.emit(
+                        PostFeedSingleEvent.LikeUnlikeError(
+                            result.exception.toUserFriendlyMessage(appContext)
+                        )
+                    )
                 }
                 else -> { /* Loading state not typically handled for this kind of action directly in VM event */ }
             }
@@ -112,7 +121,11 @@ class PostFeedViewModel @Inject constructor(
                     // Similar to like, local data update in repo should refresh UI.
                 }
                 is Result.Error -> {
-                    _singleEventFlow.emit(PostFeedSingleEvent.LikeUnlikeError(result.exception.toUserFriendlyMessage(appContext)))
+                    _singleEventFlow.emit(
+                        PostFeedSingleEvent.LikeUnlikeError(
+                            result.exception.toUserFriendlyMessage(appContext)
+                        )
+                    )
                 }
                 else -> {}
             }

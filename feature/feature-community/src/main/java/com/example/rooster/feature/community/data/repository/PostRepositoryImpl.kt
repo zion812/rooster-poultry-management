@@ -9,11 +9,14 @@ import com.example.rooster.feature.community.domain.repository.FeedType
 import com.example.rooster.feature.community.domain.repository.PostRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -223,33 +226,6 @@ class PostRepositoryImpl @Inject constructor(
         return mapEntityToDomain(postEntity)
     }
 
-    override suspend fun getUnsyncedPosts(): List<Post> = withContext(Dispatchers.IO) {
-        localDataSource.getUnsyncedPostsSuspend().map { mapEntityToDomain(it) }
-    }
-
-    override suspend fun syncPost(post: Post): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            // Assuming remoteDataSource.createPost can handle if post already exists (e.g. by ID)
-            // or a specific remoteDataSource.updatePost exists and is chosen based on some logic.
-            // For simplicity, using createPost for new unsynced items.
-            // If it's an update to an existing post that went offline, updatePost would be more appropriate.
-            val remoteResult = remoteDataSource.createPost(post) // Or updatePost(post)
-
-            if (remoteResult is Result.Success && remoteResult.data.isNotBlank()) {
-                // Update local entity to set needsSync = false and potentially use remote ID
-                val entity = mapDomainToEntity(post.copy(postId = remoteResult.data), needsSync = false)
-                localDataSource.insertPost(entity) // REPLACE will update it
-                Result.Success(Unit)
-            } else if (remoteResult is Result.Error) {
-                Result.Error(remoteResult.exception)
-            } else {
-                Result.Error(Exception("Remote data source returned invalid ID or unknown error during post sync"))
-            }
-        } catch (e: Exception) {
-            Result.Error(e)
-        }
-    }
-
     // --- Mappers ---
     private fun mapEntityToDomain(entity: PostEntity): Post {
         return Post(
@@ -312,11 +288,14 @@ private inline fun <D, S> localBackedCommunityResource(
     if (shouldFetch(localData)) {
         when (val remoteResult = remoteCall()) {
             is Result.Success -> {
-                if (remoteResult.data != null) {
-                    saveRemoteResult(remoteResult.data); localCall().collect { emit(Result.Success(it)) }
-                } else { if (localData == null) emit(Result.Success(null)) }
+                remoteResult.data?.let { data ->
+                    saveRemoteResult(data)
+                    localCall().collect { emit(Result.Success(it)) }
+                } ?: run {
+                    if (localData == null) emit(Result.Success(null))
+                }
             }
-            is Result.Error -> emit(Result.Error(remoteResult.exception, localData))
+            is Result.Error -> emit(Result.Error(remoteResult.exception))
             Result.Loading -> {}
         }
     } else if (localData == null) { emit(Result.Success(null)) }
@@ -336,7 +315,7 @@ private inline fun <D, S> localBackedCommunityResourceList(
             is Result.Success -> {
                 saveRemoteResult(remoteResult.data); localCall().collect { emit(Result.Success(it)) }
             }
-            is Result.Error -> emit(Result.Error(remoteResult.exception, localData ?: emptyList()))
+            is Result.Error -> emit(Result.Error(remoteResult.exception))
             Result.Loading -> {}
         }
     } else if (localData == null || localData.isEmpty()) { emit(Result.Success(emptyList())) }

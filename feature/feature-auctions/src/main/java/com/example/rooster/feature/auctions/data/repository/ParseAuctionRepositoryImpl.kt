@@ -182,18 +182,71 @@ class ParseAuctionRepositoryImpl @Inject constructor() : AuctionRepository {
         awaitClose { }
     }.flowOn(Dispatchers.IO)
 
-    // TODO: Implement submitBid, submitBidWithDeposit, updateAuctionCurrentBid using Parse SDK
-    // These would likely call Parse Cloud functions for atomicity and server-side validation.
-    // Example:
-    // override suspend fun submitBid(...): Result<Boolean> = withContext(Dispatchers.IO) {
-    //     try {
-    //         val params = hashMapOf(...)
-    //         ParseCloud.callFunction<Boolean>("submitAuctionBid", params).await() // Using await() for suspend
-    //         Result.Success(true)
-    //     } catch (e: Exception) {
-    //         Result.Error(e)
-    //     }
-    // }
+    override suspend fun submitBidWithDeposit(
+        auctionId: String,
+        bidAmount: Double,
+        depositAmount: Double,
+        paymentId: String,
+        bidderId: String,
+        bidderName: String
+    ): Result<Boolean> = withContext(Dispatchers.IO) {
+        try {
+            val params = hashMapOf(
+                "auctionId" to auctionId,
+                "bidAmount" to bidAmount,
+                "depositAmount" to depositAmount,
+                "paymentId" to paymentId,
+                "bidderId" to bidderId,
+                "bidderName" to bidderName
+            )
+            // Using Parse Cloud function for atomic operation
+            val result = com.parse.ParseCloud.callFunction<Boolean>("submitBidWithDeposit", params)
+            Result.Success(result ?: false)
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun submitBid(
+        auctionId: String,
+        bidAmount: Double,
+        bidderId: String,
+        bidderName: String
+    ): Result<Boolean> = withContext(Dispatchers.IO) {
+        try {
+            val params = hashMapOf(
+                "auctionId" to auctionId,
+                "bidAmount" to bidAmount,
+                "bidderId" to bidderId,
+                "bidderName" to bidderName
+            )
+            // Using Parse Cloud function for atomic operation
+            val result = com.parse.ParseCloud.callFunction<Boolean>("submitBid", params)
+            Result.Success(result ?: false)
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun updateAuctionCurrentBid(
+        auctionId: String,
+        newBidAmount: Double
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val params = hashMapOf(
+                "auctionId" to auctionId,
+                "newBidAmount" to newBidAmount
+            )
+            // Using Parse Cloud function for atomic operation
+            com.parse.ParseCloud.callFunction<Any>("updateAuctionCurrentBid", params)
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            Result.Error(e)
+        }
+    }
 }
 
 // Helper extension for suspendGet that returns null if not found, rather than throwing.

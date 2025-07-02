@@ -1,6 +1,7 @@
-package com.example.rooster.feature.marketplace.ui.productdetail
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -23,10 +24,10 @@ import coil.request.ImageRequest
 import com.example.rooster.feature.marketplace.domain.model.ProductListing
 import com.example.rooster.feature.marketplace.domain.model.ProductCategory
 import com.example.rooster.feature.marketplace.domain.model.ListingStatus
-import com.google.accompanist.pager.HorizontalPager // Assuming Accompanist Pager for image gallery
-import com.google.accompanist.pager.rememberPagerState
+import com.example.rooster.feature.marketplace.ui.productdetail.ProductDetailUiState
+import com.example.rooster.feature.marketplace.ui.productdetail.ProductDetailViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, com.google.accompanist.pager.ExperimentalPagerApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen(
     viewModel: ProductDetailViewModel = hiltViewModel(),
@@ -62,7 +63,9 @@ fun ProductDetailScreen(
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+        Box(modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxSize()) {
             when (val state = uiState) {
                 is ProductDetailUiState.Loading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -73,7 +76,9 @@ fun ProductDetailScreen(
                 is ProductDetailUiState.Error -> {
                     Text(
                         text = "Error: ${state.message}",
-                        modifier = Modifier.align(Alignment.Center).padding(16.dp),
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(16.dp),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -83,7 +88,6 @@ fun ProductDetailScreen(
     }
 }
 
-@OptIn(com.google.accompanist.pager.ExperimentalPagerApi::class)
 @Composable
 fun ProductDetailsContent(listing: ProductListing, modifier: Modifier = Modifier) {
     val scrollState = rememberScrollState()
@@ -94,48 +98,36 @@ fun ProductDetailsContent(listing: ProductListing, modifier: Modifier = Modifier
             .verticalScroll(scrollState)
             .padding(bottom = 72.dp) // Space for the bottom bar
     ) {
-        // Image Gallery / Pager
+        // Image Gallery
         if (listing.imageUrls.isNotEmpty()) {
-            val pagerState = rememberPagerState()
-            HorizontalPager(
-                count = listing.imageUrls.size,
-                state = pagerState,
+            LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1.5f) // Adjust aspect ratio as needed
-            ) { page ->
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(listing.imageUrls[page])
- jules/arch-assessment-1
-                        .placeholder(com.example.rooster.R.drawable.placeholder_image) // Assuming R is app level
-                        .error(com.example.rooster.R.drawable.error_image) // Assuming R is app level
-=======
- jules/arch-assessment-1
-                        .placeholder(com.example.rooster.R.drawable.placeholder_image) // Assuming R is app level
-                        .error(com.example.rooster.R.drawable.error_image) // Assuming R is app level
-=======
- jules/arch-assessment-1
-                        .placeholder(com.example.rooster.R.drawable.placeholder_image) // Assuming R is app level
-                        .error(com.example.rooster.R.drawable.error_image) // Assuming R is app level
-=======
-                        // .placeholder(R.drawable.placeholder_image)
-                        // .error(R.drawable.error_image)
- main
- main
- main
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "${listing.title} image ${page + 1}",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
+                    .height(250.dp),
+                contentPadding = PaddingValues(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(listing.imageUrls) { imageUrl ->
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(imageUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Product Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(250.dp)
+                    )
+                }
             }
-            // TODO: Add PagerIndicator if multiple images
         } else {
-            // Placeholder if no images
-            Box(modifier = Modifier.fillMaxWidth().aspectRatio(1.5f).align(Alignment.CenterHorizontally)) {
-                 Text("No Image Available", modifier = Modifier.align(Alignment.Center))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No Image Available")
             }
         }
 

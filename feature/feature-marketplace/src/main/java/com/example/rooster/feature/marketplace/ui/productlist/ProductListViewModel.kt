@@ -3,7 +3,6 @@ package com.example.rooster.feature.marketplace.ui.productlist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rooster.core.common.Result
-import com.example.rooster.core.common.toUserFriendlyMessage
 import com.example.rooster.feature.marketplace.domain.model.ProductListing
 import com.example.rooster.feature.marketplace.domain.model.ProductCategory
 import com.example.rooster.feature.marketplace.domain.repository.ProductListingRepository
@@ -61,7 +60,7 @@ class ProductListViewModel @Inject constructor(
             try {
                 loadProductListings(isRefresh = true)
             } catch (e: Exception) {
-                val msg = toUserFriendlyMessage(e, context)
+                val msg = e.localizedMessage ?: "Unknown error"
                 _uiState.value = ProductListUiState.Error(msg)
             }
         }
@@ -73,7 +72,7 @@ class ProductListViewModel @Inject constructor(
             try {
                 loadProductListings(isRefresh = true)
             } catch (e: Exception) {
-                val msg = toUserFriendlyMessage(e, context)
+                val msg = e.localizedMessage ?: "Unknown error"
                 _uiState.value = ProductListUiState.Error(msg)
             }
         }
@@ -85,7 +84,7 @@ class ProductListViewModel @Inject constructor(
             try {
                 loadProductListings(isRefresh = true)
             } catch (e: Exception) {
-                val msg = toUserFriendlyMessage(e, context)
+                val msg = e.localizedMessage ?: "Unknown error"
                 _uiState.value = ProductListUiState.Error(msg)
             }
         }
@@ -159,8 +158,9 @@ class ProductListViewModel @Inject constructor(
                         )
                     }
                     is Result.Error -> {
+                        val msg = result.exception.localizedMessage ?: "Unknown error"
                         _uiState.value = ProductListUiState.Error(
-                            message = result.exception.message ?: "Unknown error",
+                            message = msg,
                             currentListings = currentSuccessState?.listings ?: emptyList()
                         )
                     }

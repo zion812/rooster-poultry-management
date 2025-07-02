@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.rooster.core.common.Result
 import com.example.rooster.feature.marketplace.domain.repository.OrderRepository
 import com.example.rooster.feature.marketplace.domain.repository.ProductListingRepository
 import dagger.assisted.Assisted
@@ -23,73 +24,44 @@ class MarketplaceSyncWorker @AssistedInject constructor(
     companion object {
         const val WORK_NAME = "MarketplaceSyncWorker"
         private const val MAX_SYNC_ATTEMPTS = 5
-        private const val SYNC_FAILED_STATUS = "SYNC_FAILED"
     }
 
     private val syncMutex = Mutex()
 
-    override suspend fun doWork(): Result = syncMutex.withLock {
+    override suspend fun doWork(): androidx.work.ListenableWorker.Result = syncMutex.withLock {
         Timber.d("MarketplaceSyncWorker started")
         var overallSuccess = true
 
         // Sync Product Listings
         try {
-            val unsyncedListingEntities = productListingRepository.getUnsyncedProductListingEntities()
-            if (unsyncedListingEntities.isNotEmpty()) {
-                Timber.d("Found ${unsyncedListingEntities.size} unsynced product listings.")
-                for (entity in unsyncedListingEntities) {
-                    if (entity.syncAttempts >= MAX_SYNC_ATTEMPTS) {
-                        Timber.w("ProductListing ID ${entity.id} has reached max sync attempts (${entity.syncAttempts}). Marking as SYNC_FAILED.")
-                        productListingRepository.updateSyncStatus(entity.id, SYNC_FAILED_STATUS)
-                        overallSuccess = false
-                        continue
-                    }
-                    Timber.d("Attempting to sync product listing ID: ${entity.id}, attempt: ${entity.syncAttempts + 1}")
-                    val entityToAttempt = entity.copy(
-                        syncAttempts = entity.syncAttempts + 1,
-                        lastSyncAttemptTimestamp = System.currentTimeMillis()
-                    )
-                    productListingRepository.updateLocalListing(entityToAttempt)
-                    val listingDomain = productListingRepository.mapListingEntityToDomain(entityToAttempt)
-                    if (!productListingRepository.validateListingDomain(listingDomain)) {
-                        Timber.e("Validation failed for product listing: ${entity.id}. Marking as SYNC_FAILED.")
-                        productListingRepository.updateSyncStatus(entity.id, SYNC_FAILED_STATUS)
-                        overallSuccess = false
-                        continue
-                    }
-                    var attempt = 0
-                    var success = false
-                    var lastError: Exception? = null
-                    while (attempt < MAX_SYNC_ATTEMPTS && !success) {
-                        try {
-                            val syncResult = productListingRepository.syncListingRemote(listingDomain)
-                            if (syncResult is com.example.rooster.core.common.Result.Success) {
-                                val syncedEntity = entityToAttempt.copy(needsSync = false, syncAttempts = 0)
-                                productListingRepository.updateLocalListing(syncedEntity)
-                                Timber.d("Successfully synced product listing: ${entity.id}")
-                                success = true
-                            } else if (syncResult is com.example.rooster.core.common.Result.Error) {
-                                val ex = syncResult.exception
-                                if (isTransientError(ex)) {
-                                    throw ex
-                                } else {
-                                    Timber.e(ex, "Permanent error syncing product listing: ${entity.id}. Marking as SYNC_FAILED.")
-                                    productListingRepository.updateSyncStatus(entity.id, SYNC_FAILED_STATUS)
-                                    overallSuccess = false
-                                    break
-                                }
+            val unsyncedListings = productListingRepository.getUnsyncedProductListings()
+            if (unsyncedListings.isNotEmpty()) {
+                Timber.d("Found ${unsyncedListings.size} unsynced product listings.")
+                for (listing in unsyncedListings) {
+                    try {
+                        val syncResult = productListingRepository.syncListing(listing)
+                        when (syncResult) {
+                            is com.example.rooster.core.common.Result.Success -> {
+                                Timber.d("Successfully synced product listing: ${listing.id}")
                             }
-                        } catch (e: Exception) {
-                            lastError = e
-                            attempt++
-                            val backoff = Math.pow(2.0, attempt.toDouble()).toLong() * 500L
-                            Timber.w(e, "Sync attempt $attempt failed for product listing ${entity.id}, backing off $backoff ms")
-                            kotlinx.coroutines.delay(backoff)
+                            is com.example.rooster.core.common.Result.Error -> {
+                                Timber.e(
+                                    syncResult.exception,
+                                    "Failed to sync product listing: ${listing.id}"
+                                )
+                                overallSuccess = false
+                            }
+                            is com.example.rooster.core.common.Result.Loading -> {
+                                Timber.w("Unexpected loading state for product listing sync: ${listing.id}")
+                                overallSuccess = false
+                            }
+                            else -> {
+                                Timber.e("Unknown result for product listing sync: $syncResult")
+                                overallSuccess = false
+                            }
                         }
-                    }
-                    if (!success && lastError != null) {
-                        Timber.e(lastError, "All sync attempts failed for product listing ${entity.id}; marking as SYNC_FAILED.")
-                        productListingRepository.updateSyncStatus(entity.id, SYNC_FAILED_STATUS)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Exception syncing product listing: ${listing.id}")
                         overallSuccess = false
                     }
                 }
@@ -101,62 +73,34 @@ class MarketplaceSyncWorker @AssistedInject constructor(
 
         // Sync Orders
         try {
-            val unsyncedOrderEntities = orderRepository.getUnsyncedOrderEntities()
-            if (unsyncedOrderEntities.isNotEmpty()) {
-                Timber.d("Found ${unsyncedOrderEntities.size} unsynced orders.")
-                for (entity in unsyncedOrderEntities) {
-                    if (entity.syncAttempts >= MAX_SYNC_ATTEMPTS) {
-                        Timber.w("Order ID ${entity.orderId} has reached max sync attempts (${entity.syncAttempts}). Marking as SYNC_FAILED.")
-                        orderRepository.updateSyncStatus(entity.orderId, SYNC_FAILED_STATUS)
-                        overallSuccess = false
-                        continue
-                    }
-                    Timber.d("Attempting to sync order ID: ${entity.orderId}, attempt: ${entity.syncAttempts + 1}")
-                    val entityToAttempt = entity.copy(
-                        syncAttempts = entity.syncAttempts + 1,
-                        lastSyncAttemptTimestamp = System.currentTimeMillis()
-                    )
-                    orderRepository.updateLocalOrder(entityToAttempt)
-                    val orderDomain = orderRepository.mapOrderEntityToDomain(entityToAttempt)
-                    if (!orderRepository.validateOrderDomain(orderDomain)) {
-                        Timber.e("Validation failed for order: ${entity.orderId}. Marking as SYNC_FAILED.")
-                        orderRepository.updateSyncStatus(entity.orderId, SYNC_FAILED_STATUS)
-                        overallSuccess = false
-                        continue
-                    }
-                    var attempt = 0
-                    var success = false
-                    var lastError: Exception? = null
-                    while (attempt < MAX_SYNC_ATTEMPTS && !success) {
-                        try {
-                            val syncResult = orderRepository.syncOrderRemote(orderDomain)
-                            if (syncResult is com.example.rooster.core.common.Result.Success) {
-                                val syncedEntity = entityToAttempt.copy(needsSync = false, syncAttempts = 0)
-                                orderRepository.updateLocalOrder(syncedEntity)
-                                Timber.d("Successfully synced order: ${entity.orderId}")
-                                success = true
-                            } else if (syncResult is com.example.rooster.core.common.Result.Error) {
-                                val ex = syncResult.exception
-                                if (isTransientError(ex)) {
-                                    throw ex
-                                } else {
-                                    Timber.e(ex, "Permanent error syncing order: ${entity.orderId}. Marking as SYNC_FAILED.")
-                                    orderRepository.updateSyncStatus(entity.orderId, SYNC_FAILED_STATUS)
-                                    overallSuccess = false
-                                    break
-                                }
+            val unsyncedOrders = orderRepository.getUnsyncedOrders()
+            if (unsyncedOrders.isNotEmpty()) {
+                Timber.d("Found ${unsyncedOrders.size} unsynced orders.")
+                for (order in unsyncedOrders) {
+                    try {
+                        val syncResult = orderRepository.syncOrder(order)
+                        when (syncResult) {
+                            is com.example.rooster.core.common.Result.Success -> {
+                                Timber.d("Successfully synced order: ${order.orderId}")
                             }
-                        } catch (e: Exception) {
-                            lastError = e
-                            attempt++
-                            val backoff = Math.pow(2.0, attempt.toDouble()).toLong() * 500L
-                            Timber.w(e, "Sync attempt $attempt failed for order ${entity.orderId}, backing off $backoff ms")
-                            kotlinx.coroutines.delay(backoff)
+                            is com.example.rooster.core.common.Result.Error -> {
+                                Timber.e(
+                                    syncResult.exception,
+                                    "Failed to sync order: ${order.orderId}"
+                                )
+                                overallSuccess = false
+                            }
+                            is com.example.rooster.core.common.Result.Loading -> {
+                                Timber.w("Unexpected loading state for order sync: ${order.orderId}")
+                                overallSuccess = false
+                            }
+                            else -> {
+                                Timber.e("Unknown result for order sync: $syncResult")
+                                overallSuccess = false
+                            }
                         }
-                    }
-                    if (!success && lastError != null) {
-                        Timber.e(lastError, "All sync attempts failed for order ${entity.orderId}; marking as SYNC_FAILED.")
-                        orderRepository.updateSyncStatus(entity.orderId, SYNC_FAILED_STATUS)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Exception syncing order: ${order.orderId}")
                         overallSuccess = false
                     }
                 }
@@ -168,17 +112,12 @@ class MarketplaceSyncWorker @AssistedInject constructor(
             overallSuccess = false
         }
 
-        if (overallSuccess) {
+        return if (overallSuccess) {
             Timber.d("MarketplaceSyncWorker completed successfully")
-            return Result.success()
+            androidx.work.ListenableWorker.Result.success()
         } else {
-            Timber.w("MarketplaceSyncWorker completed with errors or items still needing sync. Retrying.")
-            return Result.retry()
+            Timber.w("MarketplaceSyncWorker completed with errors. Retrying.")
+            androidx.work.ListenableWorker.Result.retry()
         }
-    }
-
-    private fun isTransientError(e: Exception?): Boolean {
-        if (e == null) return false
-        return e is java.io.IOException || e is retrofit2.HttpException || e.message?.contains("timeout", true) == true
     }
 }

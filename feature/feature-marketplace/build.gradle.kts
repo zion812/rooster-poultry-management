@@ -102,6 +102,14 @@ dependencies {
     // Kotlinx Serialization if used for models specific to this feature
     implementation(libs.kotlinx.serialization.json)
 
+    // JSON parsing
+    implementation(libs.gson)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
