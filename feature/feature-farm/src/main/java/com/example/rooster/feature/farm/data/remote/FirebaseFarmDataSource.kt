@@ -124,21 +124,14 @@ class FirebaseFarmDataSource @Inject constructor(
     suspend fun saveFlock(flockData: Map<String, Any>): com.example.rooster.core.common.Result<Unit> {
         return try {
             val id = flockData["id"] as? String ?: UUID.randomUUID().toString()
-            val ownerId = flockData["ownerId"] as? String
-                ?: throw IllegalArgumentException("ownerId is required")
-
             // Ensure 'id' is part of the map being saved if it was generated.
             val dataToSave = flockData.toMutableMap()
             dataToSave["id"] = id // Ensure ID is in the map
             dataToSave["updatedAt"] = ServerValue.TIMESTAMP
 
-            // Save to both Firestore and Realtime Database with consistent paths
-            // Firestore: flocks_v2 collection
+            // Save to both Firestore and Realtime Database
             flocksCollection.document(id).set(dataToSave).await()
-
-            // RTDB: farmDetails/{ownerId}/flocks/{flockId} (matches security rules)
-            realtimeDatabase.child("farmDetails").child(ownerId).child("flocks").child(id)
-                .setValue(dataToSave).await()
+            realtimeDatabase.child("flocks_v2").child(id).setValue(dataToSave).await()
 
             com.example.rooster.core.common.Result.Success(Unit)
         } catch (e: Exception) {
@@ -184,16 +177,8 @@ class FirebaseFarmDataSource @Inject constructor(
 
     suspend fun deleteFlock(flockId: String): Result<Unit> {
         return try {
-            // First get the flock to find the ownerId
-            val flockDoc = flocksCollection.document(flockId).get().await()
-            val ownerId = flockDoc.getString("ownerId")
-                ?: throw IllegalArgumentException("ownerId not found for flock $flockId")
-
-            // Delete from both Firestore and Realtime Database with consistent paths
-            flocksCollection.document(flockId).delete().await()
-            realtimeDatabase.child("farmDetails").child(ownerId).child("flocks").child(flockId)
-                .removeValue().await()
-
+            flocksCollection.document(flockId).delete().await() // Use defined collection
+            realtimeDatabase.child("flocks_v2").child(flockId).removeValue().await() // Use versioned RTDB path
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -213,9 +198,9 @@ class FirebaseFarmDataSource @Inject constructor(
                 "timestamp" to FieldValue.serverTimestamp() // Add a timestamp for auditing
             )
             lineageLinksCollection.document(documentId).set(remoteLinkData).await()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 
@@ -223,10 +208,10 @@ class FirebaseFarmDataSource @Inject constructor(
         return try {
             val documentId = "${childFlockId}_${parentFlockId}_${relationshipTypeName}"
             lineageLinksCollection.document(documentId).delete().await()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception)
         {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 }

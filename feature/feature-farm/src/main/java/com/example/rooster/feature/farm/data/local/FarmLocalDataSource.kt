@@ -140,9 +140,6 @@ interface FlockDao {
     @Query("SELECT * FROM flocks WHERE fatherId = :parentId OR motherId = :parentId")
     fun getOffspring(parentId: String): Flow<List<FlockEntity>>
 
-    @Query("SELECT * FROM flocks WHERE id IN (:ids)")
-    fun getByIds(ids: List<String>): Flow<List<FlockEntity>>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: FlockEntity)
 
@@ -163,12 +160,6 @@ interface FlockDao {
 
     @Query("UPDATE flocks SET syncStatus = :status WHERE id = :id")
     suspend fun updateSyncStatus(id: String, status: String)
-
-    @Query("UPDATE flocks SET syncAttempts = :attempts, lastSyncAttemptTimestamp = :timestamp WHERE id = :id")
-    suspend fun updateSyncAttempts(id: String, attempts: Int, timestamp: Long)
-
-    @Query("UPDATE flocks SET needsSync = 0, syncAttempts = 0, syncStatus = NULL WHERE id = :id")
-    suspend fun updateSyncStatusAndReset(id: String)
 }
 
 @Dao
