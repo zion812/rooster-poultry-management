@@ -71,6 +71,11 @@ dependencies {
     // WorkManager (if this feature needs its own background sync)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.hilt.work) 
+    ksp(libs.androidx.hilt.compiler)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore)
 
     // Compose (if UI is in this module)
     implementation(platform(libs.androidx.compose.bom))
@@ -82,12 +87,15 @@ dependencies {
     // implementation("androidx.compose.material:material-icons-extended")
 
     // Lifecycle for ViewModels (if ViewModels are in this module)
-    // implementation(libs.androidx.lifecycle.viewmodel.compose)
-    // implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.lifecycle.runtime.compose)
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // JSON
+    implementation(libs.gson)
 
     // Kotlinx Serialization
     implementation(libs.kotlinx.serialization.json)

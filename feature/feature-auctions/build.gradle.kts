@@ -63,14 +63,19 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose) // For Hilt ViewModels in navigated Composables
+    implementation(libs.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
 
     // Parse SDK - Required for auction functionality
-    implementation("com.github.parse-community.Parse-SDK-Android:parse:4.2.0")
+    implementation(libs.parse)
     implementation("com.github.parse-community.Parse-SDK-Android:coroutines:4.2.0")
 
     // Firebase - Required for Crashlytics logging
-    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
-    implementation("com.google.firebase:firebase-crashlytics")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+
+    // Payments
+    implementation(libs.razorpay)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))
@@ -78,8 +83,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.compose.material.icons)
-    implementation("androidx.compose.material:material-icons-extended")
 
     // Lifecycle & ViewModels
     implementation(libs.lifecycle.viewmodel.compose)

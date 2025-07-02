@@ -42,7 +42,7 @@ fun FarmBoardScreen(
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         style = MaterialTheme.typography.bodyLarge
                     )
-                    syncFailedFlocks.forEach { flock ->
+                    for (flock in syncFailedFlocks) {
                         Text(
                             text = "• ${flock.name} (${flock.id})",
                             color = MaterialTheme.colorScheme.onErrorContainer,

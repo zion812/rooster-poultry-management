@@ -151,10 +151,11 @@ dependencies {
     implementation(project(":core:search"))
     implementation(project(":core:analytics"))
 
-    // Feature modules - TEMPORARILY DISABLED FOR EMERGENCY BUILD
-    // implementation(project(":feature:feature-farm"))
-    // implementation(project(":feature:feature-marketplace"))
-    // implementation(project(":feature:feature-auctions")) // Temporarily disabled due to compilation issues
+    // Feature modules
+    implementation(project(":feature:feature-farm"))
+    implementation(project(":feature:feature-marketplace"))
+    implementation(project(":feature:feature-auctions"))
+    implementation(project(":feature:feature-community"))
 
     // Android Core
     implementation(libs.androidx.core.ktx)
@@ -180,6 +181,8 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
@@ -189,6 +192,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.database)
     implementation(libs.firebase.messaging)
+    implementation("com.google.firebase:firebase-storage-ktx")
 
     // Parse SDK
     implementation(libs.parse)

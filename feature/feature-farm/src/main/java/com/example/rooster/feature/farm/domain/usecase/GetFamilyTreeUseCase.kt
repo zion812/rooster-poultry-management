@@ -18,7 +18,7 @@ class GetFamilyTreeUseCaseImpl(
     override fun invoke(fowlId: String, generations: Int): Flow<Result<List<Flock>>> {
         // TODO: recursively fetch parents up to 'generations'
         return repository.getFlockById(fowlId).map { result ->
-            result.map { flock -> listOf(flock) } // stub: only the current fowl
+            result.map { flock -> flock?.let { listOf(it) } ?: emptyList() }
         }
     }
 }

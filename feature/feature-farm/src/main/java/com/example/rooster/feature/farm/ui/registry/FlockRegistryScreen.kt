@@ -225,6 +225,7 @@ private fun AgeGroupSelector(
                                 AgeGroup.WEEKS_0_5 -> "0 - 5 Weeks"
                                 AgeGroup.WEEKS_5_5MONTHS -> "5 Weeks - 5 Months"
                                 AgeGroup.MONTHS_5_12PLUS -> "5 - 12+ Months"
+                                AgeGroup.UNKNOWN -> "Unknown"
                             },
                             modifier = Modifier.padding(start = 16.dp)
                         )
