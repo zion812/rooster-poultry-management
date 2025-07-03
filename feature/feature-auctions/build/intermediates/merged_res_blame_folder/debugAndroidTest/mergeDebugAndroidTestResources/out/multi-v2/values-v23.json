@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.rooster.feature.auctions.test.feature-auctions-mergeDebugAndroidTestResources-78:/values-v23/values-v23.xml",
+            "map": [
+                {
+                    "source": "/home/user/.gradle/caches/8.13/transforms/b02865962a6523bd220472476dbf8295/transformed/work-runtime-2.3.4/res/values-v23/values-v23.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,121",
+                        "endColumns": "65,62",
+                        "endOffsets": "116,179"
+                    }
+                }
+            ]
+        }
+    ]
+}

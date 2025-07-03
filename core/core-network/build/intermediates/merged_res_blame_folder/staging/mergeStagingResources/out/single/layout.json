@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/layout/ime_base_split_test_activity.xml",
+        "source": "com.example.rooster.core.network.core-network-core-1.15.0-3:/layout/ime_base_split_test_activity.xml"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/layout/browser_actions_context_menu_row.xml",
+        "source": "com.example.rooster.core.network.core-network-browser-1.4.0-27:/layout/browser_actions_context_menu_row.xml"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/layout/notification_template_part_chronometer.xml",
+        "source": "com.example.rooster.core.network.core-network-core-1.15.0-3:/layout/notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/layout/custom_dialog.xml",
+        "source": "com.example.rooster.core.network.core-network-core-1.15.0-3:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/layout/ime_secondary_split_test_activity.xml",
+        "source": "com.example.rooster.core.network.core-network-core-1.15.0-3:/layout/ime_secondary_split_test_activity.xml"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/layout/notification_template_part_time.xml",
+        "source": "com.example.rooster.core.network.core-network-core-1.15.0-3:/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/layout/browser_actions_context_menu_page.xml",
+        "source": "com.example.rooster.core.network.core-network-browser-1.4.0-27:/layout/browser_actions_context_menu_page.xml"
+    }
+]

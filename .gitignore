@@ -54,11 +54,22 @@ npm-debug.log*
 # Sensitive files
 google-services.json
 firebase-rules.json
+keystore.properties
+*.jks
+*.keystore
 
 # Temporary files
 *.tmp
 *.temp
 *.log
+
+# Large files and build artifacts
+*.hprof
+*.tar.gz
+*.zip
+build_errors.txt
+errors.txt
+updates.txt
 
 # OS Files
 Thumbs.db

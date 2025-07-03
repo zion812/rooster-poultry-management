@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 8.10.0" type="incidents">
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of com.google.firebase:firebase-auth than 22.3.0 is available: 23.2.1">
+        <fix-replace
+            description="Change to 23.2.1"
+            family="Update versions"
+            oldString="22.3.0"
+            replacement="23.2.1"
+            priority="0"/>
+        <location
+            file="${:core:core-common*projectDir}/build.gradle.kts"
+            line="71"
+            column="20"
+            startOffset="1722"
+            endLine="71"
+            endColumn="62"
+            endOffset="1764"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of com.google.firebase:firebase-firestore than 24.10.0 is available: 25.1.4">
+        <fix-replace
+            description="Change to 25.1.4"
+            family="Update versions"
+            oldString="24.10.0"
+            replacement="25.1.4"
+            priority="0"/>
+        <location
+            file="${:core:core-common*projectDir}/build.gradle.kts"
+            line="72"
+            column="20"
+            startOffset="1785"
+            endLine="72"
+            endColumn="68"
+            endOffset="1833"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of com.google.firebase:firebase-common than 20.4.0 is available: 21.0.0">
+        <fix-replace
+            description="Change to 21.0.0"
+            family="Update versions"
+            oldString="20.4.0"
+            replacement="21.0.0"
+            priority="0"/>
+        <location
+            file="${:core:core-common*projectDir}/build.gradle.kts"
+            line="73"
+            column="20"
+            startOffset="1854"
+            endLine="73"
+            endColumn="64"
+            endOffset="1898"/>
+    </incident>
+
+    <incident
+        id="ObsoleteSdkInt"
+        severity="warning"
+        message="Unnecessary; `SDK_INT` is always >= 24">
+        <fix-data conditional="true"/>
+        <location
+            file="${:core:core-common*debug*MAIN*sourceProvider*0*javaDir*0}/com/example/rooster/core/common/Extensions.kt"
+            line="46"
+            column="16"
+            startOffset="1389"
+            endLine="46"
+            endColumn="62"
+            endOffset="1435"/>
+    </incident>
+
+</incidents>

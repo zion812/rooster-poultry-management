@@ -1,0 +1,38 @@
+[
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/drawable-xxhdpi-v4/ic_passkey.png",
+        "source": "com.example.rooster.core.network.core-network-credentials-1.2.0-rc01-5:/drawable-xxhdpi-v4/ic_passkey.png"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/drawable-xxhdpi-v4/ic_password.png",
+        "source": "com.example.rooster.core.network.core-network-credentials-1.2.0-rc01-5:/drawable-xxhdpi-v4/ic_password.png"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/drawable-xxhdpi-v4/ic_other_sign_in.png",
+        "source": "com.example.rooster.core.network.core-network-credentials-1.2.0-rc01-5:/drawable-xxhdpi-v4/ic_other_sign_in.png"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/drawable-xxhdpi-v4/common_google_signin_btn_text_dark_normal_background.9.png",
+        "source": "com.example.rooster.core.network.core-network-play-services-base-18.0.1-30:/drawable-xxhdpi-v4/common_google_signin_btn_text_dark_normal_background.9.png"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/drawable-xxhdpi-v4/googleg_disabled_color_18.png",
+        "source": "com.example.rooster.core.network.core-network-play-services-base-18.0.1-30:/drawable-xxhdpi-v4/googleg_disabled_color_18.png"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/drawable-xxhdpi-v4/common_google_signin_btn_icon_light_normal_background.9.png",
+        "source": "com.example.rooster.core.network.core-network-play-services-base-18.0.1-30:/drawable-xxhdpi-v4/common_google_signin_btn_icon_light_normal_background.9.png"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/drawable-xxhdpi-v4/googleg_standard_color_18.png",
+        "source": "com.example.rooster.core.network.core-network-play-services-base-18.0.1-30:/drawable-xxhdpi-v4/googleg_standard_color_18.png"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/drawable-xxhdpi-v4/common_google_signin_btn_icon_dark_normal_background.9.png",
+        "source": "com.example.rooster.core.network.core-network-play-services-base-18.0.1-30:/drawable-xxhdpi-v4/common_google_signin_btn_icon_dark_normal_background.9.png"
+    },
+    {
+        "merged": "com.example.rooster.core.network.core-network-staging-55:/drawable-xxhdpi-v4/common_google_signin_btn_text_light_normal_background.9.png",
+        "source": "com.example.rooster.core.network.core-network-play-services-base-18.0.1-30:/drawable-xxhdpi-v4/common_google_signin_btn_text_light_normal_background.9.png"
+    }
+]

@@ -22,7 +22,13 @@ val keystoreProperties =
     }
 
 // Flag if release keystore is available
-val hasKeystore = keystorePropertiesFile.exists()
+val hasKeystore = keystorePropertiesFile.exists() && 
+    keystoreProperties.getProperty("storeFile")?.isNotBlank() == true
+
+if (!hasKeystore) {
+    logger.info("🔐 Release keystore not configured. See keystore.properties.template for setup instructions.")
+    logger.info("📋 Debug builds will continue to use debug signing for development.")
+}
 
 // Ktlint enforcement
 ktlint {
@@ -56,8 +62,6 @@ android {
                 storePassword = keystoreProperties.getProperty("storePassword") ?: ""
                 keyAlias = keystoreProperties.getProperty("keyAlias") ?: ""
                 keyPassword = keystoreProperties.getProperty("keyPassword") ?: ""
-            } else {
-                println("INFO: No release keystore configured; release builds will not be signed here.")
             }
         }
     }
@@ -115,11 +119,10 @@ android {
 
     kotlinOptions {
         jvmTarget = "11"
-        freeCompilerArgs +=
-            listOf(
-                "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-                "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-            )
+        freeCompilerArgs += listOf(
+            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+        )
     }
 
     buildFeatures {

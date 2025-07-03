@@ -19,9 +19,9 @@ plugins {
 subprojects {
     // Common task configurations
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "11"
-            freeCompilerArgs += listOf(
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+            freeCompilerArgs.addAll(
                 "-opt-in=kotlin.RequiresOptIn",
                 "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                 "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
@@ -140,7 +140,8 @@ tasks.register("generateDependencyReport") {
     group = "enterprise"
 
     doLast {
-        val reportFile = file("$buildDir/reports/dependencies/all-dependencies.txt")
+        val reportFile =
+            file("${layout.buildDirectory.get().asFile}/reports/dependencies/all-dependencies.txt")
         reportFile.parentFile.mkdirs()
 
         reportFile.writeText("# Rooster App - Dependency Report\n")
