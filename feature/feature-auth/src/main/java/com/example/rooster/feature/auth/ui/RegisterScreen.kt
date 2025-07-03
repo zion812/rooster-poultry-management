@@ -1,8 +1,11 @@
 package com.example.rooster.feature.auth.ui
 
-< feat/login-screen-v1
+ feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
 package com.example.rooster.feature.auth.ui
 
@@ -34,6 +37,11 @@ import com.example.rooster.ui.theme.RoosterTheme
 @Composable
 fun RegisterScreen(
 
+ feat/login-screen-v1
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RegisterScreen(
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,6 +64,7 @@ import com.example.rooster.ui.theme.RoosterTheme
 @Composable
 fun RegisterScreen(
  feat/login-screen-v1
+ main
  main
     // viewModel: RegisterViewModel = hiltViewModel(), // To be added
     onRegisterClick: (name: String, email: String, phone: String, pass: String, role: UserRole) -> Unit,
@@ -87,12 +96,15 @@ fun RegisterScreen(
             )
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
     onNavigateBack: () -> Unit // Example navigation callback
 ) {
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Register") }) // Placeholder title
+ main
  main
  main
         }
@@ -104,6 +116,9 @@ fun RegisterScreen(
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
                 .padding(16.dp)
                 .verticalScroll(scrollState),
@@ -263,6 +278,8 @@ fun RegisterScreen(
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
                 .padding(all = sixteenDp), // Assuming sixteenDp is defined in Dimens or similar
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -284,6 +301,7 @@ private val sixteenDp = androidx.compose.ui.unit.dp.constructor_impl(16.0f)
  main
 
  main
+ main
 @Preview(showBackground = true, name = "Register Screen Light")
 @Composable
 fun RegisterScreenPreviewLight() {
@@ -291,6 +309,9 @@ fun RegisterScreenPreviewLight() {
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
         WithPreviewResources { // Assuming this is available from LoginScreen's preview helpers or defined here
             RegisterScreen(
@@ -300,8 +321,11 @@ fun RegisterScreenPreviewLight() {
         }
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
         RegisterScreen(onNavigateBack = {})
+ main
  main
  main
     }
@@ -314,6 +338,9 @@ fun RegisterScreenPreviewDark() {
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
         WithPreviewResources {
              RegisterScreen(
@@ -385,9 +412,12 @@ internal fun WithPreviewResources(content: @Composable () -> Unit) {
 // Added isLoading state to show CircularProgressIndicator.
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
         RegisterScreen(onNavigateBack = {})
     }
 }
+ main
  main
  main

@@ -15,7 +15,11 @@ import kotlinx.coroutines.flow.asStateFlow
  feat/login-screen-v1
 import com.example.rooster.core.auth.domain.model.User // Import User model
 
+ feat/login-screen-v1
+import com.example.rooster.core.auth.domain.model.User // Import User model
+
 main
+ main
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject

@@ -35,6 +35,9 @@
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
     <!-- Register Screen -->
     <string name="register_screen_title">ఖాతాను సృష్టించండి</string>
@@ -55,7 +58,10 @@
     <string name="error_password_mismatch">పాస్‌వర్డ్‌లు సరిపోలడం లేదు.</string>
     <string name="error_registration_failed">నమోదు విఫలమైంది. దయచేసి మీ వివరాలను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.</string>
 
+ feat/login-screen-v1
+
   feat/login-screen-v1
+ main
     <!-- Bottom Navigation Tabs -->
     <string name="tab_market">మార్కెట్</string>
     <string name="tab_explore">అన్వేషించండి</string>
@@ -68,10 +74,22 @@
     <string name="tab_transfers">బదిలీలు</string>
 
     <!-- Other Screens -->
+ feat/login-screen-v1
+    <string name="forgot_password_title">పాస్‌వర్డ్‌ను రీసెట్ చేయండి</string>
+    <string name="forgot_password_instructions">మీ పాస్‌వర్డ్‌ను రీసెట్ చేయడానికి లింక్‌ను పంపడానికి దయచేసి మీ ఇమెయిల్ చిరునామాను క్రింద నమోదు చేయండి.</string>
+    <string name="forgot_password_button_send_link">రీసెట్ లింక్‌ను పంపండి</string>
+    <string name="forgot_password_success_message">పాస్‌వర్డ్ రీసెట్ లింక్ పంపబడింది! దయచేసి మీ ఇమెయిల్ ఇన్‌బాక్స్ (మరియు స్పామ్ ఫోల్డర్) తనిఖీ చేయండి.</string>
+    <string name="action_back_to_login">లాగిన్‌కు తిరిగి వెళ్ళు</string>
+
+    <!-- Forgot Password Error Messages -->
+    <string name="error_password_reset_failed">పాస్‌వర్డ్ రీసెట్ లింక్‌ను పంపడంలో విఫలమైంది. దయచేసి ఇమెయిల్ చిరునామాను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.</string>
+
+
     <string name="forgot_password_title">పాస్‌వర్డ్ మర్చిపోయారా</string>
 
 
 
+ main
  main
  main
 </resources>

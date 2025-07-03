@@ -93,9 +93,26 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun resetPassword(email: String): Result<Unit> {
         return try {
+ feat/login-screen-v1
+            // TODO: Implement with Firebase Authentication:
+            // firebaseAuth.sendPasswordResetEmail(email).await()
+            // This call typically succeeds even if the email doesn't exist to prevent account enumeration.
+            // Specific errors (like invalid email format) might be thrown by the SDK before the call.
+
+            // Mock implementation:
+            // To simulate failures for testing, the FakeAuthRepository in tests can be configured.
+            // For example, if email contains "fail":
+            if (email.contains("fail-reset@example.com")) { // A simple way to test failure path in manual/mock tests
+                throw RuntimeException("Mock simulated failure: User not found or invalid email for password reset.")
+            }
+            Result.success(Unit) // Mock success
+
             // TODO: firebaseAuth.sendPasswordResetEmail(email).await()
             Result.success(Unit)
+ main
         } catch (e: Exception) {
+            // TODO: Map Firebase exceptions (e.g., FirebaseAuthInvalidUserException, FirebaseAuthInvalidCredentialsException)
+            // to more domain-specific errors if needed, though often a generic failure is sufficient for reset password.
             Result.failure(e)
         }
     }

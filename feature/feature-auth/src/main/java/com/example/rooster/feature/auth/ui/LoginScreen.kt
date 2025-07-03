@@ -46,16 +46,22 @@ fun LoginScreen(
     // val context = LocalContext.current // Not used for now, but kept for potential future use (e.g. Toasts)
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
     // Handle navigation to role-specific graph
     LaunchedEffect(key1 = uiState.loggedInUserRole) {
         uiState.loggedInUserRole?.let { authenticatedRole ->
             onNavigateToHome(authenticatedRole) // Pass the role to the navigation callback
             viewModel.navigationToRoleGraphComplete() // Reset the trigger in ViewModel
+ feat/login-screen-v1
+
 
     LaunchedEffect(key1 = uiState.navigateToHome) {
         if (uiState.navigateToHome) {
             onNavigateToHome()
             viewModel.navigationToHomeComplete()
+ main
  main
         }
     }
