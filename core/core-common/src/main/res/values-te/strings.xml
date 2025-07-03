@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Login Screen -->
+    <string name="login_title">రూస్టర్‌కు లాగిన్ చేయండి</string>
+    <string name="email_label">ఈమెయిల్ చిరునామా</string>
+    <string name="password_label">పాస్‌వర్డ్</string>
+    <string name="select_role_label">మీ పాత్రను ఎంచుకోండి</string>
+    <string name="login_button_text">లాగిన్</string>
+    <string name="register_prompt_text">ఖాతా లేదా?</string>
+    <string name="register_button_text">ఇక్కడ నమోదు చేసుకోండి</string>
+
+    <!-- User Roles -->
+    <string name="role_farmer">రైతు</string>
+    <string name="role_buyer">కొనుగోలుదారు</string>
+    <string name="role_admin">నిర్వాహకుడు</string>
+    <string name="role_veterinarian">పశువైద్యుడు</string>
+
+    <!-- Login ViewModel Error Messages -->
+    <string name="error_email_password_empty">ఈమెయిల్ మరియు పాస్‌వర్డ్ ఖాళీగా ఉండకూడదు.</string>
+    <string name="error_login_failed">లాగిన్ విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="error_unexpected">ఊహించని లోపం సంభవించింది. దయచేసి తర్వాత మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="error_role_mismatch">ఎంచుకున్న పాత్ర మీ ఖాతాతో సరిపోలడం లేదు.</string>
+
+    <!-- General -->
+    <string name="app_name">రూస్టర్ పౌల్ట్రీ</string>
+    <string name="ok">సరే</string>
+    <string name="cancel">రద్దు చేయండి</string>
+    <string name="submit">సమర్పించండి</string>
+    <string name="loading">లోడ్ అవుతోంది…</string>
+
+    <!-- Placeholder Titles for Screens Created in Navigation Step -->
+    <string name="register_screen_title">నమోదు చేసుకోండి</string>
+    <string name="home_screen_title">హోమ్ డాష్‌బోర్డ్</string>
+
+</resources>
