@@ -1,5 +1,8 @@
 package com.example.rooster.core.common.event;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * A simple singleton event bus for app-wide communication for specific, well-defined events.
  * Use judiciously to avoid making it a god object.

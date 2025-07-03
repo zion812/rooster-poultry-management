@@ -1,5 +1,7 @@
 package com.example.rooster.core.common.user;
 
+import kotlinx.coroutines.flow.Flow;
+
 /**
  * Provides access to the current authenticated user's ID.
  */

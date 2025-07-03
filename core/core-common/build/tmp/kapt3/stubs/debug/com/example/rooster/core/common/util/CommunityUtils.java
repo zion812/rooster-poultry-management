@@ -1,5 +1,7 @@
 package com.example.rooster.core.common.util;
 
+import com.example.rooster.core.common.model.CommunityGroup;
+
 /**
  * Utility functions for community operations
  */

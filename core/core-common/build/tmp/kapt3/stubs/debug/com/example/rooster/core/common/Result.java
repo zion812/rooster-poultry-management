@@ -1,5 +1,7 @@
 package com.example.rooster.core.common;
 
+import kotlinx.coroutines.flow.Flow;
+
 /**
  * Enterprise-grade Result class for handling success/error states
  * Following patterns from Meta and Google

@@ -1,37 +1,39 @@
 package com.example.rooster
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.RoomDatabase
 
+@Entity(tableName = "photo_uploads")
+data class PhotoUploadEntity(
+    @PrimaryKey val id: String,
+    val filePath: String,
+    val uploadStatus: String,
+    val timestamp: Long
+)
+
+@Dao
+interface PhotoUploadDao {
+    @Query("SELECT * FROM photo_uploads")
+    suspend fun getAllUploads(): List<PhotoUploadEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUpload(upload: PhotoUploadEntity)
+
+    @Query("DELETE FROM photo_uploads WHERE id = :id")
+    suspend fun deleteUpload(id: String)
+}
+
 @Database(
-    entities = [PhotoUploadEntity::class, MessageEntity::class],
-    version = 2,
-    exportSchema = false, // Recommended for libraries, true for apps for schema history
+    entities = [PhotoUploadEntity::class],
+    version = 1,
+    exportSchema = false
 )
 abstract class PhotoUploadDatabase : RoomDatabase() {
     abstract fun photoUploadDao(): PhotoUploadDao
-
-    abstract fun messageDao(): MessageDao
-
-    companion object {
-        @Volatile
-        private var instance: PhotoUploadDatabase? = null
-
-        fun getInstance(context: Context): PhotoUploadDatabase {
-            return instance ?: synchronized(this) {
-                val newInstance =
-                    Room.databaseBuilder(
-                        context.applicationContext,
-                        PhotoUploadDatabase::class.java,
-                        "rooster_photo_uploads.db", // More descriptive name
-                    )
-                        .fallbackToDestructiveMigration() // Handle migrations simply for now
-                        .build()
-                instance = newInstance
-                newInstance
-            }
-        }
-    }
 }

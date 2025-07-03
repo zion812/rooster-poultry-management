@@ -28,8 +28,13 @@ data class Message(
 data class CommunityGroup(
     val id: String,
     val name: String,
+    val description: String,
     val memberCount: Int,
-    val type: String
+    val category: String,
+    val region: String,
+    val isActive: Boolean,
+    val createdAt: Long,
+    val updatedAt: Long
 )
 
 data class SafeMarketplaceListing(

@@ -45,6 +45,16 @@ android {
         }
     }
 
+    kapt {
+        correctErrorTypes = true
+        arguments {
+            arg(
+                "kapt.kotlin.generated",
+                "${layout.buildDirectory.get()}/generated/source/kapt/main"
+            )
+        }
+    }
+
 }
 
 dependencies {

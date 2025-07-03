@@ -1,5 +1,8 @@
 package com.example.rooster.core.common.storage;
 
+import android.net.Uri;
+import com.example.rooster.core.common.Result;
+
 /**
  * Service interface for uploading images to cloud storage.
  * Provides methods for single and batch image uploads with optional compression.

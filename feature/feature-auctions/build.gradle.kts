@@ -75,7 +75,9 @@ dependencies {
     implementation(libs.firebase.crashlytics)
 
     // Payments
-    implementation(libs.razorpay)
+    implementation(libs.razorpay) {
+        exclude(group = "com.razorpay", module = "standard-core")
+    }
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))

@@ -1,5 +1,7 @@
 package com.example.rooster.core.common.domain.repository;
 
+import kotlinx.coroutines.flow.Flow;
+
 /**
  * Interface for managing user token balances and operations.
  */

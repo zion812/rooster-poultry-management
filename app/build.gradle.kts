@@ -22,8 +22,9 @@ val keystoreProperties =
     }
 
 // Flag if release keystore is available
-val hasKeystore = keystorePropertiesFile.exists() &&
-    keystoreProperties.getProperty("storeFile")?.isNotBlank() == true
+val hasKeystore =
+    keystorePropertiesFile.exists() &&
+            keystoreProperties.getProperty("storeFile")?.isNotBlank() == true
 
 if (!hasKeystore) {
     logger.info("🔐 Release keystore not configured. See keystore.properties.template for setup instructions.")
@@ -65,9 +66,12 @@ android {
             val storeFilePath = keystoreProperties.getProperty("storeFile")
             if (!storeFilePath.isNullOrBlank() && keystorePropertiesFile.exists()) {
                 storeFile = file(storeFilePath)
-                storePassword = keystoreProperties.getProperty("storePassword") ?: ""
-                keyAlias = keystoreProperties.getProperty("keyAlias") ?: ""
-                keyPassword = keystoreProperties.getProperty("keyPassword") ?: ""
+                storePassword =
+                    keystoreProperties.getProperty("storePassword") ?: ""
+                keyAlias =
+                    keystoreProperties.getProperty("keyAlias") ?: ""
+                keyPassword =
+                    keystoreProperties.getProperty("keyPassword") ?: ""
             }
         }
     }
@@ -77,6 +81,11 @@ android {
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_test_dummy\"")
             buildConfigField("String", "PAYMENT_API_BASE_URL", "\"http://10.0.2.2:3000/debug/\"")
             buildConfigField("String", "BACKEND_BASE_URL", "\"http://10.0.2.2:3000/api/\"")
+            buildConfigField(
+                "String",
+                "MAPS_API_KEY",
+                "\"${project.findProperty("MAPS_API_KEY") ?: "dummy_key"}\""
+            )
             versionNameSuffix = "-debug"
             isDebuggable = true
             isMinifyEnabled = false
@@ -94,6 +103,11 @@ android {
                 "\"https://api.roosterapp.com/payment/release/\"",
             )
             buildConfigField("String", "BACKEND_BASE_URL", "\"https://api.roosterapp.com/api/\"")
+            buildConfigField(
+                "String",
+                "MAPS_API_KEY",
+                "\"${project.findProperty("MAPS_API_KEY") ?: "dummy_key"}\""
+            )
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
@@ -249,7 +263,9 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Razorpay Payment Gateway
-    implementation("com.razorpay:checkout:1.6.38")
+    implementation(libs.razorpay) {
+        exclude(group = "com.razorpay", module = "standard-core")
+    }
 
     // ConstraintLayout
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")

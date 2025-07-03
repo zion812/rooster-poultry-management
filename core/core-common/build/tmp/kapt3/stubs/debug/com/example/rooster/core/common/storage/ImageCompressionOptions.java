@@ -1,5 +1,8 @@
 package com.example.rooster.core.common.storage;
 
+import android.net.Uri;
+import com.example.rooster.core.common.Result;
+
 /**
  * Configuration options for image compression during upload.
  */

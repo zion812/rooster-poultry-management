@@ -85,7 +85,9 @@ dependencies {
     implementation(libs.bundles.coroutines)
 
     // Razorpay Payment Gateway
-    implementation(libs.razorpay)
+    implementation(libs.razorpay) {
+        exclude(group = "com.razorpay", module = "standard-core")
+    }
 
     // Network
     implementation(libs.bundles.network)

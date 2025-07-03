@@ -1,5 +1,11 @@
 package com.example.rooster.core.common.domain.repository;
 
+import com.example.rooster.core.common.Result;
+import com.example.rooster.core.common.models.payment.CreateOrderRequest;
+import com.example.rooster.core.common.models.payment.RazorpayOrderResponse;
+import com.example.rooster.core.common.models.payment.VerifyPaymentRequest;
+import com.example.rooster.core.common.models.payment.VerifyPaymentResponse;
+
 /**
  * Interface for handling payment operations, e.g., with Razorpay via a backend.
  */

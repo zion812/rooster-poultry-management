@@ -2,9 +2,11 @@ package com.example.rooster.config
 
 object Constants {
     // Back4App Configuration
-    const val BACK4APP_APP_ID = "your_back4app_app_id"
-    const val BACK4APP_CLIENT_KEY = "your_back4app_client_key"
+    const val BACK4APP_APP_ID = "HrIgPFpGQ2raCaCCEPr6C9B8O7pLhhcdxgtRvLYZ"
+    const val BACK4APP_CLIENT_KEY = "Ce0lpTFzTMtQ196NW91pfD2NJNkA14PjsFyqdTC5"
     const val BACK4APP_SERVER_URL = "https://parseapi.back4app.com/"
+    const val BACK4APP_ACCOUNT_KEY = "1FrOEsls2M8SB2hEIpOwoG5BAEFkWoaLrImaxBFO"
+    const val BACK4APP_RUST_KEY = "d6KYqv0Jh0cxdRIJsyJ4m97BxMick4oPhuIXtXyk"
 
     // Network Configuration
     const val NETWORK_TIMEOUT = 30000L
@@ -17,4 +19,8 @@ object Constants {
     // Firebase Configuration
     const val FIREBASE_REGION = "us-east1"
     const val ANALYTICS_ENABLED = true
+
+    // Razorpay Configuration
+    const val RAZORPAY_KEY_TEST = "rzp_test_1234567890ABCD"
+    const val RAZORPAY_KEY_LIVE = "YOUR_LIVE_KEY"
 }
