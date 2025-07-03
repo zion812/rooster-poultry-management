@@ -32,6 +32,7 @@
     <string name="register_screen_title">నమోదు చేసుకోండి</string>
     <string name="home_screen_title">హోమ్ డాష్‌బోర్డ్</string>
 
+ feat/login-screen-v1
     <!-- Register Screen -->
     <string name="register_screen_title">ఖాతాను సృష్టించండి</string>
     <string name="action_back">వెనుకకు</string>
@@ -51,4 +52,6 @@
     <string name="error_password_mismatch">పాస్‌వర్డ్‌లు సరిపోలడం లేదు.</string>
     <string name="error_registration_failed">నమోదు విఫలమైంది. దయచేసి మీ వివరాలను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.</string>
 
+
+ main
 </resources>
