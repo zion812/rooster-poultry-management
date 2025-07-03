@@ -1,5 +1,9 @@
 package com.example.rooster.feature.auth.ui
 
+< feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
 package com.example.rooster.feature.auth.ui
 
 import androidx.compose.foundation.layout.*
@@ -25,9 +29,34 @@ import com.example.rooster.core.common.R // Assuming R class from core-common
 import com.example.rooster.ui.theme.RoosterTheme
 // import androidx.hilt.navigation.compose.hiltViewModel // Will be needed when ViewModel is integrated
 
+ feat/login-screen-v1
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.rooster.ui.theme.RoosterTheme
+// Assuming a generic R for placeholder strings, actual one later
+// import com.example.rooster.app.R
+ main
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RegisterScreen(
+ feat/login-screen-v1
+ main
     // viewModel: RegisterViewModel = hiltViewModel(), // To be added
     onRegisterClick: (name: String, email: String, phone: String, pass: String, role: UserRole) -> Unit,
     onNavigateToLogin: () -> Unit,
@@ -56,12 +85,26 @@ fun RegisterScreen(
                     }
                 }
             )
+ feat/login-screen-v1
+
+
+    onNavigateBack: () -> Unit // Example navigation callback
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Register") }) // Placeholder title
+ main
+ main
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
                 .padding(16.dp)
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -218,16 +261,49 @@ fun RegisterScreen(
 // Let's use the one from LoginScreen.kt by ensuring it's accessible or copying its logic.
 // For preview, we use the same previewStringResource mechanism as in LoginScreen.
 
+ feat/login-screen-v1
+
+                .padding(all = sixteenDp), // Assuming sixteenDp is defined in Dimens or similar
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Register Screen Placeholder", // Placeholder text
+                style = MaterialTheme.typography.headlineMedium
+            )
+            // TODO: Implement actual registration form fields (name, email, password, role, etc.)
+            // TODO: Add Register button and logic
+            // TODO: Add navigation to Login or back
+        }
+    }
+}
+
+// A common dimension value, assuming it would be in a Dimens.kt or similar
+// For now, defined locally for the placeholder.
+private val sixteenDp = androidx.compose.ui.unit.dp.constructor_impl(16.0f)
+ main
+
+ main
 @Preview(showBackground = true, name = "Register Screen Light")
 @Composable
 fun RegisterScreenPreviewLight() {
     RoosterTheme(darkTheme = false) {
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
         WithPreviewResources { // Assuming this is available from LoginScreen's preview helpers or defined here
             RegisterScreen(
                 onRegisterClick = { _, _, _, _, _ -> },
                 onNavigateToLogin = {}
             )
         }
+ feat/login-screen-v1
+
+
+        RegisterScreen(onNavigateBack = {})
+ main
+ main
     }
 }
 
@@ -235,6 +311,10 @@ fun RegisterScreenPreviewLight() {
 @Composable
 fun RegisterScreenPreviewDark() {
     RoosterTheme(darkTheme = true) {
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
         WithPreviewResources {
              RegisterScreen(
                 onRegisterClick = { _, _, _, _, _ -> },
@@ -303,3 +383,11 @@ internal fun WithPreviewResources(content: @Composable () -> Unit) {
 // Using Scaffold with TopAppBar for a more complete screen structure.
 // Added error display below each field, driven by an errorMap.
 // Added isLoading state to show CircularProgressIndicator.
+ feat/login-screen-v1
+
+
+        RegisterScreen(onNavigateBack = {})
+    }
+}
+ main
+ main

@@ -32,6 +32,10 @@
     <string name="register_screen_title">Register</string>
     <string name="home_screen_title">Home Dashboard</string>
 
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
     <!-- Register Screen -->
     <string name="register_screen_title">Create Account</string>
     <string name="action_back">Back</string>
@@ -53,6 +57,7 @@
     <!-- error_unexpected is already defined -->
     <!-- error_role_mismatch is already defined (might be useful for profile updates later) -->
 
+ feat/login-screen-v1
     <!-- Bottom Navigation Tabs -->
     <string name="tab_market">Market</string>
     <string name="tab_explore">Explore</string>
@@ -67,4 +72,8 @@
     <!-- Other Screens -->
     <string name="forgot_password_title">Forgot Password</string>
 
+
+
+ main
+ main
 </resources>
