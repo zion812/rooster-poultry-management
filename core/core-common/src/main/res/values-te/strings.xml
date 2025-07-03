@@ -37,6 +37,9 @@
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
     <!-- Register Screen -->
@@ -60,7 +63,10 @@
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
   feat/login-screen-v1
+ main
  main
     <!-- Bottom Navigation Tabs -->
     <string name="tab_market">మార్కెట్</string>
@@ -75,6 +81,9 @@
 
     <!-- Other Screens -->
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
     <string name="forgot_password_title">పాస్‌వర్డ్‌ను రీసెట్ చేయండి</string>
     <string name="forgot_password_instructions">మీ పాస్‌వర్డ్‌ను రీసెట్ చేయడానికి లింక్‌ను పంపడానికి దయచేసి మీ ఇమెయిల్ చిరునామాను క్రింద నమోదు చేయండి.</string>
     <string name="forgot_password_button_send_link">రీసెట్ లింక్‌ను పంపండి</string>
@@ -84,11 +93,14 @@
     <!-- Forgot Password Error Messages -->
     <string name="error_password_reset_failed">పాస్‌వర్డ్ రీసెట్ లింక్‌ను పంపడంలో విఫలమైంది. దయచేసి ఇమెయిల్ చిరునామాను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.</string>
 
+ feat/login-screen-v1
+
 
     <string name="forgot_password_title">పాస్‌వర్డ్ మర్చిపోయారా</string>
 
 
 
+ main
  main
  main
  main

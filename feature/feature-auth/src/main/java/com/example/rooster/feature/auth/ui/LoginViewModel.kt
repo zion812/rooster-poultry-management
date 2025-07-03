@@ -18,7 +18,11 @@ import com.example.rooster.core.auth.domain.model.User // Import User model
  feat/login-screen-v1
 import com.example.rooster.core.auth.domain.model.User // Import User model
 
+ feat/login-screen-v1
+import com.example.rooster.core.auth.domain.model.User // Import User model
+
 main
+ main
  main
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
