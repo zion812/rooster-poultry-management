@@ -32,4 +32,28 @@
     <string name="register_screen_title">Register</string>
     <string name="home_screen_title">Home Dashboard</string>
 
+ feat/login-screen-v1
+    <!-- Register Screen -->
+    <string name="register_screen_title">Create Account</string>
+    <string name="action_back">Back</string>
+    <string name="create_account_title">Create Your Rooster Account</string>
+    <string name="name_label">Full Name</string>
+    <string name="phone_label">Phone Number</string>
+    <string name="optional_field">Optional</string>
+    <string name="confirm_password_label">Confirm Password</string>
+    <string name="register_button_action">Create Account</string>
+    <string name="already_have_account_login">Already have an account? Login</string>
+
+    <!-- Registration & Validation Error Messages -->
+    <string name="error_field_required">This field is required.</string>
+    <string name="error_invalid_email">Please enter a valid email address.</string>
+    <string name="error_invalid_phone">Please enter a valid phone number (e.g., 10 digits).</string>
+    <string name="error_password_too_short">Password must be at least 8 characters long.</string>
+    <string name="error_password_mismatch">Passwords do not match.</string>
+    <string name="error_registration_failed">Registration failed. Please check your details and try again.</string>
+    <!-- error_unexpected is already defined -->
+    <!-- error_role_mismatch is already defined (might be useful for profile updates later) -->
+
+
+ main
 </resources>
