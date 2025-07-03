@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Login Screen -->
+    <string name="login_title">Login to Rooster</string>
+    <string name="email_label">Email Address</string>
+    <string name="password_label">Password</string>
+    <string name="select_role_label">Select Your Role</string>
+    <string name="login_button_text">Login</string>
+    <string name="register_prompt_text">Don\'t have an account?</string>
+    <string name="register_button_text">Register Here</string>
+
+    <!-- User Roles -->
+    <string name="role_farmer">Farmer</string>
+    <string name="role_buyer">Buyer</string>
+    <string name="role_admin">Admin</string>
+    <string name="role_veterinarian">Veterinarian</string>
+
+    <!-- Login ViewModel Error Messages -->
+    <string name="error_email_password_empty">Email and password cannot be empty.</string>
+    <string name="error_login_failed">Login failed. Please try again.</string>
+    <string name="error_unexpected">An unexpected error occurred. Please try again later.</string>
+    <string name="error_role_mismatch">The selected role does not match your account.</string>
+
+    <!-- General -->
+    <string name="app_name">Rooster Poultry</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="submit">Submit</string>
+    <string name="loading">Loading…</string>
+
+    <!-- Placeholder Titles for Screens Created in Navigation Step -->
+    <string name="register_screen_title">Register</string>
+    <string name="home_screen_title">Home Dashboard</string>
+
+    <!-- Register Screen -->
+    <string name="register_screen_title">Create Account</string>
+    <string name="action_back">Back</string>
+    <string name="create_account_title">Create Your Rooster Account</string>
+    <string name="name_label">Full Name</string>
+    <string name="phone_label">Phone Number</string>
+    <string name="optional_field">Optional</string>
+    <string name="confirm_password_label">Confirm Password</string>
+    <string name="register_button_action">Create Account</string>
+    <string name="already_have_account_login">Already have an account? Login</string>
+
+    <!-- Registration & Validation Error Messages -->
+    <string name="error_field_required">This field is required.</string>
+    <string name="error_invalid_email">Please enter a valid email address.</string>
+    <string name="error_invalid_phone">Please enter a valid phone number (e.g., 10 digits).</string>
+    <string name="error_password_too_short">Password must be at least 8 characters long.</string>
+    <string name="error_password_mismatch">Passwords do not match.</string>
+    <string name="error_registration_failed">Registration failed. Please check your details and try again.</string>
+    <!-- error_unexpected is already defined -->
+    <!-- error_role_mismatch is already defined (might be useful for profile updates later) -->
+
+</resources>
