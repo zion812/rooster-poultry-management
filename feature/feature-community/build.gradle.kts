@@ -61,7 +61,7 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler) // Ensure this is the KSP variant if project uses KSP for Hilt
-    // implementation(libs.hilt.navigation.compose) // If using Hilt for Compose navigation
+    implementation(libs.hilt.navigation.compose)
 
     // Room Database
     implementation(libs.room.runtime)
@@ -77,18 +77,23 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
 
-    // Compose (if UI is in this module)
+    // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    // implementation(libs.androidx.compose.material.icons)
-    // implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.material.icons)
 
-    // Lifecycle for ViewModels (if ViewModels are in this module)
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    // Lifecycle & ViewModels
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.lifecycle.runtime.compose)
+
+    // Image Loading
+    implementation(libs.coil.compose)
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")

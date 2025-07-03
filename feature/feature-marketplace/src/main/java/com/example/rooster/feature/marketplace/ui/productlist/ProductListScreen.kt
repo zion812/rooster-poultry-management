@@ -3,6 +3,8 @@ package com.example.rooster.feature.marketplace.ui.productlist
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -38,11 +40,13 @@ fun ProductListScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onNavigateToCreateListing) {
-                Icon(Icons.Default.Add, contentDescription = "Create Listing")
+                Icon(Icons.Filled.Add, contentDescription = "Create Listing")
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+        Box(modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxSize()) {
             when (uiState) {
                 is ProductListUiState.InitialLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -50,7 +54,9 @@ fun ProductListScreen(
                 is ProductListUiState.Error -> {
                     val errorState = uiState as ProductListUiState.Error
                     Column(
-                        modifier = Modifier.align(Alignment.Center).padding(32.dp),
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -114,8 +120,6 @@ fun ProductListItem(
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(listing.imageUrls.firstOrNull())
-                    .placeholder(com.example.rooster.R.drawable.placeholder_image) // Assuming R is app level
-                    .error(com.example.rooster.R.drawable.error_image) // Assuming R is app level
                     .crossfade(true)
                     .build(),
                 contentDescription = listing.title,

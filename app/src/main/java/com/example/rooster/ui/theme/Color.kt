@@ -2,69 +2,111 @@ package com.example.rooster.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Rooster App Brand Colors - Earthy Tones for Rural Agricultural Theme
-// Primary Colors - Warm Earth Tones
-val RoosterBrown80 = Color(0xFFD4A574) // Light warm brown
-val RoosterBrown60 = Color(0xFFB8956A) // Medium brown
-val RoosterBrown40 = Color(0xFF8B6914) // Dark brown
-val RoosterBrown20 = Color(0xFF5D4409) // Very dark brown
+// Primary Brand Colors - Rooster/Poultry Theme
+val RoosterRed = Color(0xFFD32F2F)
+val RoosterRedDark = Color(0xFF9A0007)
+val RoosterRedLight = Color(0xFFFF6659)
 
-// Secondary Colors - Natural Green Tones
-val NaturalGreen80 = Color(0xFFC8E6C9) // Light green
-val NaturalGreen60 = Color(0xFFA5D6A7) // Medium green
-val NaturalGreen40 = Color(0xFF4CAF50) // Standard green
-val NaturalGreen20 = Color(0xFF2E7D32) // Dark green
+val RoosterOrange = Color(0xFFFF5722)
+val RoosterOrangeDark = Color(0xFFBF360C)
+val RoosterOrangeLight = Color(0xFFFF8A50)
 
-// Tertiary Colors - Rooster Red/Orange Accents
-val RoosterRed80 = Color(0xFFFFCDD2) // Light red/pink
-val RoosterRed60 = Color(0xFFEF9A9A) // Medium red
-val RoosterRed40 = Color(0xFFD32F2F) // Standard red
-val RoosterRed20 = Color(0xFFB71C1C) // Dark red
+val RoosterYellow = Color(0xFFFFB300)
+val RoosterYellowDark = Color(0xFFFF8F00)
+val RoosterYellowLight = Color(0xFFFFE082)
 
-// Neutral Colors - Natural Tones
-val WarmNeutral95 = Color(0xFFFFF8F0) // Very light cream
-val WarmNeutral90 = Color(0xFFF5F1E8) // Light cream
-val WarmNeutral80 = Color(0xFFE8E2D4) // Light beige
-val WarmNeutral60 = Color(0xFFBFB8A7) // Medium beige
-val WarmNeutral40 = Color(0xFF8F8B7A) // Dark beige
-val WarmNeutral20 = Color(0xFF5F5D52) // Very dark beige
-val WarmNeutral10 = Color(0xFF3A382F) // Almost black beige
+// Secondary Colors
+val EarthBrown = Color(0xFF8D6E63)
+val EarthBrownDark = Color(0xFF5D4037)
+val EarthBrownLight = Color(0xFFBCAAA4)
 
-// Surface Colors - Clean and Accessible
-val SurfaceLight = Color(0xFFFFFBF7) // Very light warm white
-val SurfaceDark = Color(0xFF1C1B16) // Dark warm black
-val SurfaceVariantLight = Color(0xFFF0EBE3) // Light warm gray
-val SurfaceVariantDark = Color(0xFF2E2B24) // Dark warm gray
+val FarmGreen = Color(0xFF689F38)
+val FarmGreenDark = Color(0xFF33691E)
+val FarmGreenLight = Color(0xFF9CCC65)
 
-// Error Colors - Maintaining Accessibility
-val ErrorLight = Color(0xFFBA1A1A) // Light theme error
-val ErrorDark = Color(0xFFFFB4AB) // Dark theme error
-val OnErrorLight = Color(0xFFFFFFFF) // Text on error (light)
-val OnErrorDark = Color(0xFF690005) // Text on error (dark)
+// Neutral Colors
+val NeutralGray = Color(0xFF757575)
+val NeutralGrayDark = Color(0xFF424242)
+val NeutralGrayLight = Color(0xFFBDBDBD)
 
-// Success Colors - Natural Green Theme
-val SuccessLight = Color(0xFF006E26) // Success in light theme
-val SuccessDark = Color(0xFF7DD87A) // Success in dark theme
+// Background Colors
+val BackgroundLight = Color(0xFFFFFBFF)
+val BackgroundDark = Color(0xFF1C1B1F)
 
-// Warning Colors - Warm Orange Theme
-val WarningLight = Color(0xFFE65100) // Warning in light theme
-val WarningDark = Color(0xFFFFCC80) // Warning in dark theme
+val SurfaceLight = Color(0xFFFEF7FF)
+val SurfaceDark = Color(0xFF141218)
 
-// Legacy colors for backward (deprecated - use new scheme)
-@Deprecated("Use RoosterBrown80 instead")
-val Purple80 = RoosterBrown80
+// Status Colors
+val SuccessGreen = Color(0xFF4CAF50)
+val WarningAmber = Color(0xFFFF9800)
+val ErrorRed = Color(0xFFF44336)
+val InfoBlue = Color(0xFF2196F3)
 
-@Deprecated("Use NaturalGreen80 instead")
-val PurpleGrey80 = NaturalGreen80
+// Telugu Cultural Colors
+val TeluguGold = Color(0xFFFFD700)
+val TeluguSaffron = Color(0xFFFF9933)
+val TeluguMaroon = Color(0xFF800000)
 
-@Deprecated("Use RoosterRed80 instead")
-val Pink80 = RoosterRed80
+// Light Theme Colors
+val md_theme_light_primary = RoosterRed
+val md_theme_light_onPrimary = Color(0xFFFFFFFF)
+val md_theme_light_primaryContainer = RoosterRedLight
+val md_theme_light_onPrimaryContainer = Color(0xFF410002)
+val md_theme_light_secondary = FarmGreen
+val md_theme_light_onSecondary = Color(0xFFFFFFFF)
+val md_theme_light_secondaryContainer = FarmGreenLight
+val md_theme_light_onSecondaryContainer = Color(0xFF002204)
+val md_theme_light_tertiary = RoosterOrange
+val md_theme_light_onTertiary = Color(0xFFFFFFFF)
+val md_theme_light_tertiaryContainer = RoosterOrangeLight
+val md_theme_light_onTertiaryContainer = Color(0xFF2E1500)
+val md_theme_light_error = ErrorRed
+val md_theme_light_errorContainer = Color(0xFFFFDAD6)
+val md_theme_light_onError = Color(0xFFFFFFFF)
+val md_theme_light_onErrorContainer = Color(0xFF410002)
+val md_theme_light_background = BackgroundLight
+val md_theme_light_onBackground = Color(0xFF1C1B1F)
+val md_theme_light_surface = SurfaceLight
+val md_theme_light_onSurface = Color(0xFF1C1B1F)
+val md_theme_light_surfaceVariant = Color(0xFFF2DDD7)
+val md_theme_light_onSurfaceVariant = Color(0xFF524341)
+val md_theme_light_outline = Color(0xFF857370)
+val md_theme_light_inverseOnSurface = Color(0xFFF4EFF4)
+val md_theme_light_inverseSurface = Color(0xFF313033)
+val md_theme_light_inversePrimary = Color(0xFFFFB4AB)
+val md_theme_light_shadow = Color(0xFF000000)
+val md_theme_light_surfaceTint = RoosterRed
+val md_theme_light_outlineVariant = Color(0xFFD8C2BE)
+val md_theme_light_scrim = Color(0xFF000000)
 
-@Deprecated("Use RoosterBrown40 instead")
-val Purple40 = RoosterBrown40
-
-@Deprecated("Use NaturalGreen40 instead")
-val PurpleGrey40 = NaturalGreen40
-
-@Deprecated("Use RoosterRed40 instead")
-val Pink40 = RoosterRed40
+// Dark Theme Colors
+val md_theme_dark_primary = Color(0xFFFFB4AB)
+val md_theme_dark_onPrimary = Color(0xFF690005)
+val md_theme_dark_primaryContainer = Color(0xFF93000A)
+val md_theme_dark_onPrimaryContainer = Color(0xFFFFDAD6)
+val md_theme_dark_secondary = Color(0xFF81C784)
+val md_theme_dark_onSecondary = Color(0xFF003A0B)
+val md_theme_dark_secondaryContainer = Color(0xFF005313)
+val md_theme_dark_onSecondaryContainer = Color(0xFF9CCC65)
+val md_theme_dark_tertiary = Color(0xFFFFB74D)
+val md_theme_dark_onTertiary = Color(0xFF452B00)
+val md_theme_dark_tertiaryContainer = Color(0xFF633F00)
+val md_theme_dark_onTertiaryContainer = Color(0xFFFFDCBE)
+val md_theme_dark_error = Color(0xFFFFB4AB)
+val md_theme_dark_errorContainer = Color(0xFF93000A)
+val md_theme_dark_onError = Color(0xFF690005)
+val md_theme_dark_onErrorContainer = Color(0xFFFFDAD6)
+val md_theme_dark_background = BackgroundDark
+val md_theme_dark_onBackground = Color(0xFFE6E1E5)
+val md_theme_dark_surface = SurfaceDark
+val md_theme_dark_onSurface = Color(0xFFE6E1E5)
+val md_theme_dark_surfaceVariant = Color(0xFF524341)
+val md_theme_dark_onSurfaceVariant = Color(0xFFD8C2BE)
+val md_theme_dark_outline = Color(0xFFA08C89)
+val md_theme_dark_inverseOnSurface = Color(0xFF1C1B1F)
+val md_theme_dark_inverseSurface = Color(0xFFE6E1E5)
+val md_theme_dark_inversePrimary = Color(0xFFD32F2F)
+val md_theme_dark_shadow = Color(0xFF000000)
+val md_theme_dark_surfaceTint = Color(0xFFFFB4AB)
+val md_theme_dark_outlineVariant = Color(0xFF524341)
+val md_theme_dark_scrim = Color(0xFF000000)

@@ -5,7 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.FilterList // For feed type selection
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.rooster.feature.community.domain.repository.FeedType
+import com.example.rooster.feature.community.ui.feed.PostFeedViewModel
+import com.example.rooster.feature.community.ui.feed.PostItem
+import com.example.rooster.feature.community.ui.feed.PostFeedUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +51,7 @@ fun PostFeedScreen(
                 title = { Text("Community Feed") },
                 actions = {
                     IconButton(onClick = { showFeedTypeMenu = true }) {
-                        Icon(Icons.Filled.FilterList, contentDescription = "Filter Feed")
+                        Icon(Icons.Filled.Menu, contentDescription = "Filter Feed")
                     }
                     DropdownMenu(
                         expanded = showFeedTypeMenu,
@@ -72,7 +75,9 @@ fun PostFeedScreen(
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+        Box(modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxSize()) {
             when (uiState) {
                 is PostFeedUiState.Loading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -83,7 +88,9 @@ fun PostFeedScreen(
                         text = message,
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.align(Alignment.Center).padding(32.dp)
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(32.dp)
                     )
                 }
                 is PostFeedUiState.Success -> {

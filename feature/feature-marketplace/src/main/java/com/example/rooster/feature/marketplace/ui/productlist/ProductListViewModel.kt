@@ -117,10 +117,7 @@ class ProductListViewModel @Inject constructor(
                 category = currentCategoryFilter,
                 sellerId = currentSellerIdFilter,
                 searchTerm = currentSearchTermFilter,
-                forceRefresh = isRefresh, // Force refresh if explicitly requested
-                pageSize = PAGE_SIZE,
-                lastVisibleTimestamp = if (loadMore) lastVisibleListingTimestamp else null,
-                lastVisibleDocId = if (loadMore) lastVisibleListingId else null
+                forceRefresh = isRefresh
             ).onEach { result ->
                 isCurrentlyLoadingMore = false // Reset loading flag once result is received
                 val currentSuccessState = _uiState.value as? ProductListUiState.Success

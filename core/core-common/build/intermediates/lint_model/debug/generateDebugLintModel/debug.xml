@@ -28,6 +28,6 @@
       applicationId="com.example.rooster.core.common"
       generatedSourceFolders="build/generated/source/kapt/debug:build/generated/ap_generated_sources/debug/out"
       generatedResourceFolders="build/generated/res/resValues/debug"
-      desugaredMethodsFiles="/home/user/.gradle/caches/8.13/transforms/5e91a531abeae8e659268ae7f269631d/transformed/D8BackportedDesugaredMethods.txt">
+      desugaredMethodsFiles="/home/user/.gradle/caches/8.13/transforms/af87694748c41b12aa028320b5fc193e/transformed/D8BackportedDesugaredMethods.txt">
   </artifact>
 </variant>

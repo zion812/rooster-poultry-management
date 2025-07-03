@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.example.rooster.feature.community.ui.createpost.CreatePostViewModel
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,12 +105,16 @@ fun PreviewCreatePostScreen_Submitting() {
          Scaffold(
             topBar = { TopAppBar(title = { Text("Create Post") }, actions = { CircularProgressIndicator(modifier = Modifier.size(24.dp))})}
         ) { padding ->
-            Column(Modifier.padding(padding).padding(16.dp)) {
+            Column(Modifier
+                .padding(padding)
+                .padding(16.dp)) {
                  OutlinedTextField(
                     value = submittingState.contentText,
                     onValueChange = {},
                     label = { Text("What's on your mind?") },
-                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
                     readOnly = true
                 )
             }

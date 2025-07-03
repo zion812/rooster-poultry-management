@@ -250,10 +250,10 @@ interface UpdateDao {
         VaccinationEntity::class,
         SensorDataEntity::class,
         UpdateEntity::class,
-        LineageLinkEntity::class // Added LineageLinkEntity
+        LineageLinkEntity::class
     ],
-    version = 4, // Incremented version for syncAttempts and lastSyncAttemptTimestamp
-    exportSchema = false // Set to true for production and provide schema location
+    version = 4,
+    exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class FarmDatabase : RoomDatabase() {
@@ -262,7 +262,7 @@ abstract class FarmDatabase : RoomDatabase() {
     abstract fun vaccinationDao(): VaccinationDao
     abstract fun sensorDataDao(): SensorDataDao
     abstract fun updateDao(): UpdateDao
-    abstract fun lineageDao(): LineageDao // Added LineageDao
+    abstract fun lineageDao(): LineageDao
 }
 
 class Converters {

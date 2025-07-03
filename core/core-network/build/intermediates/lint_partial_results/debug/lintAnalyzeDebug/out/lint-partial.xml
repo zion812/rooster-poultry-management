@@ -2,7 +2,7 @@
 <incidents format="6" by="lint 8.10.0" type="partial_results">
     <map id="NotificationPermission">
         <location id="class"
-            file="$GRADLE_USER_HOME/caches/8.13/transforms/d08d39e0c458110d7b39de8aee21dd5b/transformed/parse-1.26.0/jars/classes.jar"/>
+            file="$GRADLE_USER_HOME/caches/8.13/transforms/007adf0d7356878cc64f4d03fcd7be30/transformed/parse-1.26.0/jars/classes.jar"/>
         <entry
             name="className"
             string="com/parse/ParseNotificationManager"/>

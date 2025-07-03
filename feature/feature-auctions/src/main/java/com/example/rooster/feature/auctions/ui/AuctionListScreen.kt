@@ -13,15 +13,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.rooster.core.common.models.auction.AuctionListing // Updated import
+import com.example.rooster.core.common.models.auction.AuctionListing
 import com.example.rooster.feature.auctions.viewmodel.AuctionViewModel
 
 @Composable
 fun AuctionListScreen(
     navController: NavController,
-    viewModel: AuctionViewModel = hiltViewModel(), // Use hiltViewModel() for Hilt injection
+    viewModel: AuctionViewModel = hiltViewModel(),
 ) {
     val auctions by viewModel.auctions.collectAsState()
     val loading by viewModel.loading.collectAsState()
@@ -41,13 +42,17 @@ fun AuctionListScreen(
                 Text(
                     text = error ?: "Unknown error",
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.Center).padding(32.dp),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(32.dp),
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
             else -> {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
                 ) {
                     items(auctions) { auction ->
                         AuctionItem(auction = auction) {

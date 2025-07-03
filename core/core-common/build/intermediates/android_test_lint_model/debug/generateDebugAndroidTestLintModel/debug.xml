@@ -25,6 +25,6 @@
       type="INSTRUMENTATION_TEST"
       applicationId="com.example.rooster.core.common.test"
       generatedResourceFolders="build/generated/res/resValues/androidTest/debug"
-      desugaredMethodsFiles="/home/user/.gradle/caches/8.13/transforms/5e91a531abeae8e659268ae7f269631d/transformed/D8BackportedDesugaredMethods.txt">
+      desugaredMethodsFiles="/home/user/.gradle/caches/8.13/transforms/af87694748c41b12aa028320b5fc193e/transformed/D8BackportedDesugaredMethods.txt">
   </artifact>
 </variant>

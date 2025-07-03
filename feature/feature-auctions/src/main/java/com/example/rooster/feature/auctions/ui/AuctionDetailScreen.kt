@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.rooster.core.common.models.auction.AuctionWinner // Updated import
 import com.example.rooster.core.common.models.auction.EnhancedAuctionBid // Updated import
 import com.example.rooster.feature.auctions.viewmodel.AuctionViewModel

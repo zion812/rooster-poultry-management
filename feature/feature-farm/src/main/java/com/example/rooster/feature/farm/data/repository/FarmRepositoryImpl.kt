@@ -6,7 +6,6 @@ import com.example.rooster.feature.farm.data.local.FlockEntity
 import com.example.rooster.feature.farm.data.local.LineageDao
 import com.example.rooster.feature.farm.data.local.LineageLinkEntity
 import com.example.rooster.feature.farm.data.local.RelationshipType
-import com.example.rooster.feature.farm.data.mapper.FlockMapper
 import com.example.rooster.feature.farm.data.remote.FirebaseFarmDataSource
 import com.example.rooster.feature.farm.domain.model.AgeGroup
 import com.example.rooster.feature.farm.domain.model.Flock
@@ -19,6 +18,7 @@ import com.example.rooster.feature.farm.domain.model.FlockStatus
 import com.example.rooster.feature.farm.data.repository.FarmRepository
 import com.example.rooster.feature.farm.domain.model.LineageInfo
 import com.example.rooster.feature.farm.domain.model.LineageNode
+import com.example.rooster.feature.farm.data.mapper.FlockMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine

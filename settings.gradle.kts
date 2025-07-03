@@ -26,16 +26,19 @@ dependencyResolutionManagement {
 rootProject.name = "rooster-poultry-management"
 include(":app")
 
-// Core modules - stable
+// Core modules - Enhanced architecture
 include(":core:core-common")
 include(":core:core-network")
-
-// Enable navigation and search modules for production (temporarily disabled)
+include(":core:core-auth")
+include(":core:core-database")
+include(":core:core-payment")
+include(":core:core-security")
+include(":core:core-offline")
 include(":core:navigation")
 include(":core:search")
 include(":core:analytics")
 
-// Feature modules
+// Feature modules - Comprehensive system
 include(":feature:feature-marketplace")
 include(":feature:feature-auctions")
 include(":feature:feature-farm")

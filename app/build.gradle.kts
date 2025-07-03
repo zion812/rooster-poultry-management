@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.google.firebase.crashlytics)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.kotlin.serialization) // Added Kotlinx Serialization plugin
+    alias(libs.plugins.kotlin.serialization)
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
 
@@ -22,7 +22,7 @@ val keystoreProperties =
     }
 
 // Flag if release keystore is available
-val hasKeystore = keystorePropertiesFile.exists() && 
+val hasKeystore = keystorePropertiesFile.exists() &&
     keystoreProperties.getProperty("storeFile")?.isNotBlank() == true
 
 if (!hasKeystore) {
@@ -44,13 +44,19 @@ android {
         applicationId = "com.example.rooster"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.0.0"
+        versionCode = 3
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
         vectorDrawables {
             useSupportLibrary = true
         }
+    }
+
+    // Room schema export
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
     }
 
     signingConfigs {
@@ -69,7 +75,8 @@ android {
     buildTypes {
         getByName("debug") {
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_test_dummy\"")
-            buildConfigField("String", "PAYMENT_API_BASE_URL", "\"http://10.0.2.2:3000/debug/\"") // Placeholder
+            buildConfigField("String", "PAYMENT_API_BASE_URL", "\"http://10.0.2.2:3000/debug/\"")
+            buildConfigField("String", "BACKEND_BASE_URL", "\"http://10.0.2.2:3000/api/\"")
             versionNameSuffix = "-debug"
             isDebuggable = true
             isMinifyEnabled = false
@@ -81,7 +88,12 @@ android {
         }
         getByName("release") {
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_live_dummy\"")
-            buildConfigField("String", "PAYMENT_API_BASE_URL", "\"https://api.roosterapp.com/payment/release/\"") // Placeholder
+            buildConfigField(
+                "String",
+                "PAYMENT_API_BASE_URL",
+                "\"https://api.roosterapp.com/payment/release/\"",
+            )
+            buildConfigField("String", "BACKEND_BASE_URL", "\"https://api.roosterapp.com/api/\"")
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
@@ -101,9 +113,16 @@ android {
         create("staging") {
             initWith(getByName("release"))
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_test_dummy\"")
-            buildConfigField("String", "PAYMENT_API_BASE_URL", "\"https://staging.api.roosterapp.com/payment/\"") // Placeholder
-            // Remove staging suffix to prevent Google Services mismatch
-            // applicationIdSuffix = ".staging"
+            buildConfigField(
+                "String",
+                "PAYMENT_API_BASE_URL",
+                "\"https://staging.api.roosterapp.com/payment/\"",
+            )
+            buildConfigField(
+                "String",
+                "BACKEND_BASE_URL",
+                "\"https://staging.api.roosterapp.com/api/\"",
+            )
             versionNameSuffix = "-staging"
             isDebuggable = false
             isMinifyEnabled = true
@@ -147,14 +166,17 @@ android {
 }
 
 dependencies {
-    // Core modules
+    // Core modules - Enhanced architecture
     implementation(project(":core:core-common"))
     implementation(project(":core:core-network"))
+    implementation(project(":core:core-auth"))
+    implementation(project(":core:core-database"))
+    implementation(project(":core:core-payment"))
     implementation(project(":core:navigation"))
     implementation(project(":core:search"))
     implementation(project(":core:analytics"))
 
-    // Feature modules
+    // Feature modules - Comprehensive system
     implementation(project(":feature:feature-farm"))
     implementation(project(":feature:feature-marketplace"))
     implementation(project(":feature:feature-auctions"))
@@ -165,6 +187,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.activity.ktx)
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))
@@ -176,9 +199,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     // Navigation
-    implementation(
-        libs.androidx.navigation.compose,
-    ) // This is for app-level navigation if core:navigation doesn't replace all NavHost usage
+    implementation(libs.androidx.navigation.compose)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -189,7 +210,7 @@ dependencies {
 
     // Firebase
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics) // This is the direct SDK, core:analytics will wrap it
+    implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
@@ -228,10 +249,10 @@ dependencies {
     // ConstraintLayout
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
-    // Material Components for layout_behavior, cardElevation, etc.
+    // Material Components
     implementation("com.google.android.material:material:1.11.0")
 
-    // Skydoves ColorPickerView for advanced color picker widget support
+    // Color Picker
     implementation("com.github.skydoves:colorpickerview:2.2.4")
 
     // Coroutines
@@ -241,6 +262,12 @@ dependencies {
 
     // Logging
     implementation(libs.timber.logger)
+
+    // Performance monitoring
+    implementation("androidx.tracing:tracing:1.2.0")
+
+    // Security
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
     // Testing
     testImplementation(libs.junit)
@@ -256,4 +283,5 @@ dependencies {
     // Debug
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
 }
