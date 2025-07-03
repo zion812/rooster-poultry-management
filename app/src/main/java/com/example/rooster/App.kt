@@ -14,23 +14,23 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.rooster.config.Constants
+import com.example.rooster.core.common.model.BroadcastEventParse
+import com.example.rooster.core.common.model.CertificationRequestParse
+import com.example.rooster.core.common.model.ChatParse
+import com.example.rooster.core.common.model.CommunityGroupParse
+import com.example.rooster.core.common.model.EventItemParse
+import com.example.rooster.core.common.model.MarketplaceListingParse
+import com.example.rooster.core.common.model.MessageParse
+import com.example.rooster.core.common.model.SuggestionItemParse
+import com.example.rooster.core.common.model.TraceabilityEventParse
+import com.example.rooster.core.common.model.VaccinationTemplateParse
 import com.example.rooster.data.sync.DataSyncWorker
-import com.example.rooster.feature.community.worker.CommunitySyncWorker // Import Community worker
+import com.example.rooster.feature.community.worker.CommunitySyncWorker
 import com.example.rooster.feature.farm.worker.FarmDataSyncWorker
-import com.example.rooster.feature.marketplace.worker.MarketplaceSyncWorker // Import Marketplace worker
-import com.example.rooster.models.BroadcastEventParse
-import com.example.rooster.models.CertificationRequestParse
-import com.example.rooster.models.ChatParse
-import com.example.rooster.models.CommunityGroupParse
-import com.example.rooster.models.EventItemParse
-import com.example.rooster.models.MarketplaceListingParse
-import com.example.rooster.models.MessageParse
-import com.example.rooster.models.SuggestionItemParse
-import com.example.rooster.models.TraceabilityEventParse
-import com.example.rooster.models.VaccinationTemplateParse
+import com.example.rooster.feature.marketplace.worker.MarketplaceSyncWorker
 import com.example.rooster.util.CrashPrevention
 import com.example.rooster.util.MemoryOptimizerStatic
-import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.parse.Parse
 import com.parse.ParseACL
@@ -39,41 +39,18 @@ import com.parse.ParseObject
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject // Import Inject
-import kotlin.jvm.java
+import javax.inject.Inject
 
 @HiltAndroidApp
-@Suppress("unused")
-class App : Application(), Configuration.Provider { // Implement Configuration.Provider
-    @Inject // Inject HiltWorkerFactory
+class App : Application(), Configuration.Provider {
+
+    @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
-    override fun getWorkManagerConfiguration() =
-        Configuration.Builder()
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
-            .setMinimumLoggingLevel(android.util.Log.INFO) // Optional: for easier debugging
             .build()
-
-    companion object {
-        lateinit var photoUploadDatabase: PhotoUploadDatabase
-            private set
-
-        // Public getter for the DAO instance
-        fun getPhotoUploadDao(): PhotoUploadDao {
-            if (!::photoUploadDatabase.isInitialized) {
-                throw IllegalStateException("PhotoUploadDatabase not initialized. Ensure App.onCreate() is called.")
-            }
-            return photoUploadDatabase.photoUploadDao()
-        }
-
-        // Public getter for the MessageDao instance
-        fun getMessageDao(): MessageDao {
-            if (!::photoUploadDatabase.isInitialized) {
-                throw IllegalStateException("PhotoUploadDatabase not initialized. Ensure App.onCreate() is called.")
-            }
-            return photoUploadDatabase.messageDao()
-        }
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -114,64 +91,18 @@ class App : Application(), Configuration.Provider { // Implement Configuration.P
             Log.d("App", "Memory optimizer initialized")
         }
 
-        // ====================================================================
-        // Enhanced Parse Server 6.2.0 Initialization with Rural Optimization
-        // ====================================================================
-        CrashPrevention.safeExecute("Parse initialization") {
-            try {
-                Parse.setLogLevel(if (BuildConfig.DEBUG) Parse.LOG_LEVEL_DEBUG else Parse.LOG_LEVEL_ERROR)
+        // Initialize Firebase
+        FirebaseApp.initializeApp(this)
 
-                val configuration =
-                    Parse.Configuration.Builder(this)
-                        .applicationId(Constants.BACK4APP_APP_ID)
-                        .clientKey(Constants.BACK4APP_CLIENT_KEY)
-                        .server(Constants.BACK4APP_SERVER_URL)
-                        .enableLocalDataStore() // Essential for offline-first architecture
-                        .build()
+        // Initialize Crashlytics
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
 
-                ParseObject.registerSubclass(CertificationRequestParse::class.java)
-                ParseObject.registerSubclass(EventItemParse::class.java)
-                ParseObject.registerSubclass(VaccinationTemplateParse::class.java)
-                ParseObject.registerSubclass(BroadcastEventParse::class.java)
-                ParseObject.registerSubclass(SuggestionItemParse::class.java)
-                ParseObject.registerSubclass(TraceabilityEventParse::class.java)
-                ParseObject.registerSubclass(ChatParse::class.java)
-                ParseObject.registerSubclass(MessageParse::class.java)
-                ParseObject.registerSubclass(CommunityGroupParse::class.java)
-                ParseObject.registerSubclass(MarketplaceListingParse::class.java)
-
-                Parse.initialize(configuration)
-
-                // Set default ACL for enhanced security
-                val defaultACL = ParseACL()
-                defaultACL.setPublicReadAccess(true)
-                defaultACL.setPublicWriteAccess(false) // Restrict public writes for security
-                ParseACL.setDefaultACL(defaultACL, true)
-
-                // Initialize installation for push notifications
-                ParseInstallation.getCurrentInstallation().saveInBackground { e ->
-                    if (e == null) {
-                        Log.d("App", "Parse Installation saved successfully")
-                    } else {
-                        Log.e("App", "Failed to save Parse Installation", e)
-                    }
-                }
-
-                Log.d("App", "Parse initialized successfully")
-                Log.d("App", "App ID: ${Constants.BACK4APP_APP_ID}")
-                Log.d("App", "Server URL: ${Constants.BACK4APP_SERVER_URL}")
-                Log.d("App", "Local Datastore: Enabled (Offline-first)")
-                Log.d("App", "Rural Optimization: Enabled")
-            } catch (e: Exception) {
-                Log.e("App", "Parse initialization failed", e)
-                FirebaseCrashlytics.getInstance().recordException(e)
-                // Continue app initialization even if Parse fails
-            }
-        }
+        // Initialize Parse with custom classes
+        initializeParse()
 
         // Initialize photo upload database with crash protection
         CrashPrevention.safeExecute("PhotoUpload database initialization") {
-            photoUploadDatabase =
+            val photoUploadDatabase =
                 Room.databaseBuilder(
                     applicationContext,
                     PhotoUploadDatabase::class.java,
@@ -180,24 +111,56 @@ class App : Application(), Configuration.Provider { // Implement Configuration.P
             Log.d("App", "Photo upload database initialized")
         }
 
-        // Initialize Firebase services with rural optimization
-        CrashPrevention.safeExecute("Firebase services initialization") {
-            val crashlytics = FirebaseCrashlytics.getInstance()
-            crashlytics.setCrashlyticsCollectionEnabled(true)
-
-            val analytics = FirebaseAnalytics.getInstance(this)
-            analytics.setAnalyticsCollectionEnabled(true)
-
-            // Set custom properties for rural market analysis
-            analytics.setUserProperty("target_market", "rural_telugu_farmers")
-            analytics.setUserProperty("connectivity_optimized", "2g_3g")
-            analytics.setUserProperty("app_version", BuildConfig.VERSION_NAME)
-
-            Log.d("App", "Firebase services initialized with rural market properties")
-        }
-
         // Schedule background workers for data sync
         CrashPrevention.safeExecute("Background workers scheduling") {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build()
+
+            // Schedule farm data sync
+            val farmSyncRequest = PeriodicWorkRequestBuilder<FarmDataSyncWorker>(
+                6, TimeUnit.HOURS
+            )
+                .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.HOURS)
+                .build()
+
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                FarmDataSyncWorker.WORK_NAME,
+                ExistingPeriodicWorkPolicy.REPLACE,
+                farmSyncRequest
+            )
+
+            // Schedule marketplace sync
+            val marketplaceSyncRequest = PeriodicWorkRequestBuilder<MarketplaceSyncWorker>(
+                4, TimeUnit.HOURS
+            )
+                .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.HOURS)
+                .build()
+
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                MarketplaceSyncWorker.WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                marketplaceSyncRequest
+            )
+
+            // Schedule community sync
+            val communitySyncRequest = PeriodicWorkRequestBuilder<CommunitySyncWorker>(
+                3, TimeUnit.HOURS
+            )
+                .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.HOURS)
+                .build()
+
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                CommunitySyncWorker.WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                communitySyncRequest
+            )
+
+            // Schedule data sync
             val syncRequest =
                 PeriodicWorkRequestBuilder<DataSyncWorker>(15, TimeUnit.MINUTES)
                     .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.MINUTES)
@@ -210,53 +173,58 @@ class App : Application(), Configuration.Provider { // Implement Configuration.P
                 )
             Log.d("App", "Background data sync worker scheduled")
 
-            // Schedule FarmDataSyncWorker
-            val farmSyncConstraints =
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-
-            val farmSyncRequest =
-                PeriodicWorkRequestBuilder<FarmDataSyncWorker>(6, TimeUnit.HOURS) // Every 6 hours
-                    .setConstraints(farmSyncConstraints)
-                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, PeriodicWorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
-                    .build()
-
-            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                FarmDataSyncWorker.WORK_NAME,
-                ExistingPeriodicWorkPolicy.REPLACE, // REPLACE ensures the worker is updated with new constraints/configurations
-                farmSyncRequest,
-            )
-            Log.d("App", "Farm data sync worker scheduled (periodic, network connected)")
-
-            // Schedule MarketplaceSyncWorker
-            val marketplaceSyncRequest =
-                PeriodicWorkRequestBuilder<MarketplaceSyncWorker>(4, TimeUnit.HOURS) // Every 4 hours
-                    .setConstraints(farmSyncConstraints) // Reuse same constraints (network connected)
-                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, PeriodicWorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
-                    .build()
-            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                MarketplaceSyncWorker.WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
-                marketplaceSyncRequest,
-            )
-            Log.d("App", "Marketplace data sync worker scheduled (periodic, network connected)")
-
-            // Schedule CommunitySyncWorker
-            val communitySyncRequest =
-                PeriodicWorkRequestBuilder<CommunitySyncWorker>(3, TimeUnit.HOURS) // Every 3 hours
-                    .setConstraints(farmSyncConstraints) // Reuse same constraints
-                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, PeriodicWorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
-                    .build()
-            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                CommunitySyncWorker.WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
-                communitySyncRequest,
-            )
-            Log.d("App", "Community data sync worker scheduled (periodic, network connected)")
+            Log.d("App", "Background workers scheduled")
         }
 
         Log.d("RoosterApp", "=== APP INITIALIZATION COMPLETED SUCCESSFULLY ===")
+    }
+
+    private fun initializeParse() {
+        // Register Parse subclasses before Parse.initialize()
+        ParseObject.registerSubclass(CertificationRequestParse::class.java)
+        ParseObject.registerSubclass(EventItemParse::class.java)
+        ParseObject.registerSubclass(VaccinationTemplateParse::class.java)
+        ParseObject.registerSubclass(BroadcastEventParse::class.java)
+        ParseObject.registerSubclass(SuggestionItemParse::class.java)
+        ParseObject.registerSubclass(TraceabilityEventParse::class.java)
+        ParseObject.registerSubclass(ChatParse::class.java)
+        ParseObject.registerSubclass(MessageParse::class.java)
+        ParseObject.registerSubclass(CommunityGroupParse::class.java)
+        ParseObject.registerSubclass(MarketplaceListingParse::class.java)
+
+        // Initialize Parse
+        Parse.setLogLevel(if (BuildConfig.DEBUG) Parse.LOG_LEVEL_DEBUG else Parse.LOG_LEVEL_ERROR)
+
+        val configuration =
+            Parse.Configuration.Builder(this)
+                .applicationId(Constants.BACK4APP_APP_ID)
+                .clientKey(Constants.BACK4APP_CLIENT_KEY)
+                .server(Constants.BACK4APP_SERVER_URL)
+                .enableLocalDataStore() // Essential for offline-first architecture
+                .build()
+
+        Parse.initialize(configuration)
+
+        // Set default ACL for enhanced security
+        val defaultACL = ParseACL()
+        defaultACL.setPublicReadAccess(true)
+        defaultACL.setPublicWriteAccess(false) // Restrict public writes for security
+        ParseACL.setDefaultACL(defaultACL, true)
+
+        // Initialize installation for push notifications
+        ParseInstallation.getCurrentInstallation().saveInBackground { e ->
+            if (e == null) {
+                Log.d("App", "Parse Installation saved successfully")
+            } else {
+                Log.e("App", "Failed to save Parse Installation", e)
+            }
+        }
+
+        Log.d("App", "Parse initialized successfully")
+        Log.d("App", "App ID: ${Constants.BACK4APP_APP_ID}")
+        Log.d("App", "Server URL: ${Constants.BACK4APP_SERVER_URL}")
+        Log.d("App", "Local Datastore: Enabled (Offline-first)")
+        Log.d("App", "Rural Optimization: Enabled")
     }
 
     override fun onLowMemory() {

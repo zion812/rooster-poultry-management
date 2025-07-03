@@ -1,32 +1,20 @@
 package com.example.rooster
 
+// Navigation routes for the Rooster Poultry Management application
 open class NavigationRoute(val route: String) {
     object Auth : NavigationRoute("auth")
-
     object Home : NavigationRoute("home")
-
     object FarmerHome : NavigationRoute("farmer_home")
-
     object HighLevelHome : NavigationRoute("high_level_home")
-
     object Marketplace : NavigationRoute("marketplace")
-
     object Community : NavigationRoute("community")
-
     object Profile : NavigationRoute("profile")
-
     object Transfers : NavigationRoute("transfers")
-
     object Settings : NavigationRoute("settings")
-
     object Help : NavigationRoute("help")
-
     object VetConsultation : NavigationRoute("vet_consultation")
-
     object IoTDashboard : NavigationRoute("iot_dashboard")
-
     object ComplianceScreen : NavigationRoute("compliance_screen")
-
     data class Chat(val chatId: String) : NavigationRoute("chat/$chatId") {
         companion object {
             const val base = "chat/{chatId}"
