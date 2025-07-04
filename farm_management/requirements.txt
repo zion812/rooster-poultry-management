@@ -13,3 +13,5 @@
 # - Data analysis libraries (e.g., pandas, numpy)
 # - Graphing libraries (e.g., matplotlib, plotly)
 requests==2.31.0 # For making HTTP requests to weather API
+Flask==3.0.0 # For the REST API
+Flask-CORS==4.0.0 # For Cross-Origin Resource Sharing
