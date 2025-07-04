@@ -1,5 +1,6 @@
 package com.rooster.farmerhome.data.repository
 
+ feature/dashboard-scaffolding-and-weather-api
 import com.rooster.farmerhome.core.common.util.DataState
 import com.rooster.farmerhome.data.local.datasource.ProductionSummaryLocalDataSource
 import com.rooster.farmerhome.data.local.model.toDomain
@@ -53,5 +54,23 @@ class ProductionMetricsRepositoryImpl @Inject constructor(
         }.catch { e ->
             emit(DataState.Error(e, null, null, "Failed to load production summary."))
         }
+
+import com.rooster.farmerhome.data.source.ProductionMetricsRemoteDataSource
+// TODO: Import local data source
+import com.rooster.farmerhome.domain.model.ProductionSummary
+import com.rooster.farmerhome.domain.repository.ProductionMetricsRepository
+import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+
+class ProductionMetricsRepositoryImpl @Inject constructor(
+    private val remoteDataSource: ProductionMetricsRemoteDataSource
+    // TODO: private val localDataSource: ProductionMetricsLocalDataSource
+) : ProductionMetricsRepository {
+
+    override fun getProductionSummary(farmId: String): Flow<ProductionSummary> {
+        // TODO: Implement offline-first caching strategy as per AGENTS.md
+        // For now, directly fetching from remote
+        return remoteDataSource.getProductionSummary(farmId)
+ main
     }
 }

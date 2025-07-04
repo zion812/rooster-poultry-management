@@ -98,6 +98,7 @@ if __name__ == '__main__':
 
     # This line will only be reached if the server is stopped.
     print("--- Flask Weather API Has Been Stopped ---")
+ feature/dashboard-scaffolding-and-weather-api
 
 
 # --- Farm Data API ---
@@ -281,3 +282,5 @@ def mark_alert_as_read(farm_id, alert_id):
                 print(f"Marked alert {alert_id} for farm {farm_id} as read.")
                 return jsonify({"success": True, "message": f"Alert {alert_id} marked as read."}), 200
     return jsonify({"success": False, "error": f"Alert {alert_id} not found for farm {farm_id}."}), 404
+
+ main

@@ -1,26 +1,5 @@
 package com.example.rooster.feature.auth.ui
 
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
- main
- main
- main
- main
- main
- main
-package com.example.rooster.feature.auth.ui
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -42,72 +21,22 @@ import androidx.compose.ui.unit.dp
 import com.example.rooster.core.auth.domain.model.UserRole
 import com.example.rooster.core.common.R // Assuming R class from core-common
 import com.example.rooster.ui.theme.RoosterTheme
-// import androidx.hilt.navigation.compose.hiltViewModel // Will be needed when ViewModel is integrated
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.text.style.TextAlign
 
- feat/login-screen-v1
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RegisterScreen(
+// Assuming roleToDisplayString from LoginScreen is made accessible,
+// e.g., by moving it to a common file within feature_auth/ui or a utils package.
+// If not, this import or the call to it will fail.
+// For now, we proceed assuming it can be resolved.
+import com.example.rooster.feature.auth.ui.roleToDisplayString
 
- feat/login-screen-v1
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RegisterScreen(
-
- feat/login-screen-v1
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RegisterScreen(
-
- feat/login-screen-v1
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RegisterScreen(
-
- feat/login-screen-v1
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RegisterScreen(
-
- feat/login-screen-v1
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RegisterScreen(
-
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.rooster.ui.theme.RoosterTheme
-// Assuming a generic R for placeholder strings, actual one later
-// import com.example.rooster.app.R
- main
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
- feat/login-screen-v1
- main
- main
- main
- main
- main
- main
-    // viewModel: RegisterViewModel = hiltViewModel(), // To be added
-    onRegisterClick: (name: String, email: String, phone: String, pass: String, role: UserRole) -> Unit,
+    viewModel: RegisterViewModel = hiltViewModel(),
     onNavigateToLogin: () -> Unit,
-    // For preview and initial state handling
-    isLoading: Boolean = false,
-    errorMap: Map<String, String> = emptyMap() // field to error message
+    onNavigateToCheckEmail: (email: String) -> Unit // New callback
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -117,73 +46,40 @@ fun RegisterScreen(
     var selectedRole by remember { mutableStateOf(UserRole.FARMER) }
     var roleDropdownExpanded by remember { mutableStateOf(false) }
 
+    val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
+
+    // Handle navigation after successful registration and email verification send attempt
+    LaunchedEffect(key1 = uiState.registrationSuccess, key2 = uiState.registeredEmail) {
+        if (uiState.registrationSuccess && uiState.registeredEmail != null) {
+            onNavigateToCheckEmail(uiState.registeredEmail!!)
+            viewModel.navigationToEmailVerificationComplete() // Reset the trigger
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(id = R.string.register_screen_title)) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateToLogin) { // Navigate back to Login
+                    IconButton(onClick = {
+                        if (!uiState.isLoading) onNavigateToLogin()
+                    }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(id = R.string.action_back))
                     }
                 }
             )
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
-
-    onNavigateBack: () -> Unit // Example navigation callback
-) {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Register") }) // Placeholder title
- main
- main
- main
- main
- main
- main
- main
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
- main
- main
- main
- main
- main
- main
                 .padding(16.dp)
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp) // Slightly reduced spacing
         ) {
             Text(
                 text = stringResource(id = R.string.create_account_title),
@@ -193,91 +89,73 @@ fun RegisterScreen(
 
             OutlinedTextField(
                 value = name,
-                onValueChange = { name = it },
+                onValueChange = { name = it; viewModel.clearError() },
                 label = { Text(stringResource(id = R.string.name_label)) },
                 leadingIcon = { Icon(Icons.Filled.PersonOutline, contentDescription = null) },
                 singleLine = true,
-                isError = errorMap.containsKey("name"),
+                isError = uiState.errorResId != null || uiState.errorMessage != null,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 modifier = Modifier.fillMaxWidth()
             )
-            if (errorMap.containsKey("name")) {
-                Text(errorMap["name"]!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-            }
-
 
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { email = it; viewModel.clearError() },
                 label = { Text(stringResource(id = R.string.email_label)) },
                 leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                 singleLine = true,
-                isError = errorMap.containsKey("email"),
+                isError = uiState.errorResId != null || uiState.errorMessage != null,
                 modifier = Modifier.fillMaxWidth()
             )
-            if (errorMap.containsKey("email")) {
-                Text(errorMap["email"]!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-            }
 
             OutlinedTextField(
                 value = phoneNumber,
-                onValueChange = { phoneNumber = it },
+                onValueChange = { phoneNumber = it; viewModel.clearError() },
                 label = { Text(stringResource(id = R.string.phone_label) + " (" + stringResource(id = R.string.optional_field) + ")") },
                 leadingIcon = { Icon(Icons.Filled.Phone, contentDescription = null) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
                 singleLine = true,
-                isError = errorMap.containsKey("phone"),
                 modifier = Modifier.fillMaxWidth()
             )
-             if (errorMap.containsKey("phone")) {
-                Text(errorMap["phone"]!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-            }
 
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = { password = it; viewModel.clearError() },
                 label = { Text(stringResource(id = R.string.password_label)) },
                 leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
                 singleLine = true,
-                isError = errorMap.containsKey("password"),
+                isError = uiState.errorResId != null || uiState.errorMessage != null,
                 modifier = Modifier.fillMaxWidth()
             )
-            if (errorMap.containsKey("password")) {
-                Text(errorMap["password"]!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-            }
 
             OutlinedTextField(
                 value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                onValueChange = { confirmPassword = it; viewModel.clearError() },
                 label = { Text(stringResource(id = R.string.confirm_password_label)) },
                 leadingIcon = { Icon(Icons.Filled.LockOutline, contentDescription = null) },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                 singleLine = true,
-                isError = errorMap.containsKey("confirmPassword"),
+                isError = uiState.errorResId != null || uiState.errorMessage != null,
                 modifier = Modifier.fillMaxWidth()
             )
-            if (errorMap.containsKey("confirmPassword")) {
-                Text(errorMap["confirmPassword"]!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-            }
 
-            // Role Selection Dropdown
             Text(
                 text = stringResource(id = R.string.select_role_label),
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
             )
             ExposedDropdownMenuBox(
                 expanded = roleDropdownExpanded,
-                onExpandedChange = { roleDropdownExpanded = !roleDropdownExpanded },
+                onExpandedChange = { if (!uiState.isLoading) roleDropdownExpanded = !roleDropdownExpanded },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 OutlinedTextField(
-                    value = roleToDisplayString(role = selectedRole), // Uses roleToDisplayString from LoginScreen context for now
+                    value = roleToDisplayString(role = selectedRole), // Call the (assumed) accessible function
                     onValueChange = {},
                     readOnly = true,
                     leadingIcon = { Icon(Icons.Filled.PersonPin, contentDescription = null) },
@@ -291,139 +169,101 @@ fun RegisterScreen(
                 ) {
                     UserRole.values().forEach { role ->
                         DropdownMenuItem(
-                            text = { Text(roleToDisplayString(role)) }, // Assuming roleToDisplayString is accessible
+                            text = { Text(roleToDisplayString(role)) }, // Call the (assumed) accessible function
                             onClick = {
                                 selectedRole = role
                                 roleDropdownExpanded = false
+                                viewModel.clearError()
                             }
                         )
                     }
                 }
             }
-            if (errorMap.containsKey("role")) { // General error related to role if any
-                Text(errorMap["role"]!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+
+            val errorText = when {
+                uiState.errorResId != null -> stringResource(id = uiState.errorResId!!)
+                uiState.errorMessage != null -> uiState.errorMessage
+                else -> null
             }
 
-            Spacer(modifier = Modifier.height(8.dp)) // Reduced spacer
+            if (errorText != null) {
+                Text(
+                    text = errorText,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 8.dp).fillMaxWidth()
+                )
+            }
 
-            if (isLoading) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (uiState.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             } else {
-                 if (errorMap.containsKey("general")) { // For general registration errors
-                    Text(errorMap["general"]!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(bottom=8.dp))
-                }
                 Button(
                     onClick = {
                         focusManager.clearFocus()
-                        onRegisterClick(name, email, phoneNumber, password, selectedRole)
+                        viewModel.registerUser(
+                            name = name.trim(),
+                            email = email.trim(),
+                            phone = phoneNumber.trim().takeIf { it.isNotBlank() },
+                            pass = password,
+                            confirmPass = confirmPassword,
+                            role = selectedRole
+                        )
                     },
-                    enabled = !isLoading,
+                    enabled = !uiState.isLoading,
                     modifier = Modifier.fillMaxWidth().height(50.dp)
                 ) {
                     Text(stringResource(id = R.string.register_button_action), style = MaterialTheme.typography.labelLarge)
                 }
             }
 
-            TextButton(onClick = onNavigateToLogin, enabled = !isLoading) {
+            TextButton(
+                onClick = { if (!uiState.isLoading) onNavigateToLogin() },
+                enabled = !uiState.isLoading
+            ) {
                 Text(stringResource(id = R.string.already_have_account_login))
             }
         }
     }
 }
 
-// Assuming roleToDisplayString is defined in LoginScreen.kt or moved to a common place.
-// For now, if it's in LoginScreen.kt, this preview might need its own version or LoginScreen's file needs to be in scope.
-// Let's use the one from LoginScreen.kt by ensuring it's accessible or copying its logic.
-// For preview, we use the same previewStringResource mechanism as in LoginScreen.
+// Preview-related code might need adjustment if roleToDisplayString is not directly accessible
+// or if a more complex preview ViewModel setup is desired.
+// For now, retaining the existing preview structure.
+// If roleToDisplayString was in LoginScreen.kt, it must be moved to a common place for this to compile.
+// E.g., feature-auth/src/main/java/com/example/rooster/feature/auth/ui/AuthUiUtils.kt
+/*
+package com.example.rooster.feature.auth.ui // Or a more common util package
 
- feat/login-screen-v1
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.example.rooster.core.auth.domain.model.UserRole
+import com.example.rooster.core.common.R
 
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
-                .padding(all = sixteenDp), // Assuming sixteenDp is defined in Dimens or similar
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Register Screen Placeholder", // Placeholder text
-                style = MaterialTheme.typography.headlineMedium
-            )
-            // TODO: Implement actual registration form fields (name, email, password, role, etc.)
-            // TODO: Add Register button and logic
-            // TODO: Add navigation to Login or back
-        }
+@Composable
+fun roleToDisplayString(role: UserRole): String {
+    return when (role) {
+        UserRole.FARMER -> stringResource(id = R.string.role_farmer)
+        UserRole.BUYER -> stringResource(id = R.string.role_buyer)
+        UserRole.ADMIN -> stringResource(id = R.string.role_admin)
+        UserRole.VETERINARIAN -> stringResource(id = R.string.role_veterinarian)
     }
 }
+*/
 
-// A common dimension value, assuming it would be in a Dimens.kt or similar
-// For now, defined locally for the placeholder.
-private val sixteenDp = androidx.compose.ui.unit.dp.constructor_impl(16.0f)
- main
-
- main
- main
- main
- main
- main
- main
 @Preview(showBackground = true, name = "Register Screen Light")
 @Composable
 fun RegisterScreenPreviewLight() {
     RoosterTheme(darkTheme = false) {
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
- main
- main
- main
- main
- main
- main
-        WithPreviewResources { // Assuming this is available from LoginScreen's preview helpers or defined here
-            RegisterScreen(
-                onRegisterClick = { _, _, _, _, _ -> },
-                onNavigateToLogin = {}
+        WithPreviewResources {
+            RegisterScreenForPreview(
+                onNavigateToLogin = {},
+                onNavigateToCheckEmail = {}
             )
         }
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
-
-        RegisterScreen(onNavigateBack = {})
- main
- main
- main
- main
- main
- main
- main
     }
 }
 
@@ -431,30 +271,11 @@ fun RegisterScreenPreviewLight() {
 @Composable
 fun RegisterScreenPreviewDark() {
     RoosterTheme(darkTheme = true) {
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
- main
- main
- main
- main
- main
- main
         WithPreviewResources {
-             RegisterScreen(
-                onRegisterClick = { _, _, _, _, _ -> },
-                onNavigateToLogin = {}
-            )
+             RegisterScreenForPreview(
+                onNavigateToLogin = {},
+                onNavigateToCheckEmail = {}
+             )
         }
     }
 }
@@ -464,80 +285,188 @@ fun RegisterScreenPreviewDark() {
 fun RegisterScreenPreviewWithErrors() {
     RoosterTheme(darkTheme = false) {
          WithPreviewResources {
-            RegisterScreen(
-                onRegisterClick = { _, _, _, _, _ -> },
+            RegisterScreenForPreview(
+                initialUiState = RegisterUiState(errorResId = R.string.error_registration_failed),
                 onNavigateToLogin = {},
-                errorMap = mapOf(
-                    "name" to previewStringResource(id = R.string.error_field_required), // Assuming this key exists
-                    "email" to previewStringResource(id = R.string.error_invalid_email), // Assuming this key exists
-                    "password" to previewStringResource(id = R.string.error_password_too_short), // Assuming this key exists
-                    "general" to "Registration failed, please try again."
-                )
+                onNavigateToCheckEmail = {}
             )
         }
     }
 }
 
-// Re-define preview helpers if not accessible from LoginScreen's file in this context
-// For brevity, assuming they are accessible or would be defined similarly.
-// If LoginScreen.kt's internal PreviewR and previewStringResource are not accessible,
-// they would need to be duplicated or moved to a common test utility location.
-// For this tool output, I'll assume they are implicitly available for the preview to function.
-// If not, the preview part of this file would need those helpers defined.
-// It's better to have a shared file for these preview utilities. For now, let's assume the LoginScreen ones are somehow visible.
-// Minimal re-definition for this file's preview if needed:
-/*
-internal object PreviewR { // Placeholder if LoginScreen's isn't shared
-    object string {
-        val register_screen_title = "register_screen_title"
-        // ... other keys for RegisterScreen ...
-        val error_field_required = "error_field_required"
-        val error_invalid_email = "error_invalid_email"
-        val error_password_too_short = "error_password_too_short"
+
+// --- Preview Helper ---
+// This section is for Compose Preview. It uses local string resources for simplicity.
+// Ensure `roleToDisplayString` is accessible for these previews.
+// If `roleToDisplayString` is moved, update its call here.
+@Composable
+internal fun RegisterScreenForPreview(
+    initialUiState: RegisterUiState = RegisterUiState(),
+    onNavigateToLogin: () -> Unit,
+    onNavigateToCheckEmail: (email: String) -> Unit
+    // Not passing a real ViewModel to preview, just its state
+) {
+    var name by remember { mutableStateOf("Preview User") }
+    var email by remember { mutableStateOf("preview@example.com") }
+    var phoneNumber by remember { mutableStateOf("1234567890") }
+    var password by remember { mutableStateOf("password123") }
+    var confirmPassword by remember { mutableStateOf("password123") }
+    var selectedRole by remember { mutableStateOf(UserRole.FARMER) }
+    var roleDropdownExpanded by remember { mutableStateOf(false) }
+    val uiState by remember { mutableStateOf(initialUiState) }
+    val focusManager = LocalFocusManager.current
+    val scrollState = rememberScrollState()
+    val str = AmbientStringResourceProvider.current // Using the preview string provider
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(str(PreviewR.string.register_screen_title)) }, // Using PreviewR
+                navigationIcon = {
+                    IconButton(onClick = onNavigateToLogin) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = str(PreviewR.string.action_back))
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+                .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(str(PreviewR.string.create_account_title), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
+            OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text(str(PreviewR.string.name_label)) }, leadingIcon = { Icon(Icons.Filled.PersonOutline, null)}, singleLine = true, isError = uiState.errorResId!=null, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(str(PreviewR.string.email_label)) }, leadingIcon = { Icon(Icons.Filled.Email, null)}, singleLine = true, isError = uiState.errorResId!=null, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = phoneNumber, onValueChange = { phoneNumber = it }, label = { Text(str(PreviewR.string.phone_label) + " (" + str(PreviewR.string.optional_field) + ")") }, leadingIcon = { Icon(Icons.Filled.Phone, null)}, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text(str(PreviewR.string.password_label)) }, leadingIcon = { Icon(Icons.Filled.Lock, null)}, visualTransformation = PasswordVisualTransformation(), singleLine = true, isError = uiState.errorResId!=null, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = confirmPassword, onValueChange = { confirmPassword = it }, label = { Text(str(PreviewR.string.confirm_password_label)) }, leadingIcon = { Icon(Icons.Filled.LockOutline, null)}, visualTransformation = PasswordVisualTransformation(), singleLine = true, isError = uiState.errorResId!=null, modifier = Modifier.fillMaxWidth())
+
+            Text(str(PreviewR.string.select_role_label), style = MaterialTheme.typography.titleMedium, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
+            ExposedDropdownMenuBox(expanded = roleDropdownExpanded, onExpandedChange = { roleDropdownExpanded = !roleDropdownExpanded}, modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = str(when(selectedRole){ UserRole.FARMER -> PreviewR.string.role_farmer; UserRole.BUYER -> PreviewR.string.role_buyer; UserRole.ADMIN -> PreviewR.string.role_admin; UserRole.VETERINARIAN -> PreviewR.string.role_veterinarian; else -> "" }),
+                    onValueChange = {}, readOnly = true, leadingIcon = { Icon(Icons.Filled.PersonPin, null)},
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = roleDropdownExpanded)},
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                )
+                ExposedDropdownMenu(expanded = roleDropdownExpanded, onDismissRequest = { roleDropdownExpanded = false}) {
+                    UserRole.values().forEach { role ->
+                        DropdownMenuItem(
+                            text = { Text(str(when(role){ UserRole.FARMER -> PreviewR.string.role_farmer; UserRole.BUYER -> PreviewR.string.role_buyer; UserRole.ADMIN -> PreviewR.string.role_admin; UserRole.VETERINARIAN -> PreviewR.string.role_veterinarian; else -> ""})) },
+                            onClick = { selectedRole = role; roleDropdownExpanded = false }
+                        )
+                    }
+                }
+            }
+
+            val errorText = uiState.errorResId?.let { str(it.toString()) } ?: uiState.errorMessage
+            if (errorText != null) {
+                Text(text = errorText, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp).fillMaxWidth())
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            if (uiState.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else {
+                Button(onClick = { /* Preview: Call VM function */ }, enabled = !uiState.isLoading, modifier = Modifier.fillMaxWidth().height(50.dp)) {
+                    Text(str(PreviewR.string.register_button_action), style = MaterialTheme.typography.labelLarge)
+                }
+            }
+            TextButton(onClick = onNavigateToLogin, enabled = !uiState.isLoading) {
+                Text(str(PreviewR.string.already_have_account_login))
+            }
+        }
     }
 }
-@Composable
-internal fun previewStringResource(id: Int): String { // Assuming Int for R.string
-    // ... map ids to strings ...
-    return "Preview String for $id"
+
+// Assuming WithPreviewResources and AmbientStringResourceProvider are defined (e.g. copied from LoginScreen.kt or common preview utils)
+// Add relevant string keys to PreviewR.string for RegisterScreen
+internal object PreviewR { // Copied from LoginScreen and extended
+    object string {
+        val login_title = "login_title" // from LoginScreen, reused if roleToDisplayString is shared
+        val email_label = "email_label"
+        val password_label = "password_label"
+        val select_role_label = "select_role_label"
+        val login_button_text = "login_button_text"
+        val register_prompt_text = "register_prompt_text"
+        val register_button_text = "register_button_text" // from LoginScreen, but might be different key for RegisterScreen's main button
+        val role_farmer = "role_farmer"
+        val role_buyer = "role_buyer"
+        val role_admin = "role_admin"
+        val role_veterinarian = "role_veterinarian"
+        val error_email_password_empty = "error_email_password_empty"
+        val error_login_failed = "error_login_failed"
+        val error_unexpected = "error_unexpected"
+
+        // RegisterScreen specific (ensure these match actual string keys you'll add)
+        val register_screen_title = "register_screen_title"
+        val action_back = "action_back"
+        val create_account_title = "create_account_title"
+        val name_label = "name_label"
+        val phone_label = "phone_label"
+        val optional_field = "optional_field"
+        val confirm_password_label = "confirm_password_label"
+        val register_button_action = "register_button_action" // Main button for register screen
+        val already_have_account_login = "already_have_account_login"
+        val error_field_required = "error_field_required" // Example error
+        val error_invalid_email = "error_invalid_email" // Example error
+        val error_password_too_short = "error_password_too_short" // Example error
+        val error_registration_failed = "error_registration_failed" // From RegisterViewModel
+    }
 }
+
+@Composable
+internal fun previewStringResource(id: String): String { // Copied from LoginScreen and extended
+    return when (id) {
+        PreviewR.string.login_title -> "Login to Rooster (Preview)"
+        PreviewR.string.email_label -> "Email Address (Preview)"
+        PreviewR.string.password_label -> "Password (Preview)"
+        PreviewR.string.select_role_label -> "Select Your Role (Preview)"
+        PreviewR.string.login_button_text -> "Login (Preview)"
+        PreviewR.string.register_prompt_text -> "Don't have an account? (Preview)"
+        PreviewR.string.register_button_text -> "Register Here (Preview)"
+        PreviewR.string.role_farmer -> "Farmer (Preview)"
+        PreviewR.string.role_buyer -> "Buyer (Preview)"
+        PreviewR.string.role_admin -> "Admin (Preview)"
+        PreviewR.string.role_veterinarian -> "Veterinarian (Preview)"
+        PreviewR.string.error_email_password_empty -> "Email and password cannot be empty. (Preview)"
+        PreviewR.string.error_login_failed -> "Login failed. Please try again. (Preview)"
+        PreviewR.string.error_unexpected -> "An unexpected error occurred. (Preview)"
+
+        PreviewR.string.register_screen_title -> "Create Account (Preview)"
+        PreviewR.string.action_back -> "Back (Preview)"
+        PreviewR.string.create_account_title -> "Join Rooster (Preview)"
+        PreviewR.string.name_label -> "Full Name (Preview)"
+        PreviewR.string.phone_label -> "Phone Number (Preview)"
+        PreviewR.string.optional_field -> "Optional (Preview)"
+        PreviewR.string.confirm_password_label -> "Confirm Password (Preview)"
+        PreviewR.string.register_button_action -> "Register (Preview)"
+        PreviewR.string.already_have_account_login -> "Already have an account? Login (Preview)"
+        PreviewR.string.error_field_required -> "This field is required. (Preview)"
+        PreviewR.string.error_invalid_email -> "Invalid email format. (Preview)"
+        PreviewR.string.error_password_too_short -> "Password is too short. (Preview)"
+        PreviewR.string.error_registration_failed -> "Registration Failed. Try Again. (Preview)"
+        // Map R.string.xxx (actual Int resource IDs) to string keys for preview error mapping
+        // This is tricky; RegisterScreenForPreview's errorText logic needs care.
+        // For simplicity, errorResId in preview state can use one of the above string keys.
+        R.string.error_registration_failed.toString() -> "Registration Failed. Try Again. (Preview)"
+        else -> "PREVIEW_STR: $id"
+    }
+}
+
+// Assuming AmbientStringResourceProvider and WithPreviewResources are available (e.g. from LoginScreen.kt or common file)
+internal val AmbientStringResourceProvider = compositionLocalOf<@Composable (id: String) -> String> {
+    { id -> "Missing preview provider for $id" }
+}
+
 @Composable
 internal fun WithPreviewResources(content: @Composable () -> Unit) {
-    // ... provide composition local ...
-    content()
-}
-*/
-// The roleToDisplayString function is also needed for previews. It's defined in LoginScreen.kt.
-// If it's not accessible, it needs to be copied or moved.
-// For the purpose of this step, I'm focusing on the RegisterScreen structure.
-// The preview setup might require adjustments based on actual project structure for shared test/preview utils.
-// Added string resource R.string.action_back, R.string.create_account_title, R.string.name_label,
-// R.string.phone_label, R.string.optional_field, R.string.confirm_password_label, R.string.register_button_action,
-// R.string.already_have_account_login. These will need to be added to strings.xml.
-// Updated icons for leadingIcons.
-// Using Scaffold with TopAppBar for a more complete screen structure.
-// Added error display below each field, driven by an errorMap.
-// Added isLoading state to show CircularProgressIndicator.
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
-
-        RegisterScreen(onNavigateBack = {})
+    CompositionLocalProvider(AmbientStringResourceProvider provides { id -> previewStringResource(id) }) {
+        content()
     }
 }
- main
- main
- main
- main
- main
- main
- main
+```

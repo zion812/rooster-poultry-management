@@ -1,5 +1,6 @@
 package com.rooster.farmerhome.data.repository
 
+ feature/dashboard-scaffolding-and-weather-api
 import com.rooster.farmerhome.core.common.util.DataState
 import com.rooster.farmerhome.data.local.datasource.FarmBasicInfoLocalDataSource
 import com.rooster.farmerhome.data.local.model.toDomain
@@ -64,5 +65,23 @@ class FarmDataRepositoryImpl @Inject constructor(
             // Catch errors from localDataSource.getFarmBasicInfo() or unhandled upstream
             emit(DataState.Error(e, null, null, "Failed to load farm information."))
         }
+
+import com.rooster.farmerhome.data.source.FarmDataRemoteDataSource
+// TODO: Import local data source for caching
+import com.rooster.farmerhome.domain.model.FarmBasicInfo
+import com.rooster.farmerhome.domain.repository.FarmDataRepository
+import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+
+class FarmDataRepositoryImpl @Inject constructor(
+    private val remoteDataSource: FarmDataRemoteDataSource
+    // TODO: private val localDataSource: FarmDataLocalDataSource
+) : FarmDataRepository {
+
+    override fun getFarmBasicInfo(farmId: String): Flow<FarmBasicInfo?> {
+        // TODO: Implement offline-first caching strategy as per AGENTS.md
+        // For now, directly fetching from remote
+        return remoteDataSource.getFarmBasicInfo(farmId)
+ main
     }
 }
