@@ -93,6 +93,16 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun resetPassword(email: String): Result<Unit> {
         return try {
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
+ main
+ main
             // TODO: Implement with Firebase Authentication:
             // firebaseAuth.sendPasswordResetEmail(email).await()
             // This call typically succeeds even if the email doesn't exist to prevent account enumeration.
@@ -105,6 +115,19 @@ class AuthRepositoryImpl @Inject constructor(
                 throw RuntimeException("Mock simulated failure: User not found or invalid email for password reset.")
             }
             Result.success(Unit) // Mock success
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+
+            // TODO: firebaseAuth.sendPasswordResetEmail(email).await()
+            Result.success(Unit)
+ main
+ main
+ main
+ main
         } catch (e: Exception) {
             // TODO: Map Firebase exceptions (e.g., FirebaseAuthInvalidUserException, FirebaseAuthInvalidCredentialsException)
             // to more domain-specific errors if needed, though often a generic failure is sufficient for reset password.
@@ -134,6 +157,10 @@ class AuthRepositoryImpl @Inject constructor(
         // return firebaseAuth.currentUser != null
         return _currentUser.value != null
     }
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
 
     override suspend fun sendCurrentUserEmailVerification(): Result<Unit> {
         return try {
@@ -200,4 +227,25 @@ class AuthRepositoryImpl @Inject constructor(
 //   "verified.after.reload" and they are not yet verified, it updates the mock user's
 //   `isEmailVerified` status to true. Otherwise, it just returns the current mock user state.
 //   This allows testing the flow where verification status changes after a reload.
+ feat/login-screen-v1
 // - TODOs for actual Firebase integration are included for both methods.
+
+// - TODOs for actual Firebase integration are included for both methods.
+
+}
+// Notes:
+// - Updated `signUp` method signature and its mock implementation to include `role` and `phoneNumber`.
+// - Added extensive TODO comments indicating where actual Firebase Authentication and Firestore
+//   (or Parse Server) calls would be made. This includes:
+//     - `createUserWithEmailAndPassword`, `sendEmailVerification` for signUp.
+//     - Storing user details in a "users" collection in Firestore, keyed by Firebase UID.
+//     - `signInWithEmailAndPassword` for signIn, followed by fetching user details from Firestore.
+//     - `sendPasswordResetEmail` for resetPassword.
+//     - `firebaseAuth.signOut()` for signOut.
+//     - Using `firebaseAuth.authStateChanges()` to drive `getCurrentUser()`.
+//     - Updating Firestore and potentially FirebaseUser for `updateProfile`.
+// - Injected (but commented out) `FirebaseAuth` and `FirebaseFirestore`.
+// - This approach maintains the mock nature for now but clearly outlines the path for real backend integration.
+// - The mock `_currentUser` state flow is still used to simulate auth state changes.
+ main
+ main
