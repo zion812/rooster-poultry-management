@@ -81,6 +81,7 @@ android {
             buildConfigField("String", "RAZORPAY_KEY", "\"rzp_test_dummy\"")
             buildConfigField("String", "PAYMENT_API_BASE_URL", "\"http://10.0.2.2:3000/debug/\"")
             buildConfigField("String", "BACKEND_BASE_URL", "\"http://10.0.2.2:3000/api/\"")
+            buildConfigField("String", "FARM_MGMT_API_BASE_URL", "\"http://10.0.2.2:5000/\"") // For local Flask API via emulator
             buildConfigField(
                 "String",
                 "MAPS_API_KEY",
@@ -103,6 +104,8 @@ android {
                 "\"https://api.roosterapp.com/payment/release/\"",
             )
             buildConfigField("String", "BACKEND_BASE_URL", "\"https://api.roosterapp.com/api/\"")
+            // TODO: Define a proper production URL for Farm Mgmt API when available
+            buildConfigField("String", "FARM_MGMT_API_BASE_URL", "\"http://10.0.2.2:5000/\"") // Placeholder, same as debug for now
             buildConfigField(
                 "String",
                 "MAPS_API_KEY",
@@ -137,6 +140,8 @@ android {
                 "BACKEND_BASE_URL",
                 "\"https://staging.api.roosterapp.com/api/\"",
             )
+            // TODO: Define a proper staging URL for Farm Mgmt API when available
+            buildConfigField("String", "FARM_MGMT_API_BASE_URL", "\"http://10.0.2.2:5000/\"") // Placeholder, same as debug for now
             versionNameSuffix = "-staging"
             isDebuggable = false
             isMinifyEnabled = true
