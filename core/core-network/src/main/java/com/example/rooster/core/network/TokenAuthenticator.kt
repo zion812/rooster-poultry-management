@@ -24,6 +24,8 @@ class TokenAuthenticator @Inject constructor(
 
         Timber.d("Authentication required. Attempting to refresh token.")
 
+        // TODO: AGENTS.md notes that runBlocking here is a concession for suspend-only token providers.
+        // This is a known point for future optimization if it contributes to performance issues.
         val newToken: String? = runBlocking { // Bridge suspend call to synchronous Authenticator
             tokenProvider.getToken(forceRefresh = true)
         }

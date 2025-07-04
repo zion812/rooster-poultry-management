@@ -1,4 +1,4 @@
-package com.example.rooster.core.common.domain.repository
+package com.example.rooster.core.payment.domain.repository // Updated package
 
 import com.example.rooster.core.common.Result
 import com.example.rooster.core.common.models.payment.CreateOrderRequest

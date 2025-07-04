@@ -1,278 +1,207 @@
 package com.example.rooster.core.auth
 
-import com.example.rooster.core.common.model.User
-import com.example.rooster.core.common.model.UserRole
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
+import com.example.rooster.core.auth.di.ApplicationScope
+import com.example.rooster.core.auth.domain.model.User
+import com.example.rooster.core.auth.domain.model.UserRole
+import com.example.rooster.core.auth.domain.model.AuthState
+import com.example.rooster.core.auth.domain.repository.AuthRepository
+import com.example.rooster.core.common.Result // Using the common Result type
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Service class responsible for managing user authentication and session state.
+ *
+ * This class acts as a facade over the [AuthRepository], providing a simplified API
+ * for authentication operations and exposing the current authentication state and user details
+ * as reactive flows. It is designed to be a singleton within the application.
+ *
+ * @property authRepository The repository handling data operations for authentication.
+ * @property applicationScope A coroutine scope tied to the application's lifecycle, used for observing
+ *                            long-lived flows like the current user state.
+ */
 @Singleton
 class AuthService @Inject constructor(
-    private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val authRepository: AuthRepository,
+    @ApplicationScope private val applicationScope: CoroutineScope
 ) {
     private val _currentUser = MutableStateFlow<User?>(null)
+    /**
+     * A [StateFlow] emitting the currently authenticated [User], or null if no user is authenticated.
+     * This flow is driven by changes from the [AuthRepository].
+     */
     val currentUser: StateFlow<User?> = _currentUser
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
+    /**
+     * A [StateFlow] emitting the current [AuthState] of the application (e.g., Loading, Authenticated, Unauthenticated, Error).
+     * This flow is updated based on authentication operations and user state changes from the [AuthRepository].
+     */
     val authState: StateFlow<AuthState> = _authState
 
     init {
-        // Listen to Firebase auth state changes
-        firebaseAuth.addAuthStateListener { auth ->
-            val firebaseUser = auth.currentUser
-            if (firebaseUser != null) {
-                _authState.value = AuthState.Loading
-                // Use coroutine scope for fetching user profile
-                kotlinx.coroutines.GlobalScope.launch {
-                    try {
-                        val user = fetchUserProfile(firebaseUser)
-                        if (user != null) {
-                            _currentUser.value = user
-                            _authState.value = AuthState.Authenticated(user)
-                        } else {
-                            _authState.value = AuthState.Error("Failed to fetch user profile")
-                        }
-                    } catch (e: Exception) {
-                        _authState.value = AuthState.Error(e.message ?: "Auth error")
+        applicationScope.launch {
+            authRepository.getCurrentUser()
+                .onStart {
+                    Timber.d("AuthService: Observing current user. Initial state: Loading.")
+                    _authState.value = AuthState.Loading
+                }
+                .catch { e ->
+                    Timber.e(e, "AuthService: Error observing current user.")
+                    _authState.value = AuthState.Error("Failed to observe auth state: ${e.message}")
+                    _currentUser.value = null
+                }
+                .collect { user ->
+                    Timber.d("AuthService: Current user updated: ${user?.email ?: "null"}")
+                    _currentUser.value = user
+                    _authState.value = if (user != null) {
+                        AuthState.Authenticated(user)
+                    } else {
+                        AuthState.Unauthenticated
                     }
                 }
-            } else {
-                _currentUser.value = null
-                _authState.value = AuthState.Unauthenticated
-            }
         }
     }
 
     /**
-     * Sign in with email and password
+     * Attempts to sign in a user with the provided email and password.
+     * Updates [authState] to [AuthState.Loading] initially, and to [AuthState.Error] on failure.
+     * Successful authentication is reflected through the [currentUser] and [authState] flows via repository updates.
+     *
+     * @param email The user's email address.
+     * @param password The user's password.
+     * @return A [Result] containing the [User] on success, or an error on failure.
      */
-    suspend fun signInWithEmail(email: String, password: String): AuthResult {
-        return try {
-            _authState.value = AuthState.Loading
-            val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            val firebaseUser = result.user
-
-            if (firebaseUser != null) {
-                val user = fetchUserProfile(firebaseUser)
-                if (user != null) {
-                    _currentUser.value = user
-                    _authState.value = AuthState.Authenticated(user)
-                    AuthResult.Success(user)
-                } else {
-                    AuthResult.Error("Failed to fetch user profile")
-                }
-            } else {
-                AuthResult.Error("Authentication failed")
-            }
-        } catch (e: Exception) {
-            _authState.value = AuthState.Error(e.message ?: "Authentication failed")
-            AuthResult.Error(e.message ?: "Authentication failed")
+    suspend fun signInWithEmail(email: String, password: String): Result<User> {
+        _authState.value = AuthState.Loading
+        val result = authRepository.signIn(email, password)
+        if (result is Result.Error) {
+            _authState.value = AuthState.Error(result.exception.message ?: "Sign in failed")
         }
+        return result
     }
 
     /**
-     * Sign up with email and password
+     * Attempts to register a new user with the provided details.
+     * Updates [authState] to [AuthState.Loading] initially, and to [AuthState.Error] on failure.
+     * Successful registration and sign-in are reflected through the [currentUser] and [authState] flows.
+     *
+     * @param email The new user's email address.
+     * @param password The new user's password.
+     * @param displayName The new user's display name.
+     * @param role The role of the new user, defaults to [UserRole.FARMER].
+     * @param phoneNumber Optional phone number for the new user.
+     * @return A [Result] containing the newly created [User] on success, or an error on failure.
      */
     suspend fun signUpWithEmail(
         email: String,
         password: String,
         displayName: String,
-        role: UserRole = UserRole.FARMER
-    ): AuthResult {
-        return try {
-            _authState.value = AuthState.Loading
-            val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            val firebaseUser = result.user
-
-            if (firebaseUser != null) {
-                // Create user profile in Firestore
-                val user = User(
-                    id = firebaseUser.uid,
-                    email = email,
-                    displayName = displayName,
-                    role = role,
-                    isEmailVerified = firebaseUser.isEmailVerified,
-                    createdAt = System.currentTimeMillis(),
-                    lastLoginAt = System.currentTimeMillis()
-                )
-
-                // Save to Firestore
-                firestore.collection("users")
-                    .document(firebaseUser.uid)
-                    .set(user)
-                    .await()
-
-                _currentUser.value = user
-                _authState.value = AuthState.Authenticated(user)
-
-                // Send verification email
-                firebaseUser.sendEmailVerification().await()
-
-                AuthResult.Success(user)
-            } else {
-                AuthResult.Error("Failed to create account")
-            }
-        } catch (e: Exception) {
-            _authState.value = AuthState.Error(e.message ?: "Sign up failed")
-            AuthResult.Error(e.message ?: "Sign up failed")
+        role: UserRole = UserRole.FARMER,
+        phoneNumber: String? = null
+    ): Result<User> {
+        _authState.value = AuthState.Loading
+        val result = authRepository.signUp(email, password, displayName, role, phoneNumber)
+        if (result is Result.Error) {
+            _authState.value = AuthState.Error(result.exception.message ?: "Sign up failed")
         }
+        return result
     }
 
     /**
-     * Sign in with phone number
+     * Attempts to sign in a user with a phone number and verification code.
+     * NOTE: This feature is currently not implemented.
+     *
+     * @param phoneNumber The user's phone number.
+     * @param verificationCode The OTP code received by the user.
+     * @return [Result.Error] as this feature is not implemented.
      */
-    suspend fun signInWithPhone(phoneNumber: String, verificationCode: String): AuthResult {
-        // Implementation for phone auth would go here
-        // This requires more complex OTP handling
-        return AuthResult.Error("Phone authentication not implemented yet")
+    suspend fun signInWithPhone(phoneNumber: String, verificationCode: String): Result<User> {
+        Timber.w("signInWithPhone not implemented in AuthService.")
+        return Result.Error(UnsupportedOperationException("Phone authentication not implemented yet."))
     }
 
     /**
-     * Sign out current user
+     * Signs out the currently authenticated user.
+     * Updates [authState] to [AuthState.Loading] initially. The actual state change to
+     * [AuthState.Unauthenticated] is handled by the observer of `authRepository.getCurrentUser()`.
+     *
+     * @return [Result.Success] if the sign-out process was initiated, or [Result.Error] if an issue occurred.
      */
-    suspend fun signOut(): AuthResult {
-        return try {
-            firebaseAuth.signOut()
-            _currentUser.value = null
-            _authState.value = AuthState.Unauthenticated
-            AuthResult.Success(null)
-        } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Sign out failed")
-        }
+    suspend fun signOut(): Result<Unit> {
+        _authState.value = AuthState.Loading
+        // The repository's signOut() is called.
+        // The change in auth state (to null user) will be picked up by the init block's collector.
+        authRepository.signOut()
+        return Result.Success(Unit) // Assuming local signOut in repo is mostly non-failing for this mapping
     }
 
     /**
-     * Update user profile
+     * Updates the profile of the currently authenticated user.
+     *
+     * @param user The [User] object with updated profile information.
+     * @return A [Result] containing the updated [User] on success, or an error on failure.
      */
-    suspend fun updateUserProfile(user: User): AuthResult {
-        return try {
-            firestore.collection("users")
-                .document(user.id)
-                .set(user)
-                .await()
-
-            _currentUser.value = user
-            AuthResult.Success(user)
-        } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Profile update failed")
-        }
+    suspend fun updateUserProfile(user: User): Result<User> {
+        return authRepository.updateProfile(user)
     }
 
     /**
-     * Send password reset email
+     * Sends a password reset email to the specified email address.
+     *
+     * @param email The email address to send the password reset link to.
+     * @return [Result.Success] if the email was sent (or request accepted by Firebase), or [Result.Error] on failure.
      */
-    suspend fun sendPasswordResetEmail(email: String): AuthResult {
-        return try {
-            firebaseAuth.sendPasswordResetEmail(email).await()
-            AuthResult.Success(null)
-        } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Password reset failed")
-        }
+    suspend fun sendPasswordResetEmail(email: String): Result<Unit> {
+        return authRepository.resetPassword(email)
     }
 
     /**
-     * Send email verification
+     * Sends an email verification link to the currently authenticated user.
+     *
+     * @return [Result.Success] if the verification email was sent, or [Result.Error] on failure.
      */
-    suspend fun sendEmailVerification(): AuthResult {
-        return try {
-            firebaseAuth.currentUser?.sendEmailVerification()?.await()
-            AuthResult.Success(null)
-        } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Email verification failed")
-        }
+    suspend fun sendEmailVerification(): Result<Unit> {
+        return authRepository.sendCurrentUserEmailVerification()
     }
 
     /**
-     * Check if user has specific role
+     * Reloads the data for the currently authenticated user from the backend.
+     * This is useful for refreshing user state, such as email verification status.
+     * The [currentUser] and [authState] flows will be updated upon successful reload via the repository.
+     *
+     * @return A [Result] containing the reloaded [User] (or null if no user signed in after reload),
+     *         or an error on failure.
      */
-    fun hasRole(role: UserRole): Boolean {
-        return _currentUser.value?.role == role
+    suspend fun reloadCurrentUser(): Result<User?> {
+        return authRepository.reloadCurrentUser()
     }
 
-    /**
-     * Check if user has any of the specified roles
-     */
-    fun hasAnyRole(vararg roles: UserRole): Boolean {
-        val userRole = _currentUser.value?.role
-        return userRole != null && roles.contains(userRole)
-    }
+    /** Checks if the current user has the specified [UserRole]. */
+    fun hasRole(role: UserRole): Boolean = _currentUser.value?.role == role
 
-    /**
-     * Check if user is admin
-     */
+    /** Checks if the current user has any of the specified [UserRole]s. */
+    fun hasAnyRole(vararg roles: UserRole): Boolean = _currentUser.value?.role?.let { it in roles } ?: false
+
+    /** Checks if the current user is an [UserRole.ADMIN]. */
     fun isAdmin(): Boolean = hasRole(UserRole.ADMIN)
 
-    /**
-     * Check if user is farmer
-     */
+    /** Checks if the current user is a [UserRole.FARMER]. */
     fun isFarmer(): Boolean = hasRole(UserRole.FARMER)
 
-    /**
-     * Check if user is buyer
-     */
+    /** Checks if the current user is a [UserRole.BUYER]. */
     fun isBuyer(): Boolean = hasRole(UserRole.BUYER)
 
-    /**
-     * Fetch complete user profile from Firestore
-     */
-    private suspend fun fetchUserProfile(firebaseUser: FirebaseUser): User? {
-        return try {
-            val document = firestore.collection("users")
-                .document(firebaseUser.uid)
-                .get()
-                .await()
+    /** Checks if the current user is an [UserRole.EXPERT]. */
+    fun isExpert(): Boolean = hasRole(UserRole.EXPERT)
 
-            if (document.exists()) {
-                val user = document.toObject(User::class.java)
-                user?.copy(
-                    isEmailVerified = firebaseUser.isEmailVerified,
-                    lastLoginAt = System.currentTimeMillis()
-                )
-            } else {
-                // Create basic user profile if not exists
-                val user = User(
-                    id = firebaseUser.uid,
-                    email = firebaseUser.email ?: "",
-                    displayName = firebaseUser.displayName ?: "",
-                    isEmailVerified = firebaseUser.isEmailVerified,
-                    lastLoginAt = System.currentTimeMillis()
-                )
-
-                firestore.collection("users")
-                    .document(firebaseUser.uid)
-                    .set(user)
-                    .await()
-
-                user
-            }
-        } catch (e: Exception) {
-            null
-        }
-    }
-}
-
-/**
- * Authentication state sealed class
- */
-sealed class AuthState {
-    object Loading : AuthState()
-    object Unauthenticated : AuthState()
-    data class Authenticated(val user: User) : AuthState()
-    data class Error(val message: String) : AuthState()
-}
-
-/**
- * Authentication result sealed class
- */
-sealed class AuthResult {
-    data class Success(val user: User?) : AuthResult()
-    data class Error(val message: String) : AuthResult()
+    /** Checks if the current user is a [UserRole.VETERINARIAN]. */
+    fun isVeterinarian(): Boolean = hasRole(UserRole.VETERINARIAN)
 }
