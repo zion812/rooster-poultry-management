@@ -49,9 +49,7 @@ annotation class AuthInterceptor
 @Retention(AnnotationRetention.BINARY)
 annotation class NetworkInterceptor
 
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class PaymentApiRetrofit
+// PaymentApiRetrofit qualifier is now in core-payment's PaymentModule
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -81,6 +79,9 @@ object NetworkModule {
                 .addHeader("Content-Type", "application/json")
                 .addHeader("User-Agent", "Rooster-Android/${Constants.APP_VERSION}")
 
+            // TODO: AGENTS.md acknowledges runBlocking here for initial token fetch.
+            // This is a known point for future optimization if performance issues (e.g., ANR) arise.
+            // A fully reactive token pipeline for synchronous interceptors is complex.
             val token =
                 kotlinx.coroutines.runBlocking { tokenProvider.getToken(forceRefresh = false) }
             token?.let {
@@ -166,27 +167,5 @@ object NetworkModule {
         }
     }
 
-    @Provides
-    @Singleton
-    @PaymentApiRetrofit
-    fun providePaymentApiRetrofit(
-        okHttpClient: OkHttpClient,
-        @PaymentApiBaseUrl baseUrl: String,
-        json: Json
-    ): Retrofit {
-        if (baseUrl.isBlank()) {
-            throw IllegalStateException("Payment API Base URL is not configured or blank.")
-        }
-        return Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .client(okHttpClient)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build()
-    }
-
-    @Provides
-    @Singleton
-    fun providePaymentApiService(@PaymentApiRetrofit retrofit: Retrofit): PaymentApiService {
-        return retrofit.create(PaymentApiService::class.java)
-    }
+    // Providers for PaymentApiRetrofit and PaymentApiService are now in core-payment's PaymentModule
 }

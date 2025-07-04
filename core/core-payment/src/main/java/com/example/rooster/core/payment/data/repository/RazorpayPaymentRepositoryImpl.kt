@@ -1,7 +1,10 @@
-package com.example.rooster.core.network.repository
+package com.example.rooster.core.payment.data.repository // Updated package
 
 import com.example.rooster.core.common.Result
-import com.example.rooster.core.common.domain.repository.PaymentRepository
+// Updated import for PaymentRepository
+import com.example.rooster.core.payment.domain.repository.PaymentRepository
+// Updated import for PaymentApiService - will be injected when not a mock
+import com.example.rooster.core.payment.data.remote.PaymentApiService
 import com.example.rooster.core.common.models.payment.CreateOrderRequest
 import com.example.rooster.core.common.models.payment.RazorpayOrderResponse
 import com.example.rooster.core.common.models.payment.VerifyPaymentRequest
@@ -24,9 +27,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class RazorpayPaymentRepositoryImpl @Inject constructor(
-    // TODO: Inject actual Razorpay API client when available
-    // private val razorpayApiService: RazorpayApiService,
-    // private val apiKeyProvider: ApiKeyProvider
+    // TODO: Inject actual PaymentApiService when this is not a mock
+    // private val paymentApiService: PaymentApiService,
 ) : PaymentRepository {
 
     override suspend fun createRazorpayOrder(orderRequest: CreateOrderRequest): Result<RazorpayOrderResponse> {
@@ -54,21 +56,19 @@ class RazorpayPaymentRepositoryImpl @Inject constructor(
                         "app_version" to "1.0.0"
                     ),
                     createdAt = System.currentTimeMillis() / 1000,
-                    keyId = "rzp_test_mock_key_id"
+                    keyId = "rzp_test_mock_key_id" // This is crucial for Razorpay checkout
                 )
             )
 
             // TODO: Replace with actual API call when Razorpay integration is ready:
             /*
-            val response = razorpayApiService.createOrder(
-                CreateOrderApiRequest(
-                    amount = orderRequest.amount,
-                    currency = orderRequest.currency,
-                    receipt = orderRequest.receipt,
-                    notes = orderRequest.notes
-                )
-            )
-            Result.Success(response)
+            val response = paymentApiService.createOrder(orderRequest) // Pass the request directly
+            // Need to handle Retrofit Response<T> to Result<T> mapping
+            if (response.isSuccessful && response.body() != null) {
+                Result.Success(response.body()!!)
+            } else {
+                Result.Error(Exception("Failed to create order: ${response.code()} - ${response.message()}"))
+            }
             */
 
         } catch (e: Exception) {
@@ -88,36 +88,40 @@ class RazorpayPaymentRepositoryImpl @Inject constructor(
 
             // Mock verification logic based on payment ID pattern
             val isValidPayment = verifyRequest.razorpayPaymentId.startsWith("pay_") &&
-                    verifyRequest.razorpayOrderId.startsWith("order_")
+                    verifyRequest.razorpayOrderId.startsWith("order_") &&
+                    verifyRequest.razorpaySignature.isNotBlank()
+
 
             if (isValidPayment) {
                 Result.Success(
                     VerifyPaymentResponse(
                         success = true,
                         message = "Payment verified successfully - Mock Response",
-                        data = null // Will be populated when actual API is integrated
+                        transactionId = "txn_mock_${generateMockId()}",
+                        orderId = verifyRequest.razorpayOrderId,
+                        paymentId = verifyRequest.razorpayPaymentId
                     )
                 )
             } else {
-                Result.Success(
+                Result.Success( // Or Result.Error depending on how strict we want to be with mock failures
                     VerifyPaymentResponse(
                         success = false,
-                        message = "Payment verification failed - Invalid payment details",
-                        data = null
+                        message = "Payment verification failed - Invalid payment details (mock)",
+                        transactionId = null,
+                        orderId = verifyRequest.razorpayOrderId,
+                        paymentId = verifyRequest.razorpayPaymentId
                     )
                 )
             }
 
             // TODO: Replace with actual API verification when ready:
             /*
-            val response = razorpayApiService.verifyPayment(
-                VerifyPaymentApiRequest(
-                    paymentId = verifyRequest.paymentId,
-                    orderId = verifyRequest.orderId,
-                    signature = verifyRequest.signature
-                )
-            )
-            Result.Success(response)
+            val response = paymentApiService.verifyPayment(verifyRequest)
+            if (response.isSuccessful && response.body() != null) {
+                Result.Success(response.body()!!)
+            } else {
+                Result.Error(Exception("Failed to verify payment: ${response.code()} - ${response.message()}"))
+            }
             */
 
         } catch (e: Exception) {
@@ -135,28 +139,3 @@ class RazorpayPaymentRepositoryImpl @Inject constructor(
             .joinToString("")
     }
 }
-
-/**
- * Development Notes:
- *
- * 1. MOCK BEHAVIOR:
- *    - createRazorpayOrder: Always succeeds with realistic data
- *    - verifyRazorpayPayment: Succeeds based on ID format validation
- *    - Network delays simulated for realistic UX testing
- *
- * 2. INTEGRATION READY:
- *    - All TODO comments mark where real API calls will go
- *    - Method signatures match expected API responses
- *    - Error handling structure ready for real network errors
- *
- * 3. TESTING SCENARIOS:
- *    - Success: Normal payment flow works end-to-end
- *    - Failure: Invalid payment IDs return appropriate errors
- *    - Network: Simulated delays help test loading states
- *
- * 4. WHEN RAZORPAY API IS READY:
- *    - Replace mock implementations with commented API calls
- *    - Add proper API key configuration
- *    - Update error handling for actual API error codes
- *    - Add real webhook verification logic
- */
