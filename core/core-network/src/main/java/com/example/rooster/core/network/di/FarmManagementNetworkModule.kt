@@ -3,7 +3,14 @@ package com.example.rooster.core.network.di
 import com.example.rooster.core.network.BuildConfig
 import com.example.rooster.core.network.qualifiers.FarmManagementApi
 import com.example.rooster.core.network.qualifiers.FarmManagementApiBaseUrl
+ feature/dashboard-scaffolding-and-weather-api
+import com.rooster.farmerhome.data.source.FarmDataApiService
+import com.rooster.farmerhome.data.source.FarmHealthAlertApiService // Import for FarmHealthAlertApiService
+import com.rooster.farmerhome.data.source.ProductionMetricsApiService
+import com.rooster.farmerhome.data.source.WeatherApiService
+
 import com.rooster.farmerhome.data.source.WeatherApiService // Correct import for WeatherApiService
+ main
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -46,6 +53,27 @@ object FarmManagementNetworkModule {
         return retrofit.create(WeatherApiService::class.java)
     }
 
+ feature/dashboard-scaffolding-and-weather-api
+    @Provides
+    @Singleton
+    fun provideFarmDataApiService(@FarmManagementApi retrofit: Retrofit): FarmDataApiService {
+        return retrofit.create(FarmDataApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProductionMetricsApiService(@FarmManagementApi retrofit: Retrofit): ProductionMetricsApiService {
+        return retrofit.create(ProductionMetricsApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFarmHealthAlertApiService(@FarmManagementApi retrofit: Retrofit): FarmHealthAlertApiService {
+        return retrofit.create(FarmHealthAlertApiService::class.java)
+    }
+
+
+ main
     // TODO: If a general OkHttpClient and Json are not provided globally,
     // they need to be provided here or in a more general NetworkModule.
     // For now, assume they are.

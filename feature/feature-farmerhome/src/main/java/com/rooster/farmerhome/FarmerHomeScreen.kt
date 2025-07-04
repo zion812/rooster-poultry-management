@@ -10,23 +10,80 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+ feature/dashboard-scaffolding-and-weather-api
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+ main
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rooster.farmerhome.domain.model.WeatherData
+ feature/dashboard-scaffolding-and-weather-api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 
+
+@OptIn(ExperimentalMaterial3Api::class) // Added for Scaffold & SnackbarHost if not already present
+
+
+ main
 @Composable
 fun FarmerHomeScreen(
     viewModel: FarmerHomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+ feature/dashboard-scaffolding-and-weather-api
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.messageId) {
+        uiState.transientUserMessage?.let { message ->
+            snackbarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearTransientMessage()
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { scaffoldPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(scaffoldPadding) // Apply scaffold padding
+                .padding(16.dp), // Then apply original screen padding
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Farmer Home Screen", style = MaterialTheme.typography.headlineMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            FarmInfoSection(
+            farmInfoState = uiState.farmInfoState, // Pass DataState
+            onRetry = { viewModel.fetchFarmBasicInfo("farm123") } // Consider dynamic farmId
+
 
     Column(
         modifier = Modifier
@@ -42,24 +99,40 @@ fun FarmerHomeScreen(
             isLoading = uiState.isLoadingFarmInfo,
             error = uiState.farmInfoError,
             onRetry = { viewModel.fetchFarmBasicInfo("farm123") }
+ main
         )
         Spacer(modifier = Modifier.height(16.dp))
 
         WeatherSection(
+ feature/dashboard-scaffolding-and-weather-api
+            weatherState = uiState.weatherState, // Pass the DataState object
+            onRetry = {
+                // Retry with current farm's location if available, else default
+                val location = uiState.farmBasicInfo?.location ?: "Krishna District Center"
+                viewModel.fetchWeatherForFarm(location)
+            }
+
             weatherData = uiState.weatherData,
             isLoading = uiState.isLoadingWeather,
             error = uiState.weatherError,
             onRetry = { viewModel.fetchWeatherForFarm("Krishna District Center") } // Example retry
+ main
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         FarmHealthAlertsSection(
+ feature/dashboard-scaffolding-and-weather-api
+            healthAlertsState = uiState.healthAlertsState, // Pass DataState
+            onMarkAsRead = { alert -> viewModel.markAlertAsRead(alert.farmId, alert.id) },
+            onRetry = { viewModel.fetchHealthAlerts(uiState.farmInfoState.getUnderlyingData()?.farmId ?: "farm123") }
+
             alerts = uiState.farmHealthAlerts,
             isLoading = uiState.isLoadingAlerts,
             error = uiState.alertsError,
             onMarkAsRead = { alertId -> viewModel.markAlertAsRead(alertId) },
             onRetry = { viewModel.fetchHealthAlerts("farm123") } // Example retry
+ main
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -74,15 +147,37 @@ fun FarmerHomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         ProductionMetricsSection(
+ feature/dashboard-scaffolding-and-weather-api
+            productionSummaryState = uiState.productionSummaryState, // Pass DataState
+            onRetry = { viewModel.fetchProductionSummary(uiState.farmInfoState.getUnderlyingData()?.farmId ?: "farm123") }
+
             summary = uiState.productionSummary,
             isLoading = uiState.isLoadingProductionSummary,
             error = uiState.productionSummaryError,
             onRetry = { viewModel.fetchProductionSummary("farm123") } // Example retry
+ main
         )
 
         // TODO: Add other sections if any
     }
 }
+
+ feature/dashboard-scaffolding-and-weather-api
+import com.rooster.farmerhome.core.common.util.DataState // Ensure DataState is imported
+import androidx.compose.material3.Button // For Retry button
+import androidx.compose.material3.Badge // For stale data indication
+import androidx.compose.material3.ExperimentalMaterial3Api // For Badge
+import androidx.compose.foundation.layout.Row // For Badge layout
+import androidx.compose.foundation.layout.size // For icon size in badge
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WeatherSection(
+    weatherState: DataState<WeatherData?>, // Updated parameter
+    onRetry: () -> Unit
+) {
+    val weatherData = weatherState.getUnderlyingData() // Helper to get data from any state
+
 
 @Composable
 fun WeatherSection(
@@ -91,6 +186,7 @@ fun WeatherSection(
     error: String?,
     onRetry: () -> Unit
 ) {
+ main
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier.padding(bottom = 16.dp)
@@ -102,6 +198,51 @@ fun WeatherSection(
             Text("Current Weather", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
+ feature/dashboard-scaffolding-and-weather-api
+            when (weatherState) {
+                is DataState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                    weatherData?.let { staleData -> // Show stale data if available while loading
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Updating weather (showing last known)...", style = MaterialTheme.typography.labelSmall)
+                        WeatherInfoDisplay(staleData)
+                    }
+                }
+                is DataState.Success -> {
+                    weatherState.data?.let {
+                        if (weatherState.isFromCache && weatherState.isStale) {
+                             Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("Weather (possibly stale)", style = MaterialTheme.typography.labelSmall)
+                                Badge(modifier = Modifier.padding(start = 4.dp)) { Text("!") }
+                            }
+                        } else if (weatherState.isFromCache) {
+                            Text("Weather (cached)", style = MaterialTheme.typography.labelSmall)
+                        }
+                        WeatherInfoDisplay(it)
+                    } ?: Text("No weather data available.")
+                }
+                is DataState.Error -> {
+                    Text("Error: ${weatherState.message ?: weatherState.exception.localizedMessage}", color = MaterialTheme.colorScheme.error)
+                    weatherData?.let { staleData -> // Show stale data if available on error
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Failed to update (showing last known):", style = MaterialTheme.typography.labelSmall)
+                        WeatherInfoDisplay(staleData)
+                    }
+                    Button(onClick = onRetry, modifier = Modifier.padding(top = 8.dp)) {
+                        Text("Retry")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun WeatherInfoDisplay(weatherData: WeatherData) {
+    weatherData.location?.let { Text("Location: $it") }
+    Text("Temperature: ${weatherData.temperature}")
+    Text("Humidity: ${weatherData.humidity}")
+
             if (isLoading) {
                 CircularProgressIndicator()
             } else if (error != null) {
@@ -111,6 +252,7 @@ fun WeatherSection(
                 weatherData.location?.let { Text("Location: $it") }
                 Text("Temperature: ${weatherData.temperature}")
                 Text("Humidity: ${weatherData.humidity}")
+ main
                 Text("Precipitation: ${weatherData.precipitation}")
                 Text("Wind Speed: ${weatherData.windSpeed}")
                 Text("Description: ${weatherData.description}")
@@ -121,6 +263,65 @@ fun WeatherSection(
     }
 }
 
+
+ feature/dashboard-scaffolding-and-weather-api
+@OptIn(ExperimentalMaterial3Api::class) // For Badge
+@Composable
+fun FarmHealthAlertsSection(
+    healthAlertsState: DataState<List<FarmHealthAlert>>, // Updated parameter
+    onMarkAsRead: (alert: FarmHealthAlert) -> Unit,
+    onRetry: () -> Unit
+) {
+    val alerts = healthAlertsState.getUnderlyingData() ?: emptyList()
+
+    Column {
+        val titleSuffix = if (alerts.isNotEmpty() && healthAlertsState is DataState.Success) " (${alerts.count { !it.isRead }} unread)" else ""
+        Text("Farm Health Alerts$titleSuffix", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        when (healthAlertsState) {
+            is DataState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                if (alerts.isNotEmpty()) { // Show stale data if available
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Updating alerts (showing last known)...", style = MaterialTheme.typography.labelSmall)
+                    alerts.forEach { alert ->
+                        FarmHealthAlertItem(alert = alert, onMarkAsRead = onMarkAsRead)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+            is DataState.Success -> {
+                if (alerts.isEmpty()) {
+                    Text("No active health alerts.")
+                } else {
+                    if (healthAlertsState.isFromCache && healthAlertsState.isStale) {
+                         Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Alerts (possibly stale)", style = MaterialTheme.typography.labelSmall)
+                            Badge(modifier = Modifier.padding(start = 4.dp)) { Text("!") }
+                        }
+                    } else if (healthAlertsState.isFromCache) {
+                         Text("Alerts (cached)", style = MaterialTheme.typography.labelSmall)
+                    }
+                    alerts.forEach { alert ->
+                        FarmHealthAlertItem(alert = alert, onMarkAsRead = onMarkAsRead)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+            is DataState.Error -> {
+                Text("Error: ${healthAlertsState.message ?: healthAlertsState.exception.localizedMessage}", color = MaterialTheme.colorScheme.error)
+                if (alerts.isNotEmpty()) { // Show stale data if available
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Failed to update alerts (showing last known):", style = MaterialTheme.typography.labelSmall)
+                    alerts.forEach { alert ->
+                        FarmHealthAlertItem(alert = alert, onMarkAsRead = onMarkAsRead)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+                Button(onClick = onRetry, modifier = Modifier.padding(top = 8.dp)) {
+                    Text("Retry")
+                }
 
 @Composable
 fun FarmHealthAlertsSection(
@@ -145,13 +346,18 @@ fun FarmHealthAlertsSection(
             alerts.forEach { alert ->
                 FarmHealthAlertItem(alert = alert, onMarkAsRead = onMarkAsRead)
                 Spacer(modifier = Modifier.height(8.dp))
+ main
             }
         }
     }
 }
 
 @Composable
+ feature/dashboard-scaffolding-and-weather-api
+fun FarmHealthAlertItem(alert: FarmHealthAlert, onMarkAsRead: (FarmHealthAlert) -> Unit) { // Changed parameter type
+
 fun FarmHealthAlertItem(alert: FarmHealthAlert, onMarkAsRead: (String) -> Unit) {
+ main
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
@@ -175,7 +381,11 @@ fun FarmHealthAlertItem(alert: FarmHealthAlert, onMarkAsRead: (String) -> Unit) 
             Text("Time: ${java.text.SimpleDateFormat("dd/MM/yy HH:mm", java.util.Locale.getDefault()).format(alert.alertDate)}", style = MaterialTheme.typography.bodySmall)
             if (!alert.isRead) {
                 androidx.compose.material3.Button(
+ feature/dashboard-scaffolding-and-weather-api
+                    onClick = { onMarkAsRead(alert) }, // Pass the whole alert object
+
                     onClick = { onMarkAsRead(alert.id) },
+ main
                     modifier = Modifier.align(Alignment.End).padding(top = 4.dp)
                 ) {
                     Text("Mark as Read")
@@ -195,6 +405,16 @@ fun FarmerHomeScreenPreview() {
     }
 }
 
+ feature/dashboard-scaffolding-and-weather-api
+@OptIn(ExperimentalMaterial3Api::class) // For Badge
+@Composable
+fun FarmInfoSection(
+    farmInfoState: DataState<FarmBasicInfo?>, // Updated parameter
+    onRetry: () -> Unit
+) {
+    val farmInfo = farmInfoState.getUnderlyingData()
+
+
 @Composable
 fun FarmInfoSection(
     farmInfo: FarmBasicInfo?,
@@ -202,6 +422,7 @@ fun FarmInfoSection(
     error: String?,
     onRetry: () -> Unit
 ) {
+ main
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier.fillMaxWidth()
@@ -212,6 +433,51 @@ fun FarmInfoSection(
             Text("My Farm", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
+ feature/dashboard-scaffolding-and-weather-api
+            when (farmInfoState) {
+                is DataState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                    farmInfo?.let { staleData ->
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Updating farm info (showing last known)...", style = MaterialTheme.typography.labelSmall)
+                        FarmInfoDisplay(staleData)
+                    }
+                }
+                is DataState.Success -> {
+                    farmInfo?.let {
+                        if (farmInfoState.isFromCache && farmInfoState.isStale) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("Farm Info (possibly stale)", style = MaterialTheme.typography.labelSmall)
+                                Badge(modifier = Modifier.padding(start = 4.dp)) { Text("!") }
+                            }
+                        } else if (farmInfoState.isFromCache) {
+                            Text("Farm Info (cached)", style = MaterialTheme.typography.labelSmall)
+                        }
+                        FarmInfoDisplay(it)
+                    } ?: Text("Farm information not available.")
+                }
+                is DataState.Error -> {
+                    Text("Error: ${farmInfoState.message ?: farmInfoState.exception.localizedMessage}", color = MaterialTheme.colorScheme.error)
+                    farmInfo?.let { staleData ->
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Failed to update (showing last known):", style = MaterialTheme.typography.labelSmall)
+                        FarmInfoDisplay(staleData)
+                    }
+                    Button(onClick = onRetry, modifier = Modifier.padding(top = 8.dp)) {
+                        Text("Retry")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FarmInfoDisplay(farmInfo: FarmBasicInfo) {
+    Text("Name: ${farmInfo.farmName}", style = MaterialTheme.typography.bodyLarge)
+    Text("Location: ${farmInfo.location}", style = MaterialTheme.typography.bodyMedium)
+    Text("Owner: ${farmInfo.ownerName}", style = MaterialTheme.typography.bodyMedium)
+
             if (isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             } else if (error != null) {
@@ -221,6 +487,7 @@ fun FarmInfoSection(
                 Text("Name: ${farmInfo.farmName}", style = MaterialTheme.typography.bodyLarge)
                 Text("Location: ${farmInfo.location}", style = MaterialTheme.typography.bodyMedium)
                 Text("Owner: ${farmInfo.ownerName}", style = MaterialTheme.typography.bodyMedium)
+ main
                 Text("Active Flocks: ${farmInfo.activeFlockCount}", style = MaterialTheme.typography.bodySmall)
                 Text("Total Capacity: ${farmInfo.totalCapacity} birds", style = MaterialTheme.typography.bodySmall)
                 farmInfo.lastHealthCheckDate?.let {
@@ -234,6 +501,16 @@ fun FarmInfoSection(
 }
 
 
+ feature/dashboard-scaffolding-and-weather-api
+@OptIn(ExperimentalMaterial3Api::class) // For Badge
+@Composable
+fun ProductionMetricsSection(
+    productionSummaryState: DataState<ProductionSummary?>, // Updated parameter
+    onRetry: () -> Unit
+) {
+    val summary = productionSummaryState.getUnderlyingData()
+
+
 @Composable
 fun ProductionMetricsSection(
     summary: ProductionSummary?,
@@ -241,9 +518,54 @@ fun ProductionMetricsSection(
     error: String?,
     onRetry: () -> Unit
 ) {
+ main
     Column {
         Text("Production Metrics", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
+
+ feature/dashboard-scaffolding-and-weather-api
+        when (productionSummaryState) {
+            is DataState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                summary?.let { staleData ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Updating metrics (showing last known)...", style = MaterialTheme.typography.labelSmall)
+                    ProductionSummaryDisplay(staleData)
+                }
+            }
+            is DataState.Success -> {
+                summary?.let {
+                    if (productionSummaryState.isFromCache && productionSummaryState.isStale) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Metrics (possibly stale)", style = MaterialTheme.typography.labelSmall)
+                            Badge(modifier = Modifier.padding(start = 4.dp)) { Text("!") }
+                        }
+                    } else if (productionSummaryState.isFromCache) {
+                        Text("Metrics (cached)", style = MaterialTheme.typography.labelSmall)
+                    }
+                    ProductionSummaryDisplay(it)
+                } ?: Text("No production metrics available.")
+            }
+            is DataState.Error -> {
+                Text("Error: ${productionSummaryState.message ?: productionSummaryState.exception.localizedMessage}", color = MaterialTheme.colorScheme.error)
+                summary?.let { staleData ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Failed to update metrics (showing last known):", style = MaterialTheme.typography.labelSmall)
+                    ProductionSummaryDisplay(staleData)
+                }
+                Button(onClick = onRetry, modifier = Modifier.padding(top = 8.dp)) {
+                    Text("Retry")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ProductionSummaryDisplay(summary: ProductionSummary) {
+    Column {
+        Text("Overall Summary:", style = MaterialTheme.typography.titleSmall)
+        Text("Total Flocks: ${summary.totalFlocks}")
 
         if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -254,6 +576,7 @@ fun ProductionMetricsSection(
             Column {
                 Text("Overall Summary:", style = MaterialTheme.typography.titleSmall)
                 Text("Total Flocks: ${summary.totalFlocks}")
+ main
                 Text("Active Birds: ${summary.activeBirds}")
                 Text("Egg Production (Today): ${summary.overallEggProductionToday} eggs")
                 Text("Weekly Mortality Rate: ${String.format("%.2f%%", summary.weeklyMortalityRate)}")
@@ -378,6 +701,15 @@ fun QuickActionItem(
 class PreviewFarmerHomeViewModel : FarmerHomeViewModel(
     weatherRepository = object : com.rooster.farmerhome.domain.repository.WeatherRepository {
         override fun getCurrentWeather(latitude: Double, longitude: Double) =
+ feature/dashboard-scaffolding-and-weather-api
+            kotlinx.coroutines.flow.flowOf( // Simulate DataState for preview
+                DataState.Success(WeatherData("25°C", "60%", "0mm", "10km/h", "Sunny", "Preview Location (Coords)"))
+            )
+
+        override fun getCurrentWeatherForFarm(farmLocation: String) =
+            kotlinx.coroutines.flow.flowOf( // Simulate DataState for preview
+                DataState.Success(WeatherData("28°C", "55%", "0.2mm", "12km/h", "Partly Cloudy", farmLocation))
+
             kotlinx.coroutines.flow.flowOf(
                 WeatherData("25°C", "60%", "0mm", "10km/h", "Sunny", "Preview Location")
             )
@@ -385,6 +717,7 @@ class PreviewFarmerHomeViewModel : FarmerHomeViewModel(
         override fun getCurrentWeatherForFarm(farmLocation: String) =
             kotlinx.coroutines.flow.flowOf(
                 WeatherData("28°C", "55%", "0.2mm", "12km/h", "Partly Cloudy", farmLocation)
+ main
             )
     },
     farmHealthAlertRepository = object : com.rooster.farmerhome.domain.repository.FarmHealthAlertRepository {
@@ -392,12 +725,21 @@ class PreviewFarmerHomeViewModel : FarmerHomeViewModel(
             FarmHealthAlert("1", "flockA", "farm123", "High Temp", "Temp high", com.rooster.farmerhome.domain.model.AlertSeverity.HIGH, System.currentTimeMillis() - 100000),
             FarmHealthAlert("2", "flockB", "farm123", "Low Feed", "Feed low", com.rooster.farmerhome.domain.model.AlertSeverity.MEDIUM, System.currentTimeMillis() - 200000, isRead = true)
         )
+ feature/dashboard-scaffolding-and-weather-api
+        override fun getHealthAlertsForFarm(farmId: String) = kotlinx.coroutines.flow.flowOf(DataState.Success(mockAlerts))
+        override suspend fun markAlertAsRead(farmId: String, alertId: String): Result<Unit> = Result.success(Unit) // Added farmId
+    },
+    productionMetricsRepository = object : com.rooster.farmerhome.domain.repository.ProductionMetricsRepository {
+        override fun getProductionSummary(farmId: String) = kotlinx.coroutines.flow.flowOf(
+            DataState.Success(ProductionSummary( // Simulate DataState
+
         override fun getHealthAlertsForFarm(farmId: String) = kotlinx.coroutines.flow.flowOf(mockAlerts)
         override suspend fun markAlertAsRead(alertId: String): Result<Unit> = Result.success(Unit)
     },
     productionMetricsRepository = object : com.rooster.farmerhome.domain.repository.ProductionMetricsRepository {
         override fun getProductionSummary(farmId: String) = kotlinx.coroutines.flow.flowOf(
             ProductionSummary(
+ main
                 totalFlocks = 3,
                 activeBirds = 1250,
                 overallEggProductionToday = 980,
@@ -411,7 +753,11 @@ class PreviewFarmerHomeViewModel : FarmerHomeViewModel(
     },
     farmDataRepository = object : com.rooster.farmerhome.domain.repository.FarmDataRepository {
         override fun getFarmBasicInfo(farmId: String) = kotlinx.coroutines.flow.flowOf(
+ feature/dashboard-scaffolding-and-weather-api
+            DataState.Success(FarmBasicInfo( // Simulate DataState for preview
+
             FarmBasicInfo(
+ main
                 farmId = "farm123-preview",
                 farmName = "Preview Farm Deluxe",
                 location = "Previewville, State",

@@ -48,6 +48,24 @@ class MockFarmHealthAlertRemoteDataSource @Inject constructor() : FarmHealthAler
         emit(mockAlerts.filter { it.farmId == farmId }.sortedByDescending { it.timestamp })
     }
 
+ feature/dashboard-scaffolding-and-weather-api
+    override suspend fun markAlertAsRead(farmId: String, alertId: String): Result<Unit> { // Added farmId
+        delay(200) // Simulate network delay
+        // Find the alert within the specific farm's list if your mockAlerts structure is nested
+        // Or, if mockAlerts is flat, ensure farmId matches too.
+        val alert = mockAlerts.find { it.id == alertId && it.farmId == farmId }
+        return if (alert != null) {
+            val index = mockAlerts.indexOf(alert)
+            if (index != -1) { // Ensure alert was found in the list
+                 mockAlerts[index] = alert.copy(isRead = true)
+                Result.success(Unit)
+            } else {
+                // Should not happen if alert was found by ID and farmId
+                Result.failure(Exception("Alert found but index issue for alertId: $alertId on farm: $farmId"))
+            }
+        } else {
+            Result.failure(Exception("Alert not found with id: $alertId for farm: $farmId"))
+
     override suspend fun markAlertAsRead(alertId: String): Result<Unit> {
         delay(200) // Simulate network delay
         val alert = mockAlerts.find { it.id == alertId }
@@ -57,6 +75,7 @@ class MockFarmHealthAlertRemoteDataSource @Inject constructor() : FarmHealthAler
             Result.success(Unit)
         } else {
             Result.failure(Exception("Alert not found"))
+ main
         }
     }
 }

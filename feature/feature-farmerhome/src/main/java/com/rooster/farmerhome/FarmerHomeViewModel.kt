@@ -33,6 +33,19 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+ feature/dashboard-scaffolding-and-weather-api
+import com.rooster.farmerhome.core.common.util.DataState // Import DataState
+import javax.inject.Inject
+
+data class FarmerHomeUiState(
+    val weatherState: DataState<WeatherData?> = DataState.Loading(null),
+    val healthAlertsState: DataState<List<FarmHealthAlert>> = DataState.Loading(null),
+    // isLoadingAlerts and alertsError will be derived
+    val productionSummaryState: DataState<ProductionSummary?> = DataState.Loading(null),
+    val farmInfoState: DataState<FarmBasicInfo?> = DataState.Loading(null),
+    val transientUserMessage: String? = null,
+    val messageId: java.util.UUID? = null // To trigger recomposition for same message
+
 import javax.inject.Inject
 
 data class FarmerHomeUiState(
@@ -48,6 +61,7 @@ data class FarmerHomeUiState(
     val farmBasicInfo: FarmBasicInfo? = null,
     val isLoadingFarmInfo: Boolean = false,
     val farmInfoError: String? = null,
+ main
 )
 
 @HiltViewModel
@@ -76,6 +90,13 @@ class FarmerHomeViewModel @Inject constructor(
     fun fetchWeatherForFarm(farmLocation: String) {
         viewModelScope.launch {
             weatherRepository.getCurrentWeatherForFarm(farmLocation)
+ feature/dashboard-scaffolding-and-weather-api
+                // .onStart and .catch are now handled within the repository's DataState flow
+                .collect { dataState ->
+                    // The WeatherData from DataState could be null if error occurs before any data is loaded/cached.
+                    // The WeatherData model itself also has an 'error' field for API-level errors within a successful fetch.
+                    _uiState.value = _uiState.value.copy(weatherState = dataState)
+
                 .onStart {
                     _uiState.value = _uiState.value.copy(isLoadingWeather = true, weatherError = null, alertsError = _uiState.value.alertsError)
                 }
@@ -99,6 +120,7 @@ class FarmerHomeViewModel @Inject constructor(
                             weatherError = null
                         )
                     }
+ main
                 }
         }
     }
@@ -106,6 +128,10 @@ class FarmerHomeViewModel @Inject constructor(
     fun fetchWeatherByCoordinates(latitude: Double, longitude: Double) {
         viewModelScope.launch {
             weatherRepository.getCurrentWeather(latitude, longitude)
+ feature/dashboard-scaffolding-and-weather-api
+                .collect { dataState ->
+                    _uiState.value = _uiState.value.copy(weatherState = dataState)
+
                 .onStart {
                     _uiState.value = _uiState.value.copy(isLoadingWeather = true, weatherError = null, alertsError = _uiState.value.alertsError)
                 }
@@ -129,6 +155,7 @@ class FarmerHomeViewModel @Inject constructor(
                             weatherError = null
                         )
                     }
+ main
                 }
         }
     }
@@ -136,6 +163,56 @@ class FarmerHomeViewModel @Inject constructor(
     fun fetchHealthAlerts(farmId: String) {
         viewModelScope.launch {
             farmHealthAlertRepository.getHealthAlertsForFarm(farmId)
+ feature/dashboard-scaffolding-and-weather-api
+                .collect { dataState ->
+                    _uiState.value = _uiState.value.copy(healthAlertsState = dataState)
+                }
+        }
+    }
+
+    fun markAlertAsRead(farmId: String, alertId: String) {
+        viewModelScope.launch {
+            if (farmId.isBlank()) {
+                // Update UI state with a specific error for this action if needed,
+                // or rely on healthAlertsState to eventually show an error if fetch fails.
+                // For now, just logging, actual error display would be through healthAlertsState.
+                // _uiState.value = _uiState.value.copy(healthAlertsState = DataState.Error(Exception("Farm ID missing for marking alert.")))
+                _uiState.value = _uiState.value.copy(
+                    transientUserMessage = "Cannot mark alert: Farm ID missing.",
+                    messageId = java.util.UUID.randomUUID()
+                )
+                return@launch
+            }
+            val result = farmHealthAlertRepository.markAlertAsRead(farmId, alertId)
+            // The list will refresh due to DAO changes triggering the Flow.
+            // If the remote operation failed, the repository reverts the local change,
+            // and the list re-emission will show the original unread state.
+            // We can show a specific message for the action's success/failure.
+            if (!result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    transientUserMessage = "Failed to sync 'Mark as Read': ${result.exceptionOrNull()?.message}",
+                    messageId = java.util.UUID.randomUUID()
+                )
+            } else {
+                // Optionally, show a success message, or just let the UI update.
+                // _uiState.value = _uiState.value.copy(
+                //     transientUserMessage = "Alert updated.",
+                //     messageId = java.util.UUID.randomUUID()
+                // )
+            }
+        }
+    }
+
+    fun clearTransientMessage() {
+        _uiState.value = _uiState.value.copy(transientUserMessage = null, messageId = null)
+    }
+
+    fun fetchProductionSummary(farmId: String) {
+        viewModelScope.launch {
+            productionMetricsRepository.getProductionSummary(farmId)
+                .collect { dataState ->
+                    _uiState.value = _uiState.value.copy(productionSummaryState = dataState)
+
                 .onStart {
                     _uiState.value = _uiState.value.copy(isLoadingAlerts = true, alertsError = null, weatherError = _uiState.value.weatherError)
                 }
@@ -187,6 +264,7 @@ class FarmerHomeViewModel @Inject constructor(
                         productionSummary = summary,
                         productionSummaryError = null
                     )
+ main
                 }
         }
     }
@@ -194,6 +272,10 @@ class FarmerHomeViewModel @Inject constructor(
     fun fetchFarmBasicInfo(farmId: String) {
         viewModelScope.launch {
             farmDataRepository.getFarmBasicInfo(farmId)
+ feature/dashboard-scaffolding-and-weather-api
+                .collect { dataState ->
+                    _uiState.value = _uiState.value.copy(farmInfoState = dataState)
+
                 .onStart {
                     _uiState.value = _uiState.value.copy(isLoadingFarmInfo = true, farmInfoError = null)
                 }
@@ -209,6 +291,7 @@ class FarmerHomeViewModel @Inject constructor(
                         farmBasicInfo = farmInfo,
                         farmInfoError = if (farmInfo == null) "Farm data not found." else null
                     )
+ main
                 }
         }
     }
