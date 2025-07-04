@@ -7,6 +7,9 @@ package com.example.rooster.feature.auth.ui
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
  main
@@ -50,6 +53,11 @@ fun RegisterScreen(
 @Composable
 fun RegisterScreen(
 
+ feat/login-screen-v1
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RegisterScreen(
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,6 +80,7 @@ import com.example.rooster.ui.theme.RoosterTheme
 @Composable
 fun RegisterScreen(
  feat/login-screen-v1
+ main
  main
  main
  main
@@ -109,12 +118,15 @@ fun RegisterScreen(
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
     onNavigateBack: () -> Unit // Example navigation callback
 ) {
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Register") }) // Placeholder title
+ main
  main
  main
  main
@@ -132,6 +144,9 @@ fun RegisterScreen(
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
  main
@@ -297,6 +312,8 @@ fun RegisterScreen(
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
                 .padding(all = sixteenDp), // Assuming sixteenDp is defined in Dimens or similar
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -320,6 +337,7 @@ private val sixteenDp = androidx.compose.ui.unit.dp.constructor_impl(16.0f)
  main
  main
  main
+ main
 @Preview(showBackground = true, name = "Register Screen Light")
 @Composable
 fun RegisterScreenPreviewLight() {
@@ -331,6 +349,9 @@ fun RegisterScreenPreviewLight() {
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
  main
@@ -346,8 +367,11 @@ fun RegisterScreenPreviewLight() {
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
         RegisterScreen(onNavigateBack = {})
+ main
  main
  main
  main
@@ -366,6 +390,9 @@ fun RegisterScreenPreviewDark() {
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
  main
@@ -443,10 +470,13 @@ internal fun WithPreviewResources(content: @Composable () -> Unit) {
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
         RegisterScreen(onNavigateBack = {})
     }
 }
+ main
  main
  main
  main

@@ -5,6 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -44,12 +47,19 @@ import androidx.compose.runtime.*
  feat/login-screen-v1
 import androidx.compose.ui.Alignment
 
+ feat/login-screen-v1
+import androidx.compose.ui.Alignment
+
+ main
  main
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -57,6 +67,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.rooster.core.auth.domain.model.UserRole
 import com.example.rooster.core.auth.domain.repository.AuthRepository
 import com.example.rooster.core.navigation.*
+ feat/login-screen-v1
+
 
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -64,6 +76,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.rooster.core.auth.domain.model.UserRole // Assuming UserRole is accessible
 import com.example.rooster.core.auth.domain.repository.AuthRepository
 import com.example.rooster.core.navigation.* // Import route definitions
+ main
  main
 import com.example.rooster.navigation.RoosterNavHost
 import com.example.rooster.ui.main.FarmerUserBottomBar
@@ -73,6 +86,9 @@ import com.example.rooster.ui.theme.RoosterTheme
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -87,6 +103,8 @@ data class MainUiState(
     val currentRole: UserRole? = null // Current role of the logged-in user
 )
 
+ feat/login-screen-v1
+
 
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -94,11 +112,15 @@ import javax.inject.Inject
 // A simple ViewModel to observe auth state.
 // In a real app, this might be more complex or part of a dedicated AuthViewModel.
  main
+ main
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
 
     val uiState: StateFlow<MainUiState> = authRepository.getCurrentUser()
         .distinctUntilChanged() // Only react to actual changes in user state
@@ -110,7 +132,11 @@ class MainViewModel @Inject constructor(
                     UserRole.FARMER -> FARMER_USER_GRAPH_ROUTE
                     UserRole.BUYER -> GENERAL_USER_GRAPH_ROUTE
                     UserRole.ADMIN -> HIGH_LEVEL_USER_GRAPH_ROUTE
+ feat/login-screen-v1
+                    UserRole.VETERINARIAN -> VET_USER_GRAPH_ROUTE // Changed to VET_USER_GRAPH_ROUTE
+
                     UserRole.VETERINARIAN -> HIGH_LEVEL_USER_GRAPH_ROUTE
+ main
                 }
                 MainUiState(isLoading = false, startGraphRoute = roleGraph, currentRole = user.role)
             }
@@ -120,6 +146,8 @@ class MainViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = MainUiState() // Initial state with isLoading = true
         )
+ feat/login-screen-v1
+
 
     // In a real app, observe authRepository.getCurrentUser() or similar
     // For now, simulate different initial states for testing navigation.
@@ -147,6 +175,7 @@ class MainViewModel @Inject constructor(
         }
     }
  main
+ main
 }
 
 
@@ -157,7 +186,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
         installSplashScreen() // Handles splash screen display
+ main
  main
         enableEdgeToEdge()
 
@@ -185,6 +217,33 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+ feat/login-screen-v1
+fun RoosterApp(mainUiState: MainUiState) { // Pass MainUiState directly
+    val navController = rememberNavController()
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    // Determine current top-level graph for bottom bar visibility
+    // This logic might need refinement if routes can be part of multiple parent graphs or no graph.
+    var currentTopLevelGraphRoute: String? = currentRoute
+    while (navController.graph.findNode(currentTopLevelGraphRoute ?: "")?.parent != null &&
+           navController.graph.findNode(currentTopLevelGraphRoute ?: "") != navController.graph) {
+        currentTopLevelGraphRoute = navController.graph.findNode(currentTopLevelGraphRoute ?: "")?.parent?.route
+    }
+
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            // Show bottom bar only for the main user graphs
+            when (currentTopLevelGraphRoute) {
+                GENERAL_USER_GRAPH_ROUTE -> GeneralUserBottomBar(navController, currentRoute)
+                FARMER_USER_GRAPH_ROUTE -> FarmerUserBottomBar(navController, currentRoute)
+                HIGH_LEVEL_USER_GRAPH_ROUTE -> HighLevelUserBottomBar(navController, currentRoute) // For Admin
+                VET_USER_GRAPH_ROUTE -> HighLevelUserBottomBar(navController, currentRoute) // Vet uses HighLevel Bottom Bar for now
+                                         // Or create VetUserBottomBar if tabs are different
+                // No bottom bar for AUTH_GRAPH_ROUTE or other screens like Splash
+
  feat/login-screen-v1
 fun RoosterApp(mainUiState: MainUiState) { // Pass MainUiState directly
     val navController = rememberNavController()
@@ -256,6 +315,7 @@ fun RoosterApp(mainViewModel: MainViewModel = hiltViewModel()) {
                 mainViewModel.mockUserRole = authenticatedUserRole // Store the actual role
             }
 
+ main
             }
         }
     ) { paddingValues ->
@@ -280,6 +340,9 @@ fun RoosterApp(mainViewModel: MainViewModel = hiltViewModel()) {
                 mainViewModel.mockIsLoggedIn = true
                 mainViewModel.mockUserRole = authenticatedUserRole // Store the actual role
             }
+ feat/login-screen-v1
+
+ main
  main
         )
     }

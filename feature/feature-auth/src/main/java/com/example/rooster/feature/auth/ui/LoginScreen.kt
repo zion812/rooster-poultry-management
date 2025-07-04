@@ -50,6 +50,9 @@ fun LoginScreen(
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
     // Handle navigation to role-specific graph
@@ -61,11 +64,14 @@ fun LoginScreen(
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
     LaunchedEffect(key1 = uiState.navigateToHome) {
         if (uiState.navigateToHome) {
             onNavigateToHome()
             viewModel.navigationToHomeComplete()
+ main
  main
  main
  main

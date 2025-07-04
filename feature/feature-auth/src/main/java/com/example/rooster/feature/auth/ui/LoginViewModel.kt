@@ -21,7 +21,11 @@ import com.example.rooster.core.auth.domain.model.User // Import User model
  feat/login-screen-v1
 import com.example.rooster.core.auth.domain.model.User // Import User model
 
+ feat/login-screen-v1
+import com.example.rooster.core.auth.domain.model.User // Import User model
+
 main
+ main
  main
  main
 import kotlinx.coroutines.flow.update
@@ -30,11 +34,21 @@ import javax.inject.Inject
 
 data class LoginUiState(
     val isLoading: Boolean = false,
+ feat/login-screen-v1
+    @StringRes val errorResId: Int? = null,
+    val errorMessage: String? = null,
+    val isAuthenticated: Boolean = false, // True if credentials are valid
+    val loggedInUserRole: UserRole? = null, // Role of the authenticated user for navigation
+    val navigateToRegister: Boolean = false,
+    val requiresEmailVerification: Boolean = false, // New flag
+    val unverifiedEmail: String? = null // Email to pass to CheckEmailScreen
+
     @StringRes val errorResId: Int? = null, // For R.string resource IDs
     val errorMessage: String? = null,       // For direct error messages (e.g., from backend)
     val isAuthenticated: Boolean = false,
     val navigateToHome: Boolean = false,
     val navigateToRegister: Boolean = false
+ main
 )
 
 @HiltViewModel
@@ -76,12 +90,37 @@ class LoginViewModel @Inject constructor(
                         //     // authRepository.signOut()
                         //     return@launch
                         // }
+ feat/login-screen-v1
+                        if (user.isEmailVerified) {
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    isAuthenticated = true, // Credentials valid
+                                    loggedInUserRole = user.role, // Navigate to role graph
+                                    requiresEmailVerification = false,
+                                    unverifiedEmail = null
+                                )
+                            }
+                        } else {
+                            // User authenticated but email not verified
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    isAuthenticated = false, // Don't consider fully authenticated for navigation to main app
+                                    loggedInUserRole = null,
+                                    requiresEmailVerification = true,
+                                    unverifiedEmail = user.email,
+                                    errorResId = R.string.error_email_not_verified // New String
+                                )
+                            }
+
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
                                 isAuthenticated = true,
                                 navigateToHome = true
                             )
+ main
                         }
                     },
                     onFailure = { exception ->
@@ -113,8 +152,17 @@ class LoginViewModel @Inject constructor(
         _uiState.update { it.copy(navigateToRegister = true) }
     }
 
+ feat/login-screen-v1
+    fun navigationToRoleGraphComplete() {
+        _uiState.update { it.copy(loggedInUserRole = null) }
+    }
+
+    fun navigationToEmailVerificationScreenComplete() { // New method
+        _uiState.update { it.copy(requiresEmailVerification = false, unverifiedEmail = null) }
+
     fun navigationToHomeComplete() {
         _uiState.update { it.copy(navigateToHome = false) }
+ main
     }
 
     fun navigationToRegisterComplete() {
