@@ -19,18 +19,53 @@ interface AuthRepository {
     fun getCurrentUser(): Flow<User?>
     suspend fun updateProfile(user: User): Result<User> // This was in the pending list
     suspend fun isUserSignedIn(): Boolean
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
+ main
     // suspend fun verifyEmail(token: String): Result<Unit> // From pending list, for link-based verification if different from Firebase's default
 
     // New methods for email verification flow
     suspend fun sendCurrentUserEmailVerification(): Result<Unit>
     suspend fun reloadCurrentUser(): Result<User?> // Returns updated User or null if no user/error, or specific error type
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+
+    // suspend fun verifyEmail(token: String): Result<Unit> // From pending list, can add later if part of this task scope
+ main
+ main
+ main
 }
 // Notes:
 // - Modified `signUp` signature to include `role: UserRole` and `phoneNumber: String?`.
 // - `resetPassword` and `updateProfile` were already present and match the pending list.
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
+ main
 // - Added `sendCurrentUserEmailVerification` for triggering Firebase's email verification.
 // - Added `reloadCurrentUser` to refresh Firebase user state (especially isEmailVerified).
 // - The `verifyEmail(token: String)` from the original pending list might be for a custom token-based
 //   verification system. Firebase's typical flow doesn't use a token passed back to the app this way;
 //   the user clicks a link, and the app reloads the user or checks on next login.
+ feat/login-screen-v1
 //   For now, focusing on the standard Firebase email verification flow.
+
+ feat/login-screen-v1
+//   For now, focusing on the standard Firebase email verification flow.
+
+//   For now, focusing on the standard Firebase email verification flow.
+
+// - `verifyEmail` is mentioned in the pending list for AuthRepository. If it's critical for this
+//   phase, it can be added now. For now, focusing on updating signUp for registration.
+ main
+ main
+ main

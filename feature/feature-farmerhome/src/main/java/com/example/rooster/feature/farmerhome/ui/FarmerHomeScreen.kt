@@ -2,6 +2,13 @@ package com.example.rooster.feature.farmerhome.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
+ main
 package com.example.rooster.feature.farmerhome.ui
 
 import androidx.compose.foundation.layout.*
@@ -237,3 +244,40 @@ fun FarmerHomeScreenPreviewError() {
 // R.string.farmer_dashboard_health_tips ("Health & Management Tips")
 // R.string.farmer_dashboard_quick_actions ("Quick Actions")
 // R.string.action_refresh ("Refresh")
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.rooster.core.common.R
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FarmerHomeScreen(modifier: Modifier = Modifier) {
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text(stringResource(id = R.string.tab_home)) }) // Assuming R.string.tab_home
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Farmer Home Screen (Dashboard) Placeholder")
+        }
+    }
+}
+ main
+ main
+ main
