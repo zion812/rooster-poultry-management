@@ -158,4 +158,22 @@
     <string name="add_farm_button_save">పొలాన్ని సేవ్ చేయండి</string>
     <string name="error_farm_creation_failed">పొలాన్ని సృష్టించడంలో విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
 
+    <!-- Farm Details Screen -->
+    <string name="farm_details_title_loading">పొలం లోడ్ అవుతోంది…</string>
+    <string name="action_edit_farm">పొలాన్ని సవరించండి</string>
+    <string name="farm_details_not_found">పొలం వివరాలు కనుగొనబడలేదు.</string>
+    <string name="farm_details_section_info">పొలం సమాచారం</string>
+    <string name="farm_details_name">పేరు</string>
+    <string name="farm_details_location">స్థానం</string>
+    <string name="farm_details_area">ప్రాంతం</string>
+    <string name="farm_details_established">స్థాపించిన తేదీ</string>
+    <string name="farm_details_notes">గమనికలు</string>
+    <string name="farm_details_section_flocks">మందలు</string>
+    <string name="farm_details_button_manage_flocks">మందలను నిర్వహించండి</string>
+    <string name="farm_details_no_flocks">ఈ పొలానికి ఇంకా మందలు జోడించబడలేదు.</string>
+    <string name="farm_details_view_all_flocks_button">అన్ని %1$d మందలను చూడండి</string>
+    <string name="flock_unnamed">పేరులేని మంద</string>
+    <string name="flock_teaser_details">%1$s - %2$d క్రియాశీల పక్షులు</string>
+    <string name="action_view_details">వివరాలు చూడండి</string>
+
 </resources>
