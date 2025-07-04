@@ -232,8 +232,49 @@ private fun getNavigationItemsForRole(userRole: UserRole): List<NavigationItem> 
                     icon = Icons.Default.Person,
                     label = "Profile",
                 ),
+                // Custom Admin/Vet sections
+                NavigationItem(
+                    route = com.example.rooster.NavigationRoute.AdminFeaturesDashboard.route, // Assuming NavigationRoute is accessible
+                    icon = Icons.Default.AdminPanelSettings,
+                    label = "Admin"
+                ),
+                NavigationItem(
+                    route = com.example.rooster.NavigationRoute.FinancialsFeaturesDashboard.route,
+                    icon = Icons.Default.MonetizationOn,
+                    label = "Financials"
+                ),
+                 NavigationItem(
+                    route = com.example.rooster.NavigationRoute.VeterinaryFeaturesDashboard.route,
+                    icon = Icons.Default.MedicalServices, // Or LocalHospital
+                    label = "Veterinary"
+                ),
+                NavigationItem(
+                    route = com.example.rooster.NavigationRoute.ProfessionalToolsDashboard.route,
+                    icon = Icons.Default.Build, // Placeholder icon
+                    label = "Pro Tools"
+                )
             )
-
+        // Add a specific case for VETERINARIAN if its items differ significantly from HIGH_LEVEL
+        // For now, VETERINARIAN uses HIGH_LEVEL items as per MainActivity logic.
+        // If UserRole.VETERINARIAN is distinct and needs specific items different from ADMIN:
+        /*
+        UserRole.VETERINARIAN ->
+            listOf(
+                // Common items perhaps
+                NavigationItem(route = "dashboard", icon = Icons.Default.Dashboard, label = "Dashboard"), // Or a vet specific home
+                NavigationItem(
+                    route = com.example.rooster.NavigationRoute.VeterinaryFeaturesDashboard.route,
+                    icon = Icons.Default.MedicalServices,
+                    label = "Veterinary"
+                ),
+                NavigationItem(
+                    route = com.example.rooster.NavigationRoute.ProfessionalToolsDashboard.route,
+                    icon = Icons.Default.Build,
+                    label = "Pro Tools"
+                ),
+                NavigationItem(route = "profile", icon = Icons.Default.Person, label = "Profile")
+            )
+        */
         UserRole.UNKNOWN -> emptyList()
     }
 }
