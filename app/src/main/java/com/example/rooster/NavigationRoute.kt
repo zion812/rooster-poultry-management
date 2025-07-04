@@ -128,6 +128,12 @@ open class NavigationRoute(val route: String) {
     object Diagnostics : NavigationRoute("diagnostics")
 
     object HealthManagement : NavigationRoute("health_management")
+
+    // Routes for new Admin, Financials, Veterinary, and Professional Tools Dashboards
+    object AdminFeaturesDashboard : NavigationRoute("admin_features_dashboard")
+    object FinancialsFeaturesDashboard : NavigationRoute("financials_features_dashboard")
+    object VeterinaryFeaturesDashboard : NavigationRoute("veterinary_features_dashboard")
+    object ProfessionalToolsDashboard : NavigationRoute("professional_tools_dashboard")
     // Add more routes as needed
 
     companion object {
