@@ -1,3 +1,4 @@
+ feature/python-rest-api-wrapper
 from flask import Flask, jsonify, g
 from flask_cors import CORS
 
@@ -6,6 +7,13 @@ from .auth import token_required, init_app as init_auth_app
 from .farm_routes import register_farm_routes
 from .flock_routes import register_flock_routes
 from .tracking_routes import register_tracking_routes
+
+from flask import Flask, jsonify, g # Added g for request context
+from flask_cors import CORS
+from .auth import token_required, init_app as init_auth_app # Import auth components
+
+# Import repository classes
+ main
 from farm_management.repositories import FarmRepository, FlockRepository, TrackingRepository
 
 def create_app():

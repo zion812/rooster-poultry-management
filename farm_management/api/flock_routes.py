@@ -1,3 +1,4 @@
+ feature/python-rest-api-wrapper
 from datetime import date, datetime # Standard library
 
 from flask import Blueprint, request, jsonify, current_app # Third-party
@@ -5,6 +6,12 @@ from flask import Blueprint, request, jsonify, current_app # Third-party
 # Local application imports
 from farm_management.api.auth import token_required
 # from farm_management.models import Flock # Model import not strictly needed for runtime if only using to_dict()
+
+from flask import Blueprint, request, jsonify, current_app
+from farm_management.api.auth import token_required
+from farm_management.models import Flock # For type hinting and to_dict
+from datetime import date, datetime
+ main
 
 flock_bp = Blueprint('flock_bp', __name__)
 
@@ -73,6 +80,7 @@ def create_flock(farm_id: str):
     except ValueError:
         return jsonify({"message": "initial_count must be an integer.", "error": "Bad Request"}), 400
 
+ feature/python-rest-api-wrapper
     parent_male_id = data.get('parent_flock_id_male')
     if parent_male_id and not current_app.flock_repo.get_flock_by_id(parent_male_id):
         return jsonify({"message": f"Parent male flock ID '{parent_male_id}' not found.", "error": "Bad Request"}), 400
@@ -80,6 +88,8 @@ def create_flock(farm_id: str):
     parent_female_id = data.get('parent_flock_id_female')
     if parent_female_id and not current_app.flock_repo.get_flock_by_id(parent_female_id):
         return jsonify({"message": f"Parent female flock ID '{parent_female_id}' not found.", "error": "Bad Request"}), 400
+
+ main
 
     try:
         new_flock = current_app.flock_repo.add_flock(
@@ -235,6 +245,7 @@ def update_flock(flock_id: str):
             else:
                 update_data[field] = data[field]
 
+ feature/python-rest-api-wrapper
     # Validate parent flock IDs if provided in update_data
     if 'parent_flock_id_male' in update_data and update_data['parent_flock_id_male']:
         if not current_app.flock_repo.get_flock_by_id(update_data['parent_flock_id_male']):
@@ -244,6 +255,8 @@ def update_flock(flock_id: str):
         if not current_app.flock_repo.get_flock_by_id(update_data['parent_flock_id_female']):
             return jsonify({"message": f"Parent female flock ID '{update_data['parent_flock_id_female']}' not found.", "error": "Bad Request"}), 400
 
+
+ main
     if not update_data:
         return jsonify({"message": "No update fields provided", "error": "Bad Request"}), 400
 
@@ -291,6 +304,7 @@ def delete_flock(flock_id: str):
     # Example check:
     health_records = current_app.tracking_repo.get_health_records_for_flock(flock_id)
     if health_records:
+ feature/python-rest-api-wrapper
         return jsonify({
             "message": f"Cannot delete flock. It has {len(health_records)} associated health record(s). Consider deleting them first.",
             "error": "Conflict"
@@ -316,6 +330,15 @@ def delete_flock(flock_id: str):
             "message": f"Cannot delete flock. It has {len(growth_records)} associated growth record(s). Consider deleting them first.",
             "error": "Conflict"
         }), 409
+
+         return jsonify({
+            "message": f"Cannot delete flock. It has {len(health_records)} associated health record(s). Please delete them first or implement cascading delete.",
+            "error": "Conflict"
+        }), 409
+    # Similar checks for production, growth, feed records should be added.
+    # production_records = current_app.tracking_repo.get_production_records_for_flock(flock_id) etc.
+
+ main
 
     if current_app.flock_repo.delete_flock(flock_id):
         # Remove flock from farm's list in FarmRepository

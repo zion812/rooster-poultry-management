@@ -40,11 +40,35 @@ fun PlaceholderScreen(name: String, modifier: Modifier = Modifier) {
 sealed class AppScreens(val route: String) {
     data object Splash : AppScreens("splash")
     data object Login : AppScreens("login")
-    data object Home : AppScreens("home")
-    data object FarmFeature : AppScreens("farm_feature_graph") // Route to the farm subgraph
-    data object MarketplaceFeature : AppScreens("marketplace_feature_graph") // Placeholder
-    data object AuctionsFeature : AppScreens("auctions_feature_graph") // Placeholder
+    data object Register : AppScreens("register")
+    data object CheckEmail : AppScreens("check_email/{email}") {
+        fun createRoute(email: String) = "check_email/$email"
+    }
+    data object ForgotPassword : AppScreens("forgot_password") // Added for completeness
+
+    // Generic Home, actual navigation will be to role-specific graphs
+    data object Home : AppScreens("home_placeholder")
+
+    // Feature graph routes (can also be constants)
+    // These are more like "graph" routes rather than individual "screens"
+    // data object FarmFeature : AppScreens("farm_feature_graph")
+    // data object MarketplaceFeature : AppScreens("marketplace_feature_graph")
+    // data object AuctionsFeature : AppScreens("auctions_feature_graph")
 }
+
+// Top-level graph routes
+const val AUTH_GRAPH_ROUTE = "auth_graph"
+const val FARMER_USER_GRAPH_ROUTE = "farmer_user_graph"
+const val GENERAL_USER_GRAPH_ROUTE = "general_user_graph" // For Buyers, etc.
+const val HIGH_LEVEL_USER_GRAPH_ROUTE = "high_level_user_graph" // For Admins
+const val VET_USER_GRAPH_ROUTE = "vet_user_graph" // For Veterinarians
+
+// Example specific screen routes within role graphs (if needed for deep linking etc.)
+// These would typically live within their respective feature modules' navigation files.
+// object FarmerHomeScreenRoutes {
+//    const val Dashboard = "farmer_dashboard"
+//    const val FlockManagement = "farmer_flock_management"
+// }
 
 
 /**
