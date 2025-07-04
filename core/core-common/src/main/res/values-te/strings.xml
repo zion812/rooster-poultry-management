@@ -147,4 +147,15 @@
     <string name="error_failed_to_load_farms">మీ పొలాలను లోడ్ చేయడంలో విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
     <string name="farm_list_empty_tap_add">మీ వద్ద ప్రస్తుతం పొలాలు లేవు. ఒకదాన్ని జోడించడానికి \'+\' నొక్కండి!</string>
 
+    <!-- Add Farm Screen & ViewModel -->
+    <string name="add_farm_title">కొత్త పొలాన్ని జోడించండి</string>
+    <string name="add_farm_instructions">దయచేసి మీ కొత్త పొలం వివరాలను క్రింద నమోదు చేయండి.</string>
+    <string name="add_farm_name_label">పొలం పేరు</string>
+    <string name="add_farm_location_label">స్థానం (ఉదా., గ్రామం, మండలం, జిల్లా)</string>
+    <string name="add_farm_area_label">ప్రాంత పరిమాణం</string>
+    <string name="add_farm_unit_label">యూనిట్ (ఉదా., ఎకరాలు, చ.మీ)</string>
+    <string name="add_farm_notes_label">గమనికలు</string>
+    <string name="add_farm_button_save">పొలాన్ని సేవ్ చేయండి</string>
+    <string name="error_farm_creation_failed">పొలాన్ని సృష్టించడంలో విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+
 </resources>

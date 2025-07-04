@@ -149,4 +149,15 @@
     <string name="error_failed_to_load_farms">Failed to load your farms. Please try again.</string>
     <string name="farm_list_empty_tap_add">You currently have no farms. Tap \'+\' to add one!</string>
 
+    <!-- Add Farm Screen & ViewModel -->
+    <string name="add_farm_title">Add New Farm</string>
+    <string name="add_farm_instructions">Enter the details for your new farm below.</string>
+    <string name="add_farm_name_label">Farm Name</string>
+    <string name="add_farm_location_label">Location (e.g., Village, Mandal, District)</string>
+    <string name="add_farm_area_label">Area Size</string>
+    <string name="add_farm_unit_label">Unit (e.g., acres, sqm)</string>
+    <string name="add_farm_notes_label">Notes</string>
+    <string name="add_farm_button_save">Save Farm</string>
+    <string name="error_farm_creation_failed">Failed to create farm. Please try again.</string>
+
 </resources>
