@@ -34,8 +34,9 @@ import androidx.compose.ui.text.style.TextAlign
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
-    onNavigateToHome: () -> Unit,
-    onNavigateToRegister: () -> Unit
+    onLoginSuccessAndVerified: (userRole: UserRole) -> Unit, // Renamed for clarity
+    onNavigateToRegister: () -> Unit,
+    onNavigateToCheckEmail: (email: String) -> Unit // New callback
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -228,16 +229,6 @@ fun LoginScreen(
         if (uiState.isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
-    }
-}
-
-@Composable
-fun roleToDisplayString(role: UserRole): String {
-    return when (role) {
-        UserRole.FARMER -> stringResource(id = R.string.role_farmer)
-        UserRole.BUYER -> stringResource(id = R.string.role_buyer)
-        UserRole.ADMIN -> stringResource(id = R.string.role_admin)
-        UserRole.VETERINARIAN -> stringResource(id = R.string.role_veterinarian)
     }
 }
 
