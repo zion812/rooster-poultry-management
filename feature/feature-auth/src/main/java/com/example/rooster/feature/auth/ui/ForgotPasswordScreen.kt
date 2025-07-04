@@ -15,6 +15,9 @@ import androidx.compose.material3.Text
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
 import androidx.compose.foundation.layout.*
@@ -40,6 +43,8 @@ import com.example.rooster.ui.theme.RoosterTheme
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -48,6 +53,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.rooster.core.common.R
  main
 
+ main
  main
  main
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +65,9 @@ fun ForgotPasswordScreen(
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
     // viewModel: ForgotPasswordViewModel = hiltViewModel(), // To be added later
@@ -80,6 +89,8 @@ fun ForgotPasswordScreen(
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
     onNavigateBack: () -> Unit
 ) {
@@ -87,6 +98,7 @@ fun ForgotPasswordScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(id = R.string.forgot_password_title)) }, // Add R.string.forgot_password_title
+ main
  main
  main
  main
@@ -103,6 +115,9 @@ fun ForgotPasswordScreen(
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
         Column(
@@ -216,6 +231,8 @@ fun ForgotPasswordScreenLoadingPreview() {
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
         Box(
             modifier = modifier
@@ -228,6 +245,7 @@ fun ForgotPasswordScreenLoadingPreview() {
         }
     }
 }
+ main
  main
  main
  main

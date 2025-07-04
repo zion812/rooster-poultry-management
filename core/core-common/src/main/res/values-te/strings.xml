@@ -41,6 +41,9 @@
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
  main
@@ -70,7 +73,10 @@
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
   feat/login-screen-v1
+ main
  main
  main
  main
@@ -91,6 +97,9 @@
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
     <string name="forgot_password_title">పాస్‌వర్డ్‌ను రీసెట్ చేయండి</string>
@@ -103,6 +112,9 @@
     <string name="error_password_reset_failed">పాస్‌వర్డ్ రీసెట్ లింక్‌ను పంపడంలో విఫలమైంది. దయచేసి ఇమెయిల్ చిరునామాను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.</string>
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
     <!-- Email Verification Screen -->
     <string name="check_email_title">మీ ఇమెయిల్‌ను ధృవీకరించండి</string>
     <string name="check_email_instructions_title">మీ ఇన్‌బాక్స్‌ను తనిఖీ చేయండి</string>
@@ -168,6 +180,55 @@
     <string name="vet_dashboard_appointment_time_type">%1$s - %2$s</string>
     <string name="vet_dashboard_alert_severity">తీవ్రత: %1$s</string>
 
+  feat/login-screen-v1
+    <!-- Farm List Screen & ViewModel -->
+    <string name="farm_list_title">నా పొలాలు</string>
+    <string name="farm_list_add_farm_fab_desc">కొత్త పొలాన్ని జోడించండి</string>
+    <string name="farm_list_no_farms_message">మీరు ఇంకా ఏ పొలాలను జోడించలేదు. ప్రారంభించడానికి \'+\' బటన్‌ను నొక్కండి!</string>
+    <string name="farm_list_item_stats">%1$d మందలు, %2$d పక్షులు</string>
+    <string name="farm_list_view_details_desc">పొలం వివరాలను చూడండి</string>
+    <string name="error_user_not_authenticated">వినియోగదారు ప్రమాణీకరించబడలేదు. దయచేసి లాగిన్ చేయండి.</string>
+    <string name="error_failed_to_load_farms">మీ పొలాలను లోడ్ చేయడంలో విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="farm_list_empty_tap_add">మీ వద్ద ప్రస్తుతం పొలాలు లేవు. ఒకదాన్ని జోడించడానికి \'+\' నొక్కండి!</string>
+
+    <!-- Add Farm Screen & ViewModel -->
+    <string name="add_farm_title">కొత్త పొలాన్ని జోడించండి</string>
+    <string name="add_farm_instructions">దయచేసి మీ కొత్త పొలం వివరాలను క్రింద నమోదు చేయండి.</string>
+    <string name="add_farm_name_label">పొలం పేరు</string>
+    <string name="add_farm_location_label">స్థానం (ఉదా., గ్రామం, మండలం, జిల్లా)</string>
+    <string name="add_farm_area_label">ప్రాంత పరిమాణం</string>
+    <string name="add_farm_unit_label">యూనిట్ (ఉదా., ఎకరాలు, చ.మీ)</string>
+    <string name="add_farm_notes_label">గమనికలు</string>
+    <string name="add_farm_button_save">పొలాన్ని సేవ్ చేయండి</string>
+    <string name="error_farm_creation_failed">పొలాన్ని సృష్టించడంలో విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+
+    <!-- Farm Details Screen -->
+    <string name="farm_details_title_loading">పొలం లోడ్ అవుతోంది…</string>
+    <string name="action_edit_farm">పొలాన్ని సవరించండి</string>
+    <string name="farm_details_not_found">పొలం వివరాలు కనుగొనబడలేదు.</string>
+    <string name="farm_details_section_info">పొలం సమాచారం</string>
+    <string name="farm_details_name">పేరు</string>
+    <string name="farm_details_location">స్థానం</string>
+    <string name="farm_details_area">ప్రాంతం</string>
+    <string name="farm_details_established">స్థాపించిన తేదీ</string>
+    <string name="farm_details_notes">గమనికలు</string>
+    <string name="farm_details_section_flocks">మందలు</string>
+    <string name="farm_details_button_manage_flocks">మందలను నిర్వహించండి</string>
+    <string name="farm_details_no_flocks">ఈ పొలానికి ఇంకా మందలు జోడించబడలేదు.</string>
+    <string name="farm_details_view_all_flocks_button">అన్ని %1$d మందలను చూడండి</string>
+    <string name="flock_unnamed">పేరులేని మంద</string>
+    <string name="flock_teaser_details">%1$s - %2$d క్రియాశీల పక్షులు</string>
+    <string name="action_view_details">వివరాలు చూడండి</string>
+
+    <!-- Flock Management Screen -->
+    <string name="flock_management_title">మందలను నిర్వహించండి</string>
+    <string name="flock_management_title_for_farm">%1$s కోసం మందలు</string>
+    <string name="flock_management_add_flock_fab">కొత్త మందను జోడించండి</string>
+    <string name="flock_management_no_flocks">ఈ పొలానికి మందలు కనుగొనబడలేదు. ఒకదాన్ని జోడించడానికి \'+\' నొక్కండి.</string>
+    <string name="flock_icon_desc">మంద చిహ్నం</string>
+    <string name="flock_list_item_details">%1$s (%2$s) - %3$d క్రియాశీల పక్షులు</string>
+
+
 
  feat/login-screen-v1
 
@@ -176,6 +237,7 @@
 
 
 
+ main
  main
  main
  main

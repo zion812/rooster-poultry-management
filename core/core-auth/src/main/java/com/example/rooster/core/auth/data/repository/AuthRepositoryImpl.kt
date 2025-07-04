@@ -98,6 +98,9 @@ class AuthRepositoryImpl @Inject constructor(
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
             // TODO: Implement with Firebase Authentication:
@@ -116,9 +119,12 @@ class AuthRepositoryImpl @Inject constructor(
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
             // TODO: firebaseAuth.sendPasswordResetEmail(email).await()
             Result.success(Unit)
+ main
  main
  main
  main
@@ -152,6 +158,9 @@ class AuthRepositoryImpl @Inject constructor(
         return _currentUser.value != null
     }
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
 
     override suspend fun sendCurrentUserEmailVerification(): Result<Unit> {
         return try {
@@ -218,6 +227,9 @@ class AuthRepositoryImpl @Inject constructor(
 //   "verified.after.reload" and they are not yet verified, it updates the mock user's
 //   `isEmailVerified` status to true. Otherwise, it just returns the current mock user state.
 //   This allows testing the flow where verification status changes after a reload.
+ feat/login-screen-v1
+// - TODOs for actual Firebase integration are included for both methods.
+
 // - TODOs for actual Firebase integration are included for both methods.
 
 }
@@ -235,4 +247,5 @@ class AuthRepositoryImpl @Inject constructor(
 // - Injected (but commented out) `FirebaseAuth` and `FirebaseFirestore`.
 // - This approach maintains the mock nature for now but clearly outlines the path for real backend integration.
 // - The mock `_currentUser` state flow is still used to simulate auth state changes.
+ main
  main

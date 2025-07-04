@@ -24,7 +24,11 @@ import com.example.rooster.core.auth.domain.model.User // Import User model
  feat/login-screen-v1
 import com.example.rooster.core.auth.domain.model.User // Import User model
 
+ feat/login-screen-v1
+import com.example.rooster.core.auth.domain.model.User // Import User model
+
 main
+ main
  main
  main
  main
@@ -35,6 +39,9 @@ import javax.inject.Inject
 data class LoginUiState(
     val isLoading: Boolean = false,
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
     @StringRes val errorResId: Int? = null,
     val errorMessage: String? = null,
     val isAuthenticated: Boolean = false, // True if credentials are valid
@@ -42,12 +49,15 @@ data class LoginUiState(
     val navigateToRegister: Boolean = false,
     val requiresEmailVerification: Boolean = false, // New flag
     val unverifiedEmail: String? = null // Email to pass to CheckEmailScreen
+ feat/login-screen-v1
+
 
     @StringRes val errorResId: Int? = null, // For R.string resource IDs
     val errorMessage: String? = null,       // For direct error messages (e.g., from backend)
     val isAuthenticated: Boolean = false,
     val navigateToHome: Boolean = false,
     val navigateToRegister: Boolean = false
+ main
  main
 )
 
@@ -91,6 +101,9 @@ class LoginViewModel @Inject constructor(
                         //     return@launch
                         // }
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
                         if (user.isEmailVerified) {
                             _uiState.update {
                                 it.copy(
@@ -113,6 +126,8 @@ class LoginViewModel @Inject constructor(
                                     errorResId = R.string.error_email_not_verified // New String
                                 )
                             }
+ feat/login-screen-v1
+
 
                         _uiState.update {
                             it.copy(
@@ -120,6 +135,7 @@ class LoginViewModel @Inject constructor(
                                 isAuthenticated = true,
                                 navigateToHome = true
                             )
+ main
  main
                         }
                     },
@@ -153,15 +169,21 @@ class LoginViewModel @Inject constructor(
     }
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
     fun navigationToRoleGraphComplete() {
         _uiState.update { it.copy(loggedInUserRole = null) }
     }
 
     fun navigationToEmailVerificationScreenComplete() { // New method
         _uiState.update { it.copy(requiresEmailVerification = false, unverifiedEmail = null) }
+ feat/login-screen-v1
+
 
     fun navigationToHomeComplete() {
         _uiState.update { it.copy(navigateToHome = false) }
+ main
  main
     }
 
