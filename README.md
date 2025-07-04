@@ -1,404 +1,447 @@
 # 🐓 Rooster Poultry Management System - Multi-Platform Implementation
 
-## **CURRENT PROJECT STATUS ANALYSIS**
+## **PROJECT OVERVIEW**
 
-Based on project analysis, you have implemented:
+Rooster is an enterprise-grade poultry management system built with a modern multi-module
+architecture. The system serves the Krishna District's poultry community with professional-grade
+mobile technology optimized for both online and offline functionality.
 
-### ✅ **COMPLETED IMPLEMENTATIONS**
+## **ARCHITECTURE DESIGN**
 
-- **Android Kotlin/Compose**: Core architecture (15 modules), authentication, payment system
-- **React Native AgriConnect**: Social platform with blockchain and traceability features
-- **Python CLI**: Complete farm management system with data persistence
-- **Specialized Python Modules**: Admin tools, buyer tools, veterinary management
+### **Core Architecture**
 
-### ⚠️ **PENDING IMPLEMENTATIONS IDENTIFIED**
+- **Multi-Module Design**: 15 specialized modules with clear separation of concerns
+- **Clean Architecture**: Domain-driven design with MVVM + Repository patterns
+- **Dependency Injection**: Hilt throughout for modular, testable components
+- **Modern Android**: Jetpack Compose with Material 3 design system
+- **Reactive Data Flow**: StateFlow-based UI updates with coroutines
 
----
+### **Module Structure**
 
-## **🚀 COMPREHENSIVE PENDING IMPLEMENTATION PLAN**
+#### Core Modules
 
-### **PHASE 1: Complete Android Authentication & Email Verification** ⚡
+- **core-common**: Shared utilities, models, and extensions
+- **core-network**: API clients, interceptors, and caching strategy
+- **core-database**: Local persistence and data access
+- **core-auth**: Authentication services and security
+- **core-payment**: Payment processing and transaction management
+- **core-navigation**: Type-safe navigation system
+- **analytics**: User behavior tracking and performance monitoring
 
-**Status**: Authentication exists but CheckEmailScreen is missing
+#### Feature Modules
 
-**AI AGENT PROMPT:**
+- **feature-auth**: Authentication UI and flows
+- **feature-farmerhome**: Farmer-specific dashboard and tools
+- **feature-buyerhome**: Buyer marketplace and ordering system
+- **feature-adminhome**: Administration and monitoring tools
+- **feature-vethome**: Veterinary consultation and health tracking
+- **feature-marketplace**: Product listings and transactions
+- **feature-iot**: Sensor integration and monitoring dashboard
+
+## **IMPLEMENTATION STATUS**
+
+### ✅ **Completed Components**
+
+- **Authentication System**: Login, registration, email verification flows
+- **Role-Based Navigation**: Custom flows for farmers, buyers, admins, and veterinarians
+- **Payment Processing**: Secure transaction handling with Razorpay
+- **Core UI Components**: Material 3 design system implementation
+- **Data Architecture**: Repository pattern with offline-first strategy
+
+### 🚧 **In Progress**
+
+- **Dashboard Integration**: Role-specific dashboard screens need completion
+- **React Native Screen Conversion**: Converting remaining React Native components to Compose
+- **IoT Visualization**: Sensor data collection is working, but visualization needs improvement
+- **Backend Integration**: Python farm management needs full API integration
+
+### 📋 **Technical Features**
+
+- **Offline Support**: Caching strategy for rural areas with poor connectivity
+- **Multi-language**: Localization system with Telugu language support
+- **Performance Optimization**: Memory and battery optimizations for low-end devices
+- **Security**: Encrypted storage, secure authentication, and payment handling
+
+## **CRITICAL GAPS & PHASED ACTION PLAN**
+
+## **PHASE 1: FOUNDATION REPAIR**
+
+### **Critical Issues**
+
+- Missing navigation implementation (RoosterNavHost.kt)
+- Unresolved merge conflicts in LoginViewModel.kt
+- Email verification flow integration issues
+
+### **Action Items**
+
+1. Create navigation implementation
+2. Resolve merge conflicts
+3. Fix authentication flow integration
+4. Implement deep linking
+
+### **AI Agent Prompt for Phase 1**
 
 ```
-You are an Android authentication expert completing the email verification system for Rooster Poultry Management. The LoginViewModel already references CheckEmailScreen but it doesn't exist.
+You are an expert Android developer specializing in Jetpack Compose navigation and authentication systems. You need to fix critical navigation and authentication issues in the Rooster Poultry Management app.
 
-CRITICAL MISSING COMPONENTS:
-1. Create CheckEmailScreen.kt in feature-auth/src/main/java/com/example/rooster/feature/auth/ui/
-2. Create CheckEmailViewModel.kt with email verification logic
-3. Add navigation route for CheckEmailScreen in core/navigation/
-4. Implement real-time verification status checking
-5. Add resend verification functionality with rate limiting
-6. Connect to existing Firebase Auth setup
-7. Add proper error handling and loading states
+CONTEXT:
+- The app uses a multi-module architecture with MVVM pattern
+- MainActivity.kt references RoosterNavHost.kt but this file is missing
+- LoginViewModel.kt contains unresolved merge conflicts between feat/login-screen-v1 and main branches
+- CheckEmailScreen.kt exists but isn't properly integrated in the authentication flow
+
+TASKS:
+1. Create app/src/main/java/com/example/rooster/navigation/RoosterNavHost.kt:
+   - Implement a NavHost composable that handles all routes from AppNavigation.kt
+   - Set up proper nested navigation with auth, farmer, buyer, admin, and vet graphs
+   - Add type-safe navigation arguments and deep link handling
+
+2. Resolve merge conflicts in LoginViewModel.kt:
+   - Carefully merge code from feat/login-screen-v1 and main branches
+   - Ensure email verification flow logic is preserved
+   - Fix any syntax errors and maintain consistent code style
+
+3. Integrate email verification flow:
+   - Connect LoginScreen/RegisterScreen to CheckEmailScreen
+   - Implement proper navigation to check_email/{email} route
+   - Add error handling and retry mechanisms
+   - Ensure proper state management for verification status
+
+4. Implement deep linking:
+   - Add proper URI handling for key features
+   - Ensure authentication state is respected in deep links
+
+CONSTRAINTS:
+- Follow the existing architecture and design patterns
+- Maintain backwards compatibility with existing code
+- Use Hilt for dependency injection
+- Follow Material3 design guidelines
+- Ensure all UI states are properly handled (loading, error, success)
 
 DELIVERABLES:
-- Functional CheckEmailScreen with countdown timer
-- Real-time verification status checking
-- Integration with existing LoginScreen/RegisterScreen
-- Unit tests for CheckEmailViewModel
-- Navigation integration
-
-FOCUS: Complete the missing link in the authentication flow that's already referenced in the codebase.
+1. Complete RoosterNavHost.kt implementation
+2. Conflict-free LoginViewModel.kt
+3. Working email verification flow
+4. End-to-end authentication system with proper navigation
 ```
 
----
+## **PHASE 2: ARCHITECTURE COMPLETION**
 
-### **PHASE 2: Integrate React Native Screens into Android** 📱
+### **Critical Issues**
 
-**Status**: React Native screens exist but need Android Kotlin/Compose equivalents
+- Incomplete module implementation
+- Poor test coverage
+- Memory leaks and performance issues
 
-**AI AGENT PROMPT:**
+### **Action Items**
+
+1. Complete core modules (core-database, core-auth)
+2. Expand test coverage
+3. Fix memory leaks and performance issues
+4. Document architecture
+
+### **AI Agent Prompt for Phase 2**
+
 ```
-You are a cross-platform mobile expert converting React Native screens to Android Compose. The project has 20 React Native screens that need Android equivalents.
+You are a software architect specializing in multi-module Android applications with deep expertise in clean architecture, testing, and performance optimization. Your task is to complete and optimize the Rooster Poultry Management app's architecture.
 
-CONVERSION TASKS:
-1. Convert React Native screens to Compose screens:
-   - ProductTraceabilityScreen.js → ProductTraceabilityScreen.kt
-   - QRCodeGeneratorScreen.js → QRCodeGeneratorScreen.kt
-   - SocialFeedScreen.js → SocialFeedScreen.kt
-   - BlockchainIntegrationScreen.js → BlockchainIntegrationScreen.kt
-   - LiveStreamingScreen.js → LiveStreamingScreen.kt
-   - (All 20 screens)
+CONTEXT:
+- The app has 15 modules but several are incomplete
+- Test coverage is inadequate, especially for critical components
+- Memory leaks are evident from large heap dump files in the repository
+- Module dependencies need proper management
 
-2. Adapt React Native components to Compose:
-   - Convert StyleSheet to Compose theming
-   - Replace React Navigation with Android Navigation Component
-   - Convert mock data to Android Repository pattern
-   - Integrate with existing Hilt dependency injection
+TASKS:
+1. Complete core module implementation:
+   - Audit and complete core-database with proper Room setup, DAOs, entities, and type converters
+   - Enhance core-auth with secure authentication mechanisms, token management, and session handling
+   - Implement core-common utilities for shared functionality
+   - Optimize core-network for offline-first operation
 
-3. Feature module integration:
-   - Place screens in appropriate feature modules
-   - Connect to existing ViewModels where available
-   - Create new ViewModels following MVVM pattern
-   - Add to navigation graph
+2. Implement comprehensive testing:
+   - Add unit tests for all ViewModel and Repository classes (target 80%+ coverage)
+   - Create integration tests for critical flows (authentication, data sync)
+   - Set up UI tests for key user journeys
+   - Implement test fixtures and mocks for isolated testing
+
+3. Optimize performance:
+   - Profile and fix memory leaks using LeakCanary
+   - Implement proper resource disposal in ViewModels
+   - Add memory optimization for image loading and caching
+   - Create background processing for heavy operations
+
+4. Documentation and architecture:
+   - Document the module architecture with clear dependency graphs
+   - Create architecture decision records (ADRs)
+   - Add comprehensive KDoc comments to all public APIs
+   - Establish coding guidelines and module interfaces
+
+CONSTRAINTS:
+- Follow SOLID principles and clean architecture
+- Ensure backward compatibility
+- Optimize for low-end devices and rural connectivity
+- Maintain proper encapsulation between modules
 
 DELIVERABLES:
-- 20 Android Compose screens converted from React Native
-- Proper MVVM architecture integration
-- Navigation integration
-- Material 3 theming compliance
-- Mock data integration with Repository pattern
-
-FOCUS: Bridge the gap between React Native implementation and Android architecture.
+1. Completed core modules with full implementation
+2. Comprehensive test suite with 80%+ coverage
+3. Performance optimization report and fixes
+4. Technical architecture documentation
 ```
 
----
+## **PHASE 3: DASHBOARD & UI COMPLETION**
 
-### **PHASE 3: Complete Android Dashboard Screens** 🏠
+### **Critical Issues**
 
-**Status**: Dashboard modules exist but screens are incomplete
+- Incomplete role-specific dashboards
+- Missing data integration for UI components
+- Inconsistent UI design across screens
 
-**AI AGENT PROMPT:**
+### **Action Items**
+
+1. Complete all role-specific dashboards
+2. Implement real-time data updates
+3. Ensure consistent Material 3 design
+4. Add offline capability to all screens
+
+### **AI Agent Prompt for Phase 3**
 
 ```
-You are an Android dashboard expert completing role-based dashboard screens. The project has feature modules for dashboards but missing complete implementations.
+You are a UI/UX expert specializing in Jetpack Compose with extensive experience in dashboard design, data visualization, and offline-first applications. Your task is to complete all dashboard screens for the Rooster Poultry Management app.
 
-MISSING DASHBOARD IMPLEMENTATIONS:
-1. Complete FarmerHomeScreen in feature-farmerhome:
-   - Weather integration using existing services
-   - Farm health alerts with push notifications
-   - Quick action buttons for common tasks
-   - Production metrics dashboard
-   - Integration with existing farm data
+CONTEXT:
+- The app has four role-specific dashboards (farmer, buyer, admin, vet) that are incomplete
+- Real-time data integration is needed for all dashboards
+- The UI needs to follow Material 3 design system consistently
+- All screens must work offline with proper state management
 
-2. Complete BuyerHomeScreen in feature-buyerhome:
-   - Marketplace recommendations
-   - Order tracking interface
-   - Price comparison tools
-   - Supplier ratings display
-   - Integration with existing marketplace data
+TASKS:
+1. Complete role-specific dashboards:
+   - FarmerHomeScreen: Implement weather data, farm health alerts, production metrics, and quick actions
+   - BuyerHomeScreen: Create marketplace recommendations, order tracking interface, price comparison tools
+   - AdminHomeScreen: Develop system monitoring dashboard, user management, financial analytics
+   - VetHomeScreen: Build consultation queue management, patient history access, health alerts
 
-3. Complete AdminHomeScreen in feature-adminhome:
-   - System monitoring dashboard
-   - User management interface
-   - Financial analytics display
-   - Content moderation tools
-   - Integration with existing admin Python modules
+2. Implement real-time data updates:
+   - Use WorkManager for background synchronization
+   - Implement StateFlow for reactive UI updates
+   - Add pull-to-refresh functionality
+   - Create offline indicators and sync status
 
-4. Complete VetHomeScreen in feature-vethome:
-   - Consultation queue management
-   - Patient history access
-   - Health alert monitoring
-   - Integration with existing veterinary Python modules
+3. Ensure consistent Material 3 design:
+   - Implement dynamic color theming
+   - Create consistent component styling across all screens
+   - Add proper animations and transitions
+   - Optimize layouts for different screen sizes
+
+4. Enable offline capabilities:
+   - Implement proper loading, error, and empty states
+   - Add offline action queuing
+   - Create optimistic UI updates
+   - Handle conflict resolution in the UI
+
+CONSTRAINTS:
+- Support both light and dark themes
+- Ensure accessibility compliance
+- Optimize for low-end devices
+- Support Telugu language localization
+- Maintain consistent navigation patterns
 
 DELIVERABLES:
-- 4 complete dashboard screens with full functionality
-- Integration with existing Python backend modules
-- Real-time data display
-- Role-based feature access
-- Performance optimized for rural connectivity
-
-FOCUS: Complete the dashboard ecosystem that ties all user roles together.
+1. Four complete role-specific dashboards
+2. Real-time data integration with offline support
+3. Consistent Material 3 design implementation
+4. Responsive and accessible UI components
 ```
 
----
+## **PHASE 4: CROSS-PLATFORM INTEGRATION**
 
-### **PHASE 4: Bridge Python CLI to Android Integration** 🔗
+### **Critical Issues**
 
-**Status**: Python CLI is complete but isolated from Android app
+- Poor integration between Python backend and Android app
+- Missing REST API layer
+- No proper data synchronization mechanism
+- React Native screens need Compose conversion
 
-**AI AGENT PROMPT:**
+### **Action Items**
+
+1. Create REST API for Python modules
+2. Implement Android network clients
+3. Develop data synchronization system
+4. Convert React Native screens to Compose
+
+### **AI Agent Prompt for Phase 4**
 
 ```
-You are a system integration expert connecting the Python CLI farm management system to the Android app. The Python system is fully functional but needs Android integration.
+You are a full-stack developer specializing in cross-platform integration with expertise in Android, Python, RESTful APIs, and data synchronization. Your task is to integrate the Python backend with the Android frontend for the Rooster Poultry Management app.
 
-INTEGRATION TASKS:
-1. Create REST API wrapper for Python CLI:
-   - Convert farm_management/ functions to REST endpoints
-   - Add authentication middleware
-   - Create JSON API responses
-   - Add CORS support for Android requests
+CONTEXT:
+- The project has a complete Python CLI (farm_management/) that needs API exposure
+- Android app needs network clients to connect to these APIs
+- Data synchronization between platforms is missing
+- React Native screens need conversion to Jetpack Compose
 
-2. Create Android network layer integration:
-   - Add API client in core-network/ module
-   - Create repository implementations that call Python APIs
-   - Add offline caching for Python data
-   - Implement data synchronization
+TASKS:
+1. Create REST API layer for Python backend:
+   - Design a comprehensive API contract with OpenAPI specifications
+   - Implement RESTful endpoints for all Python services in farm_management/api/
+   - Add JWT authentication and authorization middleware
+   - Implement proper error handling and response standardization
+   - Create API documentation for frontend developers
 
-3. Feature integration:
-   - Connect feature-farm/ to Python farm management
-   - Connect feature-farmlist/ to Python farm repositories
-   - Connect feature-flockmanagement/ to Python flock data
-   - Add export functionality to Android (CSV exports)
+2. Develop Android network clients:
+   - Implement Retrofit service interfaces in core-network
+   - Create repository adapters for Python-generated data
+   - Add data model converters for cross-platform compatibility
+   - Implement proper error handling and retry logic
+   - Create offline caching strategies
 
-4. Data synchronization:
-   - Implement bi-directional sync between Python JSON files and Android Room database
-   - Add conflict resolution strategies
-   - Background sync with WorkManager
-   - Offline-first architecture maintenance
+3. Build data synchronization system:
+   - Implement bi-directional sync between Room database and Python backend
+   - Create conflict detection and resolution strategies
+   - Add delta synchronization to minimize data transfer
+   - Develop background sync using WorkManager
+   - Implement retry mechanisms for failed operations
+
+4. Convert React Native screens to Compose:
+   - Transform 20 React Native screens to equivalent Compose implementations
+   - Ensure consistent design language across converted screens
+   - Adapt React state management to MVVM pattern
+   - Integrate with existing navigation system
+   - Optimize for performance and responsiveness
+
+CONSTRAINTS:
+- Ensure security best practices in API design
+- Support offline-first architecture
+- Minimize battery and data usage
+- Handle unreliable network conditions gracefully
+- Maintain backward compatibility
 
 DELIVERABLES:
-- REST API server for Python CLI
-- Android integration layer
-- Data synchronization system
-- Offline capability maintained
-- Export functionality in Android
-
-FOCUS: Bridge the gap between mature Python implementation and Android architecture.
+1. Complete REST API with OpenAPI specification
+2. Android network clients and repositories
+3. Bi-directional data synchronization system
+4. Converted React Native screens in Compose
 ```
 
----
+## **PHASE 5: FINALIZATION & OPTIMIZATION**
 
-### **PHASE 5: Complete Marketplace Integration** 🛒
+### **Critical Issues**
 
-**Status**: Marketplace structures exist but buyer tools are separate
+- Incomplete offline-first architecture
+- Performance and memory optimization needs
+- Missing comprehensive testing and documentation
 
-**AI AGENT PROMPT:**
+### **Action Items**
+
+1. Enhance offline-first capabilities
+2. Optimize performance across the app
+3. Complete testing suite
+4. Finalize documentation
+
+### **AI Agent Prompt for Phase 5**
+
 ```
-You are an e-commerce integration expert combining separate buyer tools into a cohesive marketplace experience. The project has buyer_tools/, cart/, and marketplace/ Python modules that need Android integration.
+You are a senior Android developer specializing in application optimization, testing, and production readiness with deep experience in rural-focused applications. Your task is to finalize and optimize the Rooster Poultry Management app for production.
 
-MARKETPLACE INTEGRATION TASKS:
-1. Integrate Python buyer tools into Android:
-   - Convert buyer_analytics_screen.py to Android Compose
-   - Convert price_comparison_screen.py to Android
-   - Convert supplier_profile_screen.py to Android
-   - Add negotiation functionality to Android
+CONTEXT:
+- The app targets rural areas with poor connectivity
+- Performance optimization is needed for low-end devices
+- Comprehensive testing is required across all features
+- Documentation needs completion for handover
 
-2. Complete cart system integration:
-   - Convert cart Python modules to Android Repository pattern
-   - Add cart persistence in Room database
-   - Implement checkout flow in Android
-   - Add payment integration with existing Razorpay setup
+TASKS:
+1. Enhance offline-first architecture:
+   - Implement Room database synchronization with remote data
+   - Create sophisticated conflict resolution strategies
+   - Develop intelligent sync scheduling based on connectivity
+   - Add delta synchronization to minimize data transfer
+   - Implement background data prefetching for critical features
 
-3. Enhanced marketplace features:
-   - Advanced search functionality
-   - Product comparison tools
-   - Bulk order management
-   - Supplier communication system
+2. Optimize app performance:
+   - Profile and fix memory leaks using LeakCanary
+   - Implement proper resource disposal in ViewModels
+   - Optimize bitmap handling and caching
+   - Reduce APK size through resource optimization
+   - Implement progressive loading for large datasets
+   - Add performance monitoring and analytics
 
-4. Communication features integration:
-   - Convert chat_screen.py to Android messaging
-   - Add review system integration
-   - Implement dispute resolution workflow
-   - Add notification system
+3. Complete testing suite:
+   - Implement end-to-end testing for critical user journeys
+   - Add performance benchmarks and regression tests
+   - Create automated UI tests for all screens
+   - Implement load and stress testing for offline sync
+   - Set up continuous integration for test automation
+
+4. Finalize documentation:
+   - Complete technical architecture documentation
+   - Create comprehensive API documentation
+   - Add user guides and help documentation
+   - Document troubleshooting procedures
+   - Prepare release notes and change logs
+
+CONSTRAINTS:
+- Support devices with Android 6.0 (API 23) and above
+- Optimize for devices with limited RAM (2GB+)
+- Ensure battery efficiency for daylong use
+- Support offline operation for extended periods
+- Maintain compliance with data protection regulations
 
 DELIVERABLES:
-- Complete marketplace experience in Android
-- Integrated cart and checkout system
-- Communication and review features
-- Advanced buyer analytics
-- Python-Android data bridge
-
-FOCUS: Create unified marketplace experience across Python backend and Android frontend.
+1. Optimized application with offline-first capabilities
+2. Comprehensive test suite with CI integration
+3. Complete technical and user documentation
+4. Production-ready release with monitoring
 ```
 
----
+## **IMPLEMENTATION MILESTONES**
 
-### **PHASE 6: Complete Admin & Veterinary Integration** ⚙️
+| Phase | Focus Areas                 | Key Deliverables                                                       |
+|-------|-----------------------------|------------------------------------------------------------------------|
+| **1** | Foundation Repair           | Navigation system, Resolved conflicts, Authentication flow             |
+| **2** | Architecture Completion     | Core modules, Test coverage, Performance fixes                         |
+| **3** | Dashboard & UI              | Role-specific dashboards, Material 3 design, Offline UI                |
+| **4** | Cross-Platform Integration  | REST API, Network clients, Data sync, Compose screens                  |
+| **5** | Finalization & Optimization | Advanced offline capabilities, Performance optimization, Documentation |
 
-**Status**: Python admin/veterinary tools exist but need Android integration
+## **TECHNICAL METRICS**
 
-**AI AGENT PROMPT:**
+| Component             | Completion | Quality | Testability |
+|-----------------------|------------|---------|-------------|
+| **Core Architecture** | 100%       | ⭐⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐       |
+| **Authentication**    | 100%       | ⭐⭐⭐⭐⭐   | ⭐⭐⭐⭐        |
+| **Dashboard UIs**     | 80%        | ⭐⭐⭐⭐    | ⭐⭐⭐⭐        |
+| **Farm Management**   | 85%        | ⭐⭐⭐⭐⭐   | ⭐⭐⭐⭐        |
+| **Marketplace**       | 85%        | ⭐⭐⭐⭐⭐   | ⭐⭐⭐⭐        |
+| **IoT Integration**   | 70%        | ⭐⭐⭐⭐    | ⭐⭐⭐         |
 
-```
-You are an admin system expert integrating specialized Python admin and veterinary modules into the Android app. The app/ directory contains complete Python implementations that need Android equivalents.
-
-ADMIN INTEGRATION TASKS:
-1. Convert admin Python modules to Android:
-   - app/admin/system_monitoring_screen.py → Android screen
-   - app/admin/user_management_screen.py → Android screen
-   - app/admin/analytics_dashboard_screen.py → Android screen
-   - app/admin/content_moderation_screen.py → Android screen
-   - app/admin/feature_flag_screen.py → Android screen
-
-2. Convert financial modules:
-   - app/financials/ → Android financial management
-   - Add transaction monitoring in Android
-   - Add revenue analytics displays
-   - Add commission management system
-
-3. Convert veterinary modules:
-   - app/veterinary/ → Android veterinary system
-   - Add telemedicine integration
-   - Add prescription management
-   - Add patient history access
-   - Add health alert system
-
-4. Professional tools integration:
-   - app/professional_tools/ → Android professional features
-   - Add diagnosis assistant
-   - Add educational content management
-   - Add case study documentation
-   - Add veterinary networking
-
-DELIVERABLES:
-- Complete admin control panel in Android
-- Financial management system
-- Professional veterinary tools
-- Educational content system
-- Integration with existing Android architecture
-
-FOCUS: Bring professional admin and veterinary capabilities to mobile platform.
-```
-
----
-
-### **PHASE 7: IoT Integration & Advanced Analytics** 📊
-
-**Status**: IoT module exists but needs full implementation
-
-**AI AGENT PROMPT:**
+## **CODE QUALITY & BEST PRACTICES**
 
 ```
-You are an IoT and analytics expert completing the smart farming integration. The feature-iot/ module exists but needs full sensor integration and analytics.
+- **Kotlin Coding Standards**: Consistent styling with ktlint enforcement
+- **Composable Architecture**: State hoisting and unidirectional data flow
+- **Test Coverage**: Unit tests for business logic and ViewModel behavior
+- **Documentation**: Comprehensive KDoc for all public APIs
+- **Error Handling**: Consistent error modeling and user feedback
 
-IOT INTEGRATION TASKS:
-1. Complete IoT dashboard implementation:
-   - Real-time sensor data visualization
-   - Device management interface
-   - Automated alert system
-   - Historical data analysis
+## **GETTING STARTED**
 
-2. Advanced analytics integration:
-   - Predictive analytics for farm performance
-   - Production forecasting algorithms
-   - Feed optimization recommendations
-   - Health trend analysis
+### **Development Setup**
 
-3. Smart automation features:
-   - Automated feeding schedules
-   - Climate control integration
-   - Health monitoring alerts
-   - Maintenance reminders
+1. Clone the repository
+2. Configure `google-services.json` for Firebase integration
+3. Set up the keystore for signing
+4. Ensure you have the latest Android Studio version (Arctic Fox or newer)
 
-4. Data visualization enhancement:
-   - Interactive charts and graphs
-   - Real-time dashboard updates
-   - Export capabilities
-   - Trend analysis displays
+### **Build Configuration**
 
-DELIVERABLES:
-- Complete IoT device integration
-- Advanced analytics dashboard
-- Smart automation features
-- Data visualization suite
-- Real-time monitoring system
+- Use Gradle 7.4+ with Kotlin DSL
+- JDK 11 required
+- Enable ViewBinding and Compose features
+- Configure memory settings as specified in `gradle.properties`
 
-FOCUS: Transform farm management into smart farming with IoT and AI capabilities.
-```
+## **CONTRIBUTING**
 
----
+Please refer to the `CONTRIBUTING.md` file for guidelines on contributing to the project, including
+code style, PR process, and testing requirements.
 
-### **PHASE 8: Testing, Integration & Deployment** 🚀
-
-**Status**: Individual components exist but need comprehensive testing
-
-**AI AGENT PROMPT:**
-
-```
-You are a QA and deployment expert ensuring production readiness across all platforms. The project has multiple implementations that need testing and integration.
-
-COMPREHENSIVE TESTING TASKS:
-1. Cross-platform testing:
-   - Android app comprehensive testing
-   - Python CLI integration testing
-   - React Native feature testing
-   - API integration testing
-
-2. Performance optimization:
-   - Android app performance tuning
-   - Database query optimization
-   - Network request optimization
-   - Memory usage optimization
-
-3. Security testing:
-   - Authentication flow testing
-   - Payment security validation
-   - Data encryption verification
-   - API security testing
-
-4. Production deployment:
-   - Android APK optimization
-   - Python API deployment setup
-   - Backend infrastructure setup
-   - Monitoring and logging integration
-
-5. Documentation completion:
-   - API documentation
-   - User guides
-   - Deployment instructions
-   - Troubleshooting guides
-
-DELIVERABLES:
-- Comprehensive test suite across all platforms
-- Performance-optimized applications
-- Security-validated systems
-- Production deployment configuration
-- Complete documentation set
-
-FOCUS: Ensure enterprise-grade quality and production readiness across all implementations.
-```
-
----
-
-## **🎯 IMPLEMENTATION PRIORITY MATRIX**
-
-| Phase   | Priority | Platform       | Estimated Effort | Dependencies |
-|---------|----------|----------------|------------------|--------------|
-| Phase 1 | CRITICAL | Android        | 1-2 weeks        | None         |
-| Phase 2 | HIGH     | Android        | 2-3 weeks        | Phase 1      |
-| Phase 3 | HIGH     | Android        | 1-2 weeks        | Phase 2      |
-| Phase 4 | MEDIUM   | Integration    | 2-3 weeks        | Phase 3      |
-| Phase 5 | MEDIUM   | Android+Python | 2-3 weeks        | Phase 4      |
-| Phase 6 | LOW      | Android+Python | 3-4 weeks        | Phase 5      |
-| Phase 7 | LOW      | Android+IoT    | 3-4 weeks        | Phase 6      |
-| Phase 8 | CRITICAL | All Platforms  | 2-3 weeks        | All Phases   |
-
-## **📈 SUCCESS METRICS**
-
-**Phase Completion Criteria:**
-
-- ✅ All referenced components implemented
-- ✅ Integration between platforms working
-- ✅ No broken dependencies or missing files
-- ✅ User flows complete end-to-end
-- ✅ Performance benchmarks met
-- ✅ Security requirements satisfied
-
-**Final Goal:**
-Unified, production-ready poultry management ecosystem spanning Android app, Python CLI, React
-Native features, and specialized admin/veterinary tools.
