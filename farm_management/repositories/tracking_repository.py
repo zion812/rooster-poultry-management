@@ -7,6 +7,7 @@ from farm_management.models.health_record import (
 )
 from farm_management.models.production_record import ProductionRecord, FeedConsumptionRecord
 from farm_management.models.growth_record import GrowthRecord
+from farm_management.models.environment_record import EnvironmentRecord # Import EnvironmentRecord
 import json
 import os
 from datetime import date as PyDate, datetime as PyDateTime # Aliases for clarity
@@ -16,18 +17,20 @@ HEALTH_RECORDS_FILE = os.path.join(DATA_DIR, "health_records.json")
 PRODUCTION_RECORDS_FILE = os.path.join(DATA_DIR, "production_records.json")
 FEED_RECORDS_FILE = os.path.join(DATA_DIR, "feed_records.json")
 GROWTH_RECORDS_FILE = os.path.join(DATA_DIR, "growth_records.json")
+ENVIRONMENT_RECORDS_FILE = os.path.join(DATA_DIR, "environment_records.json") # New file for environment records
 
 
 class TrackingRepository:
     """
     Manages storage and retrieval of tracking data including health,
-    production, and growth records. Supports persistence to JSON files.
+    production, growth, and environment records. Supports persistence to JSON files.
     """
     def __init__(self):
         self._health_records: Dict[str, HealthRecord] = {}
         self._production_records: Dict[str, ProductionRecord] = {}
         self._feed_consumption_records: Dict[str, FeedConsumptionRecord] = {}
         self._growth_records: Dict[str, GrowthRecord] = {}
+        self._environment_records: Dict[str, EnvironmentRecord] = {} # New storage for environment records
 
         os.makedirs(DATA_DIR, exist_ok=True)
         self._load_all_records()
@@ -41,6 +44,7 @@ class TrackingRepository:
         self._load_production_records()
         self._load_feed_consumption_records()
         self._load_growth_records()
+        self._load_environment_records() # Load environment records
 
     # Generic save method to be called by specific record type save methods
     def _save_data_to_file(self, data: Dict, filepath: str):
@@ -508,6 +512,103 @@ class TrackingRepository:
     # --- Basic Alert System Logic ---
     def check_high_mortality_events(self, flock_id: str, period_days: int, threshold_deaths: int) -> Optional[str]:
         """
+    # --- Environment Record Management ---
+    def _load_environment_records(self):
+        loaded_data = self._load_data_from_file(ENVIRONMENT_RECORDS_FILE)
+        for rec_id, rec_data in loaded_data.items():
+            try:
+                record_date_iso = rec_data.get('record_date')
+                record_date = PyDateTime.fromisoformat(record_date_iso) if record_date_iso else PyDateTime.now()
+
+                # Handle missing optional float fields by defaulting to None if not present or not convertible
+                temp_c = rec_data.get('temperature_celsius')
+                humidity_p = rec_data.get('humidity_percent')
+                ammonia_ppm_val = rec_data.get('ammonia_ppm')
+                carbon_dioxide_ppm_val = rec_data.get('carbon_dioxide_ppm')
+                light_lux_val = rec_data.get('light_intensity_lux')
+
+                self._environment_records[rec_id] = EnvironmentRecord(
+                    record_id=rec_data['record_id'],
+                    flock_id=rec_data['flock_id'],
+                    record_date=record_date,
+                    temperature_celsius=float(temp_c) if temp_c is not None else None,
+                    humidity_percent=float(humidity_p) if humidity_p is not None else None,
+                    ammonia_ppm=float(ammonia_ppm_val) if ammonia_ppm_val is not None else None,
+                    carbon_dioxide_ppm=float(carbon_dioxide_ppm_val) if carbon_dioxide_ppm_val is not None else None,
+                    light_intensity_lux=float(light_lux_val) if light_lux_val is not None else None,
+                    notes=rec_data.get('notes', ""),
+                    sensor_id=rec_data.get('sensor_id')
+                )
+            except Exception as e:
+                print(f"Error reconstructing environment record {rec_id}: {e}. Data: {rec_data}")
+
+    def _save_environment_records(self):
+        data_to_save = {rec_id: rec.to_dict() for rec_id, rec in self._environment_records.items()}
+        self._save_data_to_file(data_to_save, ENVIRONMENT_RECORDS_FILE)
+
+    def add_environment_record(self, flock_id: str, record_date: datetime,
+                               temperature_celsius: Optional[float] = None,
+                               humidity_percent: Optional[float] = None,
+                               ammonia_ppm: Optional[float] = None,
+                               carbon_dioxide_ppm: Optional[float] = None,
+                               light_intensity_lux: Optional[float] = None,
+                               notes: str = "",
+                               sensor_id: Optional[str] = None) -> EnvironmentRecord:
+        record_id = self._generate_id("env")
+        record = EnvironmentRecord(
+            record_id=record_id, flock_id=flock_id, record_date=record_date,
+            temperature_celsius=temperature_celsius, humidity_percent=humidity_percent,
+            ammonia_ppm=ammonia_ppm, carbon_dioxide_ppm=carbon_dioxide_ppm,
+            light_intensity_lux=light_intensity_lux, notes=notes, sensor_id=sensor_id
+        )
+        self._environment_records[record_id] = record
+        print(f"TrackingRepository: Added EnvironmentRecord {record.record_id} for flock {flock_id}")
+        self._save_environment_records()
+        return record
+
+    def get_environment_record_by_id(self, record_id: str) -> Optional[EnvironmentRecord]:
+        return self._environment_records.get(record_id)
+
+    def get_environment_records_for_flock(self, flock_id: str, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None) -> List[EnvironmentRecord]:
+        records = [er for er in self._environment_records.values() if er.flock_id == flock_id]
+        if start_date:
+            records = [er for er in records if er.record_date >= start_date]
+        if end_date:
+            records = [er for er in records if er.record_date <= end_date]
+        records.sort(key=lambda r: r.record_date, reverse=True)
+        return records
+
+    def update_environment_record(self, record_id: str, **kwargs) -> Optional[EnvironmentRecord]:
+        record = self.get_environment_record_by_id(record_id)
+        if record:
+            for key, value in kwargs.items():
+                if hasattr(record, key):
+                    if key == "record_date" and isinstance(value, str):
+                        try:
+                            setattr(record, key, PyDateTime.fromisoformat(value))
+                        except ValueError:
+                             print(f"Warning: Could not parse record_date for environment update: {value}")
+                    # Ensure float conversion for relevant fields if they are being updated
+                    elif key in ['temperature_celsius', 'humidity_percent', 'ammonia_ppm', 'carbon_dioxide_ppm', 'light_intensity_lux'] and value is not None:
+                        try:
+                            setattr(record, key, float(value))
+                        except (ValueError, TypeError):
+                            print(f"Warning: Could not convert {key} to float for environment update: {value}")
+                    else:
+                        setattr(record, key, value)
+            print(f"TrackingRepository: Updated EnvironmentRecord {record.record_id}")
+            self._save_environment_records()
+            return record
+        return None
+
+    def delete_environment_record(self, record_id: str) -> bool:
+        if record_id in self._environment_records:
+            del self._environment_records[record_id]
+            print(f"TrackingRepository: Deleted EnvironmentRecord {record_id}")
+            self._save_environment_records()
+            return True
+        return False
+
         Checks if total mortality for a flock in a given period exceeds a threshold.
         Returns an alert message string if threshold is met, otherwise None.
         """
