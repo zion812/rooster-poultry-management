@@ -32,6 +32,19 @@
     <string name="register_screen_title">Register</string>
     <string name="home_screen_title">Home Dashboard</string>
 
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
+ main
+ main
+ main
     <!-- Register Screen -->
     <string name="register_screen_title">Create Account</string>
     <string name="action_back">Back</string>
@@ -53,6 +66,16 @@
     <!-- error_unexpected is already defined -->
     <!-- error_role_mismatch is already defined (might be useful for profile updates later) -->
 
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
+ main
+ main
     <!-- Bottom Navigation Tabs -->
     <string name="tab_market">Market</string>
     <string name="tab_explore">Explore</string>
@@ -65,6 +88,13 @@
     <string name="tab_transfers">Transfers</string>
 
     <!-- Other Screens -->
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
+ main
     <string name="forgot_password_title">Reset Password</string> <!-- Changed slightly for clarity -->
     <string name="forgot_password_instructions">Enter your email address below and we\'ll send you a link to reset your password.</string>
     <string name="forgot_password_button_send_link">Send Reset Link</string>
@@ -74,6 +104,7 @@
     <!-- Forgot Password Error Messages -->
     <string name="error_password_reset_failed">Failed to send password reset link. Please check the email address and try again.</string>
 
+ feat/login-screen-v1
     <!-- Email Verification Screen -->
     <string name="check_email_title">Verify Your Email</string>
     <string name="check_email_instructions_title">Check Your Inbox</string>
@@ -139,4 +170,17 @@
     <string name="vet_dashboard_appointment_time_type">%1$s - %2$s</string>
     <string name="vet_dashboard_alert_severity">Severity: %1$s</string>
 
+
+ feat/login-screen-v1
+
+
+    <string name="forgot_password_title">Forgot Password</string>
+
+
+
+ main
+ main
+ main
+ main
+ main
 </resources>

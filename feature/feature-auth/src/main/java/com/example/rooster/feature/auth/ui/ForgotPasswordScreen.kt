@@ -10,6 +10,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
+ main
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -29,10 +36,31 @@ import androidx.compose.ui.unit.dp
 import com.example.rooster.core.common.R
 import com.example.rooster.ui.theme.RoosterTheme
 
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.rooster.core.common.R
+ main
+
+ main
+ main
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordScreen(
     modifier: Modifier = Modifier,
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
+ main
     // viewModel: ForgotPasswordViewModel = hiltViewModel(), // To be added later
     onNavigateBack: () -> Unit,
     // For UI state, to be driven by ViewModel
@@ -48,6 +76,20 @@ fun ForgotPasswordScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(id = R.string.forgot_password_title)) },
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+
+    onNavigateBack: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(id = R.string.forgot_password_title)) }, // Add R.string.forgot_password_title
+ main
+ main
+ main
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(id = R.string.action_back))
@@ -56,6 +98,13 @@ fun ForgotPasswordScreen(
             )
         }
     ) { paddingValues ->
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
+ main
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -163,3 +212,22 @@ fun ForgotPasswordScreenLoadingPreview() {
 // R.string.forgot_password_button_send_link
 // R.string.action_back_to_login
 // R.string.forgot_password_title (already planned)
+ feat/login-screen-v1
+
+ feat/login-screen-v1
+
+
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Forgot Password Screen Placeholder")
+            // TODO: Add email input field and "Send Reset Link" button
+        }
+    }
+}
+ main
+ main
+ main
