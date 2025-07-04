@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.fillMaxSize
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
 package com.example.rooster.feature.farmerhome.ui
 
@@ -243,6 +246,8 @@ fun FarmerHomeScreenPreviewError() {
 // R.string.action_refresh ("Refresh")
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -273,5 +278,6 @@ fun FarmerHomeScreen(modifier: Modifier = Modifier) {
         }
     }
 }
+ main
  main
  main

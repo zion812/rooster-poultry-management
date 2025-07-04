@@ -27,7 +27,11 @@ import com.example.rooster.core.auth.domain.model.User // Import User model
  feat/login-screen-v1
 import com.example.rooster.core.auth.domain.model.User // Import User model
 
+ feat/login-screen-v1
+import com.example.rooster.core.auth.domain.model.User // Import User model
+
 main
+ main
  main
  main
  main
@@ -41,6 +45,9 @@ data class LoginUiState(
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
     @StringRes val errorResId: Int? = null,
     val errorMessage: String? = null,
@@ -51,12 +58,15 @@ data class LoginUiState(
     val unverifiedEmail: String? = null // Email to pass to CheckEmailScreen
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
     @StringRes val errorResId: Int? = null, // For R.string resource IDs
     val errorMessage: String? = null,       // For direct error messages (e.g., from backend)
     val isAuthenticated: Boolean = false,
     val navigateToHome: Boolean = false,
     val navigateToRegister: Boolean = false
+ main
  main
  main
 )
@@ -103,6 +113,9 @@ class LoginViewModel @Inject constructor(
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
                         if (user.isEmailVerified) {
                             _uiState.update {
@@ -128,6 +141,8 @@ class LoginViewModel @Inject constructor(
                             }
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
                         _uiState.update {
                             it.copy(
@@ -135,6 +150,7 @@ class LoginViewModel @Inject constructor(
                                 isAuthenticated = true,
                                 navigateToHome = true
                             )
+ main
  main
  main
                         }
@@ -171,6 +187,9 @@ class LoginViewModel @Inject constructor(
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
     fun navigationToRoleGraphComplete() {
         _uiState.update { it.copy(loggedInUserRole = null) }
@@ -180,9 +199,12 @@ class LoginViewModel @Inject constructor(
         _uiState.update { it.copy(requiresEmailVerification = false, unverifiedEmail = null) }
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
     fun navigationToHomeComplete() {
         _uiState.update { it.copy(navigateToHome = false) }
+ main
  main
  main
     }

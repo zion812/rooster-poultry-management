@@ -43,6 +43,9 @@
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
  main
@@ -78,6 +81,9 @@
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
  main
@@ -101,6 +107,9 @@
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
  main
@@ -116,6 +125,9 @@
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
     <!-- Email Verification Screen -->
     <string name="check_email_title">Verify Your Email</string>
@@ -183,6 +195,9 @@
     <string name="vet_dashboard_alert_severity">Severity: %1$s</string>
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
     <!-- Farm List Screen & ViewModel -->
     <string name="farm_list_title">My Farms</string>
     <string name="farm_list_add_farm_fab_desc">Add new farm</string>
@@ -230,6 +245,8 @@
     <string name="flock_icon_desc">Flock icon</string>
     <string name="flock_list_item_details">%1$s (%2$s) - %3$d Active Birds</string>
 
+ feat/login-screen-v1
+
 
 
  feat/login-screen-v1
@@ -239,6 +256,7 @@
 
 
 
+ main
  main
  main
  main

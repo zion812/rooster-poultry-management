@@ -40,7 +40,25 @@ data class Flock(
     val lastHealthCheck: Long = 0L,
     val status: FlockStatus = FlockStatus.ACTIVE,
     val environmentalConditions: EnvironmentalConditions = EnvironmentalConditions(),
-    val biosecurityMeasures: List<BiosecurityMeasure> = emptyList()
+    val biosecurityMeasures: List<BiosecurityMeasure> = emptyList(),
+
+    // Fields from FlockRegistryScreen / feature-farm's Flock model
+    val isTraceable: Boolean = false,
+    val ageGroup: AgeGroup? = null, // Using the AgeGroup enum defined in this file
+    val sireId: String? = null,
+    val damId: String? = null,
+    val dateOfBirthTimestamp: Long? = null, // Storing as Long timestamp
+    val placeOfBirth: String? = null,
+    val identificationTag: String? = null, // Assuming a primary tag for the flock for now
+    val colors: List<String>? = null, // List of dominant colors
+    val currentWeight: Double? = null, // Current average or representative weight, distinct from overall averageWeight
+    val height: Double? = null, // Average or representative height
+    val specialty: String? = null,
+    val proofImageUrls: List<String>? = null,
+    val vaccinationHistory: List<VaccinationRecord>? = null, // Using VaccinationRecord defined in this file
+    val genderDistribution: String? = null // E.g., "Mixed", "Mostly Hens", "All Roosters". Or use separate counts.
+                                         // The `Gender` enum is for individual birds.
+                                         // For now, a string. Could be more structured.
 )
 
 @Serializable
@@ -189,6 +207,40 @@ enum class BiosecurityType {
 enum class ComplianceLevel {
     FULL, PARTIAL, NON_COMPLIANT, UNDER_REVIEW
 }
+
+// Enums from feature-farm/domain/model/Flock.kt & FlockRegistrationData.kt
+// (to be consolidated or ensure they match if already present)
+
+// Already in core-common: enum class Gender { MALE, FEMALE, UNKNOWN }
+// No, core-common Gender is MALE, FEMALE, UNKNOWN. feature-farm Gender is MALE, FEMALE, UNKNOWN. They are compatible.
+
+// Add AgeGroup from feature-farm
+@Serializable // If it's part of other serializable classes
+enum class AgeGroup {
+    CHICKS,           // 0-2 weeks (example, align with FlockRegistryScreen)
+    WEEKS_0_5,        // 0-5 weeks
+    WEEKS_5_5MONTHS,  // 5 weeks - 5 months
+    MONTHS_5_12PLUS,  // 5-12+ months
+    UNKNOWN
+}
+
+// Consolidate FlockType. The one in feature-farm is more granular for bird types.
+// The existing core-common one is: LAYER, BROILER, BREEDING, MIXED, CHICK, PULLET.
+// feature-farm one is: FOWL, HEN, BREEDER, CHICK, ROOSTER, PULLET.
+// Let's use a more comprehensive one, perhaps merging ideas or choosing one.
+// For now, I'll keep the existing core-common FlockType and assume it's sufficient,
+// or that `FlockRegistrationData.flockType` would map to it.
+// If `feature-farm.FlockType` is preferred, this enum definition here needs to change.
+// For this step, I will assume the existing core-common FlockType is the canonical one.
+
+// VaccinationRecord (simple version for now)
+@Serializable
+data class VaccinationRecord(
+    val vaccineName: String,
+    val dateTimestamp: Long,
+    val notes: String? = null
+)
+
 
 // Traceability Models
 @Serializable

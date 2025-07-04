@@ -9,6 +9,9 @@ import androidx.activity.enableEdgeToEdge
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,13 +52,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
  feat/login-screen-v1
 import androidx.compose.ui.Alignment
-=======
+
+ feat/login-screen-v1
+import androidx.compose.ui.Alignment
+
  feat/login-screen-v1
 import androidx.compose.ui.Alignment
 
  feat/login-screen-v1
 import androidx.compose.ui.Alignment
 
+ main
  main
  main
  main
@@ -64,6 +71,9 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -71,6 +81,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.rooster.core.auth.domain.model.UserRole
 import com.example.rooster.core.auth.domain.repository.AuthRepository
 import com.example.rooster.core.navigation.*
+ feat/login-screen-v1
+
 
  feat/login-screen-v1
 
@@ -95,6 +107,7 @@ import com.example.rooster.core.navigation.* // Import route definitions
  main
  main
  main
+ main
 import com.example.rooster.navigation.RoosterNavHost
 import com.example.rooster.ui.main.FarmerUserBottomBar
 import com.example.rooster.ui.main.GeneralUserBottomBar
@@ -107,6 +120,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
 import kotlinx.coroutines.flow.SharingStarted
@@ -127,12 +143,15 @@ data class MainUiState(
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
 
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 // A simple ViewModel to observe auth state.
 // In a real app, this might be more complex or part of a dedicated AuthViewModel.
+ main
  main
  main
  main
@@ -145,6 +164,9 @@ class MainViewModel @Inject constructor(
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
 
@@ -164,7 +186,11 @@ class MainViewModel @Inject constructor(
  feat/login-screen-v1
                     UserRole.VETERINARIAN -> VET_USER_GRAPH_ROUTE // Changed to VET_USER_GRAPH_ROUTE
 
+ feat/login-screen-v1
+                    UserRole.VETERINARIAN -> VET_USER_GRAPH_ROUTE // Changed to VET_USER_GRAPH_ROUTE
+
                     UserRole.VETERINARIAN -> HIGH_LEVEL_USER_GRAPH_ROUTE
+ main
  main
  main
                 }
@@ -176,6 +202,8 @@ class MainViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = MainUiState() // Initial state with isLoading = true
         )
+ feat/login-screen-v1
+
  feat/login-screen-v1
 
  feat/login-screen-v1
@@ -209,6 +237,7 @@ class MainViewModel @Inject constructor(
  main
  main
  main
+ main
 }
 
 
@@ -223,7 +252,10 @@ class MainActivity : ComponentActivity() {
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
         installSplashScreen() // Handles splash screen display
+ main
  main
  main
  main
@@ -254,31 +286,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
  feat/login-screen-v1
-fun RoosterApp(mainUiState: MainUiState) { // Pass MainUiState directly
-    val navController = rememberNavController()
-
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-    // Determine current top-level graph for bottom bar visibility
-    // This logic might need refinement if routes can be part of multiple parent graphs or no graph.
-    var currentTopLevelGraphRoute: String? = currentRoute
-    while (navController.graph.findNode(currentTopLevelGraphRoute ?: "")?.parent != null &&
-           navController.graph.findNode(currentTopLevelGraphRoute ?: "") != navController.graph) {
-        currentTopLevelGraphRoute = navController.graph.findNode(currentTopLevelGraphRoute ?: "")?.parent?.route
-    }
-
-
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        bottomBar = {
-            // Show bottom bar only for the main user graphs
-            when (currentTopLevelGraphRoute) {
-                GENERAL_USER_GRAPH_ROUTE -> GeneralUserBottomBar(navController, currentRoute)
-                FARMER_USER_GRAPH_ROUTE -> FarmerUserBottomBar(navController, currentRoute)
-                HIGH_LEVEL_USER_GRAPH_ROUTE -> HighLevelUserBottomBar(navController, currentRoute) // For Admin
-                VET_USER_GRAPH_ROUTE -> HighLevelUserBottomBar(navController, currentRoute) // Vet uses HighLevel Bottom Bar for now
-                                         // Or create VetUserBottomBar if tabs are different
-                // No bottom bar for AUTH_GRAPH_ROUTE or other screens like Splash
 
  feat/login-screen-v1
 fun RoosterApp(mainUiState: MainUiState) { // Pass MainUiState directly
@@ -320,6 +327,48 @@ fun RoosterApp(mainUiState: MainUiState) { // Pass MainUiState directly
            navController.graph.findNode(currentTopLevelGraphRoute ?: "") != navController.graph) {
         currentTopLevelGraphRoute = navController.graph.findNode(currentTopLevelGraphRoute ?: "")?.parent?.route
     }
+
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            // Show bottom bar only for the main user graphs
+            when (currentTopLevelGraphRoute) {
+                GENERAL_USER_GRAPH_ROUTE -> GeneralUserBottomBar(navController, currentRoute)
+                FARMER_USER_GRAPH_ROUTE -> FarmerUserBottomBar(navController, currentRoute)
+                HIGH_LEVEL_USER_GRAPH_ROUTE -> HighLevelUserBottomBar(navController, currentRoute) // For Admin
+                VET_USER_GRAPH_ROUTE -> HighLevelUserBottomBar(navController, currentRoute) // Vet uses HighLevel Bottom Bar for now
+                                         // Or create VetUserBottomBar if tabs are different
+                // No bottom bar for AUTH_GRAPH_ROUTE or other screens like Splash
+
+ feat/login-screen-v1
+ main
+fun RoosterApp(mainUiState: MainUiState) { // Pass MainUiState directly
+    val navController = rememberNavController()
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    // Determine current top-level graph for bottom bar visibility
+    // This logic might need refinement if routes can be part of multiple parent graphs or no graph.
+    var currentTopLevelGraphRoute: String? = currentRoute
+    while (navController.graph.findNode(currentTopLevelGraphRoute ?: "")?.parent != null &&
+           navController.graph.findNode(currentTopLevelGraphRoute ?: "") != navController.graph) {
+        currentTopLevelGraphRoute = navController.graph.findNode(currentTopLevelGraphRoute ?: "")?.parent?.route
+    }
+
+ feat/login-screen-v1
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            // Show bottom bar only for the main user graphs
+            when (currentTopLevelGraphRoute) {
+                GENERAL_USER_GRAPH_ROUTE -> GeneralUserBottomBar(navController, currentRoute)
+                FARMER_USER_GRAPH_ROUTE -> FarmerUserBottomBar(navController, currentRoute)
+                HIGH_LEVEL_USER_GRAPH_ROUTE -> HighLevelUserBottomBar(navController, currentRoute) // For Admin
+                VET_USER_GRAPH_ROUTE -> HighLevelUserBottomBar(navController, currentRoute) // Vet uses HighLevel Bottom Bar for now
+                                         // Or create VetUserBottomBar if tabs are different
+                // No bottom bar for AUTH_GRAPH_ROUTE or other screens like Splash
 
 
 
@@ -380,6 +429,7 @@ fun RoosterApp(mainViewModel: MainViewModel = hiltViewModel()) {
 
  main
  main
+ main
             }
         }
     ) { paddingValues ->
@@ -408,6 +458,9 @@ fun RoosterApp(mainViewModel: MainViewModel = hiltViewModel()) {
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
+ main
  main
  main
  main

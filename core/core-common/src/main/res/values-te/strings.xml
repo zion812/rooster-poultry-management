@@ -43,6 +43,8 @@
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
  main
  main
  main
@@ -75,7 +77,10 @@
 
  feat/login-screen-v1
 
+ feat/login-screen-v1
+
   feat/login-screen-v1
+ main
  main
  main
  main
@@ -99,6 +104,9 @@
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
  main
  main
@@ -114,6 +122,9 @@
  feat/login-screen-v1
 
  feat/login-screen-v1
+
+ feat/login-screen-v1
+ main
  main
     <!-- Email Verification Screen -->
     <string name="check_email_title">మీ ఇమెయిల్‌ను ధృవీకరించండి</string>
@@ -180,7 +191,10 @@
     <string name="vet_dashboard_appointment_time_type">%1$s - %2$s</string>
     <string name="vet_dashboard_alert_severity">తీవ్రత: %1$s</string>
 
+ feat/login-screen-v1
+
   feat/login-screen-v1
+ main
     <!-- Farm List Screen & ViewModel -->
     <string name="farm_list_title">నా పొలాలు</string>
     <string name="farm_list_add_farm_fab_desc">కొత్త పొలాన్ని జోడించండి</string>
@@ -228,6 +242,8 @@
     <string name="flock_icon_desc">మంద చిహ్నం</string>
     <string name="flock_list_item_details">%1$s (%2$s) - %3$d క్రియాశీల పక్షులు</string>
 
+ feat/login-screen-v1
+
 
 
  feat/login-screen-v1
@@ -237,6 +253,7 @@
 
 
 
+ main
  main
  main
  main
