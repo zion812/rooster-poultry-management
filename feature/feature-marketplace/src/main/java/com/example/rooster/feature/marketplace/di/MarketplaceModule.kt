@@ -119,7 +119,8 @@ abstract class MarketplaceBindsModule {
     @Binds
     @Singleton
     abstract fun bindOrderRepository(
-        impl: OrderRepositoryImpl
+        impl: MockOrderRepositoryImpl // Binding mock for now
+        // TODO: Bind actual OrderRepositoryImpl once refactored
     ): OrderRepository
 
     // CartRepository binding removed as it's in feature-cart's module

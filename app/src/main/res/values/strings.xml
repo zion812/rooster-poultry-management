@@ -361,4 +361,64 @@
     <string name="currency" msgid="3210987654">₹</string>
     <string name="select_product" msgid="4321098765">Select Product</string>
     <string name="iot_dashboard_title" msgid="5432109876">IoT Dashboard</string>
+
+    <!-- Strings for Marketplace Feature -->
+    <string name="marketplace_screen_title">Marketplace</string> <!-- Already exists as marketplace_title, can reuse -->
+    <string name="sort_action">Sort</string>
+    <string name="filter_action">Filter</string>
+    <string name="clear_search_action">Clear Search</string>
+    <string name="search_products_hint">Search Products…</string>
+    <string name="no_products_found">No products found. Try adjusting your search or filters!</string>
+    <string name="product_rating_display">Rating: %.1f</string>
+
+    <string name="product_details_title">Product Details</string>
+    <string name="added_to_cart_message">Added to cart!</string>
+    <string name="add_to_cart_error_message">Error: %s</string>
+    <string name="sold_by_label">Sold by</string>
+    <string name="no_description_available">No description available.</string>
+    <string name="price_history_label">Price History</string>
+    <string name="user_reviews_label">User Reviews (%d)</string>
+    <string name="no_reviews_yet">No reviews yet for this product.</string>
+    <string name="view_all_reviews_button">View All %d Reviews</string>
+    <string name="related_products_label">Related Products</string>
+    <string name="no_image_available">No Image Available</string>
+    <string name="product_image_content_description">Product Image %d</string>
+    <string name="add_to_cart_button">Add to Cart</string>
+
+    <string name="cart_screen_title">Your Cart</string>
+    <string name="proceed_to_checkout_button">Proceed to Checkout</string>
+    <string name="empty_cart_message">Your cart is empty.</string>
+    <string name="go_shopping_button">Go Shopping</string>
+    <string name="subtotal_label">Subtotal</string>
+    <string name="delivery_fee_label">Delivery Fee</string>
+    <string name="discount_label">Discount</string>
+    <string name="total_label">Total</string> <!-- Already exists as total_price, but this is for label -->
+    <string name="remove_item_desc">Remove item</string>
+    <string name="increase_quantity_desc">Increase quantity</string>
+    <string name="decrease_quantity_desc">Decrease quantity</string>
+    <string name="clear_cart_action">Clear Cart</string>
+    <string name="error_loading_cart">Error loading cart: %s</string>
+
+    <string name="checkout_screen_title">Checkout</string>
+    <string name="place_order_button">Place Order (%s)</string>
+    <string name="shipping_address_label">Shipping Address</string>
+    <string name="shipping_address_hint">Enter your full address</string>
+    <string name="delivery_option_label">Delivery Option</string>
+    <string name="delivery_option_standard">Standard (3-5 days)</string>
+    <string name="delivery_option_express">Express (1-2 days)</string>
+    <string name="payment_method_label">Payment Method</string>
+    <string name="payment_method_razorpay_mock">Razorpay (Mock Integration)</string>
+    <string name="order_notes_label">Order Notes (Optional)</string>
+    <string name="order_notes_hint">Any special instructions for your order?</string>
+    <string name="error_shipping_address_empty">Shipping address cannot be empty.</string>
+    <string name="error_placing_order">Failed to place order.</string>
+    <string name="error_generic_with_message">Error: %s</string>
+
+
+    <string name="order_confirmation_screen_title">Order Confirmed!</string>
+    <string name="order_confirmed_thank_you">Thank You!</string>
+    <string name="order_confirmed_success_message">Your order has been placed successfully.</string>
+    <string name="order_id_display">Order ID: %s</string>
+    <string name="continue_shopping_button">Continue Shopping</string>
+    <string name="view_order_details_button">View Order Details</string>
 </resources>
