@@ -12,4 +12,5 @@
 # - API client library (e.g., requests)
 # - Data analysis libraries (e.g., pandas, numpy)
 # - Graphing libraries (e.g., matplotlib, plotly)
+Flask==3.0.0 # Added Flask for API
 requests==2.31.0 # For making HTTP requests to weather API
