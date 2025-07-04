@@ -178,4 +178,12 @@
     <string name="flock_teaser_details">%1$s - %2$d Active Birds</string>
     <string name="action_view_details">View Details</string>
 
+    <!-- Flock Management Screen -->
+    <string name="flock_management_title">Manage Flocks</string>
+    <string name="flock_management_title_for_farm">Flocks for %1$s</string>
+    <string name="flock_management_add_flock_fab">Add new flock</string>
+    <string name="flock_management_no_flocks">No flocks found for this farm. Tap \'+\' to add one.</string>
+    <string name="flock_icon_desc">Flock icon</string>
+    <string name="flock_list_item_details">%1$s (%2$s) - %3$d Active Birds</string>
+
 </resources>

@@ -176,4 +176,12 @@
     <string name="flock_teaser_details">%1$s - %2$d క్రియాశీల పక్షులు</string>
     <string name="action_view_details">వివరాలు చూడండి</string>
 
+    <!-- Flock Management Screen -->
+    <string name="flock_management_title">మందలను నిర్వహించండి</string>
+    <string name="flock_management_title_for_farm">%1$s కోసం మందలు</string>
+    <string name="flock_management_add_flock_fab">కొత్త మందను జోడించండి</string>
+    <string name="flock_management_no_flocks">ఈ పొలానికి మందలు కనుగొనబడలేదు. ఒకదాన్ని జోడించడానికి \'+\' నొక్కండి.</string>
+    <string name="flock_icon_desc">మంద చిహ్నం</string>
+    <string name="flock_list_item_details">%1$s (%2$s) - %3$d క్రియాశీల పక్షులు</string>
+
 </resources>
