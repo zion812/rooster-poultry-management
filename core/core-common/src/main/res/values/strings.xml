@@ -32,27 +32,7 @@
     <string name="register_screen_title">Register</string>
     <string name="home_screen_title">Home Dashboard</string>
 
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
- main
- main
- main
- main
- main
- main
     <!-- Register Screen -->
-    <string name="register_screen_title">Create Account</string>
     <string name="action_back">Back</string>
     <string name="create_account_title">Create Your Rooster Account</string>
     <string name="name_label">Full Name</string>
@@ -72,22 +52,6 @@
     <!-- error_unexpected is already defined -->
     <!-- error_role_mismatch is already defined (might be useful for profile updates later) -->
 
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
- main
- main
- main
- main
- main
     <!-- Bottom Navigation Tabs -->
     <string name="tab_market">Market</string>
     <string name="tab_explore">Explore</string>
@@ -100,19 +64,6 @@
     <string name="tab_transfers">Transfers</string>
 
     <!-- Other Screens -->
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
- main
- main
- main
- main
     <string name="forgot_password_title">Reset Password</string> <!-- Changed slightly for clarity -->
     <string name="forgot_password_instructions">Enter your email address below and we\'ll send you a link to reset your password.</string>
     <string name="forgot_password_button_send_link">Send Reset Link</string>
@@ -122,28 +73,22 @@
     <!-- Forgot Password Error Messages -->
     <string name="error_password_reset_failed">Failed to send password reset link. Please check the email address and try again.</string>
 
- feat/login-screen-v1
-
- feat/login-screen-v1
-
- feat/login-screen-v1
- main
- main
-    <!-- Email Verification Screen -->
-    <string name="check_email_title">Verify Your Email</string>
+    <!-- Email Verification Screen (Existing, some might be superseded by new ones below) -->
+    <string name="check_email_title">Verify Your Email</string> <!-- Can be reused by CheckEmailScreen title -->
     <string name="check_email_instructions_title">Check Your Inbox</string>
     <string name="check_email_instructions_body">A verification link has been sent to %1$s. Please click the link to activate your account. Check your spam folder if you don\'t see it.</string>
     <string name="check_email_button_check_status">Refresh Status / I\'ve Verified</string>
-    <string name="check_email_button_resend">Resend Verification Email</string>
-    <string name="action_back_to_login_short">Back to Login</string>
+    <string name="check_email_button_resend">Resend Verification Email</string> <!-- Can be reused by CheckEmailScreen button -->
+    <string name="action_back_to_login_short">Back to Login</string> <!-- Can be reused by CheckEmailScreen button -->
 
-    <!-- Email Verification ViewModel Messages -->
-    <string name="check_email_info_resent_success">Verification email resent successfully to %1$s.</string>
-    <string name="check_email_error_resend_failed">Failed to resend verification email. Please try again shortly.</string>
+    <!-- Email Verification ViewModel Messages (Existing) -->
+    <string name="check_email_info_resent_success">Verification email resent successfully to %1$s.</string> <!-- Can be reused for new resent message -->
+    <string name="check_email_error_resend_failed">Failed to resend verification email. Please try again shortly.</string> <!-- Can be reused for new send error -->
     <string name="check_email_info_not_yet_verified">Your email is not yet verified. Please check your inbox or try resending the email.</string>
-    <string name="check_email_error_status_check_failed">Could not verify email status at this time. Please try again.</string>
-    <string name="error_sending_verification_email">Failed to send verification email. Please try registering again or contact support.</string>
-    <string name="error_email_not_verified">Your email address is not verified. Please check your inbox or click "Resend Email" below.</string>
+    <string name="check_email_error_status_check_failed">Could not verify email status at this time. Please try again.</string> <!-- Can be reused for new status check error -->
+    <string name="error_sending_verification_email">Failed to send verification email. Please try registering again or contact support.</string> <!-- Generic send error, can be reused -->
+    <string name="error_email_not_verified">Your email address is not verified. Please check your inbox or click "Resend Email" below.</string> <!-- Used by LoginViewModel -->
+
 
     <!-- Farmer Dashboard -->
     <string name="farmer_dashboard_title">Farmer Dashboard</string>
@@ -194,10 +139,6 @@
     <string name="vet_dashboard_appointment_time_type">%1$s - %2$s</string>
     <string name="vet_dashboard_alert_severity">Severity: %1$s</string>
 
- feat/login-screen-v1
-
- feat/login-screen-v1
- main
     <!-- Farm List Screen & ViewModel -->
     <string name="farm_list_title">My Farms</string>
     <string name="farm_list_add_farm_fab_desc">Add new farm</string>
@@ -245,22 +186,27 @@
     <string name="flock_icon_desc">Flock icon</string>
     <string name="flock_list_item_details">%1$s (%2$s) - %3$d Active Birds</string>
 
- feat/login-screen-v1
+    <!-- NEW STRINGS FOR EMAIL VERIFICATION FLOW -->
+    <!-- CheckEmailScreen & CheckEmailViewModel -->
+    <string name="error_email_missing_for_verification">Email is missing for verification process.</string>
+    <string name="verification_email_sent_message">Verification email sent to %1$s. Please check your inbox (and spam folder).</string>
+    <string name="verification_email_resent_message">Verification email resent to %1$s. Please check your inbox (and spam folder).</string>
+    <!-- Using existing R.string.error_sending_verification_email and R.string.check_email_error_resend_failed -->
+    <string name="check_email_screen_title">Verify Your Email</string> <!-- Specific for screen title, existing check_email_title is more generic -->
+    <string name="check_your_email_title">Check Your Email</string> <!-- Specific for a text element on screen -->
+    <string name="verification_email_sent_to_placeholder">A verification email has been sent to %1$s.</string> <!-- Used in CheckEmailScreen -->
+    <string name="verification_email_sent_generic_placeholder">A verification email has been sent.</string> <!-- Used in CheckEmailScreen if email is blank -->
+    <string name="check_spam_folder_instruction">Remember to check your spam or junk folder if you don\'t see it.</string>
+    <string name="resend_email_countdown">Resend in %1$d s</string>
+    <string name="resend_verification_email_button">Resend Verification Email</string> <!-- Specific for button, existing one is more generic -->
+    <!-- R.string.action_back_to_login is already defined and can be reused -->
+    <string name="error_checking_verification_status">Failed to check email verification status. Please ensure you are connected to the internet.</string>
 
+    <!-- RegisterViewModel -->
+    <string name="error_all_fields_required_except_phone">All fields marked as required must be filled.</string>
+    <string name="error_passwords_do_not_match">The passwords you entered do not match.</string> <!-- This might be a duplicate, check existing. If so, remove. -->
+    <string name="error_sending_verification_email_after_registration">Your account was created, but we failed to send a verification email. You can try resending it from the next screen.</string>
+    <!-- R.string.error_registration_failed is already defined and can be reused -->
+    <!-- R.string.error_email_not_verified is already defined and used by LoginViewModel -->
 
-
- feat/login-screen-v1
-
-
-    <string name="forgot_password_title">Forgot Password</string>
-
-
-
- main
- main
- main
- main
- main
- main
- main
 </resources>

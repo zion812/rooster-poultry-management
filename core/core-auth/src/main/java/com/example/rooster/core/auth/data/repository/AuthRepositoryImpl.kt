@@ -6,45 +6,55 @@ import com.example.rooster.core.auth.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-// import com.google.firebase.auth.FirebaseAuth // TODO: Uncomment when Firebase is integrated
-// import com.google.firebase.firestore.FirebaseFirestore // TODO: Uncomment for Firestore
-// import kotlinx.coroutines.tasks.await // TODO: Uncomment for Firebase tasks
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
-    // private val firebaseAuth: FirebaseAuth, // TODO: Inject FirebaseAuth
-    // private val firestore: FirebaseFirestore // TODO: Inject FirebaseFirestore
+    private val firebaseAuth: FirebaseAuth,
+    private val firestore: FirebaseFirestore
 ) : AuthRepository {
 
-    // TODO: Replace mock _currentUser with actual Firebase Auth state listener
-    private val _currentUser = MutableStateFlow<User?>(null)
+    // TODO: This _currentUser should ideally be replaced or supplemented by a direct
+    // Firestore document snapshot listener for the user's profile for real-time updates
+    // to name, role, phone, etc., not just auth state.
+    // For now, it primarily reflects the auth state and basic info from FirebaseUser.
+    private val _currentUser = MutableStateFlow<User?>(firebaseAuth.currentUser?.toDomainUserBlocking())
 
     override suspend fun signIn(email: String, password: String): Result<User> {
         return try {
-            // TODO: Replace with actual Firebase signInWithEmailAndPassword
-            // val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            // val firebaseUser = authResult.user ?: throw Exception("Firebase user not found after sign in")
-            // TODO: Fetch user details (name, role, phone) from Firestore or Parse
-            // val userDocument = firestore.collection("users").document(firebaseUser.uid).get().await()
-            // val user = userDocument.toObject(User::class.java)?.copy(id = firebaseUser.uid)
-            //             ?: User(id = firebaseUser.uid, email = email, name = "Fetched User", role = UserRole.FARMER, phoneNumber = null, isEmailVerified = firebaseUser.isEmailVerified)
+            val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
+            val firebaseUser = authResult.user ?: throw Exception("Firebase user not found after sign in")
 
-            // Mock implementation for development
-            val mockUser = User(
-                id = "firebase_uid_for_$email",
-                email = email,
-                name = "Mock User", // This would be fetched
-                role = UserRole.FARMER, // This would be fetched
-                phoneNumber = "+91 9876543210", // This would be fetched
-                isEmailVerified = true // This would come from firebaseUser.isEmailVerified
-            )
-            _currentUser.value = mockUser
-            Result.success(mockUser)
+            // Fetch user details from Firestore
+            val userDocument = firestore.collection("users").document(firebaseUser.uid).get().await()
+            val domainUser = if (userDocument.exists()) {
+                userDocument.toObject(User::class.java)?.copy(
+                    id = firebaseUser.uid, // Ensure ID and verification status are from Auth
+                    isEmailVerified = firebaseUser.isEmailVerified
+                )
+            } else { // Fallback if Firestore document doesn't exist (should not happen in normal flow)
+                firebaseUser.toDomainUser()
+            }
+
+            if (domainUser == null) throw Exception("User data not found in Firestore or unable to parse.")
+
+            _currentUser.value = domainUser
+            Result.success(domainUser)
+        } catch (e: FirebaseAuthException) {
+            // TODO: Map specific FirebaseAuthException codes to domain-specific errors
+            Result.failure(Exception("Login failed: ${e.localizedMessage}", e))
         } catch (e: Exception) {
-            // TODO: Map Firebase exceptions to domain-specific errors
-            Result.failure(e)
+            Result.failure(Exception("Login failed: ${e.localizedMessage}", e))
         }
     }
 
