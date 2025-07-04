@@ -84,6 +84,9 @@ dependencies {
     // Charts for sensor data visualization
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
+    // Calendar for date picking
+    implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.2.1") // Check for latest version
+
     // Bluetooth/WiFi connectivity
     implementation("androidx.bluetooth:bluetooth:1.0.0-alpha01")
 
@@ -101,7 +104,7 @@ dependencies {
     // Testing
     testImplementation(libs.bundles.testing)
     androidTestImplementation(libs.bundles.android.testing)
-    
+
     // Debug
     debugImplementation(libs.androidx.ui.tooling)
 }
