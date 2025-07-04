@@ -1,0 +1,15 @@
+# Base requirements - will be expanded as needed
+# For a web framework like Flask or Django, add them here e.g.:
+# Flask==2.3.2
+# For database interaction e.g.:
+# SQLAlchemy==2.0.20
+# psycopg2-binary==2.9.7 (if using PostgreSQL)
+
+# For now, it's a simple structure with no external libraries beyond standard Python.
+# Potential future additions:
+# - GUI library (e.g., PyQt5, Tkinter, Kivy) if it's a desktop app
+# - Database ORM (e.g., SQLAlchemy, Peewee)
+# - API client library (e.g., requests)
+# - Data analysis libraries (e.g., pandas, numpy)
+# - Graphing libraries (e.g., matplotlib, plotly)
+requests==2.31.0 # For making HTTP requests to weather API
