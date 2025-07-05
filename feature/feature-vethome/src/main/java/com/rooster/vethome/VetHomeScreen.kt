@@ -19,132 +19,248 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Badge
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import com.example.rooster.core.common.util.DataState
+import androidx.compose.foundation.background
+import androidx.compose.ui.res.stringResource
+import com.rooster.core.R // Assuming R class for string resources is in core
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.foundation.layout.Box
+import com.rooster.vethome.ui.components.ConsultationQueueItemCard
+import com.rooster.vethome.ui.components.PatientSummaryCard
+import com.rooster.vethome.ui.components.VetHealthAlertCard
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun VetHomeScreen(
     viewModel: VetHomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Veterinarian Dashboard", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(16.dp))
+    LaunchedEffect(uiState.messageId) {
+        uiState.transientUserMessage?.let { message ->
+            snackbarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearTransientMessage()
+        }
+    }
 
-        ConsultationQueueSection(
-            queue = uiState.consultationQueue,
-            isLoading = uiState.isLoadingConsultationQueue,
-            error = uiState.consultationQueueError,
-            onRetry = { viewModel.fetchConsultationQueue() }
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { scaffoldPadding ->
+        val pullRefreshState = rememberPullRefreshState(
+            refreshing = uiState.isRefreshing,
+            onRefresh = viewModel::refresh
         )
-        Spacer(modifier = Modifier.height(16.dp))
 
-        RecentPatientsSection(
-            patients = uiState.recentPatients,
-            isLoading = uiState.isLoadingRecentPatients,
-            error = uiState.recentPatientsError,
-            onRetry = { viewModel.fetchRecentPatientSummaries() }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        Box(
+            modifier = Modifier
+                .padding(scaffoldPadding)
+                .pullRefresh(pullRefreshState)
+                .fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (uiState.isOffline) {
+                    Text(
+                        stringResource(id = R.string.offline_banner_message), // TODO: Define R.string.offline_banner_message
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f))
+                            .padding(8.dp),
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                Text(stringResource(id = R.string.vet_home_title), style = MaterialTheme.typography.headlineMedium) // TODO: Define R.string.vet_home_title
+                Spacer(modifier = Modifier.height(16.dp))
 
-        VetHealthAlertsSection(
-            alerts = uiState.healthAlerts,
-            isLoading = uiState.isLoadingHealthAlerts,
-            error = uiState.healthAlertsError,
-            onRetry = { viewModel.fetchActiveHealthAlerts() }
-        )
+                ConsultationQueueSection(
+            } // End of Column content
+
+            PullRefreshIndicator(
+                refreshing = uiState.isRefreshing,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
+        }
+    }
+}
+                queueState = uiState.consultationQueueState,
+                onRetry = { viewModel.fetchConsultationQueue() }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            RecentPatientsSection(
+                patientsState = uiState.recentPatientsState,
+                onRetry = { viewModel.fetchRecentPatientSummaries() }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            VetHealthAlertsSection(
+                alertsState = uiState.healthAlertsState,
+                onRetry = { viewModel.fetchActiveHealthAlerts() }
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConsultationQueueSection(
-    queue: List<com.rooster.vethome.domain.model.ConsultationQueueItem>,
-    isLoading: Boolean,
-    error: String?,
+    queueState: DataState<List<com.rooster.vethome.domain.model.ConsultationQueueItem>>,
     onRetry: () -> Unit
 ) {
+    val queue = queueState.getUnderlyingData() ?: emptyList()
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text("Consultation Queue (${queue.filter { it.status == com.rooster.vethome.domain.model.ConsultationRequestStatus.PENDING }.size} pending)", style = MaterialTheme.typography.titleMedium)
-        if (isLoading) {
-            androidx.compose.material3.CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else if (error != null) {
-            Text("Error: $error", color = MaterialTheme.colorScheme.error)
-        } else if (queue.isEmpty()) {
-            Text("Consultation queue is empty.")
-        } else {
-            queue.take(3).forEach { item -> // Show a few items
-                // TODO: Create proper ConsultationQueueItemCard
-                androidx.compose.material3.Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                    Column(Modifier.padding(8.dp)) {
-                        Text("${item.farmerName} - ${item.farmLocation}", style = MaterialTheme.typography.titleSmall)
-                        Text("Issue: ${item.issueSummary}", style = MaterialTheme.typography.bodyMedium)
-                        Text("Status: ${item.status} (Priority: ${item.priority})", style = MaterialTheme.typography.bodySmall)
-                        Text("Requested: ${java.text.SimpleDateFormat("dd MMM yy HH:mm", java.util.Locale.getDefault()).format(item.requestTime)}", style = MaterialTheme.typography.bodySmall)
-                    }
+        val pendingCount = queue.filter { it.status == com.rooster.vethome.domain.model.ConsultationRequestStatus.PENDING }.size
+        Text(stringResource(R.string.consultation_queue_title, pendingCount), style = MaterialTheme.typography.titleMedium) // TODO: Define R.string.consultation_queue_title (e.g., "Consultation Queue (%d pending)")
+        Spacer(modifier = Modifier.height(8.dp))
+
+        when (queueState) {
+            is DataState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                if (queue.isNotEmpty()) {
+                    Text(stringResource(id = R.string.updating_cached_data), style = MaterialTheme.typography.labelSmall)
+                    queue.take(3).forEach { item -> ConsultationQueueItemCard(item = item) }
+                    if (queue.size > 3) Text(stringResource(R.string.and_n_more, queue.size - 3))
                 }
             }
-            if (queue.size > 3) Text("...and ${queue.size - 3} more.")
+            is DataState.Success -> {
+                if (queue.isEmpty()) {
+                    Text(stringResource(id = R.string.consultation_queue_empty)) // TODO: Define R.string.consultation_queue_empty
+                } else {
+                    if (queueState.isFromCache && queueState.isStale) {
+                        Badge { Text("!") }
+                        Text(stringResource(id = R.string.data_possibly_stale), style = MaterialTheme.typography.labelSmall)
+                    }
+                    queue.take(3).forEach { item -> ConsultationQueueItemCard(item = item) }
+                    if (queue.size > 3) Text(stringResource(R.string.and_n_more, queue.size - 3))
+                }
+            }
+            is DataState.Error -> {
+                Text(stringResource(id = R.string.error_prefix) + " ${queueState.message ?: queueState.exception.localizedMessage}", color = MaterialTheme.colorScheme.error)
+                if (queue.isNotEmpty()) {
+                    Text(stringResource(id = R.string.failed_update_showing_cached), style = MaterialTheme.typography.labelSmall)
+                    queue.take(3).forEach { item -> ConsultationQueueItemCard(item = item) }
+                    if (queue.size > 3) Text(stringResource(R.string.and_n_more, queue.size - 3))
+                }
+                Button(onClick = onRetry, modifier = Modifier.padding(top = 8.dp)) { Text(stringResource(id = R.string.retry_button)) }
+            }
         }
     }
 }
 
+// Removed standalone ConsultationQueueItemCard as it's now imported
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecentPatientsSection(
-    patients: List<com.rooster.vethome.domain.model.PatientHistorySummary>,
-    isLoading: Boolean,
-    error: String?,
+    patientsState: DataState<List<com.rooster.vethome.domain.model.PatientHistorySummary>>,
     onRetry: () -> Unit
 ) {
+    val patients = patientsState.getUnderlyingData() ?: emptyList()
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text("Recent Patients", style = MaterialTheme.typography.titleMedium)
-        if (isLoading) {
-            androidx.compose.material3.CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else if (error != null) {
-            Text("Error: $error", color = MaterialTheme.colorScheme.error)
-        } else if (patients.isEmpty()) {
-            Text("No recent patient data.")
-        } else {
-            patients.forEach { patient ->
-                // TODO: Create proper PatientSummaryCard
-                androidx.compose.material3.Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                    Column(Modifier.padding(8.dp)) {
-                        Text("${patient.farmName} - ${patient.species}", style = MaterialTheme.typography.titleSmall)
-                        patient.lastVisitDate?.let { Text("Last Visit: ${java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault()).format(it)}", style = MaterialTheme.typography.bodySmall) }
-                        patient.briefDiagnosis?.let { Text("Last Diagnosis: $it", style = MaterialTheme.typography.bodyMedium) }
-                    }
+        Text(stringResource(id = R.string.recent_patients_title), style = MaterialTheme.typography.titleMedium) // TODO: Define R.string.recent_patients_title
+        Spacer(modifier = Modifier.height(8.dp))
+        when (patientsState) {
+            is DataState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                if (patients.isNotEmpty()) {
+                    Text(stringResource(id = R.string.updating_cached_data), style = MaterialTheme.typography.labelSmall)
+                    patients.forEach { patient -> PatientSummaryCard(patient = patient) }
                 }
+            }
+            is DataState.Success -> {
+                if (patients.isEmpty()) {
+                    Text(stringResource(id = R.string.patients_no_recent)) // TODO: Define R.string.patients_no_recent
+                } else {
+                    if (patientsState.isFromCache && patientsState.isStale) {
+                        Badge { Text("!") }
+                        Text(stringResource(id = R.string.data_possibly_stale), style = MaterialTheme.typography.labelSmall)
+                    }
+                    patients.forEach { patient -> PatientSummaryCard(patient = patient) }
+                }
+            }
+            is DataState.Error -> {
+                Text(stringResource(id = R.string.error_prefix) + " ${patientsState.message ?: patientsState.exception.localizedMessage}", color = MaterialTheme.colorScheme.error)
+                if (patients.isNotEmpty()) {
+                    Text(stringResource(id = R.string.failed_update_showing_cached), style = MaterialTheme.typography.labelSmall)
+                    patients.forEach { patient -> PatientSummaryCard(patient = patient) }
+                }
+                Button(onClick = onRetry, modifier = Modifier.padding(top = 8.dp)) { Text(stringResource(id = R.string.retry_button)) }
             }
         }
     }
 }
 
+// Removed standalone PatientSummaryItemCard as it's now imported
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VetHealthAlertsSection(
-    alerts: List<com.rooster.vethome.domain.model.VetHealthAlert>,
-    isLoading: Boolean,
-    error: String?,
+    alertsState: DataState<List<com.rooster.vethome.domain.model.VetHealthAlert>>,
     onRetry: () -> Unit
 ) {
+    val alerts = alertsState.getUnderlyingData() ?: emptyList()
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text("Active Health Alerts", style = MaterialTheme.typography.titleMedium)
-        if (isLoading) {
-            androidx.compose.material3.CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else if (error != null) {
-            Text("Error: $error", color = MaterialTheme.colorScheme.error)
-        } else if (alerts.isEmpty()) {
-            Text("No active health alerts for your attention.")
-        } else {
-            alerts.forEach { alert ->
-                 // TODO: Create proper VetHealthAlertCard
-                androidx.compose.material3.Card(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                    Column(Modifier.padding(8.dp)) {
-                        Text(alert.title, style = MaterialTheme.typography.titleSmall, color = if (alert.severity >= com.rooster.vethome.domain.model.VetAlertSeverity.URGENT) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
-                        Text("${alert.farmName}: ${alert.description}", style = MaterialTheme.typography.bodyMedium)
-                        Text("Severity: ${alert.severity}", style = MaterialTheme.typography.bodySmall)
-                        Text("Reported: ${java.text.SimpleDateFormat("dd MMM yy HH:mm", java.util.Locale.getDefault()).format(alert.timestamp)}", style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(id = R.string.vet_health_alerts_title), style = MaterialTheme.typography.titleMedium) // TODO: Define R.string.vet_health_alerts_title
+        Spacer(modifier = Modifier.height(8.dp))
+        when (alertsState) {
+            is DataState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                if (alerts.isNotEmpty()) {
+                    Text(stringResource(id = R.string.updating_cached_data), style = MaterialTheme.typography.labelSmall)
+                    alerts.forEach { alert -> VetHealthAlertCard(alert = alert) }
+                }
+            }
+            is DataState.Success -> {
+                if (alerts.isEmpty()) {
+                    Text(stringResource(id = R.string.vet_alerts_no_active)) // TODO: Define R.string.vet_alerts_no_active
+                } else {
+                     if (alertsState.isFromCache && alertsState.isStale) {
+                        Badge { Text("!") }
+                        Text(stringResource(id = R.string.data_possibly_stale), style = MaterialTheme.typography.labelSmall)
+                    }
+                    alerts.forEach { alert -> VetHealthAlertCard(alert = alert) }
+                }
+            }
+            is DataState.Error -> {
+                Text(stringResource(id = R.string.error_prefix) + " ${alertsState.message ?: alertsState.exception.localizedMessage}", color = MaterialTheme.colorScheme.error)
+                if (alerts.isNotEmpty()) {
+                    Text(stringResource(id = R.string.failed_update_showing_cached), style = MaterialTheme.typography.labelSmall)
+                    alerts.forEach { alert -> VetHealthAlertCard(alert = alert) }
+                }
+                Button(onClick = onRetry, modifier = Modifier.padding(top = 8.dp)) { Text(stringResource(id = R.string.retry_button)) }
+            }
+        }
+    }
+}
+
+// Removed standalone VetHealthAlertItemCard as it's now imported
                     }
                 }
             }
