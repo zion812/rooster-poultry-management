@@ -27,24 +27,18 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.example.rooster.core.common.util.DataState
 
 // Define UI State for AdminHomeScreen
 data class AdminHomeUiState(
-    val systemMetrics: List<SystemMetric> = emptyList(),
-    val isLoadingSystemMetrics: Boolean = false,
-    val systemMetricsError: String? = null,
-
-    val userManagementInfo: UserManagementInfo? = null,
-    val isLoadingUserManagementInfo: Boolean = false,
-    val userManagementInfoError: String? = null,
-
-    val financialHighlights: List<FinancialAnalyticHighlight> = emptyList(),
-    val isLoadingFinancialHighlights: Boolean = false,
-    val financialHighlightsError: String? = null,
-
-    val moderationQueue: List<ContentModerationItem> = emptyList(),
-    val isLoadingModerationQueue: Boolean = false,
-    val moderationQueueError: String? = null
+    val systemMetricsState: DataState<List<SystemMetric>> = DataState.Loading(null),
+    val userManagementInfoState: DataState<UserManagementInfo?> = DataState.Loading(null),
+    val financialHighlightsState: DataState<List<FinancialAnalyticHighlight>> = DataState.Loading(null),
+    val moderationQueueState: DataState<List<ContentModerationItem>> = DataState.Loading(null),
+    val transientUserMessage: String? = null,
+    val messageId: java.util.UUID? = null,
+    val isRefreshing: Boolean = false,
+    val isOffline: Boolean = false
 )
 
 @HiltViewModel
@@ -52,52 +46,85 @@ class AdminHomeViewModel @Inject constructor(
     private val systemRepository: AdminSystemRepository,
     private val userRepository: AdminUserRepository,
     private val financialRepository: AdminFinancialRepository,
-    private val moderationRepository: AdminContentModerationRepository
+    private val moderationRepository: AdminContentModerationRepository,
+    private val connectivityRepository: com.example.rooster.core.common.connectivity.ConnectivityRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminHomeUiState())
     val uiState: StateFlow<AdminHomeUiState> = _uiState.asStateFlow()
 
     init {
+        fetchAllData()
+        observeNetworkStatus()
+    }
+
+    private fun observeNetworkStatus() {
+        viewModelScope.launch {
+            connectivityRepository.observeNetworkStatus().collect { status ->
+                _uiState.value = _uiState.value.copy(
+                    isOffline = status != com.example.rooster.core.common.connectivity.NetworkStatus.Available
+                )
+            }
+        }
+    }
+
+    private fun fetchAllData() {
         fetchSystemMetrics()
         fetchUserManagementSummary()
         fetchFinancialHighlights()
         fetchModerationQueue()
     }
 
+    fun refresh() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isRefreshing = true)
+            fetchAllData()
+            // Consider a more robust way to set isRefreshing = false
+            _uiState.value = _uiState.value.copy(isRefreshing = false)
+        }
+    }
+
     fun fetchSystemMetrics() {
         viewModelScope.launch {
+            // Assuming repository now returns Flow<DataState<List<SystemMetric>>>
             systemRepository.getCurrentSystemMetrics()
-                .onStart { _uiState.value = _uiState.value.copy(isLoadingSystemMetrics = true, systemMetricsError = null) }
-                .catch { e -> _uiState.value = _uiState.value.copy(isLoadingSystemMetrics = false, systemMetricsError = e.message) }
-                .collect { data -> _uiState.value = _uiState.value.copy(isLoadingSystemMetrics = false, systemMetrics = data) }
+                .collect { dataState ->
+                    _uiState.value = _uiState.value.copy(systemMetricsState = dataState)
+                }
         }
     }
 
     fun fetchUserManagementSummary() {
         viewModelScope.launch {
+            // Assuming repository now returns Flow<DataState<UserManagementInfo?>>
             userRepository.getUserManagementSummary()
-                .onStart { _uiState.value = _uiState.value.copy(isLoadingUserManagementInfo = true, userManagementInfoError = null) }
-                .catch { e -> _uiState.value = _uiState.value.copy(isLoadingUserManagementInfo = false, userManagementInfoError = e.message) }
-                .collect { data -> _uiState.value = _uiState.value.copy(isLoadingUserManagementInfo = false, userManagementInfo = data) }
+                .collect { dataState ->
+                    _uiState.value = _uiState.value.copy(userManagementInfoState = dataState)
+                }
         }
     }
 
     fun fetchFinancialHighlights() {
         viewModelScope.launch {
+            // Assuming repository now returns Flow<DataState<List<FinancialAnalyticHighlight>>>
             financialRepository.getFinancialHighlights()
-                .onStart { _uiState.value = _uiState.value.copy(isLoadingFinancialHighlights = true, financialHighlightsError = null) }
-                .catch { e -> _uiState.value = _uiState.value.copy(isLoadingFinancialHighlights = false, financialHighlightsError = e.message) }
-                .collect { data -> _uiState.value = _uiState.value.copy(isLoadingFinancialHighlights = false, financialHighlights = data) }
+                .collect { dataState ->
+                    _uiState.value = _uiState.value.copy(financialHighlightsState = dataState)
+                }
         }
     }
 
     fun fetchModerationQueue(count: Int = 5) { // Fetch a small number for home screen summary
         viewModelScope.launch {
+            // Assuming repository now returns Flow<DataState<List<ContentModerationItem>>>
             moderationRepository.getPendingModerationItems(count)
-                .onStart { _uiState.value = _uiState.value.copy(isLoadingModerationQueue = true, moderationQueueError = null) }
-                .catch { e -> _uiState.value = _uiState.value.copy(isLoadingModerationQueue = false, moderationQueueError = e.message) }
-                .collect { data -> _uiState.value = _uiState.value.copy(isLoadingModerationQueue = false, moderationQueue = data) }
+                .collect { dataState ->
+                    _uiState.value = _uiState.value.copy(moderationQueueState = dataState)
+                }
         }
+    }
+
+    fun clearTransientMessage() {
+        _uiState.value = _uiState.value.copy(transientUserMessage = null, messageId = null)
     }
 }
