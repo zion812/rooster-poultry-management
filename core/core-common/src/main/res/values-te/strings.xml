@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Login Screen -->
+    <string name="login_title">రూస్టర్‌కు లాగిన్ చేయండి</string>
+    <string name="email_label">ఈమెయిల్ చిరునామా</string>
+    <string name="password_label">పాస్‌వర్డ్</string>
+    <string name="select_role_label">మీ పాత్రను ఎంచుకోండి</string>
+    <string name="login_button_text">లాగిన్</string>
+    <string name="register_prompt_text">ఖాతా లేదా?</string>
+    <string name="register_button_text">ఇక్కడ నమోదు చేసుకోండి</string>
+
+    <!-- User Roles -->
+    <string name="role_farmer">రైతు</string>
+    <string name="role_buyer">కొనుగోలుదారు</string>
+    <string name="role_admin">నిర్వాహకుడు</string>
+    <string name="role_veterinarian">పశువైద్యుడు</string>
+
+    <!-- Login ViewModel Error Messages -->
+    <string name="error_email_password_empty">ఈమెయిల్ మరియు పాస్‌వర్డ్ ఖాళీగా ఉండకూడదు.</string>
+    <string name="error_login_failed">లాగిన్ విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="error_unexpected">ఊహించని లోపం సంభవించింది. దయచేసి తర్వాత మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="error_role_mismatch">ఎంచుకున్న పాత్ర మీ ఖాతాతో సరిపోలడం లేదు.</string>
+
+    <!-- General -->
+    <string name="app_name">రూస్టర్ పౌల్ట్రీ</string>
+    <string name="ok">సరే</string>
+    <string name="cancel">రద్దు చేయండి</string>
+    <string name="submit">సమర్పించండి</string>
+    <string name="loading">లోడ్ అవుతోంది…</string>
+
+    <!-- Screen Titles -->
+    <string name="register_screen_title">నమోదు చేసుకోండి</string>
+    <string name="home_screen_title">హోమ్ డాష్‌బోర్డ్</string>
+
+    <!-- Register Screen -->
+    <string name="action_back">వెనుకకు</string>
+    <string name="create_account_title">మీ రూస్టర్ ఖాతాను సృష్టించండి</string>
+    <string name="name_label">పూర్తి పేరు</string>
+    <string name="phone_label">ఫోన్ నంబర్</string>
+    <string name="optional_field">ఐచ్ఛికం</string>
+    <string name="confirm_password_label">పాస్‌వర్డ్‌ను నిర్ధారించండి</string>
+    <string name="register_button_action">ఖాతాను సృష్టించండి</string>
+    <string name="already_have_account_login">ఇప్పటికే ఖాతా ఉందా? లాగిన్ చేయండి</string>
+
+    <!-- Registration & Validation Error Messages -->
+    <string name="error_field_required">ఈ ఫీల్డ్ అవసరం.</string>
+    <string name="error_invalid_email">దయచేసి చెల్లుబాటు అయ్యే ఇమెయిల్ చిరునామాను నమోదు చేయండి.</string>
+    <string name="error_invalid_phone">దయచేసి చెల్లుబాటు అయ్యే ఫోన్ నంబర్‌ను నమోదు చేయండి (ఉదా., 10 అంకెలు).</string>
+    <string name="error_password_too_short">పాస్‌వర్డ్ కనీసం 8 అక్షరాలు ఉండాలి.</string>
+    <string name="error_password_mismatch">పాస్‌వర్డ్‌లు సరిపోలడం లేదు.</string>
+    <string name="error_registration_failed">నమోదు విఫలమైంది. దయచేసి మీ వివరాలను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.</string>
+
+    <!-- Bottom Navigation Tabs -->
+    <string name="tab_market">మార్కెట్</string>
+    <string name="tab_explore">అన్వేషించండి</string>
+    <string name="tab_create">సృష్టించు</string>
+    <string name="tab_cart">కార్ట్</string>
+    <string name="tab_profile">ప్రొఫైల్</string>
+    <string name="tab_home">హోమ్</string>
+    <string name="tab_community">సంఘం</string>
+    <string name="tab_dashboard">డాష్‌బోర్డ్</string>
+    <string name="tab_transfers">బదిలీలు</string>
+
+    <!-- Other Screens -->
+    <string name="forgot_password_title">పాస్‌వర్డ్‌ను రీసెట్ చేయండి</string>
+    <string name="forgot_password_instructions">మీ పాస్‌వర్డ్‌ను రీసెట్ చేయడానికి లింక్‌ను పంపడానికి దయచేసి మీ ఇమెయిల్ చిరునామాను క్రింద నమోదు చేయండి.</string>
+    <string name="forgot_password_button_send_link">రీసెట్ లింక్‌ను పంపండి</string>
+    <string name="forgot_password_success_message">పాస్‌వర్డ్ రీసెట్ లింక్ పంపబడింది! దయచేసి మీ ఇమెయిల్ ఇన్‌బాక్స్ (మరియు స్పామ్ ఫోల్డర్) తనిఖీ చేయండి.</string>
+    <string name="action_back_to_login">లాగిన్‌కు తిరిగి వెళ్ళు</string>
+
+    <!-- Forgot Password Error Messages -->
+    <string name="error_password_reset_failed">పాస్‌వర్డ్ రీసెట్ లింక్‌ను పంపడంలో విఫలమైంది. దయచేసి ఇమెయిల్ చిరునామాను తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.</string>
+
+    <!-- Email Verification Screen -->
+    <string name="check_email_title">మీ ఇమెయిల్‌ను ధృవీకరించండి</string>
+    <string name="check_email_instructions_title">మీ ఇన్‌బాక్స్‌ను తనిఖీ చేయండి</string>
+    <string name="check_email_instructions_body">%1$s కు ధృవీకరణ లింక్ పంపబడింది. దయచేసి మీ ఖాతాను సక్రియం చేయడానికి లింక్‌పై క్లిక్ చేయండి. మీకు అది కనిపించకపోతే మీ స్పామ్ ఫోల్డర్‌ను తనిఖీ చేయండి.</string>
+    <string name="check_email_button_check_status">స్థితిని రిఫ్రెష్ చేయండి / నేను ధృవీకరించాను</string>
+    <string name="check_email_button_resend">ధృవీకరణ ఇమెయిల్‌ను మళ్ళీ పంపండి</string>
+    <string name="action_back_to_login_short">లాగిన్‌కు తిరిగి వెళ్ళు</string>
+
+    <!-- Email Verification ViewModel Messages -->
+    <string name="check_email_info_resent_success">%1$s కు ధృవీకరణ ఇమెయిల్ విజయవంతంగా మళ్ళీ పంపబడింది.</string>
+    <string name="check_email_error_resend_failed">ధృవీకరణ ఇమెయిల్‌ను మళ్ళీ పంపడంలో విఫలమైంది. దయచేసి త్వరలో మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="check_email_info_not_yet_verified">మీ ఇమెయిల్ ఇంకా ధృవీకరించబడలేదు. దయచేసి మీ ఇన్‌బాక్స్‌ను తనిఖీ చేయండి లేదా ఇమెయిల్‌ను మళ్ళీ పంపడానికి ప్రయత్నించండి.</string>
+    <string name="check_email_error_status_check_failed">ప్రస్తుతం ఇమెయిల్ ధృవీకరణ స్థితిని తనిఖీ చేయడం సాధ్యపడలేదు. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="error_sending_verification_email">ధృవీకరణ ఇమెయిల్‌ను పంపడంలో విఫలమైంది. దయచేసి మళ్ళీ నమోదు చేసుకోవడానికి ప్రయత్నించండి లేదా మద్దతును సంప్రదించండి.</string>
+    <string name="error_email_not_verified">మీ ఇమెయిల్ చిరునామా ధృవీకరించబడలేదు. దయచేసి మీ ఇన్‌బాక్స్‌ను తనిఖీ చేయండి లేదా దిగువ "ఇమెయిల్‌ను మళ్ళీ పంపండి" క్లిక్ చేయండి.</string>
+
+    <!-- Additional CheckEmailScreen strings -->
+    <string name="error_email_missing_for_verification">ధృవీకరణ ప్రక్రియ కోసం ఇమెయిల్ లేదు.</string>
+    <string name="verification_email_sent">ధృవీకరణ ఇమెయిల్ విజయవంతంగా పంపబడింది.</string>
+    <string name="verification_email_resent">ధృవీకరణ ఇమెయిల్ విజయం వంతంగా మళ్ళీ పంపబడింది.</string>
+    <string name="verification_email_sent_to">%1$s కు ధృవీకరణ ఇమెయిల్ పంపబడింది.</string>
+    <string name="verification_email_sent_generic">ధృవీకరణ ఇమెయిల్ పంపబడింది.</string>
+    <string name="check_spam_folder_instruction">మీకు అది కనిపించకపోతే మీ స్పామ్ లేదా జంక్ ఫోల్డర్‌ను గుర్తుంచుకోండి.</string>
+    <string name="resend_email_countdown">%1$d సె లో మళ్ళీ పంపండి</string>
+    <string name="resend_verification_email_button">ధృవీకరణ ఇమెయిల్‌ను మళ్ళీ పంపండి</string>
+    <string name="error_checking_verification_status">ఇమెయిల్ ధృవీకరణ స్థితిని తనిఖీ చేయడంలో విఫలమైంది. దయచేసి మీరు ఇంటర్నెట్‌కు కనెక్ట్ అయ్యారని నిర్ధారించుకోండి.</string>
+
+    <!-- Farmer Dashboard -->
+    <string name="farmer_dashboard_title">రైతు డాష్‌బోర్డ్</string>
+    <string name="error_generic_loading_failed">డేటా లోడ్ చేయడంలో విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="farmer_dashboard_welcome">స్వాగతం, %1$s!</string>
+    <string name="farmer_dashboard_farm_overview">పొలం అవలోకనం</string>
+    <string name="farmer_dashboard_farm_count">మొత్తం పొలాలు</string>
+    <string name="farmer_dashboard_total_flocks">మొత్తం మందలు</string>
+    <string name="farmer_dashboard_total_birds">మొత్తం పక్షులు</string>
+    <string name="farmer_dashboard_button_my_farms">నా పొలాలను నిర్వహించండి</string>
+    <string name="farmer_dashboard_alerts">ముఖ్యమైన హెచ్చరికలు</string>
+    <string name="farmer_dashboard_health_tips">ఆరోగ్యం &amp; నిర్వహణ చిట్కాలు</string>
+    <string name="farmer_dashboard_quick_actions">త్వరిత చర్యలు</string>
+    <string name="action_refresh">రిఫ్రెష్</string>
+
+    <!-- Buyer Dashboard -->
+    <string name="buyer_dashboard_title">హోమ్</string>
+    <string name="buyer_dashboard_welcome">నమస్కారం, %1$s!</string>
+    <string name="buyer_dashboard_featured_products">ఫీచర్ చేసిన ఉత్పత్తులు</string>
+    <string name="buyer_dashboard_browse_categories">వర్గాలను బ్రౌజ్ చేయండి</string>
+    <string name="buyer_dashboard_recent_orders">మీ ఇటీవలి ఆర్డర్‌లు</string>
+    <string name="buyer_dashboard_view_all_orders">అన్ని ఆర్డర్‌లను చూడండి</string>
+    <string name="buyer_dashboard_goto_marketplace">పూర్తి మార్కెట్‌ప్లేస్‌ను అన్వేషించండి</string>
+    <string name="order_id_prefix">ఆర్డర్ #%1$s</string>
+    <string name="order_date_prefix">తేదీ: %1$s</string>
+
+    <!-- Admin Dashboard -->
+    <string name="admin_dashboard_title">అడ్మిన్ డాష్‌బోర్డ్</string>
+    <string name="admin_dashboard_welcome">స్వాగతం, %1$s</string>
+    <string name="admin_dashboard_critical_alerts">క్లిష్టమైన హెచ్చరికలు</string>
+    <string name="admin_dashboard_system_stats">సిస్టమ్ గణాంకాలు</string>
+    <string name="admin_dashboard_user_activity">వినియోగదారు కార్యాచరణ</string>
+    <string name="admin_dashboard_active_users">క్రియాశీల వినియోగదారులు</string>
+    <string name="admin_dashboard_new_registrations">కొత్త రిజిస్ట్రేషన్లు (ఈరోజు)</string>
+    <string name="admin_dashboard_total_users">మొత్తం వినియోగదారులు</string>
+    <string name="admin_dashboard_content_moderation">కంటెంట్ మోడరేషన్</string>
+    <string name="admin_dashboard_pending_reports">పెండింగ్‌లో ఉన్న నివేదికలు</string>
+    <string name="admin_dashboard_resolved_today">ఈరోజు పరిష్కరించబడినవి</string>
+
+    <!-- Veterinarian Dashboard -->
+    <string name="vet_dashboard_title">పశువైద్యుల కేంద్రం</string>
+    <string name="vet_dashboard_welcome">స్వాగతం, డా. %1$s</string>
+    <string name="vet_dashboard_pending_consultations">పెండింగ్‌లో ఉన్న సంప్రదింపు అభ్యర్థనలు</string>
+    <string name="vet_dashboard_no_pending_consultations">ప్రస్తుతం పెండింగ్‌లో సంప్రదింపు అభ్యర్థనలు లేవు.</string>
+    <string name="vet_dashboard_upcoming_appointments">రాబోయే అపాయింట్‌మెంట్‌లు</string>
+    <string name="vet_dashboard_farm_health_alerts">ఇటీవలి వ్యవసాయ ఆరోగ్య హెచ్చరికలు</string>
+    <string name="vet_dashboard_requested_at">అభ్యర్థించినది: %1$s</string>
+    <string name="vet_dashboard_appointment_time_type">%1$s - %2$s</string>
+    <string name="vet_dashboard_alert_severity">తీవ్రత: %1$s</string>
+
+    <!-- Farm List Screen & ViewModel -->
+    <string name="farm_list_title">నా పొలాలు</string>
+    <string name="farm_list_add_farm_fab_desc">కొత్త పొలాన్ని జోడించండి</string>
+    <string name="farm_list_no_farms_message">మీరు ఇంకా ఏ పొలాలను జోడించలేదు. ప్రారంభించడానికి \'+\' బటన్‌ను నొక్కండి!</string>
+    <string name="farm_list_item_stats">%1$d మందలు, %2$d పక్షులు</string>
+    <string name="farm_list_view_details_desc">పొలం వివరాలను చూడండి</string>
+    <string name="error_user_not_authenticated">వినియోగదారు ప్రమాణీకరించబడలేదు. దయచేసి లాగిన్ చేయండి.</string>
+    <string name="error_failed_to_load_farms">మీ పొలాలను లోడ్ చేయడంలో విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+    <string name="farm_list_empty_tap_add">మీ వద్ద ప్రస్తుతం పొలాలు లేవు. ఒకదాన్ని జోడించడానికి \'+\' నొక్కండి!</string>
+
+    <!-- Add Farm Screen & ViewModel -->
+    <string name="add_farm_title">కొత్త పొలాన్ని జోడించండి</string>
+    <string name="add_farm_instructions">దయచేసి మీ కొత్త పొలం వివరాలను క్రింద నమోదు చేయండి.</string>
+    <string name="add_farm_name_label">పొలం పేరు</string>
+    <string name="add_farm_location_label">స్థానం (ఉదా., గ్రామం, మండలం, జిల్లా)</string>
+    <string name="add_farm_area_label">ప్రాంత పరిమాణం</string>
+    <string name="add_farm_unit_label">యూనిట్ (ఉదా., ఎకరాలు, చ.మీ)</string>
+    <string name="add_farm_notes_label">గమనికలు</string>
+    <string name="add_farm_button_save">పొలాన్ని సేవ్ చేయండి</string>
+    <string name="error_farm_creation_failed">పొలాన్ని సృష్టించడంలో విఫలమైంది. దయచేసి మళ్ళీ ప్రయత్నించండి.</string>
+
+    <!-- Farm Details Screen -->
+    <string name="farm_details_title_loading">పొలం లోడ్ అవుతోంది…</string>
+    <string name="action_edit_farm">పొలాన్ని సవరించండి</string>
+    <string name="farm_details_not_found">పొలం వివరాలు కనుగొనబడలేదు.</string>
+    <string name="farm_details_section_info">పొలం సమాచారం</string>
+    <string name="farm_details_name">పేరు</string>
+    <string name="farm_details_location">స్థానం</string>
+    <string name="farm_details_area">ప్రాంతం</string>
+    <string name="farm_details_established">స్థాపించిన తేదీ</string>
+    <string name="farm_details_notes">గమనికలు</string>
+    <string name="farm_details_section_flocks">మందలు</string>
+    <string name="farm_details_button_manage_flocks">మందలను నిర్వహించండి</string>
+    <string name="farm_details_no_flocks">ఈ పొలానికి ఇంకా మందలు జోడించబడలేదు.</string>
+    <string name="farm_details_view_all_flocks_button">అన్ని %1$d మందలను చూడండి</string>
+    <string name="flock_unnamed">పేరులేని మంద</string>
+    <string name="flock_teaser_details">%1$s - %2$d క్రియాశీల పక్షులు</string>
+    <string name="action_view_details">వివరాలు చూడండి</string>
+
+    <!-- Flock Management Screen -->
+    <string name="flock_management_title">మందలను నిర్వహించండి</string>
+    <string name="flock_management_title_for_farm">%1$s కోసం మందలు</string>
+    <string name="flock_management_add_flock_fab">కొత్త మందను జోడించండి</string>
+    <string name="flock_management_no_flocks">ఈ పొలానికి మందలు కనుగొనబడలేదు. ఒకదాన్ని జోడించడానికి \'+\' నొక్కండి.</string>
+    <string name="flock_icon_desc">మంద చిహ్నం</string>
+    <string name="flock_list_item_details">%1$s (%2$s) - %3$d క్రియాశీల పక్షులు</string>
+</resources>

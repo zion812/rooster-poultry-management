@@ -1,0 +1,10 @@
+# Base requirements
+Flask==3.0.0
+Flask-CORS==4.0.0 # For Cross-Origin Resource Sharing
+requests==2.31.0 # For making HTTP requests to weather API
+PyJWT==2.8.0 # For JWT handling
+
+# Potential future additions:
+# - Database ORM (e.g., SQLAlchemy, Peewee)
+# - Data analysis libraries (e.g., pandas, numpy)
+# - Graphing libraries (e.g., matplotlib, plotly)

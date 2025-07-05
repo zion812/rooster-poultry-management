@@ -1,0 +1,29 @@
+{
+  "name": "rooster-marketplace-cloud",
+  "version": "1.0.0",
+  "description": "Parse Cloud Code for Rooster Poultry Marketplace with Enhanced Auction System",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"No tests specified\" && exit 0",
+    "deploy": "parse deploy"
+  },
+  "dependencies": {
+    "parse": "^4.2.0"
+  },
+  "devDependencies": {
+    "parse-server": "^6.2.0"
+  },
+  "keywords": [
+    "parse",
+    "cloud-code",
+    "poultry",
+    "marketplace",
+    "auction",
+    "bidding"
+  ],
+  "author": "Rooster Marketplace Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

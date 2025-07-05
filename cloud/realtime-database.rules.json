@@ -1,0 +1,90 @@
+{
+  "rules": {
+    // Default deny all access
+    ".read": false,
+    ".write": false,
+
+    // Example: User-specific data for farm feature
+    // Assumes data is stored under a path like /farmDetails/UID/...
+    "farmDetails": {
+      "$uid": {
+        // Only the authenticated user ($uid) can read/write their own farm details
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        // Further nesting for different farm aspects can have more granular rules
+        // e.g., flocks, sensorData, etc. if they are under this user's path
+        "flocks": {
+          "$flockId": {
+            // Validation for flock fields
+            ".validate": "newData.hasChildren(['id', 'ownerId', 'type', 'name']) &&
+              newData.child('ownerId').val() == auth.uid &&
+              newData.child('type').isString() &&
+              newData.child('name').isString() &&
+              newData.child('ownerId').isString() &&
+              (!newData.child('certified').exists() || newData.child('certified').isBoolean()) &&
+              (!newData.child('verified').exists() || newData.child('verified').isBoolean()) &&
+              (!newData.child('weight').exists() || newData.child('weight').isNumber()) &&
+              (!newData.child('createdAt').exists() || newData.child('createdAt').isNumber()) &&
+              (!newData.child('updatedAt').exists() || newData.child('updatedAt').isNumber())"
+          }
+        },
+        "sensorData": {
+          // Rules for sensorData, perhaps allowing writes from specific devices if needed
+        }
+      }
+    },
+
+    "marketplace": {
+      "listings": {
+        "$listingId": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === data.child('ownerId').val()",
+          ".validate": "newData.child('ownerId').isString() && newData.child('title').isString() && newData.child('price').isNumber() && newData.child('status').isString()"
+        }
+      },
+      "orders": {
+        "$orderId": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === data.child('buyerId').val()",
+          ".validate": "newData.child('buyerId').isString() && newData.child('listingId').isString() && newData.child('amount').isNumber() && newData.child('status').isString()"
+        }
+      }
+    },
+    "auctions": {
+      "$auctionId": {
+        ".read": "true",
+        ".write": "auth != null && auth.uid === data.child('sellerId').val()",
+        ".validate": "newData.child('sellerId').isString() && newData.child('title').isString() && newData.child('startTime').isNumber() && newData.child('endTime').isNumber()"
+      },
+      "bids": {
+        "$bidId": {
+          ".read": "true",
+          ".write": "auth != null && auth.uid === newData.child('bidderId').val()",
+          ".validate": "newData.child('auctionId').isString() && newData.child('bidderId').isString() && newData.child('bidAmount').isNumber() && newData.child('bidTime').isNumber()"
+        }
+      },
+      "winners": {
+        "$winnerId": {
+          ".read": "true",
+          ".write": "auth != null",
+          ".validate": "newData.child('auctionId').isString() && newData.child('winnerId').isString() && newData.child('amount').isNumber()"
+        }
+      }
+    }
+
+    // Example: Publicly readable configuration data if needed
+    // "publicConfig": {
+    //   ".read": true,
+    //   ".write": false // Or admin only
+    // }
+
+    // If ChickenRecord data is in Realtime DB and needs separate rules:
+    // "ChickenRecord": {
+    //   "$birdId": {
+    //      // Assuming each bird has an ownerId
+    //     ".read": "auth != null && root.child('ChickenRecord/' + $birdId + '/ownerId').val() == auth.uid",
+    //     ".write": "auth != null && root.child('ChickenRecord/' + $birdId + '/ownerId').val() == auth.uid"
+    //   }
+    // }
+  }
+}

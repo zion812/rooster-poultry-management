@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Core App Strings -->
+    <string name="app_name">రూస్టర్</string>
+    <string name="login">లాగిన్</string>
+    <string name="register">నమోదు</string>
+    <string name="logout">లాగ్ అవుట్</string>
+    <string name="phone_number">ఫోన్ నంబర్</string>
+    <string name="enter_phone_number">ఫోన్ నంబర్ నమోదు చేయండి</string>
+    <string name="login_button">లాగిన్</string>
+    <string name="home">హోమ్</string>
+    <string name="marketplace">మార్కెట్‌ప్లేస్</string>
+    <string name="profile">ప్రోఫైల్</string>
+    <string name="settings">సెట్టింగ్‌లు</string>
+
+    <!-- Farmer Dashboard -->
+    <string name="farmer_home_title">రైతు డాష్‌బోర్డ్</string>
+    <string name="current_weather_title">ప్రస్తుత వాతావరణం</string>
+    <string name="farm_health_alerts_title">వ్యవసాయ ఆరోగ్య హెచ్చరికలు</string>
+    <string name="farm_info_title">వ్యవసాయ సమాచారం</string>
+    <string name="production_metrics_title">ఉత్పాదక మెట్రిక్స్</string>
+    <string name="quick_actions_title">త్వరిత చర్యలు</string>
+
+    <!-- Weather Information -->
+    <string name="weather_location_prefix">స్థానం:</string>
+    <string name="weather_temperature_prefix">ఉష్ణోగ్రత:</string>
+    <string name="weather_humidity_prefix">తేమ:</string>
+    <string name="weather_precipitation_prefix">వర్షపాతం:</string>
+    <string name="weather_wind_speed_prefix">గాలి వేగం:</string>
+    <string name="weather_description_prefix">వివరణ:</string>
+
+    <!-- Farm Information -->
+    <string name="farm_info_name_prefix">పేరు:</string>
+    <string name="farm_info_location_prefix">స్థానం:</string>
+    <string name="farm_info_owner_prefix">యజమాని:</string>
+    <string name="farm_info_active_flocks_prefix">క్రియాశీల మందలు:</string>
+    <string name="farm_info_total_capacity_prefix">మొత్తం సామర్థ్యం:</string>
+    <string name="farm_info_birds_suffix">పక్షులు</string>
+
+    <!-- Production Metrics -->
+    <string name="production_total_flocks_prefix">మొత్తం మందలు:</string>
+    <string name="production_active_birds_prefix">క్రియాశీల పక్షులు:</string>
+    <string name="production_eggs_today_prefix">నేడు గుడ్లు:</string>
+    <string name="production_eggs_suffix">గుడ్లు</string>
+    <string name="production_mortality_rate_prefix">వారపు మరణాల రేటు:</string>
+
+    <!-- Quick Actions -->
+    <string name="quick_action_log_mortality">మరణాలను నమోదు చేయండి</string>
+    <string name="quick_action_record_feeding">దాణా వేయడం నమోదు చేయండి</string>
+    <string name="quick_action_market_prices">మార్కెట్ ధరలు</string>
+    <string name="quick_action_add_flock">కొత్త మంద జోడించండి</string>
+
+    <!-- Health Alerts -->
+    <string name="alert_severity_prefix">తీవ్రత:</string>
+    <string name="alert_recommendation_prefix">సిఫార్సు:</string>
+    <string name="alert_time_prefix">సమయం:</string>
+    <string name="alert_mark_as_read_button">చదివినట్లు గుర్తించండి</string>
+
+    <!-- Common Actions -->
+    <string name="retry_button">మళ్లీ ప్రయత్నించండి</string>
+    <string name="save_button">సేవ్ చేయండి</string>
+    <string name="cancel">రద్దు చేయండి</string>
+    <string name="ok">సరే</string>
+    <string name="loading">లోడ్ అవుతోంది...</string>
+    <string name="refresh">రిఫ్రెష్</string>
+
+    <!-- Error Messages -->
+    <string name="error_prefix">లోపం:</string>
+    <string name="offline_banner_message">మీరు ప్రస్తుతం ఆఫ్‌లైన్‌లో ఉన్నారు. కొన్ని డేటా పాతవై ఉండవచ్చు.</string>
+
+    <!-- Status Messages -->
+    <string name="status_pending">పెండింగ్</string>
+    <string name="status_in_progress">ప్రగతిలో</string>
+    <string name="status_resolved">పరిష్కరించబడింది</string>
+    <string name="status_delivered">డెలివరీ అయింది</string>
+
+    <!-- Severity Levels -->
+    <string name="severity_critical">క్లిష్టమైనది</string>
+    <string name="severity_high">అధికం</string>
+    <string name="severity_medium">మధ్యస్థం</string>
+    <string name="severity_low">తక్కువ</string>
+
+    <!-- Buyer Dashboard -->
+    <string name="buyer_home_title">కొనుగోలుదారు డాష్‌బోర్డ్</string>
+    <string name="recommendations_title">మీ కోసం సిఫార్సులు</string>
+    <string name="recent_orders_title">ఇటీవలి ఆర్డర్‌లు</string>
+    <string name="price_watch_title">ధర వీక్షణ</string>
+    <string name="top_suppliers_title">టాప్ సప్లయర్‌లు</string>
+
+    <!-- Admin Dashboard -->
+    <string name="admin_home_title">అడ్మిన్ డాష్‌బోర్డ్</string>
+    <string name="system_status_title">సిస్టమ్ స్థితి</string>
+    <string name="user_overview_title">వినియోగదారు సమీక్ష</string>
+    <string name="financial_snapshot_title">ఆర్థిక స్నాప్‌షాట్</string>
+
+    <!-- Vet Dashboard -->
+    <string name="vet_home_title">వెట్ డాష్‌బోర్డ్</string>
+    <string name="consultation_queue_title">కన్సల్టేషన్ క్యూ (%1$d పెండింగ్)</string>
+    <string name="recent_patients_title">ఇటీవలి రోగులు</string>
+    <string name="vet_health_alerts_title">క్రియాశీల్ ఆరోగ్య హెచ్చరికలు</string>
+
+    <!-- General Terms -->
+    <string name="telugu">తెలుగు</string>
+    <string name="welcome">స్వాగతం</string>
+    <string name="thanks">ధన్యవాదాలు!</string>
+    <string name="success">విజయం</string>
+</resources>

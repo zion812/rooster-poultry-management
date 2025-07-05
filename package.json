@@ -1,0 +1,77 @@
+{
+  "name": "rooster-poultry-management",
+  "version": "1.0.0",
+  "description": "Comprehensive poultry farm management application with MCP integration",
+  "scripts": {
+    "setup-mcps": "bash setup-mcps.sh",
+    "install-mcps": "bash install-all-mcps.sh",
+    "test-mcps": "bash test-all-mcps.sh",
+    "health-check": "bash mcp-health-check.sh",
+    "start-all-mcps": "bash run-all-mcps.sh",
+    "stop-all-mcps": "bash stop-all-mcps.sh",
+    "status-mcps": "bash check-mcps-status.sh",
+    "verify-mcps": "node final-mcp-check.js",
+    "start-filesystem-mcp": "npx @modelcontextprotocol/server-filesystem .",
+    "start-memory-mcp": "npx @modelcontextprotocol/server-memory",
+    "start-puppeteer-mcp": "npx @modelcontextprotocol/server-puppeteer",
+    "start-github-mcp": "npx @modelcontextprotocol/server-github",
+    "start-back4app-mcp": "node mcp-back4app-server.js",
+    "start-sequential-thinking-mcp": "npx @modelcontextprotocol/server-sequential-thinking",
+    "test-back4app": "node mcp-back4app-server.js",
+    "build": "./gradlew assembleDebug",
+    "test": "./gradlew testDebugUnitTest",
+    "lint": "./gradlew lintDebug",
+    "clean": "./gradlew clean",
+    "install-app": "./gradlew installDebug"
+  },
+  "devDependencies": {
+    "@back4app/mcp-server-back4app": "^0.1.6",
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "@modelcontextprotocol/server-filesystem": "^2025.3.28",
+    "@modelcontextprotocol/server-github": "^2025.4.8",
+    "@modelcontextprotocol/server-memory": "^2025.4.25",
+    "@modelcontextprotocol/server-puppeteer": "^2025.1.0",
+    "@modelcontextprotocol/server-sequential-thinking": "^0.6.2",
+    "@playwright/test": "^1.52.0"
+  },
+  "keywords": [
+    "poultry",
+    "farm-management",
+    "android",
+    "mcp",
+    "rural-technology",
+    "telugu",
+    "firebase",
+    "real-time",
+    "2g-optimized"
+  ],
+  "author": "Rooster Development Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rooster-team/poultry-management.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rooster-team/poultry-management/issues"
+  },
+  "homepage": "https://github.com/rooster-team/poultry-management#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "config": {
+    "ruralOptimization": true,
+    "teluguLocalization": true,
+    "networkOptimization": "2G/3G",
+    "targetDevices": "low-end-android"
+  },
+  "dependencies": {
+    "@react-navigation/bottom-tabs": "^7.4.2",
+    "@react-navigation/native": "^7.1.14",
+    "@react-navigation/stack": "^7.4.2",
+    "react-native-qrcode-svg": "^6.3.15",
+    "react-native-safe-area-context": "^5.5.1",
+    "react-native-screens": "^4.11.1",
+    "react-native-svg": "^15.12.0"
+  }
+}

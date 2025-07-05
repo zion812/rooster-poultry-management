@@ -1,0 +1,94 @@
+{
+  "mcpServers": {
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MEMORY_FILE_PATH": "${HOME}/rooster-poultry-management-3/"
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "env": {}
+    },
+    "mcp-compass": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@liuyoshio/mcp-compass"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-puppeteer"
+      ],
+      "env": {}
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${HOME}/rooster-poultry-management-3/"
+      ],
+      "env": {}
+    },
+    "fetch": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_server_fetch"
+      ],
+      "env": {}
+    },
+    "back4app": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@back4app/mcp-server-back4app@latest"
+      ],
+      "env": {
+        "BACK4APP_APPLICATION_ID": "${BACK4APP_APPLICATION_ID}",
+        "BACK4APP_ACCOUNT_KEY": "${BACK4APP_ACCOUNT_KEY}",
+        "BACK4APP_CLIENT_KEY": "${BACK4APP_CLIENT_KEY}",
+        "NODE_OPTIONS": "--max-old-space-size=1024 --optimize-for-size",
+        "MCP_BACK4APP_POOL_SIZE": "20",
+        "MCP_BACK4APP_TIMEOUT": "15000",
+        "MCP_BACK4APP_RETRY_COUNT": "3",
+        "MCP_BACK4APP_CACHE": "true"
+      }
+    },
+    "time": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-time"
+      ],
+      "env": {}
+    },
+    "mcp-playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server"
+      ],
+      "env": {}
+    }
+  }
+}

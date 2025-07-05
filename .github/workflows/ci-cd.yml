@@ -1,0 +1,400 @@
+name: 🚀 Enterprise CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '17'
+  ANDROID_API_LEVEL: 35
+  ANDROID_BUILD_TOOLS_VERSION: '35.0.0'
+
+jobs:
+  # ==========================================
+  # Code Quality & Security Analysis
+  # ==========================================
+  code_quality:
+    name: 🔍 Code Quality Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ☕ Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: 🐘 Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: wrapper
+
+      - name: 🔧 Cache Gradle Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: 🧹 Run Ktlint
+        run: ./gradlew ktlintCheck
+
+      - name: 🔍 Run Detekt
+        run: ./gradlew detekt
+
+      - name: 📊 Run SonarQube Analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew sonarqube
+
+      - name: 📝 Upload Code Quality Reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: code-quality-reports
+          path: |
+            app/build/reports/ktlint/
+            app/build/reports/detekt/
+            build/reports/sonar/
+
+  # ==========================================
+  # Unit Tests & Code Coverage
+  # ==========================================
+  unit_tests:
+    name: 🧪 Unit Tests & Coverage
+    runs-on: ubuntu-latest
+    needs: code_quality
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: 🐘 Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: 🔧 Cache Gradle Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: 🧪 Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: 📊 Generate Code Coverage Report
+        run: ./gradlew jacocoTestReport
+
+      - name: 📤 Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          flags: unittests
+          name: codecov-umbrella
+
+      - name: 📝 Upload Test Reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: unit-test-reports
+          path: |
+            app/build/reports/tests/
+            app/build/reports/jacoco/
+
+  # ==========================================
+  # Android Instrumented Tests
+  # ==========================================
+  instrumented_tests:
+    name: 🤖 Android Instrumented Tests
+    runs-on: macos-latest
+    needs: unit_tests
+    strategy:
+      matrix:
+        api-level: [ 24, 28, 33 ]
+        target: [ default, google_apis ]
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: 🐘 Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: 🔧 Cache Gradle Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: 🔧 Cache AVD
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}-${{ matrix.target }}
+
+      - name: 🤖 Create AVD and Generate Snapshot
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: 🧪 Run Instrumented Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: ./gradlew connectedDebugAndroidTest
+
+      - name: 📝 Upload Instrumented Test Reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: instrumented-test-reports-api-${{ matrix.api-level }}
+          path: app/build/reports/androidTests/
+
+  # ==========================================
+  # Security Vulnerability Scan
+  # ==========================================
+  security_scan:
+    name: 🔒 Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    needs: code_quality
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Run Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'Rooster-App'
+          path: '.'
+          format: 'HTML'
+          out: 'reports'
+
+      - name: 📤 Upload Security Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: reports/
+
+  # ==========================================
+  # Build & Package
+  # ==========================================
+  build:
+    name: 🏗️ Build APK & AAB
+    runs-on: ubuntu-latest
+    needs: [ unit_tests, security_scan ]
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: 🐘 Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: 🔧 Cache Gradle Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: 🔑 Setup Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        if: env.KEYSTORE_BASE64 != ''
+        run: |
+          echo $KEYSTORE_BASE64 | base64 -d > app/keystore.jks
+
+      - name: 🏗️ Build Debug APK
+        run: ./gradlew assembleDebug
+
+      - name: 🏗️ Build Release APK
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
+
+      - name: 📦 Build AAB (Android App Bundle)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew bundleRelease
+
+      - name: 📤 Upload Debug APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+
+      - name: 📤 Upload Release APK
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/*.apk
+
+      - name: 📤 Upload AAB
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-aab
+          path: app/build/outputs/bundle/release/*.aab
+
+  # ==========================================
+  # Performance Analysis
+  # ==========================================
+  performance_analysis:
+    name: ⚡ Performance Analysis
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Debug APK
+        uses: actions/download-artifact@v3
+        with:
+          name: debug-apk
+          path: apk/
+
+      - name: 🔍 APK Analysis
+        run: |
+          echo "Analyzing APK size and composition..."
+          ls -la apk/
+          # Add APK analysis tools here
+
+      - name: 📊 Generate Performance Report
+        run: |
+          echo "Generating performance metrics..."
+          # Add performance analysis here
+
+  # ==========================================
+  # Firebase App Distribution (Beta)
+  # ==========================================
+  firebase_distribution:
+    name: 🔥 Firebase App Distribution
+    runs-on: ubuntu-latest
+    needs: [ build, instrumented_tests ]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main')
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Debug APK
+        uses: actions/download-artifact@v3
+        with:
+          name: debug-apk
+          path: apk/
+
+      - name: 🔥 Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          groups: testers
+          file: apk/app-debug.apk
+          releaseNotes: |
+            🚀 New build from ${{ github.ref }}
+            📝 Commit: ${{ github.sha }}
+            👤 Author: ${{ github.actor }}
+
+  # ==========================================
+  # Google Play Store Deployment
+  # ==========================================
+  play_store_deploy:
+    name: 🏪 Google Play Store Deploy
+    runs-on: ubuntu-latest
+    needs: [ build, instrumented_tests, performance_analysis ]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Release AAB
+        uses: actions/download-artifact@v3
+        with:
+          name: release-aab
+          path: aab/
+
+      - name: 🏪 Deploy to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+          packageName: com.example.rooster
+          releaseFiles: aab/*.aab
+          track: internal
+          status: completed
+
+  # ==========================================
+  # Notification & Cleanup
+  # ==========================================
+  notify_success:
+    name: 📢 Success Notification
+    runs-on: ubuntu-latest
+    needs: [ build, firebase_distribution ]
+    if: success()
+    steps:
+      - name: 🎉 Notify Success
+        run: |
+          echo "✅ Pipeline completed successfully!"
+          echo "🚀 Build artifacts are ready for deployment"
+
+  notify_failure:
+    name: 📢 Failure Notification
+    runs-on: ubuntu-latest
+    needs: [ code_quality, unit_tests, instrumented_tests, security_scan, build ]
+    if: failure()
+    steps:
+      - name: ❌ Notify Failure
+        run: |
+          echo "❌ Pipeline failed!"
+          echo "🔍 Check the logs for details"

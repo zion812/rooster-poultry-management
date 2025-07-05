@@ -1,0 +1,61 @@
+# Rooster App: Updated Next Steps (Aligned with User Vision)
+
+Based on reconciling your detailed vision with the technical status reports, here are the updated next steps, focusing on bridging the gap and achieving your full requirements:
+
+**Immediate Priority: Establish Accurate Baseline**
+
+*   **Action 1: Confirm Current Technical Status:** Before proceeding, it's crucial to get a definitive, verified status update from the development team on:
+    *   The *actual* completion level of Phase 4 features (Live Broadcast, Vet Consult, Events, Polls) vs. the user vision requirements.
+    *   The *true* status of the `DataSyncWorker` and the Hilt/KSP build issue.
+    *   The readiness of features like Family Tree (with real data) and Auctions.
+*   **Rationale:** Avoids building plans on potentially inaccurate reports (like the optimistic auto-mode one) and ensures efforts align with reality.
+
+**Priority 2: Address Core User Vision Gaps**
+
+*   **Action 2.1: Detailed Traceability & Listing:**
+    *   **Task:** Design and implement the specific listing flow outlined (Traceable vs. Non-Traceable, fields per age group, proof requirements, verification by lister).
+    *   **Dependency:** Requires significant frontend and backend work, including resolving the Family Tree backend bottleneck for pedigree data.
+*   **Action 2.2: Comprehensive High-Level Dashboard:**
+    *   **Task:** Plan and develop the detailed dashboard features (farm/brand registration, batch management, full lifecycle tracking, analytics).
+    *   **Approach:** Recommend breaking this down into smaller, iterative releases due to its complexity.
+*   **Action 2.3: Verification Workflows:**
+    *   **Task:** Design and implement the KYC process for Farmer verification and the platform-driven verification for High-Level Farms/Brands.
+    *   **Consideration:** Requires backend logic and potentially administrative tools/processes.
+
+**Priority 3: Unblock Key Features & Stabilize**
+
+*   **Action 3.1: Resolve Backend Bottleneck:** Prioritize allocating backend resources to implement the endpoints needed for the Family Tree (real data) and Auction features.
+*   **Action 3.2: Fix `DataSyncWorker`:** Resolve the build issue to ensure robust offline capabilities, which is vital for rural users.
+*   **Action 3.3: Complete Phase 4 (to User Spec):** Finish any remaining work on Phase 4 features to meet the *functional requirements* implied by the user vision, not just basic scaffolding.
+
+**Priority 4: Re-evaluate UAT Scope & Timing**
+
+*   **Action 4.1: Adjust UAT Plan:** Based on the *confirmed* status (Action 1), redefine the scope and goals for the upcoming Beta/UAT. Test features that are genuinely complete and align with key user flows from the vision.
+*   **Action 4.2: Address Translations:** Ensure the translation backlog is handled before UAT, focusing on languages critical for the initial testers.
+
+## Next Step 5: Formulate Targeted Questions for Development Team
+
+1. **High-Level Dashboard**  
+   • Can you expose metrics for pending user/farm verifications (queue size, avg. turnaround, failure rate)?  
+   • Add commission/revenue stats (total earned, by region/date).  
+   • Surface dispute/fraud flags (open cases, resolution times).  
+   • Provide an “Actions” widget so admins can approve/reject verifications and send reminders.
+2. **User/Farm Verification**  
+   • Implement activity-based farmer verification: after registration (phone + flock size), they become “verified” only once they’ve listed & monitored ≥1 month of chickens.  
+   • How do we track & surface that “activity progress”? What thresholds mark pass/fail?
+3. **Marketplace Bidding & Post-Auction Flow**  
+   • Enable seller to configure auction: min-price, duration (12h, 24h, up to 7d), deposit% (5–25%).  
+   • Show bid breakdown (below/above min, bid tokens collected).  
+   • After auction ends: winner has 10 min to pay (full online, full COD, or split); if they fail, forfeit deposit → next bidder.  
+   • Add UI and backend support for cascade-payment logic.
+4. **Fixed-Price Listings**  
+   • For direct purchases: buyer picks quantity, price, deadline (date/time).  
+   • What UI/workflow should confirm payment method and arrange delivery?
+5. **Community Roles & Moderation**  
+   • Farmers: chat, posts, polls only.  
+   • High-Level: live broadcasts, create forums/groups/contests, full moderation (report, warn, ban).  
+   • Reputation: how is score calculated, displayed, and what privileges does it unlock?
+
+**Recommendation:**
+
+Adopt an iterative approach. Focus on confirming the baseline, then tackle the highest-priority gaps from the user vision (perhaps starting with the detailed listing/traceability flow or a core part of the dashboard) while simultaneously working to unblock backend dependencies and stabilize the build. Adjust the UAT plan to test what is realistically available and gather feedback to inform the next iteration.

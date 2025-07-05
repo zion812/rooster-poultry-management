@@ -1,0 +1,30 @@
+name: CLP Security Gate
+on:
+  pull_request:
+    paths:
+      - 'docs/audit/clp_report_*.csv'
+  schedule:
+    - cron: '0 3 * * *'
+
+jobs:
+  check-clp:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Fail if OPEN_CLP exists
+        run: |
+          latest=$(ls docs/audit/clp_report_*.csv | sort | tail -n1)
+          echo "Checking $latest for OPEN_CLP…"
+          if grep -q 'OPEN_CLP' "$latest"; then
+            echo '🚨 OPEN CLP permissions found. Fix before merge.'
+            exit 1
+          else
+            echo '✅ No open CLP detected.'
+          fi
+      - name: Notify Slack on failure
+        if: failure()
+        env:
+          CI_SLACK_HOOK: ${{ secrets.CI_SLACK_HOOK }}
+        run: |
+          scripts/notify.sh "🔴 Rooster CLP gate failed on ${{ github.workflow }} – check report" "#security-alerts"

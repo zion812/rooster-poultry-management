@@ -1,0 +1,39 @@
+# Rooster App: Updated Implementation Status (June 1st, 2025)
+
+This summary incorporates the latest updates you provided from the development team, offering a current snapshot of the project's status, priorities, and challenges.
+
+**Overall Status:**
+
+While previously declared "Production Ready" after initial stabilization, the project is actively in development, focusing on completing core features (Phase 4) and preparing for wider testing (Beta/UAT). Key infrastructure issues (like `DataSyncWorker`) are temporarily deferred but recognized as necessary fixes.
+
+**Current Focus & Active Development:**
+
+*   **Phase 4 Features:**
+    *   **High Priority:** Finishing **Live Broadcast** (implementing streaming toggle & FCM notifications) and **Vet Consultation** (implementing photo + date request functionality). Target for basic QA: ~1 week.
+    *   **Medium Priority:** Completing **Events & Polls** (UI scaffolded, business logic ~30% complete). Target for basic QA: ~2 weeks.
+*   **Testing:** Internal alpha testing conducted on emulators and limited devices (Redmi 7), showing acceptable performance under simulated 2G conditions. Formal Beta/UAT with 20-50 farmers is scheduled for June 6th-8th.
+
+**Deferred / Pending Tasks:**
+
+*   **`DataSyncWorker` / Build Stability:** The worker remains commented out due to unresolved Hilt/KSP compilation errors (WorkerParameters/Result generics). This is **medium priority** and will be revisited *after* Phase 4 screens compile cleanly.
+*   **Lint Baseline Issues:** Non-critical items (52 missing translations, deprecated Material3 APIs) are **deferred** until a code freeze before UAT. They will be addressed in a batch.
+*   **Feature Refinement:**
+    *   **Family Tree:** UI uses mock data, awaiting implementation of the real recursive backend query (blocked by backend bandwidth).
+    *   **Public Bird Preview:** Backend Cloud Function is done; the simple HTML frontend page is ~20% complete.
+    *   **Auction Logic:** Basic logic stubbed, but requires backend validation before enabling fully.
+    *   **Dashboard Charts:** Implementation pending (likely dependent on underlying data/logic completion).
+*   **Performance Testing:** Scripts are ready, but formal testing on a physical low-end device fleet has not yet been run.
+
+**Current Top Priorities:**
+
+1.  **Complete Phase 4 Screens:** Make Live Broadcast, Vet Consultation, Events, and Polls fully functional.
+2.  **Restore `DataSyncWorker`:** Fix the Hilt/KSP issues and ensure a clean, stable build with the worker integrated.
+3.  **Prepare Beta/UAT Build:** Ensure translations are addressed (or a strategy is in place), Crashlytics events are integrated, and 2G performance is verified before the scheduled testing (June 6-8).
+
+**Identified Blockers & Challenges:**
+
+*   **Backend Bandwidth:** Limited backend developer resources are slowing down the implementation of real-data endpoints needed for Family Tree and Auction features.
+*   **Build Dependencies:** Investigating a version clash between KSP/Hilt and AndroidX WorkManager 2.9, which is likely related to the `DataSyncWorker` issue.
+*   **Translation Backlog:** The 52 missing translations could delay the UAT if not addressed efficiently (potentially requiring parallel effort).
+
+This updated status provides a clearer view of active workstreams, dependencies, and near-term goals.

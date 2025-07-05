@@ -1,0 +1,2622 @@
+package com.example.rooster
+
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.os.Build
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.example.rooster.ui.theme.RoosterTheme
+import com.example.rooster.VetConsultationScreen
+import com.example.rooster.IoTIntegrationScreen
+import com.example.rooster.ui.AuctionListingScreen
+import com.example.rooster.ui.BidHistoryDialog
+import com.example.rooster.ui.CODConfirmationScreen
+import com.example.rooster.ui.CertificationRequestScreen
+import com.example.rooster.ui.EventsAndElectsScreen
+import com.example.rooster.ui.FamilyTreeTransferScreen
+import com.example.rooster.ui.FeedbackFormSheet
+import com.example.rooster.ui.FlockDashboardScreen
+import com.example.rooster.ui.LiveBroadcastScreen
+import com.example.rooster.ui.OrderDetailScreen
+import com.example.rooster.ui.OrderHistoryScreen
+import com.example.rooster.ui.VaccinationTemplateUploader
+import com.example.rooster.ui.dispute.DisputeFormScreen
+import com.example.rooster.ui.dispute.DisputeStatusScreen
+import com.example.rooster.viewmodel.FarmerDashboardViewModel
+import com.example.rooster.viewmodel.OrderViewModel
+import com.example.roosterapp.FarmerHomeScreen
+import com.google.firebase.messaging.FirebaseMessaging
+import com.parse.ParseUser
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
+// Optimized Navigation System
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+// Enum for type-safe navigation routes
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+enum class NavigationRoute(val route: String) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    AUTH("auth"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    HOME("home"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    MARKET("market"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    EXPLORE("explore"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    CREATE("create"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    CART("cart"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    COMMUNITY("community"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    DASHBOARD("dashboard"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    TRANSFERS("transfers"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    PROFILE("profile"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    VET_CONSULTATION("vet_consultation"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    IOT_INTEGRATION("iot_integration"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    TRANSFER_VERIFICATION("transferVerification/{orderId}"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    CHAT("chat/{receiverFirebaseUid}"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    PAYMENT("payment/{id}/{title}/{price}/{location}"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    ;
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    companion object {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        fun fromRoute(route: String?): NavigationRoute? = values().find { it.route == route }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+}
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+// User roles enum for better type safety
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+enum class UserRole(val roleName: String) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    FARMER("farmer"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    GENERAL("general"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    HIGH_LEVEL("highLevel"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    UNKNOWN("unknown"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    ;
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    companion object {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        fun fromString(role: String?): UserRole = values().find { it.roleName == role } ?: UNKNOWN
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+}
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+// Instagram-style Navigation
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+// Enum for Instagram navigation routes
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+enum class InstagramNavRoute(val route: String, val icon: ImageVector, val label: String) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    HOME("home", Icons.Default.Home, "Home"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    MARKETPLACE("marketplace", Icons.Default.ShoppingCart, "Market"), // Replaces Explore
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    COMMUNITY(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        "community",
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        Icons.Default.Group,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        "Community"
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    ), // Replaces Post/Reels and includes messaging
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    EVENTS("events", Icons.Default.Event, "Events"), // New tab for Cultural Events
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    PROFILE("profile", Icons.Default.Person, "Profile"),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    ;
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    companion object {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        fun fromRoute(route: String?): InstagramNavRoute? = values().find { it.route == route }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+}
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+class MainActivity : ComponentActivity() {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    private var navController: NavHostController? = null
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    override fun onCreate(savedInstanceState: Bundle?) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        super.onCreate(savedInstanceState)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        enableEdgeToEdge()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Request notification permission on Android 13+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            requestPermissions(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                1001
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Initialize WorkManager for background data synchronization
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        val constraints = Constraints.Builder()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            .setRequiresBatteryNotLow(true)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            .build()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        val workRequest = PeriodicWorkRequestBuilder<DataSyncWorker>(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            6, TimeUnit.HOURS // Sync every 6 hours
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            .setConstraints(constraints)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            .build()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            "data_sync_work",
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            ExistingPeriodicWorkPolicy.KEEP,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            workRequest
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Initialize FetchManager for downloads
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        FetchManager.initialize(this)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Subscribe to FCM topics
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        FirebaseMessaging.getInstance().subscribeToTopic("health-alerts")
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        FirebaseMessaging.getInstance().subscribeToTopic("order-updates")
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        FirebaseMessaging.getInstance().subscribeToTopic("bid-alerts")
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        setContent {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            RoosterTheme {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                InstagramStyleRoosterApp()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    override fun onDestroy() {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Clear navigation reference before destroying
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        try {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            navController = null
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        } catch (e: Exception) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            // Ignore any exceptions during cleanup
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        super.onDestroy()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+}
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+@Composable
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+fun InstagramStyleRoosterApp() {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    val navController = rememberNavController()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    val coroutineScope = rememberCoroutineScope()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    val snackbarHostState = remember { SnackbarHostState() }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    val lifecycleOwner = LocalLifecycleOwner.current
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    // Simplified state management
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    var userRole by remember { mutableStateOf<UserRole?>(null) }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    var isLoading by remember { mutableStateOf(true) }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    var error by remember { mutableStateOf<String?>(null) }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    var isDestroyed by remember { mutableStateOf(false) }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    var isTeluguMode by remember { mutableStateOf(false) } // Added missing variable
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    // Language toggle function
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    val onLanguageToggle = { isTeluguMode = !isTeluguMode }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    // Lifecycle-aware navigation management
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    DisposableEffect(lifecycleOwner) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        val observer =
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            LifecycleEventObserver { _, event ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                when (event) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    Lifecycle.Event.ON_DESTROY -> {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        isDestroyed = true
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    else -> {}
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        lifecycleOwner.lifecycle.addObserver(observer)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        onDispose {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            lifecycleOwner.lifecycle.removeObserver(observer)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    // Stability and Memory Monitoring
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    StabilityManager.StabilityMonitor { issue ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        if (!isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            coroutineScope.launch {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                try {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    snackbarHostState.showSnackbar("App stability: $issue")
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                } catch (e: Exception) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    // Ignore if UI is being destroyed
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    MemoryOptimizer.MemoryMonitor { memoryUsage ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        if (memoryUsage > 85 && !isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            coroutineScope.launch {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                try {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    snackbarHostState.showSnackbar("High memory usage: $memoryUsage%. Cleaning up...")
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                } catch (e: Exception) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    // Ignore if UI is being destroyed
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    // Auth state check
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    LaunchedEffect(Unit) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        val authResult =
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            StabilityManager.safeExecute(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                operation = {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    isLoading = true
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    val currentUser = ParseUser.getCurrentUser()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    if (currentUser != null) UserRole.fromString(currentUser.getString("role")) else null
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                fallback = null,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        userRole = authResult
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        isLoading = false
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    // Periodic auth state check to handle login from AuthScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    LaunchedEffect(Unit) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        while (!isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            delay(1000) // Check every second
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            if (isDestroyed) break
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            try {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                val currentUser = ParseUser.getCurrentUser()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                val newRole =
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    if (currentUser != null) UserRole.fromString(currentUser.getString("role")) else null
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                if (newRole != userRole && !isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    userRole = newRole
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            } catch (e: Exception) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                // Ignore errors during destruction
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                if (!isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    error = "Auth check failed: ${e.message}"
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    // Error handling
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    error?.let { errorMessage ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        LaunchedEffect(errorMessage) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            if (!isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                try {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    snackbarHostState.showSnackbar("Error: $errorMessage")
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    error = null
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                } catch (e: Exception) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    // Ignore if UI is being destroyed
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    if (isLoading) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        LoadingScreen()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    } else {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        val startDestination =
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            if (userRole != null) InstagramNavRoute.HOME.route else NavigationRoute.AUTH.route
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        Scaffold(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            bottomBar = {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                if (!isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    val currentRoute by navController.currentBackStackEntryAsState()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    if (userRole != null && currentRoute?.destination?.route != NavigationRoute.AUTH.route) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        InstagramBottomNavigationBar(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            navController = navController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            currentRoute = currentRoute?.destination?.route,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            isDestroyed = isDestroyed,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            containerColor = Color.White, // Instagram white background
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        ) { innerPadding ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            if (!isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                InstagramNavHost(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    navController = navController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    startDestination = startDestination,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    userRole = userRole,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    onLogout = { if (!isDestroyed) userRole = null },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    modifier = Modifier.padding(innerPadding),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    isDestroyed = isDestroyed,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    isTeluguMode = isTeluguMode,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    onLanguageToggle = onLanguageToggle
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+}
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+@Composable
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+private fun InstagramNavHost(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    navController: NavHostController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    startDestination: String,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    userRole: UserRole?,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    onLogout: () -> Unit,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    modifier: Modifier = Modifier,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    isDestroyed: Boolean = false,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    isTeluguMode: Boolean = false,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    onLanguageToggle: () -> Unit = {},
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    if (isDestroyed) return
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    NavHost(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        navController = navController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        startDestination = startDestination,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        modifier = modifier,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    ) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(NavigationRoute.AUTH.route) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            authScreen(navController = navController)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(InstagramNavRoute.HOME.route) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            when (userRole) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                UserRole.FARMER -> FarmerHomeScreen()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                UserRole.HIGH_LEVEL -> HighLevelHomeScreen()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                UserRole.GENERAL -> FarmerHomeScreen() // Use FarmerHomeScreen for General users as well
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                UserRole.UNKNOWN, null -> {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    LaunchedEffect(Unit) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        if (!isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            try {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                navController.navigate(NavigationRoute.AUTH.route) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                    popUpTo(navController.graph.startDestinationId) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                        inclusive = true
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            } catch (e: Exception) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                // Handle navigation error during destruction
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(InstagramNavRoute.MARKETPLACE.route) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            MarketplaceScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navController = navController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                isTeluguMode = isTeluguMode,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onLanguageToggle = onLanguageToggle
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(InstagramNavRoute.COMMUNITY.route) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            CommunityScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navController = navController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                isTeluguMode = isTeluguMode,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onLanguageToggle = onLanguageToggle
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(InstagramNavRoute.EVENTS.route) { 
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            CulturalEventsScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                isTeluguMode = isTeluguMode,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onLanguageToggle = onLanguageToggle
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            ) 
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(InstagramNavRoute.PROFILE.route) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            if (userRole == null) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                LaunchedEffect(Unit) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    if (!isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        try {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            navController.navigate(NavigationRoute.AUTH.route) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                popUpTo(navController.graph.startDestinationId) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                    inclusive = true
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        } catch (e: Exception) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            // Handle navigation error during destruction
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            } else {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                ProfileScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    navController = navController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    isTeluguMode = isTeluguMode,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    onLanguageToggle = onLanguageToggle,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    onLogout = {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        if (!isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            ParseUser.logOutInBackground { e ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                if (e == null && !isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                    onLogout()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                    try {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                        navController.navigate(NavigationRoute.AUTH.route) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                            popUpTo(navController.graph.startDestinationId) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                                inclusive = true
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                    } catch (navException: Exception) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                        // Handle navigation error during destruction
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                } // Error handling for logout via snackbar is in MainActivity
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // New navigation routes for ProfileScreen menu items
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable("settings") {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            SettingsScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navController = navController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                isTeluguMode = isTeluguMode,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onLanguageToggle = onLanguageToggle
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable("helpSupport") {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            HelpSupportScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navController = navController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                isTeluguMode = isTeluguMode,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onLanguageToggle = onLanguageToggle
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(NavigationRoute.VET_CONSULTATION.route) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            VetConsultationScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navController = navController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                isTeluguMode = isTeluguMode,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onLanguageToggle = onLanguageToggle
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(NavigationRoute.IOT_INTEGRATION.route) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            IoTIntegrationScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navController = navController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                isTeluguMode = isTeluguMode,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onLanguageToggle = onLanguageToggle
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Diagnostics screen for smoke testing
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable("diagnostics") {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            DiagnosticsScreen()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Keep other specific routes if needed (e.g., TransferVerificationScreen)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(NavigationRoute.TRANSFER_VERIFICATION.route) { backStackEntry ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            TransferVerificationScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                orderId = orderId,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onVerified = {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    if (!isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        try {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            navController.popBackStack()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        } catch (e: Exception) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            // Handle navigation error during destruction
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Add other existing composable routes here that are not part of the bottom nav
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(NavigationRoute.EXPLORE.route) { ExploreScreen() }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(NavigationRoute.CART.route) { CartScreen() }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(NavigationRoute.DASHBOARD.route) { DashboardScreen() }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(NavigationRoute.TRANSFERS.route) { TransfersScreen() }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(NavigationRoute.CREATE.route) { CommunityFeedScreen() } // Renamed from Create to Post
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(NavigationRoute.CHAT.route) { backStackEntry ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val receiverFirebaseUid =
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                backStackEntry.arguments?.getString("receiverFirebaseUid") ?: ""
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            SimpleChatScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                receiverFirebaseUid = receiverFirebaseUid,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navController = navController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Payment screen route for dummy payment flow
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            NavigationRoute.PAYMENT.route,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            arguments = listOf(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navArgument("id") { type = NavType.StringType },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navArgument("title") { type = NavType.StringType },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navArgument("price") { type = NavType.StringType },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navArgument("location") { type = NavType.StringType }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        ) { backStackEntry ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val id = backStackEntry.arguments?.getString("id") ?: ""
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val title = backStackEntry.arguments?.getString("title") ?: ""
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val price = backStackEntry.arguments?.getString("price")?.toDoubleOrNull() ?: 0.0
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val location = backStackEntry.arguments?.getString("location") ?: ""
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val listing = DummyListing(id = id, title = title, price = price, location = location)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            PaymentScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navController = navController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                listing = listing,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                isTeluguMode = isTeluguMode,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onLanguageToggle = onLanguageToggle
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Order routes
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable("orders") {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val vm: OrderViewModel = viewModel()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            OrderHistoryScreen(onOrderClick = { id ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navController.navigate("orderDetail/$id")
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            }, vm = vm)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            route = "orderDetail/{orderId}",
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            arguments = listOf(navArgument("orderId") { type = NavType.StringType })
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        ) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val orderId = it.arguments?.getString("orderId")!!
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val vm: OrderViewModel = viewModel()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            OrderDetailScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                orderId = orderId,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onBack = { navController.popBackStack() },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onCODConfirm = { navController.navigate("codConfirm/$orderId") },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onFeedback = { navController.navigate("feedback/$orderId") },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                vm = vm
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            route = "codConfirm/{orderId}",
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            arguments = listOf(navArgument("orderId") { type = NavType.StringType })
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        ) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val id = it.arguments!!.getString("orderId")!!
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val vm: OrderViewModel = viewModel()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            CODConfirmationScreen(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                orderId = id,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onConfirm = {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    vm.confirmCOD(id)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    navController.popBackStack("orderDetail/$id", inclusive = false)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onCancel = { navController.popBackStack() }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            route = "feedback/{orderId}",
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            arguments = listOf(navArgument("orderId") { type = NavType.StringType })
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        ) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val id = it.arguments!!.getString("orderId")!!
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val vm: OrderViewModel = viewModel()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            FeedbackFormSheet(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                orderId = id,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onSubmit = { rating, comment ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    vm.submitFeedback(id, rating, comment)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    navController.popBackStack()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onDismiss = { navController.popBackStack() }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Farmer module routes
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable("auctions") {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val vm: FarmerDashboardViewModel = viewModel()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            AuctionListingScreen(onViewBids = { pid ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navController.navigate("auction/$pid")
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            }, vm = vm)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            route = "auction/{productId}",
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            arguments = listOf(navArgument("productId") { type = NavType.StringType })
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        ) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val pid = it.arguments!!.getString("productId")!!
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val vm: FarmerDashboardViewModel = viewModel()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            BidHistoryDialog(productId = pid, onDismiss = { navController.popBackStack() }, vm = vm)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable("certificationRequest") {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val farmerId = ParseUser.getCurrentUser()?.objectId ?: ""
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            CertificationRequestScreen(farmerId = farmerId)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable("vaccinationTemplates") {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val farmId = ParseUser.getCurrentUser()?.objectId ?: ""
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            VaccinationTemplateUploader(farmId = farmId)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable("events") {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            EventsAndElectsScreen()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Enthusiast module routes
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable("flockDashboard") {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            FlockDashboardScreen()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable("broadcast") {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            LiveBroadcastScreen()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            route = "transferDetail/{chickenId}",
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            arguments = listOf(navArgument("chickenId") { type = NavType.StringType })
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        ) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val chickenId = it.arguments!!.getString("chickenId")!!
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            FamilyTreeTransferScreen(chickenId = chickenId)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        // Dispute routes
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable("disputeForm") {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val uid = ParseUser.getCurrentUser()?.objectId ?: ""
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            DisputeFormScreen(userId = uid) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                navController.navigate("disputeStatus")
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        composable("disputeStatus") {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            DisputeStatusScreen()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+}
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+@Composable
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+private fun InstagramBottomNavigationBar(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    navController: NavHostController,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    currentRoute: String?,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    isDestroyed: Boolean = false,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    if (isDestroyed) return
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    val items = InstagramNavRoute.values().toList()
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    NavigationBar(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        containerColor = Color.White,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        contentColor = Color.Black,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        modifier = Modifier.height(56.dp), // Standard Instagram height
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    ) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        items.forEach { screen ->
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            val isSelected = currentRoute == screen.route
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            NavigationBarItem(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                icon = {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    Icon(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        screen.icon,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        contentDescription = screen.label,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        tint = if (isSelected) Color.Black else Color.Gray,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                selected = isSelected,
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                onClick = {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    if (!isSelected && !isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        try {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            navController.navigate(screen.route) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                popUpTo(navController.graph.startDestinationId) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                    saveState = true
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                launchSingleTop = true
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                restoreState = true
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        } catch (e: Exception) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            // Fallback navigation without options if graph not ready
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            if (!isDestroyed) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                try {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                    navController.navigate(screen.route)
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                } catch (fallbackException: Exception) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                    // Log but don't crash
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                    println("Navigation failed: ${fallbackException.message}")
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                                }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                            }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                },
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                colors =
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    NavigationBarItemDefaults.colors(
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                        indicatorColor = Color.Transparent, // No indicator like Instagram
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+                    ),
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+            )
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+}
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+// Re-use LoadingScreen from existing MainActivity if available or define here
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+@Composable
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+private fun LoadingScreen() {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+        CircularProgressIndicator(color = Color(0xFFFF5722))
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+    }
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+mport com.example.rooster.ui.dispute.DisputeStatusScreen
+}

@@ -1,0 +1,123 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only read/write their own user profile if a 'users' collection exists
+    // match /users/{userId} {
+    //   allow read, write: if request.auth != null && request.auth.uid == userId;
+    // }
+
+    // Farm related data collections
+    // Assuming each document in these collections has an 'ownerId' field storing the user's UID.
+
+    match /flocks_v2/{flockId} {
+      // Validation: require key fields and types
+      allow create, update: if request.auth != null &&
+        request.resource.data.ownerId == request.auth.uid &&
+        request.resource.data.keys().hasAll(['id', 'ownerId', 'type', 'name']) &&
+        request.resource.data.type is string &&
+        request.resource.data.name is string &&
+        request.resource.data.ownerId is string &&
+        request.resource.data.id is string &&
+        (request.resource.data.certified == null || request.resource.data.certified is bool) &&
+        (request.resource.data.verified == null || request.resource.data.verified is bool) &&
+        (request.resource.data.weight == null || request.resource.data.weight is number) &&
+        (request.resource.data.createdAt == null || request.resource.data.createdAt is int) &&
+        (request.resource.data.updatedAt == null || request.resource.data.updatedAt is int);
+      allow read, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+    }
+
+    match /mortalityRecords/{recordId} {
+      allow read, create, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    match /vaccinationRecords/{recordId} {
+      allow read, create, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    match /sensorData/{dataId} { // Assuming sensor data is also per-user
+      allow read, create, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    match /farmUpdates/{updateId} { // Farm updates by user
+      allow read, create, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    // Example for ChickenRecord if it's stored in Firestore and managed by users
+    // match /ChickenRecord/{birdId} {
+    //   allow read, create, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+    //   allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+    // }
+
+    // Marketplace Listings
+    match /marketplaceListings/{listingId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      allow create: if request.auth != null &&
+        request.resource.data.ownerId is string &&
+        request.resource.data.title is string &&
+        request.resource.data.price is number &&
+        request.resource.data.status is string;
+      allow update: if request.auth != null &&
+        request.resource.data.ownerId == resource.data.ownerId &&
+        request.resource.data.title is string &&
+        request.resource.data.price is number &&
+        request.resource.data.status is string;
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.buyerId;
+      allow create: if request.auth != null &&
+        request.resource.data.buyerId is string &&
+        request.resource.data.listingId is string &&
+        request.resource.data.amount is number &&
+        request.resource.data.status is string;
+      allow update: if request.auth != null &&
+        request.resource.data.buyerId == resource.data.buyerId &&
+        request.resource.data.status is string;
+    }
+
+    // Auctions
+    match /auctions/{auctionId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == resource.data.sellerId;
+      allow create: if request.auth != null &&
+        request.resource.data.sellerId is string &&
+        request.resource.data.title is string &&
+        request.resource.data.startTime is timestamp &&
+        request.resource.data.endTime is timestamp;
+      allow update: if request.auth != null &&
+        request.resource.data.sellerId == resource.data.sellerId &&
+        request.resource.data.title is string;
+    }
+
+    // Bids
+    match /bids/{bidId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == request.resource.data.bidderId;
+      allow create: if request.auth != null &&
+        request.resource.data.auctionId is string &&
+        request.resource.data.bidderId is string &&
+        request.resource.data.bidAmount is number &&
+        request.resource.data.bidTime is timestamp;
+    }
+
+    // Auction Winners
+    match /auctionWinners/{winnerId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+      allow create: if request.auth != null &&
+        request.resource.data.auctionId is string &&
+        request.resource.data.winnerId is string &&
+        request.resource.data.amount is number;
+    }
+
+    // Default deny all other access to prevent unsecured collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
