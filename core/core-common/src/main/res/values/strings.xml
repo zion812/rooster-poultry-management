@@ -186,20 +186,15 @@
     <string name="flock_icon_desc">Flock icon</string>
     <string name="flock_list_item_details">%1$s (%2$s) - %3$d Active Birds</string>
 
-    <!-- NEW STRINGS FOR EMAIL VERIFICATION FLOW -->
     <!-- CheckEmailScreen & CheckEmailViewModel -->
     <string name="error_email_missing_for_verification">Email is missing for verification process.</string>
-    <string name="verification_email_sent_message">Verification email sent to %1$s. Please check your inbox (and spam folder).</string>
-    <string name="verification_email_resent_message">Verification email resent to %1$s. Please check your inbox (and spam folder).</string>
-    <!-- Using existing R.string.error_sending_verification_email and R.string.check_email_error_resend_failed -->
-    <string name="check_email_screen_title">Verify Your Email</string> <!-- Specific for screen title, existing check_email_title is more generic -->
-    <string name="check_your_email_title">Check Your Email</string> <!-- Specific for a text element on screen -->
-    <string name="verification_email_sent_to_placeholder">A verification email has been sent to %1$s.</string> <!-- Used in CheckEmailScreen -->
-    <string name="verification_email_sent_generic_placeholder">A verification email has been sent.</string> <!-- Used in CheckEmailScreen if email is blank -->
+    <string name="verification_email_sent">Verification email sent successfully.</string>
+    <string name="verification_email_resent">Verification email resent successfully.</string>
+    <string name="verification_email_sent_to">A verification email has been sent to %1$s.</string>
+    <string name="verification_email_sent_generic">A verification email has been sent.</string>
     <string name="check_spam_folder_instruction">Remember to check your spam or junk folder if you don\'t see it.</string>
     <string name="resend_email_countdown">Resend in %1$d s</string>
-    <string name="resend_verification_email_button">Resend Verification Email</string> <!-- Specific for button, existing one is more generic -->
-    <!-- R.string.action_back_to_login is already defined and can be reused -->
+    <string name="resend_verification_email_button">Resend Verification Email</string>
     <string name="error_checking_verification_status">Failed to check email verification status. Please ensure you are connected to the internet.</string>
 
     <!-- RegisterViewModel -->

@@ -1,275 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">రూస్టర్ పౌల్ట్రీ యాప్</string>
-
-    <!-- Authentication -->
-    <string name="login_title">లాగిన్</string>
+    <!-- Core App Strings -->
+    <string name="app_name">రూస్టర్</string>
     <string name="login">లాగిన్</string>
-    <string name="register_title">నమోదు</string>
     <string name="register">నమోదు</string>
-    <string name="logout">లాగౌట్</string>
+    <string name="logout">లాగ్ అవుట్</string>
     <string name="phone_number">ఫోన్ నంబర్</string>
-    <string name="enter_phone">ఫోన్ నంబర్ నమోదు చేయండి</string>
     <string name="enter_phone_number">ఫోన్ నంబర్ నమోదు చేయండి</string>
     <string name="login_button">లాగిన్</string>
-    <string name="phone_auth_title">ఫోన్ ధృవీకరణ</string>
-    <string name="enter_otp">OTP నమోదు చేయండి</string>
-    <string name="verify_otp">OTP ధృవీకరించండి</string>
-    <string name="resend_otp">OTP మళ్లీ పంపండి</string>
-    <string name="invalid_phone">చెల్లని ఫోన్ నంబర్</string>
-    <string name="invalid_otp">చెల్లని OTP</string>
-    <string name="auth_failed">ధృవీకరణ విఫలమైంది</string>
-    <string name="auth_success">ధృవీకరణ విజయవంతమైంది</string>
-    <string name="processing_auth">ధృవీకరణ ప్రాసెస్ అవుతోంది...</string>
-    <string name="profile_setup_title">ప్రొఫైల్ సెటప్</string>
-
-    <!-- Navigation -->
     <string name="home">హోమ్</string>
     <string name="marketplace">మార్కెట్‌ప్లేస్</string>
-    <string name="marketplace_title">మార్కెట్‌ప్లేస్</string>
-    <string name="community">సంఘం</string>
-    <string name="profile">ప్రొఫైల్</string>
-    <string name="settings">సెట్టింగ్స్</string>
-    <string name="settings_title">సెట్టింగ్స్</string>
+    <string name="profile">ప్రోఫైల్</string>
+    <string name="settings">సెట్టింగ్‌లు</string>
 
-    <!-- Core Actions -->
-    <string name="search">వెతకండి</string>
-    <string name="save">సేవ్ చేయండి</string>
+    <!-- Farmer Dashboard -->
+    <string name="farmer_home_title">రైతు డాష్‌బోర్డ్</string>
+    <string name="current_weather_title">ప్రస్తుత వాతావరణం</string>
+    <string name="farm_health_alerts_title">వ్యవసాయ ఆరోగ్య హెచ్చరికలు</string>
+    <string name="farm_info_title">వ్యవసాయ సమాచారం</string>
+    <string name="production_metrics_title">ఉత్పాదక మెట్రిక్స్</string>
+    <string name="quick_actions_title">త్వరిత చర్యలు</string>
+
+    <!-- Weather Information -->
+    <string name="weather_location_prefix">స్థానం:</string>
+    <string name="weather_temperature_prefix">ఉష్ణోగ్రత:</string>
+    <string name="weather_humidity_prefix">తేమ:</string>
+    <string name="weather_precipitation_prefix">వర్షపాతం:</string>
+    <string name="weather_wind_speed_prefix">గాలి వేగం:</string>
+    <string name="weather_description_prefix">వివరణ:</string>
+
+    <!-- Farm Information -->
+    <string name="farm_info_name_prefix">పేరు:</string>
+    <string name="farm_info_location_prefix">స్థానం:</string>
+    <string name="farm_info_owner_prefix">యజమాని:</string>
+    <string name="farm_info_active_flocks_prefix">క్రియాశీల మందలు:</string>
+    <string name="farm_info_total_capacity_prefix">మొత్తం సామర్థ్యం:</string>
+    <string name="farm_info_birds_suffix">పక్షులు</string>
+
+    <!-- Production Metrics -->
+    <string name="production_total_flocks_prefix">మొత్తం మందలు:</string>
+    <string name="production_active_birds_prefix">క్రియాశీల పక్షులు:</string>
+    <string name="production_eggs_today_prefix">నేడు గుడ్లు:</string>
+    <string name="production_eggs_suffix">గుడ్లు</string>
+    <string name="production_mortality_rate_prefix">వారపు మరణాల రేటు:</string>
+
+    <!-- Quick Actions -->
+    <string name="quick_action_log_mortality">మరణాలను నమోదు చేయండి</string>
+    <string name="quick_action_record_feeding">దాణా వేయడం నమోదు చేయండి</string>
+    <string name="quick_action_market_prices">మార్కెట్ ధరలు</string>
+    <string name="quick_action_add_flock">కొత్త మంద జోడించండి</string>
+
+    <!-- Health Alerts -->
+    <string name="alert_severity_prefix">తీవ్రత:</string>
+    <string name="alert_recommendation_prefix">సిఫార్సు:</string>
+    <string name="alert_time_prefix">సమయం:</string>
+    <string name="alert_mark_as_read_button">చదివినట్లు గుర్తించండి</string>
+
+    <!-- Common Actions -->
+    <string name="retry_button">మళ్లీ ప్రయత్నించండి</string>
+    <string name="save_button">సేవ్ చేయండి</string>
     <string name="cancel">రద్దు చేయండి</string>
-    <string name="done">పూర్తయింది</string>
     <string name="ok">సరే</string>
-    <string name="retry">మళ్లీ ప్రయత్నించండి</string>
     <string name="loading">లోడ్ అవుతోంది...</string>
     <string name="refresh">రిఫ్రెష్</string>
-    <string name="back">వెనుకకు</string>
-    <string name="next">తదుపరి</string>
-    <string name="edit">సవరించండి</string>
-    <string name="delete">తొలగించండి</string>
-    <string name="add_button">జోడించండి</string>
-    <string name="save_button">సేవ్ చేయండి</string>
-    <string name="update_button">అప్డేట్ చేయండి</string>
-    <string name="confirm_button">ధృవీకరించండి</string>
-
-    <!-- Marketplace -->
-    <string name="buy_now">ఇప్పుడే కొనండి</string>
-    <string name="price">ధర</string>
-    <string name="price_label">ధర: ₹%1$.2f</string>
-    <string name="seller">అమ్మకందారు</string>
-    <string name="create_listing">లిస్టింగ్ సృష్టించండి</string>
-    <string name="listing_title">శీర్షిక</string>
-    <string name="listing_description">వివరణ</string>
-    <string name="listing_price">ధర (₹)</string>
-    <string name="verified_seller">ధృవీకరించబడిన అమ్మకందారు</string>
-    <string name="verified_bloodline">ధృవీకరించబడిన వంశం</string>
-    <string name="no_listings_available" msgid="0987654321">లిస్టింగ్స్ అవయ్యలేదు</string>
-
-    <!-- Auctions -->
-    <string name="auction_title">వేలం</string>
-    <string name="auction_status">స్థితి</string>
-    <string name="auction_time">మిగిలిన సమయం</string>
-    <string name="current_bid">ప్రస్తుత బిడ్</string>
-    <string name="minimum_bid">కనీస బిడ్</string>
-    <string name="highest_bidder">అత్యధిక బిడ్దారు</string>
-    <string name="time_remaining">మిగిలిన సమయం</string>
-    <string name="place_bid">బిడ్ చేయండి</string>
-    <string name="bid_button">బిడ్ చేయండి</string>
-    <string name="action_bid_now">ఇప్పుడు బిడ్ చేయండి</string>
-    <string name="bidding_history">బిడ్డింగ్ చరిత్ర</string>
-    <string name="auction_ended">వేలం ముగిసింది</string>
-    <string name="auction_ending_soon">వేలం ముగుస్తోంది</string>
-    <string name="no_active_auctions">ప్రస్తుతం చురుకుగా ఉన్న వేలాలు లేవు</string>
-    <string name="new_auctions_coming">త్వరలో కొత్త వేలాలు వస్తాయి</string>
-    <string name="loading_auctions">వేలాలు లోడ్ అవుతున్నాయి...</string>
-    <string name="bid_placed_success">బిడ్ విజయవంతంగా చేయబడింది!</string>
-    <string name="error_loading_auctions">వేలాలు లోడ్ చేయడంలో లోపం</string>
-    <string name="error_placing_bid">బిడ్ చేయడంలో లోపం</string>
-    <string name="your_bid_amount">మీ బిడ్ మొత్తం (₹)</string>
-    <string name="bid_minimum_amount">బిడ్ కనీసం ₹%1$s ఉండాలి</string>
-    <string name="verified_auction">ధృవీకరించబడిన వేలం</string>
-    <string name="seller_name">విక్రేత పేరు</string>
-    <string name="breed_label">జాతి</string>
-    <string name="age_label">వయస్సు</string>
-    <string name="weeks_label">వారాలు</string>
-    <string name="days_label">రోజులు</string>
-    <string name="hours_label">గంటలు</string>
-    <string name="minutes_label">నిమిషాలు</string>
-
-    <!-- Auction Screen Telugu Strings -->
-    <string name="auctions_title">వేలాలు</string>
-    <string name="auctions_coming_soon">వేలాలు త్వరలో అందుబాటులోకి వస్తాయి</string>
-    <string name="auctions_description">మీ కోడుల కోసం మంచి ధర పొందడానికి వేలాలలో పాల్గొనండి</string>
-    <string name="live_auctions">ప్రత్యక్ష వేలాలు</string>
-    <string name="upcoming_auctions">రాబోయే వేలాలు</string>
-    <string name="my_bids">నా బిడ్లు</string>
-    <string name="auction_ends_in">వేలం ముగియు సమయం</string>
-
-    <!-- Bird Management Telugu Strings -->
-    <string name="flock_summary">మీ కోళ్ల సమాచారం</string>
-    <string name="total_birds">మొత్తం కోళ్లు</string>
-    <string name="healthy_birds">ఆరోగ్యకరమైన కోళ్లు</string>
-    <string name="egg_laying_birds">గుడ్లు పెట్టే కోళ్లు</string>
-    <string name="broiler_birds">బ్రాయిలర్ కోళ్లు</string>
-    <string name="manage_flock_btn">కోళ్ల నిర్వహణ</string>
-
-    <!-- Farm Management -->
-    <string name="flock_monitoring">కోళ్ల పర్యవేక్షణ</string>
-    <string name="flock_management">కోళ్ల నిర్వహణ</string>
-    <string name="add_flock">కోళ్లను జోడించండి</string>
-    <string name="total_count">మొత్తం సంఖ్య</string>
-    <string name="healthy_count">ఆరోగ్యకరమైన సంఖ్య</string>
-    <string name="sick_count">అనారోగ్య సంఖ్య</string>
-    <string name="age_in_weeks">వయస్సు (వారాలలో)</string>
-    <string name="average_weight_kg">సగటు బరువు (కి.గ్రా.)</string>
-    <string name="notes_label">గమనికలు</string>
-    <string name="last_updated">చివరిగా అప్డేట్ చేయబడింది</string>
-    <string name="confirm_delete_flock">ఖచ్చితంగా తొలగించాలా?</string>
-    <string name="delete_flock_warning">ఈ కోళ్ల వివరాలను తొలగించాలనుకుంటున్నారా? ఈ చర్య రద్దు చేయలేరు.</string>
-    <string name="loading_flock_data">కోళ్ల డేటా లోడ్ అవుతోంది...</string>
-    <string name="flock_added_success">కోళ్ల వివరాలు విజయవంతంగా జోడించబడ్డాయి</string>
-    <string name="flock_updated_success">కోళ్ల వివరాలు విజయవంతంగా అప్డేట్ చేయబడ్డాయి</string>
-    <string name="flock_deleted_success">కోళ్ల వివరాలు విజయవంతంగా తొలగించబడ్డాయి</string>
-    <string name="error_loading_flock">కోళ్ల డేటా లోడ్ చేయడంలో లోపం</string>
-    <string name="error_adding_flock">కోళ్ల వివరాలు జోడించడంలో లోపం</string>
-    <string name="error_updating_flock">కోళ్ల వివరాలు అప్డేట్ చేయడంలో లోపం</string>
-    <string name="error_deleting_flock">కోళ్ల వివరాలు తొలగించడంలో లోపం</string>
-    <string name="add_new_flock_batch">కొత్త కోళ్ల బ్యాచ్ జోడించండి</string>
-    <string name="edit_flock_details">కోళ్ల వివరాలు సవరించండి</string>
-    <string name="breed_name">కోళ్ల జాతి</string>
-
-    <!-- Market Telugu Strings -->
-    <string name="market_price_today">నేటి మార్కెట్ రేటు</string>
-    <string name="vijayawada_market">విజయవాడ మార్కెట్</string>
-    <string name="machilipatnam_market">మచిలీపట్నం మార్కెట్</string>
-    <string name="gudivada_market">గుడివాడ మార్కెట్</string>
-    <string name="nuziveedu_market">నుజివీడు మార్కెట్</string>
-    <string name="live_weight_price">సజీవ బరువు ధర</string>
-    <string name="dressed_price">డ్రెస్డ్ ధర</string>
-    <string name="per_kg_rate">కిలోకు రేటు</string>
-
-    <!-- Breeds Telugu Strings -->
-    <string name="nattu_kodi">నాట్టు కోడి</string>
-    <string name="giriraj_breed">గిరిరాజ్</string>
-    <string name="kadaknath_breed">కడక్నాథ్</string>
-    <string name="aseel_breed">అసీల్</string>
-    <string name="breed_selection">జాతి ఎంపిక</string>
-    <string name="breed_characteristics">జాతి లక్షణాలు</string>
-    <string name="egg_production_rate">గుడ్డు ఉత్పాదన రేటు</string>
-    <string name="disease_resistance">వ్యాధి నిరోధక శక్తి</string>
-
-    <!-- Seasonal Telugu Strings -->
-    <string name="sankranti_season">సంక్రాంతి సీజన్</string>
-    <string name="summer_care">వేసవి సంరక్షణ</string>
-    <string name="monsoon_precautions">వర్షాకాల జాగ్రత్తలు</string>
-    <string name="winter_management">చలికాల నిర్వహణ</string>
-    <string name="festival_demand">పండుగ డిమాండ్</string>
-    <string name="seasonal_pricing">కాలానుగుణ ధర</string>
-
-    <!-- Actions Telugu Strings -->
-    <string name="add_new_bird">కొత్త కోడి చేర్చండి</string>
-    <string name="update_health">ఆరోగ్య స్థితి నవీకరించండి</string>
-    <string name="record_feeding">ఆహారం రికార్డు చేయండి</string>
-    <string name="schedule_vaccination">టీకా కాలపట్టిక</string>
-    <string name="check_market_price">మార్కెట్ ధర చూడండి</string>
-    <string name="contact_buyer">కొనుగోలుదారుని సంప్రదించండి</string>
-    <string name="contact_seller">అమ్మకందారుని సంప్రదించండి</string>
-
-    <!-- Farmer-specific Terms -->
-    <string name="farming_tips">వ్యవసాయ చిట్కాలు</string>
-    <string name="traditional_methods">సాంప్రదాయ పద్ధతులు</string>
-    <string name="modern_techniques">ఆధునిక పద్ధతులు</string>
-    <string name="cost_calculation">ఖర్చు లెక్కింపు</string>
-    <string name="profit_estimation">లాభం అంచనా</string>
-    <string name="feed_cost">మేత ఖర్చు</string>
-    <string name="medicine_cost">మందుల ఖర్చు</string>
-    <string name="labor_cost">కూలీ ఖర్చు</string>
-
-    <!-- Payment -->
-    <string name="payment">చెల్లింపు</string>
-    <string name="pay_now">ఇప్పుడు చెల్లించండి</string>
-    <string name="payment_successful">చెల్లింపు విజయవంతంగా పూర్తయింది!</string>
-    <string name="payment_failed">చెల్లింపు విఫలమైంది</string>
-    <string name="payment_processing">చెల్లింపు ప్రాసెస్ అవుతోంది...</string>
-    <string name="payment_method">చెల్లింపు పద్ధతి</string>
-    <string name="select_payment_method">చెల్లింపు పద్ధతిని ఎంచుకోండి</string>
-    <string name="cash_on_delivery">డెలివరీ వేళ చెల్లింపు</string>
-    <string name="upi_payment">UPI చెల్లింపు</string>
-    <string name="card_payment">కార్డ్ చెల్లింపు</string>
-    <string name="bank_transfer">బ్యాంక్ బదిలీ</string>
-    <string name="payment_amount">చెల్లింపు మొత్తం</string>
-    <string name="processing_payment">చెల్లింపు ప్రాసెస్ అవుతోంది...</string>
-    <string name="payment_failed_error">చెల్లింపు విఫలమైంది: %1$s</string>
-    <string name="payment_cancelled">చెల్లింపు రద్దు చేయబడింది</string>
-    <string name="confirm_payment">చెల్లింపును ధృవీకరించండి</string>
-    <string name="payment_details">చెల్లింపు వివరాలు</string>
-
-    <!-- Categories -->
-    <string name="category">వర్గం</string>
-    <string name="category_poultry">పౌల్ట్రీ</string>
-    <string name="category_eggs">గుడ్లు</string>
 
     <!-- Error Messages -->
-    <string name="error_network">నెట్‌వర్క్ లోపం</string>
-    <string name="error_loading">లోడింగ్ లోపం</string>
-    <string name="error_unknown">తెలియని లోపం సంభవించింది</string>
-    <string name="try_again">మళ్లీ ప్రయత్నించండి</string>
-    <string name="network_error_message">నెట్‌వర్క్ లోపం దయచేసి మళ్లీ ప్రయత్నించండి</string>
-    <string name="generic_error_message">కొంత లోపం జరిగింది దయచేసి మళ్లీ ప్రయత్నించండి</string>
-    <string name="data_load_error">డేటా లోడ్ చేయడంలో అనుకోని లోపం</string>
-    <string name="connection_timeout">కనెక్షన్ టైమౌట్</string>
-    <string name="server_error">సర్వర్ లోపం</string>
+    <string name="error_prefix">లోపం:</string>
+    <string name="offline_banner_message">మీరు ప్రస్తుతం ఆఫ్‌లైన్‌లో ఉన్నారు. కొన్ని డేటా పాతవై ఉండవచ్చు.</string>
 
-    <!-- Success Messages -->
-    <string name="success">విజయం!</string>
-    <string name="success_saved">విజయవంతంగా సేవ్ చేయబడింది</string>
-    <string name="submit_success">సమర్పణ విజయవంతమైంది</string>
-    <string name="operation_successful">ఆపరేషన్ విజయవంతమైంది</string>
-    <string name="data_saved_successfully">డేటా విజయవంతంగా సేవ్ చేయబడింది</string>
-    <string name="update_successful">అప్డేట్ విజయవంతమైంది</string>
+    <!-- Status Messages -->
+    <string name="status_pending">పెండింగ్</string>
+    <string name="status_in_progress">ప్రగతిలో</string>
+    <string name="status_resolved">పరిష్కరించబడింది</string>
+    <string name="status_delivered">డెలివరీ అయింది</string>
 
-    <!-- Network Status -->
-    <string name="network_offline">ఆఫ్లైన్</string>
-    <string name="offline_mode">మీరు ఆఫ్లైన్లో ఉన్నారు. క్యాష్ జాబితాలు చూపబడుతున్నాయి.</string>
-    <string name="connecting">కనెక్ట్ అవుతోంది...</string>
-    <string name="network_not_available">నెట్‌వర్క్ అందుబాటులో లేదు</string>
+    <!-- Severity Levels -->
+    <string name="severity_critical">క్లిష్టమైనది</string>
+    <string name="severity_high">అధికం</string>
+    <string name="severity_medium">మధ్యస్థం</string>
+    <string name="severity_low">తక్కువ</string>
 
-    <!-- Language -->
-    <string name="switch_to_telugu">తెలుగుకు మారండి</string>
-    <string name="switch_to_english">ఆంగ్లానికి మారండి</string>
-    <string name="language_preferences">భాష ప్రాధాన్యతలు</string>
-    <string name="toggle_language">భాష మార్చండి</string>
+    <!-- Buyer Dashboard -->
+    <string name="buyer_home_title">కొనుగోలుదారు డాష్‌బోర్డ్</string>
+    <string name="recommendations_title">మీ కోసం సిఫార్సులు</string>
+    <string name="recent_orders_title">ఇటీవలి ఆర్డర్‌లు</string>
+    <string name="price_watch_title">ధర వీక్షణ</string>
+    <string name="top_suppliers_title">టాప్ సప్లయర్‌లు</string>
 
-    <!-- UI Elements -->
-    <string name="farmer_welcome_title">రైతు గారికి స్వాగతం</string>
-    <string name="analytics">విశ్లేషణలు</string>
-    <string name="details_button">వివరాలు</string>
-    <string name="view_details">వివరాలు చూడండి</string>
-    <string name="view_all">అన్నీ చూడండి</string>
-    <string name="show_more">మరిన్ని చూపించండి</string>
-    <string name="show_less">తక్కువ చూపించండి</string>
-    <string name="skip">దాటవేయండి</string>
-    <string name="continue_text">కొనసాగించండి</string>
-    <string name="close">మూసివేయండి</string>
-    <string name="share">షేర్ చేయండి</string>
+    <!-- Admin Dashboard -->
+    <string name="admin_home_title">అడ్మిన్ డాష్‌బోర్డ్</string>
+    <string name="system_status_title">సిస్టమ్ స్థితి</string>
+    <string name="user_overview_title">వినియోగదారు సమీక్ష</string>
+    <string name="financial_snapshot_title">ఆర్థిక స్నాప్‌షాట్</string>
 
-    <!-- Role Management -->
-    <string name="role_management">పాత్ర నిర్వహణ</string>
-    <string name="access_denied">ప్రవేశం నిరోధించబడింది</string>
-    <string name="unauthorized_message">మీకు ఈ స్పష్టం ప్రవేశం లేదు.</string>
-    <string name="back_to_previous">మునుపటికి వెళ్ళండి</string>
-    <string name="role">పాత్ర</string>
-    <string name="permissions">అనుమతులు</string>
-    <string name="view_market">మార్కెట్ చూడండి</string>
-    <string name="create_post">పోస్ట్ సృష్టించండి</string>
-    <string name="manage_users">వాడుకరులను నిర్వహించండి</string>
-    <string name="view_analytics">అనలైటిక్స్ చూడండి</string>
-    <string name="manage_transfers">మార్పులను నిర్వహించండి</string>
-    <string name="change_role">పాత్రాన్ని మార్చండి</string>
+    <!-- Vet Dashboard -->
+    <string name="vet_home_title">వెట్ డాష్‌బోర్డ్</string>
+    <string name="consultation_queue_title">కన్సల్టేషన్ క్యూ (%1$d పెండింగ్)</string>
+    <string name="recent_patients_title">ఇటీవలి రోగులు</string>
+    <string name="vet_health_alerts_title">క్రియాశీల్ ఆరోగ్య హెచ్చరికలు</string>
 
-    <!-- Telugu translations -->
-    <string name="high_price" msgid="4321098765">అధిక ధర</string>
-    <string name="downloading" msgid="4321098766">డౌన్‌లోడింగ్ చేస్తున్నారు</string>
-    <string name="farm_analytics" msgid="1098765432">కోళ్ల విశ్లేషణ</string>
-    <string name="currency" msgid="3210987654">రూ. </string>
-    <string name="select_product" msgid="4321098765">ఉత్పత్తి ని ఎంచండి</string>
-    <string name="iot_dashboard_title" msgid="5432109876">కోళ్ల పర్యవేక్షణ డాష్‌బోర్డ్</string>
+    <!-- General Terms -->
+    <string name="telugu">తెలుగు</string>
+    <string name="welcome">స్వాగతం</string>
+    <string name="thanks">ధన్యవాదాలు!</string>
+    <string name="success">విజయం</string>
 </resources>

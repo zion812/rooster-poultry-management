@@ -3,20 +3,19 @@ package com.example.rooster.core.network
 import android.content.Context
 import com.example.rooster.core.common.Constants
 import com.example.rooster.core.network.qualifiers.PaymentApiBaseUrl
-import com.example.rooster.core.network.retrofit.PaymentApiService
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -40,6 +39,14 @@ annotation class ParseRetrofit
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class GeneralRetrofit
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class FarmManagementRetrofit
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class WeatherRetrofit
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -135,6 +142,30 @@ object NetworkModule {
             .build()
     }
 
+    // Farm Management specific OkHttpClient with longer timeouts for rural networks
+    @Provides
+    @Singleton
+    @FarmManagementRetrofit
+    fun provideFarmManagementOkHttpClient(
+        loggingInterceptor: HttpLoggingInterceptor,
+        @AuthInterceptor authInterceptor: Interceptor,
+        @NetworkInterceptor networkInterceptor: Interceptor,
+        tokenAuthenticator: TokenAuthenticator,
+        cache: Cache
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
+            .authenticator(tokenAuthenticator)
+            .addInterceptor(authInterceptor)
+            .addInterceptor(loggingInterceptor)
+            .addNetworkInterceptor(networkInterceptor)
+            .cache(cache)
+            .connectTimeout(Constants.FARM_API_TIMEOUT, TimeUnit.SECONDS)
+            .readTimeout(Constants.FARM_API_TIMEOUT, TimeUnit.SECONDS)
+            .writeTimeout(Constants.FARM_API_TIMEOUT, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
+            .build()
+    }
+
     @Provides
     @Singleton
     @ParseRetrofit
@@ -152,6 +183,34 @@ object NetworkModule {
     fun provideGeneralRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit {
         return Retrofit.Builder()
             .baseUrl("https://api.rooster.com/v1/")
+            .client(okHttpClient)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    @FarmManagementRetrofit
+    fun provideFarmManagementRetrofit(
+        @FarmManagementRetrofit okHttpClient: OkHttpClient,
+        json: Json
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(Constants.FARM_MANAGEMENT_API_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    @WeatherRetrofit
+    fun provideWeatherRetrofit(
+        @FarmManagementRetrofit okHttpClient: OkHttpClient,
+        json: Json
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(Constants.WEATHER_API_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()

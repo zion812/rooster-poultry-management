@@ -3,20 +3,20 @@
 3    package="com.example.rooster.core.common.test" >
 4
 5    <uses-sdk
-5-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest2603613629241920318.xml:5:5-74
+5-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest13397837300487823008.xml:5:5-74
 6        android:minSdkVersion="24"
-6-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest2603613629241920318.xml:5:15-41
+6-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest13397837300487823008.xml:5:15-41
 7        android:targetSdkVersion="24" />
-7-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest2603613629241920318.xml:5:42-71
+7-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest13397837300487823008.xml:5:42-71
 8
 9    <instrumentation
-9-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest2603613629241920318.xml:11:5-13:86
+9-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest13397837300487823008.xml:11:5-13:86
 10        android:name="android.test.InstrumentationTestRunner"
-10-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest2603613629241920318.xml:11:22-75
+10-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest13397837300487823008.xml:11:22-75
 11        android:label="Tests for com.example.rooster.core.common.test"
-11-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest2603613629241920318.xml:13:22-84
+11-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest13397837300487823008.xml:13:22-84
 12        android:targetPackage="com.example.rooster.core.common.test" />
-12-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest2603613629241920318.xml:12:22-82
+12-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest13397837300487823008.xml:12:22-82
 13
 14    <uses-permission android:name="android.permission.INTERNET" />
 14-->[com.google.firebase:firebase-auth:22.3.0] /home/user/.gradle/caches/8.13/transforms/4316d0e2f8a7cc1470aae65d1fa91d38/transformed/firebase-auth-22.3.0/AndroidManifest.xml:25:5-67
@@ -37,14 +37,14 @@
 21-->[androidx.core:core:1.15.0] /home/user/.gradle/caches/8.13/transforms/0399b81ad672beb87a6828bdb2cd50eb/transformed/core-1.15.0/AndroidManifest.xml:26:22-94
 22
 23    <application
-23-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest2603613629241920318.xml:7:5-9:19
+23-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest13397837300487823008.xml:7:5-9:19
 24        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
 24-->[androidx.core:core:1.15.0] /home/user/.gradle/caches/8.13/transforms/0399b81ad672beb87a6828bdb2cd50eb/transformed/core-1.15.0/AndroidManifest.xml:28:18-86
 25        android:debuggable="true" >
-25-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest2603613629241920318.xml:7:18-43
+25-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest13397837300487823008.xml:7:18-43
 26        <uses-library android:name="android.test.runner" />
-26-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest2603613629241920318.xml:8:9-60
-26-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest2603613629241920318.xml:8:23-57
+26-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest13397837300487823008.xml:8:9-60
+26-->/home/user/StudioProjects/rooster-poultry-management/core/core-common/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest13397837300487823008.xml:8:23-57
 27
 28        <activity
 28-->[com.google.firebase:firebase-auth:22.3.0] /home/user/.gradle/caches/8.13/transforms/4316d0e2f8a7cc1470aae65d1fa91d38/transformed/firebase-auth-22.3.0/AndroidManifest.xml:29:9-46:20

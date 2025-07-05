@@ -3,20 +3,20 @@
 3    package="com.example.rooster.feature.marketplace.test" >
 4
 5    <uses-sdk
-5-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest17468656211644561815.xml:5:5-74
+5-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest4248686449383698140.xml:5:5-74
 6        android:minSdkVersion="24"
-6-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest17468656211644561815.xml:5:15-41
+6-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest4248686449383698140.xml:5:15-41
 7        android:targetSdkVersion="24" />
-7-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest17468656211644561815.xml:5:42-71
+7-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest4248686449383698140.xml:5:42-71
 8
 9    <instrumentation
-9-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest17468656211644561815.xml:11:5-13:94
+9-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest4248686449383698140.xml:11:5-13:94
 10        android:name="android.test.InstrumentationTestRunner"
-10-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest17468656211644561815.xml:11:22-75
+10-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest4248686449383698140.xml:11:22-75
 11        android:label="Tests for com.example.rooster.feature.marketplace.test"
-11-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest17468656211644561815.xml:13:22-92
+11-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest4248686449383698140.xml:13:22-92
 12        android:targetPackage="com.example.rooster.feature.marketplace.test" />
-12-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest17468656211644561815.xml:12:22-90
+12-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest4248686449383698140.xml:12:22-90
 13
 14    <uses-permission android:name="android.permission.WAKE_LOCK" />
 14-->[androidx.work:work-runtime:2.9.1] /home/user/.gradle/caches/8.13/transforms/d7c43f670ce4aa5a9207c60913b6727e/transformed/work-runtime-2.9.1/AndroidManifest.xml:23:5-68
@@ -61,14 +61,14 @@
 29-->[androidx.core:core:1.15.0] /home/user/.gradle/caches/8.13/transforms/0399b81ad672beb87a6828bdb2cd50eb/transformed/core-1.15.0/AndroidManifest.xml:26:22-94
 30
 31    <application
-31-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest17468656211644561815.xml:7:5-9:19
+31-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest4248686449383698140.xml:7:5-9:19
 32        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
 32-->[androidx.core:core:1.15.0] /home/user/.gradle/caches/8.13/transforms/0399b81ad672beb87a6828bdb2cd50eb/transformed/core-1.15.0/AndroidManifest.xml:28:18-86
 33        android:debuggable="true" >
-33-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest17468656211644561815.xml:7:18-43
+33-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest4248686449383698140.xml:7:18-43
 34        <uses-library android:name="android.test.runner" />
-34-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest17468656211644561815.xml:8:9-60
-34-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest17468656211644561815.xml:8:23-57
+34-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest4248686449383698140.xml:8:9-60
+34-->/home/user/StudioProjects/rooster-poultry-management/feature/feature-marketplace/build/intermediates/tmp/manifest/test/debug/tempFile1ProcessTestManifest4248686449383698140.xml:8:23-57
 35
 36        <service
 36-->[androidx.room:room-runtime:2.6.1] /home/user/.gradle/caches/8.13/transforms/7f039a9f06192a6d5473abca7cb042f2/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63

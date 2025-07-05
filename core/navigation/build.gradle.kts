@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
     // No Hilt here unless it directly provides Hilt ViewModels, typically navigation is lower level
     // No KSP needed if no annotation processing like Hilt/Room
 }

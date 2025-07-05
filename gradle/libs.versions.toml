@@ -4,7 +4,7 @@
 [versions]
 # Core Android & Kotlin
 agp = "8.10.0"
-kotlin = "2.0.21"
+kotlin = "1.9.20"
 compose-bom = "2024.09.00"
 compose-compiler = "1.5.14"
 core-ktx = "1.15.0"
@@ -85,7 +85,7 @@ flipper = "0.262.0"
 flipper-network = "0.262.0"
 
 # Build Tools
-ksp = "2.0.21-1.0.25"
+ksp = "1.9.20-1.0.14"
 secrets = "2.0.1"
 
 [libraries]
@@ -198,7 +198,8 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+# Remove the invalid compose plugin - compose compiler is handled via composeOptions
+# kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 navigation-safeargs-kotlin = { id = "androidx.navigation.safeargs.kotlin", version = "2.7.7" }
 
 # Google Services & Firebase

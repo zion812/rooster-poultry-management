@@ -24,6 +24,13 @@ object Constants {
     const val PARSE_CLIENT_KEY = "parse_client_key"
     const val PARSE_SERVER_URL = "https://parseapi.back4app.com/"
 
+    // Farm Management API Configuration
+    const val FARM_MANAGEMENT_API_BASE_URL = "http://10.0.2.2:5000/api/" // For Android emulator
+    const val FARM_MANAGEMENT_API_BASE_URL_DEVICE =
+        "http://192.168.1.100:5000/api/" // For physical device - adjust IP
+    const val WEATHER_API_BASE_URL = "http://10.0.2.2:5000/" // Weather API on same server
+    const val FARM_API_TIMEOUT = 60L // Longer timeout for rural networks
+
     // Cache Configuration
     const val CACHE_SIZE = 10 * 1024 * 1024L // 10MB
     const val CACHE_MAX_AGE = 60 * 60 * 24 // 24 hours

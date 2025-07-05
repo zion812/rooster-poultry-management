@@ -2,6 +2,7 @@ package com.rooster.farmerhome.di
 
 import com.rooster.farmerhome.data.repository.WeatherRepositoryImpl
 import com.rooster.farmerhome.data.repository.FarmHealthAlertRepositoryImpl
+import com.rooster.farmerhome.data.repository.FarmApiRepositoryImpl
 import com.rooster.farmerhome.data.source.FarmHealthAlertRemoteDataSource
 import com.rooster.farmerhome.data.repository.ProductionMetricsRepositoryImpl
 import com.rooster.farmerhome.data.source.MockFarmHealthAlertRemoteDataSource
@@ -40,6 +41,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+import javax.inject.Qualifier
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ApiRepository
+
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class FarmerHomeRepositoryModule { // Renamed class
@@ -48,6 +55,14 @@ abstract class FarmerHomeRepositoryModule { // Renamed class
     @Singleton
     abstract fun bindWeatherRepository(
         weatherRepositoryImpl: WeatherRepositoryImpl
+    ): WeatherRepository
+
+    // Binding for the new API repository implementation (Python backend)
+    @Binds
+    @Singleton
+    @ApiRepository
+    abstract fun bindFarmApiRepository(
+        farmApiRepositoryImpl: FarmApiRepositoryImpl
     ): WeatherRepository
 
     @Binds
