@@ -1,7 +1,5 @@
 package com.example.rooster.core.common.worker
 
-package com.example.rooster.core.common.worker // Ensure package is correct if file moved/refactored
-
 import com.example.rooster.core.common.Result // Using the common Result type
 
 /**

@@ -1,9 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -32,10 +31,6 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-
-    kapt {
-        correctErrorTypes = true
-    }
 }
 
 dependencies {
@@ -46,15 +41,24 @@ dependencies {
     implementation(libs.bundles.coroutines)
     implementation(libs.kotlinx.coroutines.play.services)
 
-    // Serialization
-    implementation(libs.kotlinx.serialization.json)
+    // Serialization - Remove for now due to version conflict
+    // implementation(libs.kotlinx.serialization.json)
 
     // Network
     implementation(libs.bundles.network)
 
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+
+    // Room Database
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+
     // Dependency Injection
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
 
     // Testing
     testImplementation(libs.bundles.testing)
