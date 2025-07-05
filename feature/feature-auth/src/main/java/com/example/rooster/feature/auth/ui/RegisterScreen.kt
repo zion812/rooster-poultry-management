@@ -469,4 +469,3 @@ internal fun WithPreviewResources(content: @Composable () -> Unit) {
         content()
     }
 }
-```

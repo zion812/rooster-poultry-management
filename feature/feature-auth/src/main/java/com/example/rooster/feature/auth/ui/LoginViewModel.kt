@@ -3,17 +3,23 @@ package com.example.rooster.feature.auth.ui
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rooster.core.auth.domain.model.User
-import com.example.rooster.core.auth.domain.model.UserRole
-import com.example.rooster.core.auth.domain.repository.AuthRepository
-import com.example.rooster.core.common.R
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+
+data class User(
+    val uid: String,
+    val email: String?,
+    val displayName: String?,
+    val isEmailVerified: Boolean,
+    val role: UserRole? = null
+)
 
 data class LoginUiState(
     val isLoading: Boolean = false,
@@ -28,7 +34,7 @@ data class LoginUiState(
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -38,8 +44,7 @@ class LoginViewModel @Inject constructor(
         if (email.isBlank() || password.isBlank()) {
             _uiState.update {
                 it.copy(
-                    errorResId = R.string.error_email_password_empty,
-                    errorMessage = null,
+                    errorMessage = "Email and password cannot be empty.",
                     isLoading = false
                 )
             }
@@ -51,50 +56,54 @@ class LoginViewModel @Inject constructor(
             try {
                 println("Attempting login for role: $role")
 
-                val result = authRepository.signIn(email, password)
+                val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
+                val firebaseUser = result.user
 
-                result.fold(
-                    onSuccess = { user ->
-                        if (user.isEmailVerified) {
-                            _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    isAuthenticated = true,
-                                    loggedInUserRole = user.role,
-                                    requiresEmailVerification = false,
-                                    unverifiedEmail = null
-                                )
-                            }
-                        } else {
-                            // User authenticated but email not verified
-                            _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    isAuthenticated = false,
-                                    loggedInUserRole = null,
-                                    requiresEmailVerification = true,
-                                    unverifiedEmail = user.email,
-                                    errorResId = R.string.error_email_not_verified
-                                )
-                            }
-                        }
-                    },
-                    onFailure = { exception ->
+                if (firebaseUser != null) {
+                    val user = User(
+                        uid = firebaseUser.uid,
+                        email = firebaseUser.email,
+                        displayName = firebaseUser.displayName,
+                        isEmailVerified = firebaseUser.isEmailVerified,
+                        role = role // Use the selected role for now
+                    )
+
+                    if (user.isEmailVerified) {
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                errorMessage = exception.message,
-                                errorResId = R.string.error_login_failed
+                                isAuthenticated = true,
+                                loggedInUserRole = user.role,
+                                requiresEmailVerification = false,
+                                unverifiedEmail = null
+                            )
+                        }
+                    } else {
+                        // User authenticated but email not verified
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                isAuthenticated = false,
+                                loggedInUserRole = null,
+                                requiresEmailVerification = true,
+                                unverifiedEmail = user.email,
+                                errorMessage = "Your email address is not verified. Please check your inbox."
                             )
                         }
                     }
-                )
+                } else {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = "Login failed. Please try again."
+                        )
+                    }
+                }
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorResId = R.string.error_unexpected,
-                        errorMessage = null
+                        errorMessage = "Login failed: ${e.message}"
                     )
                 }
             }

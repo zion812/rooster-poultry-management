@@ -23,6 +23,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.rooster.ui.theme.RoosterTheme
+import com.example.rooster.feature.home.HomeScreen
+import com.example.rooster.feature.profile.ProfileScreen
+import com.example.rooster.feature.splash.SplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -61,13 +64,13 @@ fun RoosterApp() {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable("home") {
-                HomeScreen()
+                com.example.rooster.feature.home.HomeScreen()
             }
             composable("marketplace") {
                 MarketplaceScreen()
             }
             composable("profile") {
-                ProfileScreen()
+                com.example.rooster.feature.profile.ProfileScreen()
             }
             composable("settings") {
                 SettingsScreen()

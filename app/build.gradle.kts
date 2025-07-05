@@ -191,19 +191,13 @@ android {
 dependencies {
     // Core modules - Enhanced architecture
     implementation(project(":core:core-common"))
-    // implementation(project(":core:core-network")) // Temporarily disabled
-    // implementation(project(":core:core-auth")) // Temporarily disabled
-    // implementation(project(":core:core-database")) // Temporarily disabled
-    // implementation(project(":core:core-payment")) // Temporarily disabled
     implementation(project(":core:navigation"))
-    // implementation(project(":core:search")) // Temporarily disabled
-    // implementation(project(":core:analytics")) // Temporarily disabled
 
-    // Feature modules - Comprehensive system
-    // implementation(project(":feature:feature-farm")) // Temporarily disabled
-    // implementation(project(":feature:feature-marketplace")) // Temporarily disabled
-    // implementation(project(":feature:feature-auctions")) // Temporarily disabled
-    // implementation(project(":feature:feature-community")) // Temporarily disabled
+    // Feature modules - Essential for basic functionality
+    // implementation(project(":feature:feature-auth")) // Temporarily disabled
+    implementation(project(":feature:feature-home"))
+    implementation(project(":feature:feature-splash"))
+    implementation(project(":feature:feature-profile"))
 
     // Android Core
     implementation(libs.androidx.core.ktx)

@@ -3,8 +3,7 @@ package com.example.rooster.feature.auth.ui.checkemail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rooster.core.auth.domain.repository.AuthRepository
-import com.example.rooster.core.common.R
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -13,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 data class CheckEmailUiState(
@@ -30,7 +30,7 @@ private const val VERIFICATION_CHECK_INTERVAL_MS = 5000L // 5 seconds
 
 @HiltViewModel
 class CheckEmailViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
+    private val firebaseAuth: FirebaseAuth,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -46,37 +46,43 @@ class CheckEmailViewModel @Inject constructor(
         if (emailArg.isNotBlank()) {
             sendVerificationEmail(isInitialSend = true)
         } else {
-            _uiState.update { it.copy(errorResId = R.string.error_email_missing_for_verification) }
+            _uiState.update { it.copy(errorMessage = "Email is missing for verification process.") }
         }
     }
 
     fun sendVerificationEmail(isInitialSend: Boolean = false) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorResId = null, errorMessage = null, verificationEmailSentMessage = null) }
-            val result = authRepository.sendCurrentUserEmailVerification()
-            result.fold(
-                onSuccess = {
+            try {
+                val user = firebaseAuth.currentUser
+                if (user != null) {
+                    user.sendEmailVerification().await()
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            verificationEmailSentMessage = if (isInitialSend) R.string.verification_email_sent else R.string.verification_email_resent
+                            errorMessage = if (isInitialSend) "Verification email sent successfully." else "Verification email resent successfully."
                         )
                     }
                     if (!isInitialSend) { // Start countdown only on resend
                         startResendCountdown()
                     }
                     startEmailVerificationCheck() // Always start checking after sending
-                },
-                onFailure = { exception ->
+                } else {
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorResId = R.string.error_sending_verification_email,
-                            errorMessage = exception.message
+                            errorMessage = "No current user found."
                         )
                     }
                 }
-            )
+            } catch (exception: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Failed to send verification email: ${exception.message}"
+                    )
+                }
+            }
         }
     }
 
@@ -105,22 +111,22 @@ class CheckEmailViewModel @Inject constructor(
             while (true) {
                 if (_uiState.value.isEmailVerified) break // Stop if already verified
 
-                val result = authRepository.reloadCurrentUser()
-                result.fold(
-                    onSuccess = { user ->
-                        if (user?.isEmailVerified == true) {
+                try {
+                    val user = firebaseAuth.currentUser
+                    if (user != null) {
+                        user.reload().await()
+                        if (user.isEmailVerified) {
                             _uiState.update { it.copy(isEmailVerified = true, isLoading = false) }
                             verificationCheckJob?.cancel() // Stop checking
                             countdownJob?.cancel() // Stop countdown if running
+                            break
                         }
-                    },
-                    onFailure = { exception ->
-                        // Optionally handle error, but avoid stopping the loop for transient errors
-                        // unless it's a critical error. For now, we'll let it keep trying.
-                        // _uiState.update { it.copy(errorResId = R.string.error_checking_verification_status, errorMessage = exception.message) }
-                        // Consider logging this error.
                     }
-                )
+                } catch (exception: Exception) {
+                    // Log error but continue checking
+                    // Don't break the loop for transient errors
+                }
+                
                 if (_uiState.value.isEmailVerified) break // Check again to exit loop immediately
                 delay(VERIFICATION_CHECK_INTERVAL_MS)
             }
