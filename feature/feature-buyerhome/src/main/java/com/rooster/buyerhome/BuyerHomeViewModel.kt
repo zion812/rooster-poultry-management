@@ -27,25 +27,19 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.example.rooster.core.common.util.DataState
 
 
 // Define UI State for BuyerHomeScreen
 data class BuyerHomeUiState(
-    val recommendations: List<MarketplaceRecommendationItem> = emptyList(),
-    val isLoadingRecommendations: Boolean = false,
-    val recommendationsError: String? = null,
-
-    val recentOrders: List<OrderItem> = emptyList(),
-    val isLoadingOrders: Boolean = false,
-    val ordersError: String? = null,
-
-    val priceComparisons: List<PriceComparisonProduct> = emptyList(),
-    val isLoadingPriceComparisons: Boolean = false,
-    val priceComparisonsError: String? = null,
-
-    val topSuppliers: List<SupplierRatingInfo> = emptyList(),
-    val isLoadingSuppliers: Boolean = false,
-    val suppliersError: String? = null
+    val recommendationsState: DataState<List<MarketplaceRecommendationItem>> = DataState.Loading(null),
+    val recentOrdersState: DataState<List<OrderItem>> = DataState.Loading(null),
+    val priceComparisonsState: DataState<List<PriceComparisonProduct>> = DataState.Loading(null),
+    val topSuppliersState: DataState<List<SupplierRatingInfo>> = DataState.Loading(null),
+    val transientUserMessage: String? = null,
+    val messageId: java.util.UUID? = null,
+    val isRefreshing: Boolean = false,
+    val isOffline: Boolean = false // Added for network status
 )
 
 @HiltViewModel
@@ -53,7 +47,8 @@ class BuyerHomeViewModel @Inject constructor(
     private val marketplaceRepository: BuyerMarketplaceRepository,
     private val orderRepository: BuyerOrderRepository,
     private val priceComparisonRepository: PriceComparisonRepository,
-    private val supplierRepository: BuyerSupplierRepository
+    private val supplierRepository: BuyerSupplierRepository,
+    private val connectivityRepository: com.example.rooster.core.common.connectivity.ConnectivityRepository // Fully qualified
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(BuyerHomeUiState())
@@ -63,45 +58,78 @@ class BuyerHomeViewModel @Inject constructor(
     private val currentBuyerId = "buyer789" // Placeholder
 
     init {
+        fetchAllData()
+        observeNetworkStatus() // Call new function
+    }
+
+    private fun observeNetworkStatus() {
+        viewModelScope.launch {
+            connectivityRepository.observeNetworkStatus().collect { status ->
+                _uiState.value = _uiState.value.copy(
+                    isOffline = status != com.example.rooster.core.common.connectivity.NetworkStatus.Available
+                )
+            }
+        }
+    }
+
+    private fun fetchAllData() {
         fetchMarketplaceRecommendations()
         fetchRecentOrders()
         fetchPriceComparisons(listOf("Broilers", "Eggs")) // Example products
         fetchTopSuppliers()
     }
 
+    fun refresh() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isRefreshing = true)
+            fetchAllData()
+            // Consider a more robust way to set isRefreshing = false, e.g., when all flows have emitted.
+            _uiState.value = _uiState.value.copy(isRefreshing = false)
+        }
+    }
+
     fun fetchMarketplaceRecommendations() {
         viewModelScope.launch {
+            // Assuming repository now returns Flow<DataState<List<MarketplaceRecommendationItem>>>
             marketplaceRepository.getMarketplaceRecommendations(currentBuyerId)
-                .onStart { _uiState.value = _uiState.value.copy(isLoadingRecommendations = true, recommendationsError = null) }
-                .catch { e -> _uiState.value = _uiState.value.copy(isLoadingRecommendations = false, recommendationsError = e.message) }
-                .collect { data -> _uiState.value = _uiState.value.copy(isLoadingRecommendations = false, recommendations = data) }
+                .collect { dataState ->
+                    _uiState.value = _uiState.value.copy(recommendationsState = dataState)
+                }
         }
     }
 
     fun fetchRecentOrders(count: Int = 5) {
         viewModelScope.launch {
+            // Assuming repository now returns Flow<DataState<List<OrderItem>>>
             orderRepository.getRecentOrders(currentBuyerId, count)
-                .onStart { _uiState.value = _uiState.value.copy(isLoadingOrders = true, ordersError = null) }
-                .catch { e -> _uiState.value = _uiState.value.copy(isLoadingOrders = false, ordersError = e.message) }
-                .collect { data -> _uiState.value = _uiState.value.copy(isLoadingOrders = false, recentOrders = data) }
+                .collect { dataState ->
+                    _uiState.value = _uiState.value.copy(recentOrdersState = dataState)
+                }
         }
     }
 
     fun fetchPriceComparisons(productNames: List<String>) {
         viewModelScope.launch {
+            // Assuming repository now returns Flow<DataState<List<PriceComparisonProduct>>>
             priceComparisonRepository.getPriceComparisonForProducts(productNames)
-                .onStart { _uiState.value = _uiState.value.copy(isLoadingPriceComparisons = true, priceComparisonsError = null) }
-                .catch { e -> _uiState.value = _uiState.value.copy(isLoadingPriceComparisons = false, priceComparisonsError = e.message) }
-                .collect { data -> _uiState.value = _uiState.value.copy(isLoadingPriceComparisons = false, priceComparisons = data) }
+                .collect { dataState ->
+                    _uiState.value = _uiState.value.copy(priceComparisonsState = dataState)
+                }
         }
     }
 
     fun fetchTopSuppliers(count: Int = 3) {
         viewModelScope.launch {
+            // Assuming repository now returns Flow<DataState<List<SupplierRatingInfo>>>
             supplierRepository.getTopRatedSuppliers(count)
-                .onStart { _uiState.value = _uiState.value.copy(isLoadingSuppliers = true, suppliersError = null) }
-                .catch { e -> _uiState.value = _uiState.value.copy(isLoadingSuppliers = false, suppliersError = e.message) }
-                .collect { data -> _uiState.value = _uiState.value.copy(isLoadingSuppliers = false, topSuppliers = data) }
+                .collect { dataState ->
+                    _uiState.value = _uiState.value.copy(topSuppliersState = dataState)
+                }
         }
+    }
+
+    // Add if transient messages are used
+    fun clearTransientMessage() {
+        _uiState.value = _uiState.value.copy(transientUserMessage = null, messageId = null)
     }
 }

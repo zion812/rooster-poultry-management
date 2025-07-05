@@ -421,4 +421,164 @@
     <string name="order_id_display">Order ID: %s</string>
     <string name="continue_shopping_button">Continue Shopping</string>
     <string name="view_order_details_button">View Order Details</string>
+
+    <!-- Strings for FarmerHomeScreen -->
+    <string name="offline_banner_message">You are currently offline. Some data may be outdated.</string>
+    <string name="farmer_home_title">Farmer Dashboard</string>
+    <string name="current_weather_title">Current Weather</string>
+    <string name="weather_updating_stale">Updating weather data (showing cached)...</string>
+    <string name="weather_possibly_stale">Weather data might be stale.</string>
+    <string name="weather_cached">Weather data (cached)</string>
+    <string name="weather_no_data">Weather data not available.</string>
+    <string name="error_prefix">Error:</string>
+    <string name="weather_failed_update_stale">Failed to update weather (showing cached).</string>
+    <string name="retry_button">Retry</string>
+    <string name="weather_location_prefix">Location:</string>
+    <string name="weather_temperature_prefix">Temperature:</string>
+    <string name="weather_humidity_prefix">Humidity:</string>
+    <string name="weather_precipitation_prefix">Precipitation:</string>
+    <string name="weather_wind_speed_prefix">Wind Speed:</string>
+    <string name="weather_description_prefix">Description:</string>
+    <string name="alerts_unread_suffix">unread</string>
+    <string name="farm_health_alerts_title">Farm Health Alerts</string>
+    <string name="alerts_updating_stale">Updating alerts (showing cached)...</string>
+    <string name="alerts_no_active">No active health alerts.</string>
+    <string name="alerts_possibly_stale">Alert data might be stale.</string>
+    <string name="alerts_cached">Alert data (cached)</string>
+    <string name="alerts_failed_update_stale">Failed to update alerts (showing cached).</string>
+    <string name="alert_recommendation_prefix">Recommendation:</string>
+    <string name="alert_severity_prefix">Severity:</string>
+    <string name="alert_time_prefix">Time:</string>
+    <string name="alert_mark_as_read_button">Mark as Read</string>
+    <string name="farm_info_title">Farm Information</string>
+    <string name="farm_info_updating_stale">Updating farm info (showing cached)...</string>
+    <string name="farm_info_possibly_stale">Farm info might be stale.</string>
+    <string name="farm_info_cached">Farm info (cached)</string>
+    <string name="farm_info_no_data">Farm information not available.</string>
+    <string name="farm_info_failed_update_stale">Failed to update farm info (showing cached).</string>
+    <string name="farm_info_name_prefix">Name:</string>
+    <string name="farm_info_location_prefix">Location:</string>
+    <string name="farm_info_owner_prefix">Owner:</string>
+    <string name="farm_info_active_flocks_prefix">Active Flocks:</string>
+    <string name="farm_info_total_capacity_prefix">Total Capacity:</string>
+    <string name="farm_info_birds_suffix">birds</string>
+    <string name="farm_info_last_health_check_prefix">Last Health Check:</string>
+    <string name="production_metrics_title">Production Metrics</string>
+    <string name="metrics_updating_stale">Updating metrics (showing cached)...</string>
+    <string name="metrics_possibly_stale">Metrics data might be stale.</string>
+    <string name="metrics_cached">Metrics data (cached)</string>
+    <string name="metrics_no_data">Production metrics not available.</string>
+    <string name="metrics_failed_update_stale">Failed to update metrics (showing cached).</string>
+    <string name="production_overall_summary_title">Overall Summary</string>
+    <string name="production_total_flocks_prefix">Total Flocks:</string>
+    <string name="production_active_birds_prefix">Active Birds:</string>
+    <string name="production_eggs_today_prefix">Eggs Today:</string>
+    <string name="production_eggs_suffix">eggs</string>
+    <string name="production_mortality_rate_prefix">Weekly Mortality Rate:</string>
+    <string name="production_detailed_metrics_title">Detailed Metrics</string>
+    <string name="production_no_detailed_metrics">No detailed metrics available.</string>
+    <string name="metric_period_prefix">Period:</string>
+    <string name="metric_trend_prefix">Trend:</string>
+    <string name="quick_actions_title">Quick Actions</string>
+    <string name="quick_action_log_mortality">Log Mortality</string>
+    <string name="quick_action_record_feeding">Record Feeding</string>
+    <string name="quick_action_market_prices">Market Prices</string>
+    <string name="quick_action_add_flock">Add New Flock</string>
+
+    <!-- Strings for BuyerHomeScreen & components -->
+    <string name="buyer_home_title">Buyer Dashboard</string>
+    <string name="recommendations_title">Recommendations For You</string>
+    <string name="updating_cached_data">Updating (showing cached data)...</string>
+    <string name="recommendations_no_data">No recommendations available right now.</string>
+    <string name="data_possibly_stale">Data might be outdated.</string>
+    <string name="failed_update_showing_cached">Update failed (showing cached data).</string>
+    <string name="recent_orders_title">Recent Orders</string>
+    <string name="orders_no_recent">No recent orders.</string>
+    <string name="price_watch_title">Price Watch</string>
+    <string name="price_comparison_no_data">No price comparison data available.</string>
+    <string name="top_suppliers_title">Top Suppliers</string>
+    <string name="suppliers_no_data">No supplier data available.</string>
+    <string name="recommendation_seller_prefix">By:</string>
+    <string name="recommendation_price_prefix">Price:</string>
+    <string name="order_seller_prefix">Sold by:</string>
+    <string name="order_status_prefix">Status:</string>
+    <string name="order_total_prefix">Total:</string>
+    <string name="order_ordered_on_prefix">Ordered:</string>
+    <string name="order_expected_by_prefix">Expected by:</string>
+    <string name="price_comparison_avg_market_prefix">Avg. Market:</string>
+    <string name="price_comparison_last_paid_prefix">Last Paid:</string>
+    <string name="price_comparison_best_offer_prefix">Best Offer:</string>
+    <string name="rating_content_description">Rating Star</string>
+    <string name="reviews_suffix">reviews</string>
+
+    <!-- Strings for AdminHomeScreen & components -->
+    <string name="admin_home_title">Admin Dashboard</string>
+    <string name="system_status_title">System Status</string>
+    <string name="system_metrics_no_data">No system metrics available.</string>
+    <string name="user_overview_title">User Overview</string>
+    <string name="user_info_no_data">User information not available.</string>
+    <string name="user_info_total_users_prefix">Total Users:</string>
+    <string name="user_info_new_today_prefix">New Today:</string>
+    <string name="user_info_active_users_prefix">Active Users (24h):</string>
+    <string name="user_info_pending_verification_prefix">Pending Verification:</string>
+    <string name="financial_snapshot_title">Financial Snapshot</string>
+    <string name="financial_highlights_no_data">No financial highlights available.</string>
+    <string name="financial_trend_prefix">Trend:</string>
+    <string name="moderation_queue_title">Moderation Queue</string>
+    <string name="moderation_queue_pending_suffix">pending</string>
+    <string name="and_n_more">...and %1$d more.</string>
+    <string name="moderation_queue_clear">Moderation queue is clear.</string>
+    <string name="moderation_reason_prefix">Reason:</string>
+    <string name="moderation_submitted_prefix">Submitted:</string>
+
+    <!-- Strings for VetHomeScreen & components -->
+    <string name="vet_home_title">Vet Dashboard</string>
+    <string name="consultation_queue_title">Consultation Queue (%1$d pending)</string>
+    <string name="consultation_queue_empty">Consultation queue is empty.</string>
+    <string name="recent_patients_title">Recent Patients</string>
+    <string name="patients_no_recent">No recent patient data.</string>
+    <string name="vet_health_alerts_title">Active Health Alerts</string>
+    <string name="vet_alerts_no_active">No active health alerts for your attention.</string>
+    <string name="consultation_issue_prefix">Issue:</string>
+    <string name="consultation_status_prefix">Status:</string>
+    <string name="consultation_priority_prefix">Priority:</string>
+    <string name="consultation_requested_prefix">Requested:</string>
+    <string name="patient_last_visit_prefix">Last Visit:</string>
+    <string name="patient_last_diagnosis_prefix">Last Diagnosis:</string>
+    <string name="patient_no_recent_info">No recent information for this patient.</string>
+    <string name="vet_alert_farm_prefix">Farm:</string>
+    <string name="vet_alert_severity_prefix">Severity:</string>
+    <string name="vet_alert_reported_prefix">Reported:</string>
+    <string name="vet_alert_suggested_actions_title">Suggested Actions:</string>
+
+    <!-- Common strings if not already present or for better context -->
+    <string name="status_pending">Pending</string>
+    <string name="status_in_progress">In Progress</string>
+    <string name="status_resolved">Resolved</string>
+    <string name="status_delivered">Delivered</string>
+    <string name="status_shipped">Shipped</string>
+    <string name="status_cancelled">Cancelled</string>
+    <string name="severity_critical">Critical</string>
+    <string name="severity_high">High</string>
+    <string name="severity_medium">Medium</string>
+    <string name="severity_low">Low</string>
+
+    <string name="product_image_content_description">Image of %1$s</string>
+    <string name="supplier_profile_image_desc">Profile image of %1$s</string>
+
+    <!-- Strings for AdminHomeScreen Components -->
+    <string name="admin_metric_value_prefix">Value:</string>
+    <string name="admin_metric_last_updated_prefix">Last Updated:</string>
+    <string name="admin_user_stats_title">User Statistics</string>
+    <string name="admin_total_users_prefix">Total Users:</string>
+    <string name="admin_new_users_today_prefix">New Users Today:</string>
+    <string name="admin_active_users_prefix">Active Users (24h):</string>
+    <string name="admin_pending_verification_prefix">Pending Verification:</string>
+    <string name="admin_financial_trend_up_desc">Trending Up</string>
+    <string name="admin_financial_trend_down_desc">Trending Down</string>
+    <string name="admin_moderation_reported_item_title">New %1$s Reported</string>
+    <string name="admin_moderation_reason_prefix">Reason:</string>
+    <string name="admin_moderation_status_prefix">Status:</string>
+    <string name="admin_moderation_date_prefix">Date:</string>
+
 </resources>
