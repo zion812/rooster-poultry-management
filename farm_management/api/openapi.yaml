@@ -1,0 +1,2912 @@
+openapi: 3.0.0
+info:
+  title: Rooster Farm Management API
+  version: v1.0.0
+  description: |
+    API for managing farm data including farms, flocks, tracking records (health, production, growth, feed),
+    and weather information for the Rooster Poultry Management App.
+
+servers:
+  - url: http://localhost:5000/api
+    description: Local development server
+  # Add other environments like staging or production here later
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT-based authentication. The token should be included in the Authorization header using the Bearer scheme.
+        Example: `Authorization: Bearer <your_jwt_token>`
+        Tokens can be obtained via the `/auth/login` endpoint.
+
+  schemas:
+    # Authentication Schemas
+    LoginCredentials:
+      type: object
+      properties:
+        username:
+          type: string
+          description: The user's username (or email).
+          example: "user@example.com"
+        password:
+          type: string
+          format: password
+          description: The user's password.
+          example: "securePassword123"
+      required:
+        - username
+        - password
+
+    UserRegistration:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Desired username (or email). Must be unique.
+          example: "newuser@example.com"
+        password:
+          type: string
+          format: password
+          description: Desired password.
+          example: "newSecurePassword456"
+        full_name:
+          type: string
+          description: Full name of the user.
+          example: "New User"
+          nullable: true
+      required:
+        - username
+        - password
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: The JWT access token.
+        refresh_token:
+          type: string
+          description: The JWT refresh token (if applicable).
+        token_type:
+          type: string
+          example: "bearer"
+        expires_in:
+          type: integer
+          description: Lifetime of the access token in seconds.
+          example: 3600
+      required:
+        - access_token
+        - token_type
+
+    RefreshTokenInput:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+          description: The JWT refresh token.
+      required:
+        - refresh_token
+
+    User: # Basic User Information (e.g., for a /auth/me endpoint)
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the user.
+          readOnly: true
+        username:
+          type: string
+          description: User's username or email.
+        full_name:
+          type: string
+          nullable: true
+        roles:
+          type: array
+          items:
+            type: string
+          description: Roles assigned to the user (e.g., "farmer", "admin").
+          example: ["farmer"]
+      required:
+        - user_id
+        - username
+
+    # Error Responses
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: A human-readable message providing more details about the error.
+          example: "The requested resource was not found."
+        error_code: # More specific error code
+          type: string
+          description: A specific error code identifying the type of error.
+          example: "RESOURCE_NOT_FOUND"
+        details: # Optional field for more detailed errors, e.g., validation errors
+          type: object
+          additionalProperties: true
+          description: Additional details about the error, such as validation messages for specific fields.
+          example: { "field_name": "This field is required." }
+      required:
+        - message
+        - error_code
+
+    ValidationErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          properties:
+            error_code:
+              example: "VALIDATION_ERROR"
+            details:
+              type: object
+              description: Contains validation errors for specific fields.
+              properties:
+                # Example:
+                # field_name:
+                #   type: array
+                #   items:
+                #     type: string
+                #     example: "This field must be a string."
+                # This can be more dynamic depending on how validation errors are structured.
+                # For now, keeping it as additionalProperties for flexibility.
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+              example:
+                name: ["Name is required.", "Name must be at least 3 characters long."]
+                capacity: ["Capacity must be a positive integer."]
+
+    # Core Models
+    Farm:
+      type: object
+      properties:
+        farm_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the farm.
+          readOnly: true
+        name:
+          type: string
+          description: Name of the farm.
+        location:
+          type: string
+          description: Location of the farm.
+        owner:
+          type: string
+          description: Owner of the farm.
+        capacity:
+          type: integer
+          description: Total capacity of the farm (number of birds).
+        established_date:
+          type: string
+          format: date
+          description: Date when the farm was established (YYYY-MM-DD).
+          nullable: true
+        notes:
+          type: string
+          description: Additional notes about the farm.
+          nullable: true
+        # flock_ids: # Currently managed internally, not directly exposed in Farm schema for modification
+        #   type: array
+        #   items:
+        #     type: string
+        #     format: uuid
+        #   description: List of flock IDs associated with this farm.
+        #   readOnly: true
+      required:
+        - name
+        - location
+        - owner
+        - capacity
+
+    FarmInput:
+      allOf:
+        - $ref: '#/components/schemas/Farm'
+        # farm_id is readOnly, so not required for input.
+        # Override/remove readOnly fields if needed for input context, or list explicitly.
+      properties:
+        # established_date can be string on input, parsed by server
+        established_date:
+          type: string
+          format: date-time # Actually YYYY-MM-DD string for input
+          description: Date when the farm was established (YYYY-MM-DD).
+          nullable: true
+      required:
+        - name
+        - location
+        - owner
+        - capacity
+
+    Flock:
+      type: object
+      properties:
+        flock_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the flock.
+          readOnly: true
+        farm_id:
+          type: string
+          format: uuid
+          description: Identifier of the farm this flock belongs to.
+          readOnly: true # Set on creation via path
+        breed:
+          type: string
+          description: Breed of the poultry in the flock.
+        acquisition_date:
+          type: string
+          format: date
+          description: Date the flock was acquired (YYYY-MM-DD).
+        initial_count:
+          type: integer
+          description: Initial number of birds in the flock.
+        current_count:
+          type: integer
+          description: Current number of birds in the flock.
+          readOnly: true # Managed by server based on mortality records
+        source_supplier:
+          type: string
+          description: Supplier or source of the flock.
+          nullable: true
+        parent_flock_id_male:
+          type: string
+          format: uuid
+          description: ID of the male parent flock, if applicable.
+          nullable: true
+        parent_flock_id_female:
+          type: string
+          format: uuid
+          description: ID of the female parent flock, if applicable.
+          nullable: true
+        notes:
+          type: string
+          description: Additional notes about the flock.
+          nullable: true
+        # health_records, production_records etc. are typically accessed via separate endpoints.
+      required:
+        - breed
+        - acquisition_date
+        - initial_count
+
+    FlockInput:
+      allOf:
+        - $ref: '#/components/schemas/Flock'
+        # flock_id, farm_id, current_count are readOnly/managed by server.
+      properties:
+        acquisition_date:
+          type: string # Input as string
+          format: date
+          description: Date the flock was acquired (YYYY-MM-DD).
+      required:
+        - breed
+        - acquisition_date
+        - initial_count
+
+    FlockFamilyTreeNode:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        breed:
+          type: string
+        acquisition_date:
+          type: string
+          format: date
+        male_parent:
+          $ref: '#/components/schemas/FlockFamilyTreeNode'
+          nullable: true
+        female_parent:
+          $ref: '#/components/schemas/FlockFamilyTreeNode'
+          nullable: true
+        error: # In case a parent flock is not found during tree traversal
+          type: string
+          nullable: true
+
+    # Tracking Record Schemas (to be detailed)
+    HealthRecord:
+      type: object
+      discriminator:
+        propertyName: record_type
+        mapping:
+          Disease Incident: '#/components/schemas/DiseaseIncidentRecord'
+          Vaccination: '#/components/schemas/VaccinationRecord'
+          Mortality: '#/components/schemas/MortalityRecord'
+          General Checkup: '#/components/schemas/GeneralCheckupRecord' # Explicit schema for base type
+      properties:
+        record_id:
+          type: string
+          format: uuid
+          readOnly: true
+        flock_id:
+          type: string
+          format: uuid
+          readOnly: true # Set on creation via path
+        record_type:
+          type: string
+          enum: ["Disease Incident", "Vaccination", "Mortality", "General Checkup"]
+        record_date: # Input as string, stored as datetime
+          type: string
+          format: date-time # Should be ISO 8601 e.g., YYYY-MM-DDTHH:MM:SS or YYYY-MM-DD HH:MM
+        details:
+          type: string
+        veterinarian:
+          type: string
+          nullable: true
+        cost:
+          type: number
+          format: float
+          nullable: true
+      required:
+        - record_type
+        - record_date
+        - details
+
+    HealthRecordInput: # Used for POST body
+      type: object
+      properties:
+        record_type:
+          type: string
+          enum: ["Disease Incident", "Vaccination", "Mortality", "General Checkup"]
+        record_date:
+          type: string
+          format: date-time # e.g., "2023-10-27T10:30:00" or "2023-10-27 10:30"
+        details:
+          type: string
+        veterinarian:
+          type: string
+          nullable: true
+        cost:
+          type: number
+          format: float
+          nullable: true
+        # Disease Incident specific
+        disease_name:
+          type: string
+          nullable: true
+        symptoms:
+          type: array
+          items:
+            type: string # From DiseaseSymptoms enum values like "RESPIRATORY_DISTRESS"
+          nullable: true
+        treatment_administered:
+          type: string
+          nullable: true
+        affected_count:
+          type: integer
+          nullable: true
+        # Vaccination specific
+        vaccine_name:
+          type: string
+          nullable: true
+        administered_by:
+          type: string
+          nullable: true
+        dosage:
+          type: string
+          nullable: true
+        vaccinated_count:
+          type: integer
+          nullable: true
+        # Mortality specific
+        cause_of_death:
+          type: string
+          nullable: true
+        number_of_deaths:
+          type: integer
+          description: Required and >0 if record_type is Mortality
+          nullable: true
+        post_mortem_findings:
+          type: string
+          nullable: true
+      required:
+        - record_type
+        - record_date
+        - details
+      # Further conditional requirements can be mentioned in descriptions or handled by server logic.
+
+    GeneralCheckupRecord: # Schema for the base type if returned directly
+      allOf:
+        - $ref: '#/components/schemas/HealthRecord'
+      # No additional properties specific to GeneralCheckup beyond base HealthRecord
+
+    DiseaseIncidentRecord:
+      allOf:
+        - $ref: '#/components/schemas/HealthRecord'
+        - type: object
+          properties:
+            disease_name:
+              type: string
+            symptoms:
+              type: array
+              items:
+                type: string # From DiseaseSymptoms enum
+            treatment_administered:
+              type: string
+              nullable: true
+            affected_count:
+              type: integer
+              nullable: true
+          required:
+            - disease_name
+            - symptoms
+
+    VaccinationRecord:
+      allOf:
+        - $ref: '#/components/schemas/HealthRecord'
+        - type: object
+          properties:
+            vaccine_name:
+              type: string
+            administered_by:
+              type: string
+            dosage:
+              type: string
+              nullable: true
+            vaccinated_count:
+              type: integer
+              nullable: true
+          required:
+            - vaccine_name
+            - administered_by
+
+    MortalityRecord:
+      allOf:
+        - $ref: '#/components/schemas/HealthRecord'
+        - type: object
+          properties:
+            cause_of_death:
+              type: string
+            number_of_deaths:
+              type: integer
+            post_mortem_findings:
+              type: string
+              nullable: true
+          required:
+            - cause_of_death
+            - number_of_deaths
+
+    ProductionRecord:
+      type: object
+      properties:
+        record_id:
+          type: string
+          format: uuid
+          readOnly: true
+        flock_id:
+          type: string
+          format: uuid
+          readOnly: true
+        record_date:
+          type: string
+          format: date # YYYY-MM-DD
+        total_eggs_laid:
+          type: integer
+        damaged_eggs:
+          type: integer
+          nullable: true
+        average_egg_weight_gm:
+          type: number
+          format: float
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      required:
+        - record_date
+        - total_eggs_laid
+
+    ProductionRecordInput:
+      allOf:
+        - $ref: '#/components/schemas/ProductionRecord'
+      properties:
+        record_date: # Input as string
+          type: string
+          format: date
+      required:
+        - record_date
+        - total_eggs_laid
+
+    FeedConsumptionRecord:
+      type: object
+      properties:
+        record_id:
+          type: string
+          format: uuid
+          readOnly: true
+        flock_id:
+          type: string
+          format: uuid
+          readOnly: true
+        record_date:
+          type: string
+          format: date # YYYY-MM-DD
+        feed_type:
+          type: string
+        quantity_kg:
+          type: number
+          format: float
+        cost_per_kg:
+          type: number
+          format: float
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      required:
+        - record_date
+        - feed_type
+        - quantity_kg
+
+    FeedConsumptionRecordInput:
+      allOf:
+        - $ref: '#/components/schemas/FeedConsumptionRecord'
+      properties:
+        record_date: # Input as string
+          type: string
+          format: date
+      required:
+        - record_date
+        - feed_type
+        - quantity_kg
+
+    GrowthRecord:
+      type: object
+      properties:
+        record_id:
+          type: string
+          format: uuid
+          readOnly: true
+        flock_id:
+          type: string
+          format: uuid
+          readOnly: true
+        record_date:
+          type: string
+          format: date # YYYY-MM-DD
+        average_weight_grams:
+          type: number
+          format: float
+        number_of_birds_weighed:
+          type: integer
+        feed_conversion_ratio:
+          type: number
+          format: float
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      required:
+        - record_date
+        - average_weight_grams
+        - number_of_birds_weighed
+
+    GrowthRecordInput:
+      allOf:
+        - $ref: '#/components/schemas/GrowthRecord'
+      properties:
+        record_date: # Input as string
+          type: string
+          format: date
+      required:
+        - record_date
+        - average_weight_grams
+        - number_of_birds_weighed
+
+    WeatherInfo:
+      type: object
+      properties:
+        location:
+          type: string
+          description: Name of the location.
+        temperature_celsius:
+          type: number
+          format: float
+          description: Temperature in Celsius.
+        condition_text:
+          type: string
+          description: Textual description of weather conditions.
+        humidity_percent:
+          type: integer
+          description: Humidity in percentage.
+        wind_kph:
+          type: number
+          format: float
+          description: Wind speed in kilometers per hour.
+        last_updated:
+          type: string
+          format: date-time
+          description: Timestamp of the last weather update.
+        # Add other relevant fields from WeatherService response as needed
+
+    AlertCheckResponse:
+      type: object
+      properties:
+        alert:
+          type: boolean
+          description: True if an alert is triggered, false otherwise.
+        message:
+          type: string
+          description: Description of the alert or status.
+      required:
+        - alert
+        - message
+
+paths:
+  # Environment Records
+  /flocks/{flock_id}/environment:
+    post:
+      summary: Add Environment Record for Flock
+      description: Adds a new environment sensor reading or manual observation for a specific flock.
+      tags:
+        - Tracking - Environment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnvironmentRecordInput'
+      responses:
+        '201':
+          description: Environment record created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentRecord'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: List Environment Records for Flock
+      description: Retrieves environment records for a specific flock, optionally filtered by date range.
+      tags:
+        - Tracking - Environment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock.
+          schema:
+            type: string
+            format: uuid
+        - name: start_date
+          in: query
+          required: false
+          description: Filter records from this date/time (ISO 8601).
+          schema:
+            type: string
+            format: date-time
+        - name: end_date
+          in: query
+          required: false
+          description: Filter records up to this date/time (ISO 8601).
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: A list of environment records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnvironmentRecord'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /environment-records/{record_id}:
+    get:
+      summary: Get Environment Record by ID
+      description: Retrieves a specific environment record by its ID.
+      tags:
+        - Tracking - Environment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the environment record.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Details of the environment record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentRecord'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Environment record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update Environment Record
+      description: Updates an existing environment record.
+      tags:
+        - Tracking - Environment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the environment record to update.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnvironmentRecordInput'
+      responses:
+        '200':
+          description: Environment record updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentRecord'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Environment record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Environment Record
+      description: Deletes a specific environment record by its ID.
+      tags:
+        - Tracking - Environment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the environment record to delete.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Environment record deleted successfully (No Content).
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Environment record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      summary: Health Check
+      description: Checks the health of the API.
+      tags:
+        - Health
+      security:
+        - BearerAuth: [] # Protected as per server.py
+      responses:
+        '200':
+          description: API is healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  message:
+                    type: string
+                    example: Farm Management API is running!
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /farms:
+    get:
+      summary: List or Search Farms
+      description: Retrieves a list of all farms, or searches farms based on a query parameter.
+      tags:
+        - Farm Management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          description: Search term for farm name, location, or owner. If not provided, lists all farms.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of farms.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Farm'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create Farm
+      description: Creates a new farm.
+      tags:
+        - Farm Management
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FarmInput'
+      responses:
+        '201':
+          description: Farm created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Farm'
+        '400':
+          description: Bad Request (e.g., missing fields, invalid data format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /farms/{farm_id}:
+    get:
+      summary: Get Farm by ID
+      description: Retrieves a specific farm by its ID.
+      tags:
+        - Farm Management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: farm_id
+          in: path
+          required: true
+          description: The unique identifier for the farm.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Details of the farm.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Farm'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Farm not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update Farm
+      description: Updates an existing farm.
+      tags:
+        - Farm Management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: farm_id
+          in: path
+          required: true
+          description: The unique identifier for the farm to update.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FarmInput' # FarmInput can be used, but fields are optional for PUT
+      responses:
+        '200':
+          description: Farm updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Farm'
+        '400':
+          description: Bad Request (e.g., invalid data format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Farm not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Farm
+      description: Deletes a farm by its ID.
+      tags:
+        - Farm Management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: farm_id
+          in: path
+          required: true
+          description: The unique identifier for the farm to delete.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Farm deleted successfully (No Content).
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Farm not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (e.g., farm has associated flocks that prevent deletion).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /farms/{farm_id}/flocks:
+    get:
+      summary: List Flocks for a Farm
+      description: Retrieves all flocks associated with a specific farm. Can also search within these flocks.
+      tags:
+        - Flock Management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: farm_id
+          in: path
+          required: true
+          description: The ID of the farm.
+          schema:
+            type: string
+            format: uuid
+        - name: q
+          in: query
+          description: Search term for flock breed, notes, or ID.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of flocks for the specified farm.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Flock'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Farm not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create Flock for Farm
+      description: Creates a new flock for a given farm.
+      tags:
+        - Flock Management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: farm_id
+          in: path
+          required: true
+          description: The ID of the farm to which this flock will belong.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlockInput'
+      responses:
+        '201':
+          description: Flock created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flock'
+        '400':
+          description: Bad Request (e.g., missing fields, invalid data format, parent flock ID not found)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Farm not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /flocks/{flock_id}:
+    get:
+      summary: Get Flock by ID
+      description: Retrieves a specific flock by its ID.
+      tags:
+        - Flock Management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The unique identifier for the flock.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Details of the flock.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flock'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update Flock
+      description: Updates an existing flock. Farm ID cannot be changed via this endpoint.
+      tags:
+        - Flock Management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock to update.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlockInput' # Fields are optional for PUT
+      responses:
+        '200':
+          description: Flock updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flock'
+        '400':
+          description: Bad Request (e.g., invalid data format, parent flock ID not found)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Flock
+      description: Deletes a flock by its ID. Also removes the flock from its associated farm object.
+      tags:
+        - Flock Management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock to delete.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Flock deleted successfully (No Content).
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict (e.g., flock has associated tracking records that prevent deletion).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /flocks/{flock_id}/family_tree:
+    get:
+      summary: Get Flock Family Tree
+      description: Gets the family tree for a given flock, showing parentage.
+      tags:
+        - Flock Management
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock for which to retrieve the family tree.
+          schema:
+            type: string
+            format: uuid
+        - name: max_depth
+          in: query
+          description: The maximum depth of the tree to retrieve. Defaults to 3.
+          required: false
+          schema:
+            type: integer
+            default: 3
+      responses:
+        '200':
+          description: Family tree data for the flock.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlockFamilyTreeNode'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Tracking Records
+  /flocks/{flock_id}/health:
+    post:
+      summary: Add Health Record for Flock
+      description: Adds a new health record (Disease Incident, Vaccination, Mortality, General Checkup) for a specific flock.
+      tags:
+        - Tracking - Health
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthRecordInput' # This schema includes type-specific fields
+      responses:
+        '201':
+          description: Health record created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthRecord' # Will be one of the specific types
+        '400':
+          description: Bad Request (e.g., missing fields, invalid data, invalid record_type)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: List Health Records for Flock
+      description: Retrieves health records for a specific flock, optionally filtered by record type.
+      tags:
+        - Tracking - Health
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock.
+          schema:
+            type: string
+            format: uuid
+        - name: record_type
+          in: query
+          required: false
+          description: Filter by record type (e.g., "Disease Incident", "Vaccination").
+          schema:
+            type: string
+            enum: ["Disease Incident", "Vaccination", "Mortality", "General Checkup"]
+      responses:
+        '200':
+          description: A list of health records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HealthRecord' # Items will be specific subtypes
+        '400':
+          description: Bad Request (if record_type filter is invalid)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health-records/{record_id}:
+    get:
+      summary: Get Health Record by ID
+      description: Retrieves a specific health record by its ID.
+      tags:
+        - Tracking - Health
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The unique identifier for the health record.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Details of the health record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthRecord' # Will be one of the specific types
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Health record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update Health Record
+      description: Updates an existing health record. The record_type cannot be changed.
+      tags:
+        - Tracking - Health
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the health record to update.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthRecordInput' # Contains all possible fields; server validates based on existing record_type
+      responses:
+        '200':
+          description: Health record updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthRecord' # Will be one of the specific types
+        '400':
+          description: Bad Request (e.g., invalid data format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Health record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Health Record
+      description: Deletes a specific health record by its ID. Adjusts flock count if it's a mortality record.
+      tags:
+        - Tracking - Health
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The unique identifier for the health record to delete.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Health record deleted successfully (No Content).
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Health record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /flocks/{flock_id}/production:
+    post:
+      summary: Add Production Record for Flock
+      description: Adds a new egg production record for a specific flock.
+      tags:
+        - Tracking - Production
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductionRecordInput'
+      responses:
+        '201':
+          description: Production record created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionRecord'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: List Production Records for Flock
+      description: Retrieves egg production records for a specific flock, optionally filtered by date range.
+      tags:
+        - Tracking - Production
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock.
+          schema:
+            type: string
+            format: uuid
+        - name: start_date
+          in: query
+          required: false
+          description: Filter records from this date (YYYY-MM-DD).
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: false
+          description: Filter records up to this date (YYYY-MM-DD).
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: A list of production records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductionRecord'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /production-records/{record_id}:
+    get:
+      summary: Get Production Record by ID
+      description: Retrieves a specific egg production record by its ID.
+      tags:
+        - Tracking - Production
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the production record.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Details of the production record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionRecord'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Production record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update Production Record
+      description: Updates an existing egg production record.
+      tags:
+        - Tracking - Production
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the production record to update.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductionRecordInput'
+      responses:
+        '200':
+          description: Production record updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionRecord'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Production record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Production Record
+      description: Deletes a specific egg production record by its ID.
+      tags:
+        - Tracking - Production
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the production record to delete.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Production record deleted successfully (No Content).
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Production record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /flocks/{flock_id}/feed:
+    post:
+      summary: Add Feed Consumption Record for Flock
+      description: Adds a new feed consumption record for a specific flock.
+      tags:
+        - Tracking - Feed
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedConsumptionRecordInput'
+      responses:
+        '201':
+          description: Feed consumption record created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedConsumptionRecord'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: List Feed Consumption Records for Flock
+      description: Retrieves feed consumption records for a specific flock, optionally filtered by date range.
+      tags:
+        - Tracking - Feed
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock.
+          schema:
+            type: string
+            format: uuid
+        - name: start_date
+          in: query
+          required: false
+          description: Filter records from this date (YYYY-MM-DD).
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: false
+          description: Filter records up to this date (YYYY-MM-DD).
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: A list of feed consumption records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeedConsumptionRecord'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /feed-records/{record_id}:
+    get:
+      summary: Get Feed Consumption Record by ID
+      description: Retrieves a specific feed consumption record by its ID.
+      tags:
+        - Tracking - Feed
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the feed consumption record.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Details of the feed consumption record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedConsumptionRecord'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Feed consumption record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update Feed Consumption Record
+      description: Updates an existing feed consumption record.
+      tags:
+        - Tracking - Feed
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the feed consumption record to update.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedConsumptionRecordInput'
+      responses:
+        '200':
+          description: Feed consumption record updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedConsumptionRecord'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Feed consumption record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Feed Consumption Record
+      description: Deletes a specific feed consumption record by its ID.
+      tags:
+        - Tracking - Feed
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the feed consumption record to delete.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Feed consumption record deleted successfully (No Content).
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Feed consumption record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /flocks/{flock_id}/growth:
+    post:
+      summary: Add Growth Record for Flock
+      description: Adds a new growth record for a specific flock.
+      tags:
+        - Tracking - Growth
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GrowthRecordInput'
+      responses:
+        '201':
+          description: Growth record created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrowthRecord'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: List Growth Records for Flock
+      description: Retrieves growth records for a specific flock, optionally filtered by date range.
+      tags:
+        - Tracking - Growth
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock.
+          schema:
+            type: string
+            format: uuid
+        - name: start_date
+          in: query
+          required: false
+          description: Filter records from this date (YYYY-MM-DD).
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: false
+          description: Filter records up to this date (YYYY-MM-DD).
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: A list of growth records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GrowthRecord'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /growth-records/{record_id}:
+    get:
+      summary: Get Growth Record by ID
+      description: Retrieves a specific growth record by its ID.
+      tags:
+        - Tracking - Growth
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the growth record.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Details of the growth record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrowthRecord'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Growth record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update Growth Record
+      description: Updates an existing growth record.
+      tags:
+        - Tracking - Growth
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the growth record to update.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GrowthRecordInput'
+      responses:
+        '200':
+          description: Growth record updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrowthRecord'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Growth record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Growth Record
+      description: Deletes a specific growth record by its ID.
+      tags:
+        - Tracking - Growth
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          description: The ID of the growth record to delete.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Growth record deleted successfully (No Content).
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Growth record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Alerts
+  /flocks/{flock_id}/health/alerts/mortality:
+    get:
+      summary: Check Mortality Alert for Flock
+      description: Checks for high mortality alerts for a specific flock based on defined thresholds.
+      tags:
+        - Tracking - Alerts
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock.
+          schema:
+            type: string
+            format: uuid
+        - name: period_days
+          in: query
+          required: false
+          description: The period in days to check for mortality.
+          schema:
+            type: integer
+            default: 7
+        - name: threshold_deaths
+          in: query
+          required: false
+          description: The number of deaths to trigger an alert.
+          schema:
+            type: integer
+            default: 5
+      responses:
+        '200':
+          description: Alert status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertCheckResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /flocks/{flock_id}/health/alerts/disease:
+    get:
+      summary: Check Disease Alert for Flock
+      description: Checks for specific disease outbreak alerts for a flock.
+      tags:
+        - Tracking - Alerts
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: flock_id
+          in: path
+          required: true
+          description: The ID of the flock.
+          schema:
+            type: string
+            format: uuid
+        - name: disease_name
+          in: query
+          required: true
+          description: The name of the disease to check for.
+          schema:
+            type: string
+        - name: period_days
+          in: query
+          required: false
+          description: The period in days to check for incidents.
+          schema:
+            type: integer
+            default: 14
+        - name: min_incidents
+          in: query
+          required: false
+          description: The minimum number of incidents to trigger an alert.
+          schema:
+            type: integer
+            default: 2
+      responses:
+        '200':
+          description: Alert status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertCheckResponse'
+        '400':
+          description: Bad Request (e.g., missing disease_name)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flock not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Weather Endpoints
+  /weather/current_by_coords:
+    get:
+      summary: Get Current Weather by Coordinates
+      description: Fetches current weather data based on latitude and longitude.
+      tags:
+        - Weather
+      # Assuming weather endpoints might not require auth, or a different type if so.
+      # For now, let's keep it open as per the separate weather_api.py structure.
+      # security:
+      #   - BearerAuth: [] # Or make it open if intended
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          description: Latitude.
+          schema:
+            type: number
+            format: float
+        - name: lon
+          in: query
+          required: true
+          description: Longitude.
+          schema:
+            type: number
+            format: float
+      responses:
+        '200':
+          description: Current weather data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeatherInfo'
+        '400':
+          description: Bad Request (e.g., missing or invalid lat/lon)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404': # If weather service itself returns an error for the location
+          description: Weather data not found for coordinates.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error from weather service or API.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /weather/current_by_location:
+    get:
+      summary: Get Current Weather by Location Name
+      description: Fetches current weather data based on a location name string.
+      tags:
+        - Weather
+      parameters:
+        - name: location
+          in: query
+          required: true
+          description: Location name (e.g., city, area).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current weather data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeatherInfo'
+        '400':
+          description: Bad Request (e.g., missing location)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404': # If weather service itself returns an error for the location
+          description: Weather data not found for the location.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error from weather service or API.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Authentication Endpoints
+  /auth/register:
+    post:
+      summary: Register New User
+      description: Creates a new user account.
+      tags:
+        - Authentication
+      # No security for registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+            examples:
+              success:
+                value:
+                  username: "testuser@example.com"
+                  password: "Password123!"
+                  full_name: "Test User"
+      responses:
+        '201':
+          description: User registered successfully. Returns user info (excluding password).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                success:
+                  value:
+                    user_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    username: "testuser@example.com"
+                    full_name: "Test User"
+                    roles: ["farmer"]
+        '400':
+          description: Bad Request (e.g., validation error, username already exists).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+              examples:
+                validation_error:
+                  value:
+                    message: "Input validation failed."
+                    error_code: "VALIDATION_ERROR"
+                    details:
+                      username: ["Username already exists."]
+                      password: ["Password must be at least 8 characters long."]
+                username_exists:
+                  value:
+                    message: "Username already exists."
+                    error_code: "USERNAME_ALREADY_EXISTS"
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal_error:
+                  value:
+                    message: "An unexpected error occurred."
+                    error_code: "INTERNAL_SERVER_ERROR"
+
+  /auth/login:
+    post:
+      summary: User Login
+      description: Authenticates a user and returns JWT tokens.
+      tags:
+        - Authentication
+      # No security for login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginCredentials'
+            examples:
+              success:
+                value:
+                  username: "user@example.com"
+                  password: "securePassword123"
+      responses:
+        '200':
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+              examples:
+                success:
+                  value:
+                    access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    refresh_token: "def502002848752b8190a27989573181..."
+                    token_type: "bearer"
+                    expires_in: 3600
+        '400':
+          description: Bad Request (e.g., missing fields).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_fields:
+                  value:
+                    message: "Username and password are required."
+                    error_code: "MISSING_CREDENTIALS"
+        '401':
+          description: Unauthorized (e.g., invalid credentials).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_credentials:
+                  value:
+                    message: "Invalid username or password."
+                    error_code: "INVALID_CREDENTIALS"
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal_error:
+                  value:
+                    message: "An unexpected error occurred during login."
+                    error_code: "INTERNAL_SERVER_ERROR"
+  /auth/refresh:
+    post:
+      summary: Refresh Access Token
+      description: Obtains a new access token using a refresh token.
+      tags:
+        - Authentication
+      # No security for refresh token endpoint itself, but the token is validated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenInput'
+            examples:
+              success:
+                value:
+                  refresh_token: "def502002848752b8190a27989573181..."
+      responses:
+        '200':
+          description: Access token refreshed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+              examples:
+                success:
+                  value:
+                    access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.new..."
+                    refresh_token: "def502002848752b8190a27989573181.new..." # Optional: can return a new refresh token
+                    token_type: "bearer"
+                    expires_in: 3600
+        '400':
+          description: Bad Request (e.g., missing refresh_token).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  value:
+                    message: "Refresh token is required."
+                    error_code: "MISSING_REFRESH_TOKEN"
+        '401':
+          description: Unauthorized (e.g., invalid or expired refresh token).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_token:
+                  value:
+                    message: "Invalid or expired refresh token."
+                    error_code: "INVALID_REFRESH_TOKEN"
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal_error:
+                  value:
+                    message: "An unexpected error occurred during token refresh."
+                    error_code: "INTERNAL_SERVER_ERROR"
+
+  /auth/me:
+    get:
+      summary: Get Current User Info
+      description: Retrieves information about the currently authenticated user.
+      tags:
+        - Authentication
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user's information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                success:
+                  value:
+                    user_id: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    username: "user@example.com"
+                    full_name: "Registered User"
+                    roles: ["farmer", "premium_user"]
+        '401':
+          description: Unauthorized (e.g., token missing or invalid).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unauthorized:
+                  value:
+                    message: "Authentication token is missing or invalid."
+                    error_code: "UNAUTHORIZED"
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal_error:
+                  value:
+                    message: "An unexpected error occurred while fetching user information."
+                    error_code: "INTERNAL_SERVER_ERROR"
+
+    EnvironmentRecord:
+      type: object
+      properties:
+        record_id:
+          type: string
+          format: uuid
+          readOnly: true
+        flock_id:
+          type: string
+          format: uuid
+          description: Identifier of the flock this environment record is for.
+          # Or farm_id, if records are per-farm. Assuming per-flock for now.
+          readOnly: true
+        record_date:
+          type: string
+          format: date-time # ISO 8601 e.g., YYYY-MM-DDTHH:MM:SS
+        temperature_celsius:
+          type: number
+          format: float
+          description: Temperature in Celsius.
+          nullable: true
+        humidity_percent:
+          type: number
+          format: float
+          description: Relative humidity in percentage.
+          nullable: true
+        ammonia_ppm:
+          type: number
+          format: float
+          description: Ammonia level in parts per million.
+          nullable: true
+        carbon_dioxide_ppm:
+          type: number
+          format: float
+          description: Carbon Dioxide level in parts per million.
+          nullable: true
+        light_intensity_lux:
+          type: number
+          format: float
+          description: Light intensity in Lux.
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      required:
+        - record_date
+
+    EnvironmentRecordInput: # For POST and PUT bodies
+      type: object
+      properties:
+        record_date:
+          type: string
+          format: date-time # ISO 8601 e.g., YYYY-MM-DDTHH:MM:SS
+        temperature_celsius:
+          type: number
+          format: float
+          nullable: true
+        humidity_percent:
+          type: number
+          format: float
+          nullable: true
+        ammonia_ppm:
+          type: number
+          format: float
+          nullable: true
+        carbon_dioxide_ppm:
+          type: number
+          format: float
+          nullable: true
+        light_intensity_lux:
+          type: number
+          format: float
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      required:
+        - record_date
+
+security:
+  - BearerAuth: [] # Global security requirement, can be overridden at operation level (e.g. for /auth/login, /auth/register)
+```
